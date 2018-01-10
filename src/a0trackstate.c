@@ -28,7 +28,7 @@ void setup_turnouts() {
 }
 
 void check_turnout_buffer() {
-  if (char_buffer_get_num_elems(&turnout_buffer) >= 2 && !global_track_state.should_switch_off_solenoid && global_track_state.last_switch_time + 250 < get_cached_time()) {
+  if (char_buffer_get_num_elems(&turnout_buffer) >= 2 && !global_track_state.should_switch_off_solenoid && global_track_state.last_switch_time + 150 < get_cached_time()) {
     char turnout, pos;
     pos = char_buffer_get(&turnout_buffer);
     turnout = char_buffer_get(&turnout_buffer);
@@ -108,7 +108,7 @@ void set_headlights(int train, bool turn_on) {
 
 void turn_off_solenoid_if_necessary(uint32_t timestamp) {
   if (global_track_state.should_switch_off_solenoid) {
-    if (global_track_state.last_switch_time + 200 < timestamp) {
+    if (global_track_state.last_switch_time + 150 < timestamp) {
       global_track_state.should_switch_off_solenoid = false;
       bwsendbyte_buffered(COM1, 32);
 #if DEBUG
@@ -131,17 +131,18 @@ void reverse(int train) {
     // printf("RV DIRECTLY %d", train);
     return;
   }
-  global_track_state.train[train].time_reverse_sent = get_time();
   set_speed(train, 0);
   set_speed(train, 0);
   char_buffer_put(&(global_track_state.trains_to_reverse), train);
   global_track_state.train[train].should_restart = true;
   global_track_state.train[train].should_speed = should_speed;
+  global_track_state.train[train].time_reverse_sent = get_cached_time();
 }
 
 void check_reverse(uint32_t timestamp) {
+  (void)timestamp;
 #if DEBUG
-  if (last_print  < get_cached_time()) {
+  if (last_print < get_cached_time()) {
     go_to_pos(1, 1);
     for(unsigned int j = 0; j < global_track_state.trains_to_reverse.elems; j++) {
       printf("%d, ", global_track_state.trains_to_reverse.data[(j + global_track_state.trains_to_reverse.out) % global_track_state.trains_to_reverse.size]);

@@ -15,7 +15,7 @@ _DataStart = . ;
 _DataEnd = . ;
 } >ram
 
-bss : /* Uninitialized data. */
+.bss : /* Uninitialized data. */
 {
 _BssStart = . ;
 *(.bss)
@@ -31,5 +31,6 @@ text : /* The actual instructions. */
 *(.rodata)
 *(.glue_7)
 *(.glue_7t)
+*(.rodata.str1.4)
 } >ram
 }

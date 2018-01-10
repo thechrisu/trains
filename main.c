@@ -200,7 +200,7 @@ int main(int argc, char *argv[]) {
       go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf.elems);
       printf("%s", SHOW_CURSOR);
     }
-    //#if DEBUG
+#if DEBUG
     if (nloops < 1000) continue;
     uint64_t this_loop = get_picky_time() - last_loop;
     worst_time = this_loop > worst_time ? this_loop : worst_time;
@@ -208,6 +208,6 @@ int main(int argc, char *argv[]) {
       go_to_pos(1, 1);
       printf("%u, %u%s", (uint16_t) this_loop, worst_time, HIDE_CURSOR_TO_EOL); //((10000 * 100 * time_for_nloops) / (nloops * 5084689)), HIDE_CURSOR_TO_EOL);
     }
-    //#endif
+#endif
   }
 }
