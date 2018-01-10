@@ -35,11 +35,12 @@ void check_turnout_buffer() {
     global_track_state.turnouts[turnout_num_to_map_offset(turnout)] = ((pos == 33) ? 'S' : 'C');
     bwsendbyte_buffered(COM1, pos);
     bwsendbyte_buffered(COM1, turnout);
-    go_to_pos(2, 1);
+    print_turnout(turnout_num_to_map_offset(turnout));
+#if DEBUG
     printf("SETTING TURNOUT %d, %c%s", turnout, (pos == 33) ? 'S' : 'C', HIDE_CURSOR_TO_EOL);
     go_to_pos(3, 1);
     printf("%s", HIDE_CURSOR_TO_EOL);
-    print_turnouts();
+#endif
     global_track_state.last_switch_time = get_cached_time();
     global_track_state.should_switch_off_solenoid = true;
   }
@@ -67,7 +68,7 @@ void send_train_signal(char speed, char loco, bool headlights_on) {
   bwsendbyte_buffered(COM1, b2);
 }
 
-void send_turnout_signal(char turnout, bool shouldStraight) { // TODO buffer turnouts
+void send_turnout_signal(char turnout, bool shouldStraight) {
   assert(turnout > 0 && turnout <= (char) 156 && !(turnout >= 19 && turnout < (char) 153));
   char_buffer_put(&turnout_buffer, 33 + (shouldStraight ? 0 : 1));
   char_buffer_put(&turnout_buffer, turnout);
@@ -82,7 +83,7 @@ void set_go(bool go) {
 }
 
 void set_speed(int train, int speed) {
-  go_to_pos(3, 1);
+  // go_to_pos(3, 1);
   // printf("speed: %d, train: %d", speed, train);
   assert(speed <= 15);
   assert(train <= 80 && train > 0);
@@ -110,8 +111,10 @@ void turn_off_solenoid_if_necessary(uint32_t timestamp) {
     if (global_track_state.last_switch_time + 250 < timestamp) {
       global_track_state.should_switch_off_solenoid = false;
       bwsendbyte_buffered(COM1, 32);
+#if DEBUG
       go_to_pos(3, 1);
       printf("TURNING OFF SOLENOID (%d, %d)", global_track_state.last_switch_time, (uint32_t) timestamp);
+#endif
       global_track_state.last_switch_time = timestamp;
     }
   }
@@ -150,7 +153,7 @@ void check_reverse(uint32_t timestamp) {
               global_track_state.train[global_track_state.train_to_reverse].should_speed);
     global_track_state.train[global_track_state.train_to_reverse].direction
         = !global_track_state.train[global_track_state.train_to_reverse].direction;
-    go_to_pos(3, 1);
+    // go_to_pos(3, 1);
     // printf("SWITCHING DIR FOR TRAIN %d (speed: %d)", global_track_state.train_to_reverse, should_speed);
     // global_track_state.should_restart = false;
     global_track_state.train_to_reverse = 0;
@@ -165,7 +168,7 @@ uint8_t sensorBytesRead = 0;
 void query_sensors() {
   bwsendbyte_buffered(COM1, 128 + 5);
   go_to_pos(4, 1);
-  last_sens = get_cached_time();
+  last_sens = get_time();
   sensorBytesRead = 0;
   oe_in_sensor = 0;
 }
@@ -173,11 +176,12 @@ void query_sensors() {
 // TODO make things either consistenly snake_case or PascalCase
 void check_sensors(char *sensor_state, char_buffer *recentSensorsBuf, uint32_t timestamp) {
   (void) sensor_state;
-  bool sensorsChanged = false;
   if (global_track_state.last_sensor_query + (uint32_t) 100 < timestamp) {
     // printf("%d, %d\n", global_track_state.last_sensor_query, timestamp);
     if (timestamp < 3000) {
       char_buffer_empty(recentSensorsBuf);
+    } else {
+      print_triggered_sensors(recentSensorsBuf);
     }
     query_sensors();
     global_track_state.last_sensor_query = timestamp;
@@ -201,11 +205,7 @@ void check_sensors(char *sensor_state, char_buffer *recentSensorsBuf, uint32_t t
           char_buffer_get(recentSensorsBuf);
         }
         char_buffer_put(recentSensorsBuf, sensor);
-        sensorsChanged = true;
       }
-    }
-    if (sensorsChanged) {
-      print_triggered_sensors(recentSensorsBuf);
     }
     if (sensorBytesRead == 10) {
       empty_buf(COM1, false); // input
@@ -215,9 +215,12 @@ void check_sensors(char *sensor_state, char_buffer *recentSensorsBuf, uint32_t t
     sensorBytesRead = 0;
     empty_buf(COM1, false);
     if (!oe_in_sensor) {
+#if DEBUG
       go_to_pos(4, 1);
       printf("%ums%s", (uint16_t)(get_cached_time() - last_sens), HIDE_CURSOR_TO_EOL);
+#endif
       go_to_pos(6, 1);
+      print_triggered_sensors(recentSensorsBuf);
       query_sensors();
       global_track_state.last_sensor_query = timestamp;
     }
@@ -225,10 +228,12 @@ void check_sensors(char *sensor_state, char_buffer *recentSensorsBuf, uint32_t t
 }
 
 void set_turnout(int turnout_num, char state) {
+#if DEBUG
   if ((turnout_num >= 19 && turnout_num <= 152) || turnout_num > 156) {
     go_to_pos(1, 1);
     printf("Illegal turnout num %d%s", turnout_num, HIDE_CURSOR_TO_EOL);
   }
+#endif
   assert(state == 'C' || state == 'S');
   bool shouldStraight = state == 'S';
   int current = turnout_num_to_map_offset(turnout_num);

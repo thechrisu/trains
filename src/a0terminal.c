@@ -60,7 +60,7 @@ void print_triggered_sensors(char_buffer *buf) {
 my_time last_time;
 
 void print_time(uint32_t min, uint32_t sec, uint32_t dsec) {
-  if (last_time.min != min || last_time.sec != sec || last_time.dsec != dsec) {
+  if ((last_time.min != min || last_time.sec != sec || last_time.dsec != dsec) && sec >= 3) {
     go_to_pos(TIME_X, TIME_Y);
     printf("%s%d:%d:%d%s%s", HIDE_CURSOR, min, sec, dsec, HIDE_CURSOR, HIDE_CURSOR_TO_EOL);
     last_time.min = min;
@@ -69,22 +69,26 @@ void print_time(uint32_t min, uint32_t sec, uint32_t dsec) {
   }
 }
 
+void print_turnout(int i) {
+  if (i < NUM_TURNOUTS / 2)
+    go_to_pos(TURN_X + i + 1, TURN_Y);
+  else
+    go_to_pos(TURN_X + i + 1- NUM_TURNOUTS / 2, TURN_Y + 6);
+  int turnout = map_offset_to_turnout(i);
+  if (turnout < 10) {
+    printf("  %d:%c", turnout, global_track_state.turnouts[i]);
+  } else if (turnout < 100) {
+    printf(" %d:%c", turnout, global_track_state.turnouts[i]);
+  } else {
+    printf("%d:%c", turnout, global_track_state.turnouts[i]);
+  }
+}
+
 void print_turnouts() {
   go_to_pos(TURN_X, TURN_Y);
   printf("Turnouts");
   for (int i = 0; i < NUM_TURNOUTS; i++) {
-    if (i < NUM_TURNOUTS / 2)
-      go_to_pos(TURN_X + i + 1, TURN_Y);
-    else
-      go_to_pos(TURN_X + i + 1- NUM_TURNOUTS / 2, TURN_Y + 6);
-    int turnout = map_offset_to_turnout(i);
-    if (turnout < 10) {
-      printf("  %d:%c", turnout, global_track_state.turnouts[i]);
-    } else if (turnout < 100) {
-      printf(" %d:%c", turnout, global_track_state.turnouts[i]);
-    } else {
-      printf("%d:%c", turnout, global_track_state.turnouts[i]);
-    }
+    print_turnout(i);
   }
 }
 
