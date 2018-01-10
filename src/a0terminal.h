@@ -39,15 +39,13 @@ extern struct track_state global_track_state;
 
 #define TRACK_X 2 + TOP_SPACE
 #define TRACK_Y 1
-#define SENS_X 4
-//+ TOP_SPACE
-#define SENS_Y 1
-#define TURN_X 6
-//+ TOP_SPACE
-#define TURN_Y 1
+#define SENS_X 2 + TOP_SPACE
+#define SENS_Y 27
+#define TURN_X 2 + TOP_SPACE
+#define TURN_Y 35
 #define TIME_X 1 + TOP_SPACE
 #define TIME_Y 1
-#define CMDL_X 14 + TOP_SPACE + 1
+#define CMDL_X 14 + TOP_SPACE
 #define CMDL_Y 1
 
 void go_to_pos(int x_offset, int y_offset);
