@@ -1,9 +1,12 @@
 # trains
+Dear TAs, I'm sorry, but the MD5 of this README file does not match, I hope this is ok!
+(The MD5s match the previous commit)
+
 ## Instructions
-1. I'm sorry, but this currently only works on my machine.
-2. Install googletest (1. Clone via git submodules, 2. Use google to find out how to install googletest)
-3. Stare at the Makefile
-4. buildlab is for builds on the UW servers, build is for local ARM builds, buildx64 is for x86-x64 local builds
+make (will clean, recompile and copy .elf file to /u/cs452/tftp/ARM/csulshoe/)
+
+To run tests, install googletest (1. Clone via git submodules, 2. Use google to find out how to install googletest)
+Then issue make test
 
 TODO valgrind
 TODO profiling
