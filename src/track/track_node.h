@@ -2,7 +2,7 @@
 #define TRACK_NODE_H
 
 #include "../stdlib.h"
-
+#include "../buffer.h"
 
 // The track initialization functions expect an array of this size.
 #define TRACK_MAX 144
@@ -43,6 +43,9 @@ struct train_data {
   bool direction; // true/positive: forward
   int should_speed;
   bool headlights;
+  uint32_t time_reverse_sent;
+  bool sent_reverse;
+  bool should_restart;
 };
 
 struct track_state {
@@ -51,11 +54,9 @@ struct track_state {
   struct track_node track[TRACK_MAX];
   bool should_switch_off_solenoid;
   uint32_t last_switch_time;
-  uint16_t time_reverse_sent;
   uint16_t last_sensor_query;
-  bool sent_reverse;
-  bool should_restart;
-  int train_to_reverse;
+  char_buffer trains_to_reverse;
+  // int train_to_reverse;
 };
 
 #endif /* TRACK_NODE_H */

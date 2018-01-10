@@ -22,22 +22,27 @@ char cmdPrefix[cmdSz + 1]; // +1 because of the \0 hack (you'll see..)
 
 uint64_t nloops = 0;
 uint64_t time_for_nloops = 0;
-
+uint64_t last_loop, worst_time, last_com1_send, last_com1_receive;
 void bootstrap() {
   init_track(&global_track_state);
   char_buffer_init(&recentSensorsBuf, recentlyTriggeredSensors, sensorBufSize);
   char_buffer_init(&termBuf, cmdPrefix, cmdSz);
   setup_timer();
   setup_io();
+  setup_turnouts();
+  set_go(true);
   printf("\033[38;5;255m\033[31m%s", RESET_TEXT);
   printf("%s%s", CLEAR_SCREEN, HIDE_CURSOR);
   go_to_pos(1, 1);
   printf("\033[31m%s", RESET_TEXT);
-  setup_turnouts();
-  set_go(true);
+  go_to_pos(SENS_X, SENS_Y);
+  printf("Sensors");
   nloops = 0;
   time_for_nloops = 0;
   bwputc(COM2, 'R');
+  go_to_pos(CMDL_X, CMDL_Y);
+  bwsendbyte_buffered(COM2, '>');
+  bwsendbyte_buffered(COM2, ' ');
   print_track();
   print_triggered_sensors(&recentSensorsBuf);
   print_turnouts();
@@ -151,18 +156,40 @@ int main(int argc, char *argv[]) {
   bootstrap();
   my_time t;
   bool shouldStop = false;
+  worst_time = 0;
+  last_loop = 0;
+  last_com1_receive = 0;
+  last_com1_send = 0;
   uint32_t timestamp;
   while (!shouldStop) {
+    last_loop = get_picky_time();
     time_for_nloops = get_picky_time();
     nloops++;
     get_time_struct(&t, &timestamp);
+    print_time(t.min, t.sec, t.dsec);
+    // bwtryreceivebyte(COM1);
+    // bwtrysendbyte(COM2);
+    get_time_struct(&t, &timestamp);
+    // bwtrysendbyte(COM2);
+    // bwtryreceivebyte(COM1);
     check_reverse(timestamp);
     check_sensors(rawSensors, &recentSensorsBuf, timestamp); // TODO refactor
+    // bwtrysendbyte(COM2);
     turn_off_solenoid_if_necessary(timestamp);
     check_turnout_buffer();
-    print_time(t.min, t.sec, t.dsec);
-    tryreceiveall();
-    trysendall();
+    // tryreceiveall();
+    // trysendall();
+    bwtryreceivebyte(COM2);
+    bwtrysendbyte(COM2);
+    if (last_com1_send < get_time()) {
+      bwtrysendbyte(COM1);
+      last_com1_send = get_cached_time() + 3;
+    }
+    if (last_com1_receive < get_cached_time()) {
+      bwtryreceivebyte(COM1);
+      last_com1_receive = get_cached_time() + 3;
+    }
+    //bwtryreceivebyte(COM2);
     if (bwcanreadbyte_buffered(COM2)) {
       char c = bwreadbyte_buffered(COM2);
       if (c == 13) { // newline
@@ -173,12 +200,17 @@ int main(int argc, char *argv[]) {
         char_buffer_put(&termBuf, c);
       }
       print_cmdline(&termBuf);
-      go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf.elems);
-      printf("%s", SHOW_CURSOR);
+      //go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf.elems);
+      // printf("%s", SHOW_CURSOR);
     }
+    //#if DEBUG
+    if (nloops < 1000) continue;
+    uint64_t this_loop = get_picky_time() - last_loop;
+    worst_time = this_loop > worst_time ? this_loop : worst_time;
     if (nloops % 1000 == 0) {
-      go_to_pos(5, 1);
-      printf("%u%s", (uint16_t) ((10000 * 100 * time_for_nloops) / (nloops * 5084689)), HIDE_CURSOR_TO_EOL);
+      go_to_pos(1, 1);
+      printf("%u, %u%s", (uint16_t) this_loop, worst_time, HIDE_CURSOR_TO_EOL); //((10000 * 100 * time_for_nloops) / (nloops * 5084689)), HIDE_CURSOR_TO_EOL);
     }
+    //#endif
   }
 }
