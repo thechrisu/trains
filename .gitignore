@@ -3,7 +3,7 @@
 .idea
 cmake-build-debug
 
-build/
+build/*
 buildx64/
 buildlab/
 

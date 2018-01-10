@@ -404,7 +404,7 @@ int bwgetc(int channel) {
 #if DEBUG
       printf("\033[?25h\033[2;1H\033[K");
       printf("OE: %d, BE: %d, PE: %d, FE: %d", (*rcv1) & OE_MASK, (*rcv1) & BE_MASK, (*rcv1) & PE_MASK, (*rcv1) & FE_MASK);
-#endif      
+#endif
       oe_in_sensor = 1;
       last_err = get_time();
       got_err = true;
@@ -415,9 +415,9 @@ int bwgetc(int channel) {
       //}
     }
     if (got_err && last_err + (uint16_t)500 < (uint16_t)get_time()) {
-#if DEBUG      
+#if DEBUG
       printf("\033[?25h\033[2;1H\033[K");
-#endif      
+#endif
       got_err = false;
     }
   }

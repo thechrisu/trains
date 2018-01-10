@@ -29,29 +29,33 @@ void bootstrap() {
   char_buffer_init(&termBuf, cmdPrefix, cmdSz);
   setup_timer();
   setup_io();
-  setup_turnouts();
-  set_go(true);
   printf("\033[38;5;255m\033[31m%s", RESET_TEXT);
   printf("%s%s", CLEAR_SCREEN, HIDE_CURSOR);
   go_to_pos(1, 1);
   printf("\033[31m%s", RESET_TEXT);
-  go_to_pos(SENS_X, SENS_Y);
-  printf("Sensors");
+  setup_turnouts();
+  set_go(true);
   nloops = 0;
   time_for_nloops = 0;
   bwputc(COM2, 'R');
-  go_to_pos(CMDL_X, CMDL_Y);
-  bwsendbyte_buffered(COM2, '>');
-  bwsendbyte_buffered(COM2, ' ');
   print_track();
   print_triggered_sensors(&recentSensorsBuf);
   print_turnouts();
   print_cmdline(&termBuf);
+  go_to_pos(SENS_X, SENS_Y);
+  printf("Sensors");
+  go_to_pos(CMDL_X, CMDL_Y);
+  bwsendbyte_buffered(COM2, '>');
+  bwsendbyte_buffered(COM2, ' ');
 }
 
 void print_debug(char *msg) {
+#if DEBUG
   go_to_pos(1, 1);
   printf("%s%s", HIDE_CURSOR_TO_EOL, msg);
+#else
+  (void)msg;
+#endif
 }
 
 int isValidNumber(char_buffer *buf, unsigned int fromOffset) {
@@ -101,9 +105,11 @@ bool interpret_cmd(char_buffer *cmd_buf) {
           int num = parseNumber(cmd_buf, 3);
           if (num > 0 && (num < 19 || (num >= 153 && num <= 156))) {
             set_turnout(num, change_cmd);
+#if DEBUG
             go_to_pos(1, 1);
             printf("SET TURNOUT %d TO %c%s",
                    num, change_cmd, HIDE_CURSOR_TO_EOL);
+#endif
           }
         }
       }
@@ -124,8 +130,10 @@ bool interpret_cmd(char_buffer *cmd_buf) {
       if (cmd_buf->data[1] == 'r' && cmd_buf->data[2] == ' ' && numParse2 >= 0) {
         char loco = parseNumber(cmd_buf, 3);
         char speed = parseNumber(cmd_buf, numParse1);
+#if DEBUG
         go_to_pos(1, 1);
         printf("SETTING TRAIN: loco %d, speed %d%s", loco, speed, HIDE_CURSOR_TO_EOL);
+#endif
         set_speed(loco, speed);
         set_headlights(loco, !global_track_state.train[(int) loco].headlights);
       }
@@ -137,10 +145,12 @@ bool interpret_cmd(char_buffer *cmd_buf) {
       if (cmd_buf->data[1] == 'v' && cmd_buf->data[2] == ' ') {
         int loco = parseNumber(cmd_buf, 3);
         reverse(loco);
+#if DEBUG
         go_to_pos(1, 1);
         printf("REVERSING %d%s", loco, HIDE_CURSOR_TO_EOL);
         go_to_pos(3, 1);
         printf("%s", HIDE_CURSOR_TO_EOL);
+#endif
       }
       return false;
     }
@@ -158,8 +168,6 @@ int main(int argc, char *argv[]) {
   bool shouldStop = false;
   worst_time = 0;
   last_loop = 0;
-  last_com1_receive = 0;
-  last_com1_send = 0;
   uint32_t timestamp;
   while (!shouldStop) {
     last_loop = get_picky_time();
@@ -167,29 +175,18 @@ int main(int argc, char *argv[]) {
     nloops++;
     get_time_struct(&t, &timestamp);
     print_time(t.min, t.sec, t.dsec);
-    // bwtryreceivebyte(COM1);
-    // bwtrysendbyte(COM2);
-    get_time_struct(&t, &timestamp);
-    // bwtrysendbyte(COM2);
-    // bwtryreceivebyte(COM1);
-    check_reverse(timestamp);
-    check_sensors(rawSensors, &recentSensorsBuf, timestamp); // TODO refactor
-    // bwtrysendbyte(COM2);
-    turn_off_solenoid_if_necessary(timestamp);
-    check_turnout_buffer();
-    // tryreceiveall();
-    // trysendall();
-    bwtryreceivebyte(COM2);
     bwtrysendbyte(COM2);
-    if (last_com1_send < get_time()) {
-      bwtrysendbyte(COM1);
-      last_com1_send = get_cached_time() + 3;
-    }
-    if (last_com1_receive < get_cached_time()) {
-      bwtryreceivebyte(COM1);
-      last_com1_receive = get_cached_time() + 3;
-    }
-    //bwtryreceivebyte(COM2);
+    get_time_struct(&t, &timestamp);
+    bwtrysendbyte(COM2);
+    check_reverse(timestamp);
+    bwtrysendbyte(COM2);
+    check_sensors(rawSensors, &recentSensorsBuf, timestamp); // TODO refactor
+    turn_off_solenoid_if_necessary(timestamp);
+    bwtrysendbyte(COM2);
+    check_turnout_buffer();
+    bwtrysendbyte(COM2);
+    tryreceiveall();
+    trysendall();
     if (bwcanreadbyte_buffered(COM2)) {
       char c = bwreadbyte_buffered(COM2);
       if (c == 13) { // newline
@@ -200,10 +197,10 @@ int main(int argc, char *argv[]) {
         char_buffer_put(&termBuf, c);
       }
       print_cmdline(&termBuf);
-      //go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf.elems);
-      // printf("%s", SHOW_CURSOR);
+      go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf.elems);
+      printf("%s", SHOW_CURSOR);
     }
-    //#if DEBUG
+#if DEBUG
     if (nloops < 1000) continue;
     uint64_t this_loop = get_picky_time() - last_loop;
     worst_time = this_loop > worst_time ? this_loop : worst_time;
@@ -211,6 +208,6 @@ int main(int argc, char *argv[]) {
       go_to_pos(1, 1);
       printf("%u, %u%s", (uint16_t) this_loop, worst_time, HIDE_CURSOR_TO_EOL); //((10000 * 100 * time_for_nloops) / (nloops * 5084689)), HIDE_CURSOR_TO_EOL);
     }
-    //#endif
+#endif
   }
 }

@@ -16,7 +16,7 @@ LD	= $(TOOLPATH)ld
 OBJCOPY = $(TOOLPATH)objcopy
 CFLAGS  = -c -fPIC -Wall \
 	-Wextra -std=c99 \
-	-msoft-float -Isrc -Itest-resources -mcpu=arm920t -O0
+	-msoft-float -Isrc -Itest-resources -mcpu=arm920t -O3
 
 CFLAGSx64 = -c -fPIC -Wall -Wpedantic -Wextra -DHOSTCONFIG -msoft-float -std=c99
 # -c: only compile

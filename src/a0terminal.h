@@ -31,7 +31,11 @@ extern struct track_state global_track_state;
 #define SHOW_CURSOR "\033[?25l"
 #define HIDE_CURSOR_TO_EOL "\033[K"
 
+#if DEBUG
 #define TOP_SPACE 10
+#else
+#define TOP_SPACE 0
+#endif
 
 #define TRACK_X 2 + TOP_SPACE
 #define TRACK_Y 1
@@ -50,6 +54,7 @@ void go_to_pos(int x_offset, int y_offset);
 void print_track();
 void print_time(uint32_t min, uint32_t sec, uint32_t dsec);
 void print_turnouts();
+void print_turnout(int i);
 void print_triggered_sensors(char_buffer *t_sens_buf);
 void print_cmdline(char_buffer *termBuf); //, str_buffer *cmdHistoryBuf);
 
