@@ -42,8 +42,8 @@ void print_triggered_sensors(char_buffer *buf) {
     }
   }
   if (valChanged) {
-    go_to_pos(SENS_X, SENS_Y);
-    printf("Sensors");
+    // go_to_pos(SENS_X, SENS_Y);
+    //printf("Sensors");
     unsigned int j = 1;
     for (unsigned int i = (buf->elems + buf->in - 1) % buf->elems; i != buf->in || i >= buf->in;
          i = (i - 1 + buf->elems) % buf->elems) {
@@ -60,7 +60,7 @@ void print_triggered_sensors(char_buffer *buf) {
 my_time last_time;
 
 void print_time(uint32_t min, uint32_t sec, uint32_t dsec) {
-  if ((last_time.min != min || last_time.sec != sec || last_time.dsec != dsec) && sec >= 3) {
+  if ((last_time.min != min || last_time.sec != sec || last_time.dsec != dsec) && sec >= 10) {
     go_to_pos(TIME_X, TIME_Y);
     printf("%s%d:%d:%d%s%s", HIDE_CURSOR, min, sec, dsec, HIDE_CURSOR, HIDE_CURSOR_TO_EOL);
     last_time.min = min;
@@ -105,8 +105,8 @@ void print_cmdline(char_buffer *termBuf) { //, str_buffer *cmdHistoryBuf) {
     // printf("%s", cmdHistoryBuf->data[i]);
   }*/
   go_to_pos(CMDL_X, CMDL_Y);
-  bwsendbyte_buffered(COM2, '>');
-  bwsendbyte_buffered(COM2, ' ');
+  // bwsendbyte_buffered(COM2, '>');
+  //bwsendbyte_buffered(COM2, ' ');
   for (uint16_t i = 0; i < termBuf->elems; i++) {
     if (termBuf->data[i] == '\0') {
       break;

@@ -22,7 +22,7 @@ char cmdPrefix[cmdSz + 1]; // +1 because of the \0 hack (you'll see..)
 
 uint64_t nloops = 0;
 uint64_t time_for_nloops = 0;
-
+uint64_t last_loop, worst_time, last_com1_send, last_com1_receive;
 void bootstrap() {
   init_track(&global_track_state);
   char_buffer_init(&recentSensorsBuf, recentlyTriggeredSensors, sensorBufSize);
@@ -42,6 +42,11 @@ void bootstrap() {
   print_triggered_sensors(&recentSensorsBuf);
   print_turnouts();
   print_cmdline(&termBuf);
+  go_to_pos(SENS_X, SENS_Y);
+  printf("Sensors");
+  go_to_pos(CMDL_X, CMDL_Y);
+  bwsendbyte_buffered(COM2, '>');
+  bwsendbyte_buffered(COM2, ' ');
 }
 
 void print_debug(char *msg) {
@@ -161,10 +166,14 @@ int main(int argc, char *argv[]) {
   bootstrap();
   my_time t;
   bool shouldStop = false;
+  worst_time = 0;
+  last_loop = 0;
   uint32_t timestamp;
   while (!shouldStop) {
+    last_loop = get_picky_time();
     time_for_nloops = get_picky_time();
     nloops++;
+    get_time_struct(&t, &timestamp);
     print_time(t.min, t.sec, t.dsec);
     bwtrysendbyte(COM2);
     get_time_struct(&t, &timestamp);
@@ -191,11 +200,14 @@ int main(int argc, char *argv[]) {
       go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf.elems);
       printf("%s", SHOW_CURSOR);
     }
-#if DEBUG
+    //#if DEBUG
+    if (nloops < 1000) continue;
+    uint64_t this_loop = get_picky_time() - last_loop;
+    worst_time = this_loop > worst_time ? this_loop : worst_time;
     if (nloops % 1000 == 0) {
-      go_to_pos(5, 1);
-      printf("%u%s", (uint16_t) ((10000 * 100 * time_for_nloops) / (nloops * 5084689)), HIDE_CURSOR_TO_EOL);
+      go_to_pos(1, 1);
+      printf("%u, %u%s", (uint16_t) this_loop, worst_time, HIDE_CURSOR_TO_EOL); //((10000 * 100 * time_for_nloops) / (nloops * 5084689)), HIDE_CURSOR_TO_EOL);
     }
-#endif
+    //#endif
   }
 }

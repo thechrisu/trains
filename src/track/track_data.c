@@ -1,6 +1,7 @@
 #include "track_data.h"
 
 struct track_state global_track_state;
+char trains_reverse[81];
 
 void init_track(struct track_state *global_track) {
   track_node *track = global_track->track;
@@ -1192,6 +1193,13 @@ void init_track(struct track_state *global_track) {
   }
   global_track->last_sensor_query = 0;
   global_track->last_switch_time = 0;
+  char_buffer_init(&(global_track->trains_to_reverse), trains_reverse, 81);
+  for(unsigned int i = 0; i < 81; i++) {
+    global_track->train[i].should_speed = 0;
+    global_track->train[i].should_restart = false;
+    global_track->train[i].time_reverse_sent = 0;
+    global_track->train[i].sent_reverse = false;
+  }
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {

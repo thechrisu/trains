@@ -274,9 +274,9 @@ int bwcanputc(int channel) {
       break;
   }
   if (COM1 == channel) {
-    return !(*flags & TXFF_MASK) && (*flags & CTS_MASK);
+    return !(*flags & (TXFF_MASK | TXBUSY_MASK) && (*flags & CTS_MASK));
   }
-  return !(*flags & (TXFF_MASK));
+  return !(*flags & (TXFF_MASK | TXBUSY_MASK));
 }
 
 int bwcangetc(int channel) {
@@ -401,8 +401,10 @@ int bwgetc(int channel) {
   if (channel == COM1) {
     volatile int *rcv1 = (int *)(UART1_BASE + UART_RSR_OFFSET);
     if ((*rcv1) & (OE_MASK | BE_MASK | PE_MASK | FE_MASK)) {
+#if DEBUG
       printf("\033[?25h\033[2;1H\033[K");
       printf("OE: %d, BE: %d, PE: %d, FE: %d", (*rcv1) & OE_MASK, (*rcv1) & BE_MASK, (*rcv1) & PE_MASK, (*rcv1) & FE_MASK);
+#endif
       oe_in_sensor = 1;
       last_err = get_time();
       got_err = true;
@@ -413,7 +415,9 @@ int bwgetc(int channel) {
       //}
     }
     if (got_err && last_err + (uint16_t)500 < (uint16_t)get_time()) {
+#if DEBUG
       printf("\033[?25h\033[2;1H\033[K");
+#endif
       got_err = false;
     }
   }

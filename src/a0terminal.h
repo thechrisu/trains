@@ -47,7 +47,6 @@ extern struct track_state global_track_state;
 void go_to_pos(int x_offset, int y_offset);
 void print_track();
 void print_time(uint32_t min, uint32_t sec, uint32_t dsec);
-void print_turnout(int i);
 void print_turnouts();
 void print_triggered_sensors(char_buffer *t_sens_buf);
 void print_cmdline(char_buffer *termBuf); //, str_buffer *cmdHistoryBuf);

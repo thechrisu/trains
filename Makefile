@@ -1,5 +1,5 @@
 .PHONY: default x64stdlib arm trainslab upload test
-default: debug;
+default: upload;
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
