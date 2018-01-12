@@ -5,9 +5,8 @@
 
 #include "src/track/track_node.h"
 #include "src/track/track_data.h"
-#include "include/glue/myio.h"
-#include "include/glue/mytimer.h"
-#include "include/ts7200.h"
+#include "include/kernel/glue/myio.h"
+#include "include/kernel/glue/mytimer.h"
 
 #define sensorBufSize 10
 #define cmdSz 10
@@ -22,7 +21,7 @@ char cmdPrefix[cmdSz + 1]; // +1 because of the \0 hack (you'll see..)
 
 uint64_t nloops = 0;
 uint64_t time_for_nloops = 0;
-uint64_t last_loop, worst_time, last_com1_send, last_com1_receive;
+uint64_t last_loop, worst_time, last_train_send, last_train_receive;
 void bootstrap() {
   init_track(&global_track_state);
   char_buffer_init(&recentSensorsBuf, recentlyTriggeredSensors, sensorBufSize);
@@ -37,7 +36,7 @@ void bootstrap() {
   set_go(true);
   nloops = 0;
   time_for_nloops = 0;
-  bwputc(COM2, 'R');
+  putc(TERMINAL, 'R');
   print_track();
   print_triggered_sensors(&recentSensorsBuf);
   print_turnouts();
@@ -45,8 +44,8 @@ void bootstrap() {
   go_to_pos(SENS_X, SENS_Y);
   printf("Sensors");
   go_to_pos(CMDL_X, CMDL_Y);
-  bwsendbyte_buffered(COM2, '>');
-  bwsendbyte_buffered(COM2, ' ');
+  sendbyte_buffered(TERMINAL, '>');
+  sendbyte_buffered(TERMINAL, ' ');
 }
 
 void print_debug(char *msg) {
@@ -117,8 +116,8 @@ bool interpret_cmd(char_buffer *cmd_buf) {
     }
     case 'q': {
       if (cmd_buf->data[1] == '\0') {
-        bwputc(COM1, 128);
-        bwputc(COM1, 0x61);
+        putc(TRAIN, 128);
+        putc(TRAIN, 0x61);
         return true;
       }
       return false;
@@ -170,25 +169,25 @@ int main(int argc, char *argv[]) {
   last_loop = 0;
   uint32_t timestamp;
   while (!shouldStop) {
-    last_loop = get_picky_time();
-    time_for_nloops = get_picky_time();
+    last_loop = get_clockticks();
+    time_for_nloops = get_clockticks();
     nloops++;
     get_time_struct(&t, &timestamp);
     print_time(t.min, t.sec, t.dsec);
-    bwtrysendbyte(COM2);
+    trysendbyte(TERMINAL);
     get_time_struct(&t, &timestamp);
-    bwtrysendbyte(COM2);
+    trysendbyte(TERMINAL);
     check_reverse(timestamp);
-    bwtrysendbyte(COM2);
+    trysendbyte(TERMINAL);
     check_sensors(rawSensors, &recentSensorsBuf, timestamp); // TODO refactor
     turn_off_solenoid_if_necessary(timestamp);
-    bwtrysendbyte(COM2);
+    trysendbyte(TERMINAL);
     check_turnout_buffer();
-    bwtrysendbyte(COM2);
+    trysendbyte(TERMINAL);
     tryreceiveall();
     trysendall();
-    if (bwcanreadbyte_buffered(COM2)) {
-      char c = bwreadbyte_buffered(COM2);
+    if (canreadbyte_buffered(TERMINAL)) {
+      char c = readbyte_buffered(TERMINAL);
       if (c == 13) { // newline
         char_buffer_put_force(&termBuf, '\0');
         shouldStop = interpret_cmd(&termBuf);
@@ -202,7 +201,7 @@ int main(int argc, char *argv[]) {
     }
 #if DEBUG
     if (nloops < 1000) continue;
-    uint64_t this_loop = get_picky_time() - last_loop;
+    uint64_t this_loop = get_clockticks() - last_loop;
     worst_time = this_loop > worst_time ? this_loop : worst_time;
     if (nloops % 1000 == 0) {
       go_to_pos(1, 1);

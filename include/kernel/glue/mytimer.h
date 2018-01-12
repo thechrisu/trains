@@ -5,21 +5,27 @@
 #ifndef TRAINS_MYTIMER_H
 #define TRAINS_MYTIMER_H
 
-#include "labenv/timer_data.h"
+#include "timer_data.h"
 
-#if (HOSTCONFIG || TESTING)
+#if VERSATILEPB // QEMU
+#include "../../../src/stdlib.h"
+#include "../versatilepb/timer.h"
+
+#else
+#if TESTING // x86-64 Googletest tests
+#else
+
+#include "../../../src/stdlib.h"
+
+#if (HOSTCONFIG || TESTING) // x86-64 Googletest tests
 #include <time.h>
 void setup_timer();
-uint64_t get_time();
-uint64_t get_cached_time();
-/*void get_time_struct(time *sto) {
-  sto->min =
-  sto->sec =
-  sto->dsec =
-  return
-}*/
-#else
-#include "labenv/timer.h"
-#endif
+uint32_t get_time();
+uint32_t get_cached_time();
+#else // Lab
+#include "../labenv/timer.h"
+#endif /* VERSATILEPB */
+#endif /* TESTING */
+#endif /* LAB */
 
-#endif //TRAINS_MYTIMER_H
+#endif /* TRAINS_MYTIMER_H */

@@ -40,8 +40,8 @@ typedef signed char int8_t;
 // typedef signed long int int32_t;
 typedef signed long long int64_t;
 
-void my_memcpy(void *dst, void *src, unsigned int n);
-void *my_memset(void *s, int c, unsigned int n);
+void memcpy(void *dst, void *src, unsigned int n);
+void *memset(void *s, int c, unsigned int n);
 
 #endif
 #endif

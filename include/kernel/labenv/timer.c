@@ -55,7 +55,7 @@ uint64_t get_tc3_timer_time() {
   } else {
     sys_time += (timer3_lastval - register_contents);
   }
-  timer3_lastval = (uint64_t)register_contents;
+  timer3_lastval = register_contents;
   return sys_time;
 }
 
@@ -93,26 +93,23 @@ void setup_timer() {
  * Wrapper function for hardware-abstraction :)
  * @return time in millis
  */
-uint64_t get_time() {
+uint32_t get_time() {
   // return get_debug_timer_time();
   get_tc3_timer_time();
   return (10000*sys_time) / timer3_divisor;
 }
 
 /**
- * Gets time in 100th millis
+ * Gets time in ticks
  */
-uint64_t get_picky_time() {
+uint32_t get_clockticks() {
+  get_tc3_timer_time();
   return sys_time;
-}
-
-uint64_t get_cached_time() {
-  return (10000*sys_time) / timer3_divisor;
 }
 
 void get_time_struct(my_time *sto, uint32_t *timestamp) {
   get_tc3_timer_time();
-  uint64_t adjusted_time = (10000*sys_time) / timer3_divisor;
+  uint32_t adjusted_time = (10000*sys_time) / timer3_divisor;
   *timestamp = adjusted_time;
   sto->min = adjusted_time / (60 * 1000);
   sto->sec = (adjusted_time / 1000) % 60;

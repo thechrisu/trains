@@ -9,10 +9,10 @@ enum switch_state {
 };
 
 void blink_headlights(char loco) {
-  bwsendbyte_buffered(COM1, 16);
-  bwsendbyte_buffered(COM1, loco);
-  bwsendbyte_buffered(COM1, 0);
-  bwsendbyte_buffered(COM1, loco);
+  sendbyte_buffered(TRAIN, 16);
+  sendbyte_buffered(TRAIN, loco);
+  sendbyte_buffered(TRAIN, 0);
+  sendbyte_buffered(TRAIN, loco);
 }
 
 char_buffer turnout_buffer;
@@ -24,24 +24,24 @@ void setup_turnouts() {
     if (map_offset_to_turnout(i) == 153 || map_offset_to_turnout(i) == 155) continue;
     set_turnout(map_offset_to_turnout(i), 'C');
   }
-  bwsendbyte_buffered(COM1, 192);
+  sendbyte_buffered(TRAIN, 192);
 }
 
 void check_turnout_buffer() {
-  if (char_buffer_get_num_elems(&turnout_buffer) >= 2 && !global_track_state.should_switch_off_solenoid && global_track_state.last_switch_time + 150 < get_cached_time()) {
+  if (char_buffer_get_num_elems(&turnout_buffer) >= 2 && !global_track_state.should_switch_off_solenoid && global_track_state.last_switch_time + 150 < get_time()) {
     char turnout, pos;
     pos = char_buffer_get(&turnout_buffer);
     turnout = char_buffer_get(&turnout_buffer);
     global_track_state.turnouts[turnout_num_to_map_offset(turnout)] = ((pos == 33) ? 'S' : 'C');
-    bwsendbyte_buffered(COM1, pos);
-    bwsendbyte_buffered(COM1, turnout);
+    sendbyte_buffered(TRAIN, pos);
+    sendbyte_buffered(TRAIN, turnout);
     print_turnout(turnout_num_to_map_offset(turnout));
 #if DEBUG
     printf("SETTING TURNOUT %d, %c%s", turnout, (pos == 33) ? 'S' : 'C', HIDE_CURSOR_TO_EOL);
     go_to_pos(3, 1);
     printf("%s", HIDE_CURSOR_TO_EOL);
 #endif
-    global_track_state.last_switch_time = get_cached_time();
+    global_track_state.last_switch_time = get_time();
     global_track_state.should_switch_off_solenoid = true;
   }
 }
@@ -64,8 +64,8 @@ void send_train_signal(char speed, char loco, bool headlights_on) {
   char b1, b2;
   b1 = speed + (headlights_on ? 16 : 0);
   b2 = loco;
-  bwsendbyte_buffered(COM1, b1);
-  bwsendbyte_buffered(COM1, b2);
+  sendbyte_buffered(TRAIN, b1);
+  sendbyte_buffered(TRAIN, b2);
 }
 
 void send_turnout_signal(char turnout, bool shouldStraight) {
@@ -76,9 +76,9 @@ void send_turnout_signal(char turnout, bool shouldStraight) {
 
 void set_go(bool go) {
   if (go) {
-    bwsendbyte_buffered(COM1, 0x60);
+    sendbyte_buffered(TRAIN, 0x60);
   } else {
-    bwsendbyte_buffered(COM1, 0x61);
+    sendbyte_buffered(TRAIN, 0x61);
   }
 }
 
@@ -110,7 +110,7 @@ void turn_off_solenoid_if_necessary(uint32_t timestamp) {
   if (global_track_state.should_switch_off_solenoid) {
     if (global_track_state.last_switch_time + 150 < timestamp) {
       global_track_state.should_switch_off_solenoid = false;
-      bwsendbyte_buffered(COM1, 32);
+      sendbyte_buffered(TRAIN, 32);
 #if DEBUG
       go_to_pos(3, 1);
       printf("TURNING OFF SOLENOID (%d, %d)", global_track_state.last_switch_time, (uint32_t) timestamp);
@@ -136,20 +136,20 @@ void reverse(int train) {
   char_buffer_put(&(global_track_state.trains_to_reverse), train);
   global_track_state.train[train].should_restart = true;
   global_track_state.train[train].should_speed = should_speed;
-  global_track_state.train[train].time_reverse_sent = get_cached_time();
+  global_track_state.train[train].time_reverse_sent = get_time();
 }
 
 void check_reverse(uint32_t timestamp) {
   (void)timestamp;
 #if DEBUG
-  if (last_print < get_cached_time()) {
+  if (last_print < get_time()) {
     go_to_pos(1, 1);
     for(unsigned int j = 0; j < global_track_state.trains_to_reverse.elems; j++) {
       printf("%d, ", global_track_state.trains_to_reverse.data[(j + global_track_state.trains_to_reverse.out) % global_track_state.trains_to_reverse.size]);
     }
     printf("%s", HIDE_CURSOR_TO_EOL);
     // printf("%d, %d, %d%s", pos, train, global_track_state.trains_to_reverse.elems, HIDE_CURSOR_TO_EOL);
-    last_print = get_cached_time() + 500;
+    last_print = get_time() + 500;
   }
 #endif
   for(unsigned int i = 0; i < global_track_state.trains_to_reverse.elems; i++) {
@@ -163,10 +163,10 @@ void check_reverse(uint32_t timestamp) {
       uint16_t should_speed = global_track_state.train[train].should_speed;
       set_speed(train, 15);
       global_track_state.train[train].should_speed = should_speed;
-      global_track_state.train[train].time_reverse_sent = get_cached_time();
+      global_track_state.train[train].time_reverse_sent = get_time();
       continue;//return;
     }
-    if (global_track_state.train[train].sent_reverse && global_track_state.train[train].time_reverse_sent + 1000 < get_cached_time()) {
+    if (global_track_state.train[train].sent_reverse && global_track_state.train[train].time_reverse_sent + 1000 < get_time()) {
       global_track_state.train[train].sent_reverse = false;
       set_speed(train, global_track_state.train[train].should_speed);
       global_track_state.train[train].direction = !global_track_state.train[train].direction;
@@ -183,7 +183,7 @@ uint32_t last_sens = 0;
 uint8_t sensorBytesRead = 0;
 
 void query_sensors() {
-  bwsendbyte_buffered(COM1, 128 + 5);
+  sendbyte_buffered(TRAIN, 128 + 5);
   // go_to_pos(4, 1);
   last_sens = get_time();
   sensorBytesRead = 0;
@@ -204,9 +204,9 @@ void check_sensors(char *sensor_state, char_buffer *recentSensorsBuf, uint32_t t
     global_track_state.last_sensor_query = timestamp;
     return;
   }
-  while (bwgetnumreadable_bytes(COM1) >= 2 && !oe_in_sensor) {
+  while (getnumreadable_bytes(TRAIN) >= 2 && !oe_in_sensor) {
     sensorBytesRead += 2;
-    uint16_t s88mod = (bwreadbyte_buffered(COM1) << 8) | bwreadbyte_buffered(COM1);
+    uint16_t s88mod = (readbyte_buffered(TRAIN) << 8) | readbyte_buffered(TRAIN);
     for (int8_t i = 15; i >= 0; i--) {
       uint16_t msk = 1 << (16 - i - 1); // first: 9-16, second: 1-8
       if (s88mod & msk) {
@@ -225,16 +225,16 @@ void check_sensors(char *sensor_state, char_buffer *recentSensorsBuf, uint32_t t
       }
     }
     if (sensorBytesRead == 10) {
-      empty_buf(COM1, false); // input
+      empty_buf(TRAIN, false); // input
     }
   }
   if (sensorBytesRead == 10 || oe_in_sensor) { // 5 sensor modules!
     sensorBytesRead = 0;
-    empty_buf(COM1, false);
+    empty_buf(TRAIN, false);
     if (!oe_in_sensor) {
 #if DEBUG
       go_to_pos(4, 1);
-      printf("%ums%s", (uint16_t)(get_cached_time() - last_sens), HIDE_CURSOR_TO_EOL);
+      printf("%ums%s", (uint16_t)(get_time() - last_sens), HIDE_CURSOR_TO_EOL);
 #endif
       go_to_pos(6, 1);
       print_triggered_sensors(recentSensorsBuf);

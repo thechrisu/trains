@@ -34,7 +34,7 @@ void print_track() {
 char lastSensorBuf[10];
 
 void print_triggered_sensors(char_buffer *buf) {
-  // bwputc(COM2, 'p');
+  // putc(COM2, 'p');
   bool valChanged = false;
   for (int i = 0; i < 10; i++) {
     if (buf->data[i] != lastSensorBuf[i]) {
@@ -99,19 +99,19 @@ void print_cmdline(char_buffer *termBuf) { //, str_buffer *cmdHistoryBuf) {
       if (termBuf->data[i] == '\0') {
         break;
       } else {
-        bwsendbyte_bufferedputc(COM2, cmdHistoryBuf->data[i][j]);
+        sendbyte_bufferedputc(COM2, cmdHistoryBuf->data[i][j]);
       }
     }
     // printf("%s", cmdHistoryBuf->data[i]);
   }*/
   go_to_pos(CMDL_X, CMDL_Y);
-  bwsendbyte_buffered(COM2, '>');
-  bwsendbyte_buffered(COM2, ' ');
+  sendbyte_buffered(TERMINAL, '>');
+  sendbyte_buffered(TERMINAL, ' ');
   for (uint16_t i = 0; i < termBuf->elems; i++) {
     if (termBuf->data[i] == '\0') {
       break;
     } else {
-      bwsendbyte_buffered(COM2, termBuf->data[i]);
+      sendbyte_buffered(TERMINAL, termBuf->data[i]);
     }
   }
   go_to_pos(CMDL_X, CMDL_Y + 2 + termBuf->elems);

@@ -1,6 +1,8 @@
 .PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test
 default: upload;
 
+OPTIMIZATION = -O0
+
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 builddir = $(current_dir)build/arm
@@ -18,10 +20,10 @@ AS	= arm-none-eabi-as
 LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
-CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources
-CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t -O0
+CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -fno-builtin
+CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
-CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm926ej-s -g
+CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm926ej-s -g -nostdlib
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
@@ -36,7 +38,7 @@ ASFLAGS_versatilepb = -mcpu=arm926ej-s -mapcs-32 -g
 LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
 	-L$(armlibs) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
-	-L$(armlibs) # SET THIS ENV VAR
+	-L$(armlibs) --entry _Reset -nostartfiles # SET THIS ENV VAR
 LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
@@ -46,7 +48,7 @@ SOURCESx64=main.c $(shell find src -name '*.c') $(shell find test-resources -nam
 SOURCES=$(SOURCESx64) $(shell find include/kernel/labenv -name '*.c')
 SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c')
 
-OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) # TODO add assembly files
+OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES))
 OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(builddirversatilepb)/src/startup.o
 OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES))
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
@@ -138,7 +140,7 @@ versatilepb:
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
-	$(XCC) $(CFLAGS_versatilepb) -O2  $< -S -o $@
+	$(XCC) $(CFLAGS_versatilepb) -O0  $< -S -o $@
 
 $(builddirversatilepb)/src/%.o: src/%.s
 	@mkdir -p $(dir $@)

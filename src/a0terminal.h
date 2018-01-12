@@ -7,9 +7,8 @@
 
 extern struct track_state global_track_state;
 
-#include "../include/glue/myio.h"
-#include "../include/glue/mytimer.h"
-#include "../include/ts7200.h"
+#include "../include/kernel/glue/myio.h"
+#include "../include/kernel/glue/mytimer.h"
 #include "./track/track_data.h"
 #include "./track/track_node.h"
 #include "./buffer.h"

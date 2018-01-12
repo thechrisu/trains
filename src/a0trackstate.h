@@ -12,7 +12,7 @@ extern int oe_in_sensor;
 #include "../test-resources/assert.h"
 #include "./track/track_node.h"
 #include "./track/track_data.h"
-#include "../include/glue/mytimer.h"
+#include "../include/kernel/glue/mytimer.h"
 
 void blink_headlights(char loco);
 
