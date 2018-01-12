@@ -1,7 +1,7 @@
 #ifndef MY_IO_H
 #define MY_IO_H
 
-#include "../ts7200.h"
+#include "labenv/ts7200.h"
 
 #if (HOSTCONFIG || TESTING)
 
@@ -16,7 +16,7 @@
 
 #else
 
-#include "../labenv/bwio.h"
+#include "labenv/bwio.h"
 #define t_printf(...) bwprintf(COM1, __VA_ARGS__)
 #define printf(...) bwprintf (COM2, __VA_ARGS__)
 #define putc(c) bwputc(COM2, c)

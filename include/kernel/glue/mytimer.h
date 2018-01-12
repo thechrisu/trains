@@ -5,7 +5,7 @@
 #ifndef TRAINS_MYTIMER_H
 #define TRAINS_MYTIMER_H
 
-#include "../labenv/timer_data.h"
+#include "labenv/timer_data.h"
 
 #if (HOSTCONFIG || TESTING)
 #include <time.h>
@@ -19,7 +19,7 @@ uint64_t get_cached_time();
   return
 }*/
 #else
-#include "../labenv/timer.h"
+#include "labenv/timer.h"
 #endif
 
 #endif //TRAINS_MYTIMER_H
