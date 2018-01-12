@@ -1,12 +1,9 @@
-ENTRY (vec_start)
+ENTRY (_Reset)
 SECTIONS
 {
   . = 0x10000;
-  .text : {
-  build/versatilepb/src/startup.o
-  *(.text)
-  *(.rodata)
-  }
+  .startup . : { startup.o(.text) }
+  .text : { *(.text) }
   .data : { *(.data) }
   .bss : { *(.bss COMMON) }
   . = ALIGN(8);

@@ -9,11 +9,12 @@ builddir = $(current_dir)build/arm
 # default flags, same compiler
 builddirx64 = $(current_dir)build/x8664
 builddirlab = $(current_dir)build/lab
-builddirversatilepb = $(current_dir)build/versatilepb
+builddirversatilepb =build/versatilepb
+#$(current_dir)build/versatilepb
 
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s $(builddirlab)/include/kernel/labenv/bwio.s $(builddirversatilepb)/main.s
+.PRECIOUS: $(builddir)/main.s $(builddirlab)/include/kernel/labenv/bwio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s
 
 XCC	= arm-none-eabi-gcc
 AS	= arm-none-eabi-as
@@ -38,7 +39,7 @@ ASFLAGS_versatilepb = -mcpu=arm926ej-s -mapcs-32 -g
 LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
 	-L$(armlibs) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
-	-L$(armlibs) --entry _Reset -nostartfiles # SET THIS ENV VAR
+	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
 LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
@@ -151,7 +152,7 @@ $(builddirversatilepb)/%.o: $(builddirversatilepb)/%.s
 	$(AS) $(ASFLAGS_versatilepb) $< -o $@
 
 $(builddirversatilepb)/main.elf: $(OBJECTSversatilepb)
-	$(LD) $(LDFLAGSversatilepb) -o $@ $(OBJECTSversatilepb) -lgcc
+	$(LD) $(LDFLAGSversatilepb) -o $(builddirversatilepb)/main.elf $(OBJECTSversatilepb) -lgcc
 
 $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 	$(OBJCOPY) -O binary $(builddirversatilepb)/main.elf $(builddirversatilepb)/main.bin

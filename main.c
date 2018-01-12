@@ -159,9 +159,7 @@ bool interpret_cmd(char_buffer *cmd_buf) {
   return false; // appease gcc
 }
 
-int main(int argc, char *argv[]) {
-  (void) argc;
-  (void) argv;
+int main() {
   bootstrap();
   my_time t;
   bool shouldStop = false;

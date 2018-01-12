@@ -1,17 +1,28 @@
-.section IV, "x" /* Interrupt vector containing executable code */
-.global _Reset
+.text
+  .code 32
 
-_Reset:
-  B Reset_Handler /* Reset */
+  .global vec_start
+  .global vec_end
+
+swi_handler_addr: .word swi_handler
+reset_handler_addr: .word reset_handler
+
+vec_start:
+  B reset_handler /* Reset */
+  #LDR PC, reset_handler_addr
   B . /* Undefined */
-  B . /* SWI */
+  #LDR PC, swi_handler_addr
+  B swi_handler /* SWI */
   B . /* Prefetch Abort */
   B . /* Data Abort */
   B . /* reserved */
   B . /* IRQ */
   B . /* FIQ */
 
-Reset_Handler:
+vec_end:
+
+reset_handler:
 	LDR sp, =stack_top
+	BL cp_vectors
 	BL main
 	B . /* BRANCH */

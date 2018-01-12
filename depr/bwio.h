@@ -5,6 +5,6 @@
 #ifndef TRAINS_VERSATILEPB_BWIO_H
 #define TRAINS_VERSATILEPB_BWIO_H
 
-#include "versatilepb.h"
+#include "../include/kernel/versatilepb/versatilepb.h"
 
 #endif //TRAINS_VERSATILEPB_BWIO_H

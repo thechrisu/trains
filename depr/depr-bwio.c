@@ -6,7 +6,7 @@
  */
 
 #include "depr-bwio.h"
-#include "../../../test-resources/assert.h"
+#include "../test-resources/assert.h"
 
 
 int oe_in_sensor = 0;
