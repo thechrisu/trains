@@ -1,4 +1,4 @@
-.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test
+.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test qemu
 default: upload;
 
 OPTIMIZATION = -O0
@@ -177,3 +177,7 @@ upload:
 	-make clean
 	-make trainslab
 	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/csulshoe/
+
+qemu:
+	-make versatilepb
+	-qemu-system-arm -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc
