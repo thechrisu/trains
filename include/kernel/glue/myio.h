@@ -78,7 +78,7 @@ void printf(char *format, ...);
 #define sendbyte_buffered(com, val) printf("%d: %c", com, val)
 #define readbyte_buffered(com) ('a' + com)
 #define getnumreadable_bytes(com) com
-// #define putc(com, val) printf("%d: %c", com, val)
+#define putc(com, val) printf("%d: %c", com, val)
 #define empty_buf(com, outin) printf("%d: %c", com, outin + '0')
 
 #else
