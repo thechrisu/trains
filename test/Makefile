@@ -2,6 +2,9 @@
 
 .PRECIOUS: test_buffer.out
 
+FLAGS = -DTESTING --std=c++14 -pthread -I$(GTEST) -I$(BOOST) /usr/local/lib/libgtest.a
+SRC = $(shell find ../src -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/kernel/glue/mytimer.c)
+
 all:
 	-make clean
 	-make test_buffer.out
@@ -10,12 +13,7 @@ test:
 	-./test_buffer.out
 
 test_buffer.out:
-	g++ -o test_buffer.out test_buffer.cc ../src/buffer.c \
-	../src/a0terminal.c ../src/a0trackstate.c ../test-resources/assert.c \
-	../src/track/track_data.c ../include/glue/mytimer.c -DTESTING \
-	  --std=c++14 -pthread -I/usr/local/include/gtest \
-	  -I/usr/local/include/boost -pthread /usr/local/lib/libgtest.a
-# -I../include/glue \
+	g++ -o test_buffer.out test_buffer.cc $(SRC) $(FLAGS)
 
 clean:
 	-  rm -f a.out test_buffer.out

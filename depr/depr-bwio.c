@@ -5,15 +5,9 @@
  *
  */
 
-#include "bwio.h"
-#include "../../test-resources/assert.h"
+#include "depr-bwio.h"
+#include "../test-resources/assert.h"
 
-enum OUT_PORT {
-  TERMINAL,
-  TRAINS
-};
-
-// TODO rx
 
 int oe_in_sensor = 0;
 

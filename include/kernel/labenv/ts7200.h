@@ -5,30 +5,47 @@
  *
  */
 
-#define TIMER1_BASE    0x80810000
-#define TIMER2_BASE    0x80810020
-#define TIMER3_BASE    0x80810080
 
-#define LDR_OFFSET     0x00000000    // 16/32 bits, RW
-#define VAL_OFFSET     0x00000004    // 16/32 bits, RO
-#define CRTL_OFFSET    0x00000008    // 3 bits, RW
-#define ENABLE_MASK    0x00000080
-#define MODE_MASK      0x00000040
-#define CLKSEL_MASK    0x00000008
-#define CLR_OFFSET     0x0000000c    // no data, WO
+// 32 bit timer
+#define TIMER3_CLK           0x8         // 1: 508kHz, 0: 2kHz. default: 0
+#define TIMER3_ENABLE        0x80
+#define TIMER3_MODE          0x40        // 1: periodic (reloads val), 0: free running (0xFFFFFFFF)
+#define TIMER3_LOAD          0x80810080  // 32bits
+#define TIMER3_VALUE         0x80810084  // 32 bits
+#define TIMER3_CTRL          0x80810088  // 32 bits
+#define TIMER3_CLEAR         0x8081008C  // 1 bit
 
-#define LED_ADDRESS    0x80840020
-#define LED_NONE       0x0
-#define LED_GREEN      0x1
-#define LED_RED        0x2
-#define LED_BOTH       0x3
+// 40 bit timer
+#define TIMER4_VAL_LO        0x80810060  // 32 bits
+#define TIMER4_HI_ONOFF      0x80810064  // 9 bits (technically unsigned short)
+#define TIMER4_HI_VAL_MSK    0xFF
+#define TIMER4_ONOFF_MSK     0x100       // 1: Enable, 0: disable timer
 
-#define COM1           0 // train    port 0x03F8
-#define COM2           1 // terminal      0x02F8
 
-#define IRDA_BASE      0x808b0000
-#define UART1_BASE     0x808c0000
-#define UART2_BASE     0x808d0000
+#define TIMER1_BASE         0x80810000
+#define TIMER2_BASE         0x80810020
+#define TIMER3_BASE         0x80810080
+
+#define LDR_OFFSET          0x00000000    // 16/32 bits, RW
+#define VAL_OFFSET          0x00000004    // 16/32 bits, RO
+#define CRTL_OFFSET         0x00000008    // 3 bits, RW
+#define ENABLE_MASK         0x00000080
+#define MODE_MASK           0x00000040
+#define CLKSEL_MASK         0x00000008
+#define CLR_OFFSET          0x0000000c    // no data, WO
+
+#define LED_ADDRESS         0x80840020
+#define LED_NONE            0x0
+#define LED_GREEN           0x1
+#define LED_RED             0x2
+#define LED_BOTH            0x3
+
+// #define COM1                0 // train    port 0x03F8
+// #define COM2                1 // terminal      0x02F8
+
+#define IRDA_BASE           0x808b0000
+#define UART1_BASE          0x808c0000
+#define UART2_BASE          0x808d0000
 
 // All the below registers for UART1
 // First nine registers (up to Ox28) for UART 2

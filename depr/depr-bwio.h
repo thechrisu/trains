@@ -5,11 +5,11 @@
 #ifndef BWIO_H
 #define BWIO_H
 
-#include "../ts7200.h"
-#include "../glue/mytimer.h"
-#include "../../src/stdlib.h"
-#include "../../src/buffer.h"
-#include "../../test-resources/assert.h"
+#include "../include/kernel/labenv/ts7200.h"
+#include "../include/kernel/glue/mytimer.h"
+#include "../src/stdlib.h"
+#include "../src/buffer.h"
+#include "../test-resources/assert.h"
 
 extern int oe_in_sensor;
 

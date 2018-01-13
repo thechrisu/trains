@@ -1,44 +1,63 @@
-.PHONY: default x64stdlib arm trainslab upload test
+.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test
 default: upload;
+
+OPTIMIZATION = -O0
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
-builddir = $(current_dir)build
-builddirx64 = $(current_dir)buildx64
-builddirlab = $(current_dir)buildlab
+builddir = $(current_dir)build/arm
+# default flags, same compiler
+builddirx64 = $(current_dir)build/x8664
+builddirlab = $(current_dir)build/lab
+builddirversatilepb =build/versatilepb
+#$(current_dir)build/versatilepb
+
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s
+.PRECIOUS: $(builddir)/main.s $(builddirlab)/include/kernel/labenv/bwio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s
 
-XCC	= $(TOOLPATH)gcc
-AS	= $(TOOLPATH)as
-LD	= $(TOOLPATH)ld
-OBJCOPY = $(TOOLPATH)objcopy
-CFLAGS  = -c -fPIC -Wall \
-	-Wextra -std=c99 \
-	-msoft-float -Isrc -Itest-resources -mcpu=arm920t -O3
+XCC	= arm-none-eabi-gcc
+AS	= arm-none-eabi-as
+LD	= arm-none-eabi-ld
+OBJCOPY = arm-none-eabi-objcopy
 
-CFLAGSx64 = -c -fPIC -Wall -Wpedantic -Wextra -DHOSTCONFIG -msoft-float -std=c99
+CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -fno-builtin
+CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
+CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
+CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm926ej-s -g -nostdlib
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
 
+
 ASFLAGS	= -mcpu=arm920t -mapcs-32
+ASFLAGS_versatilepb = -mcpu=arm926ej-s -mapcs-32 -g
 # -mapcs-32: always create a complete stack frame
 
-LDFLAGS = -init main -Map=$(builddir)/main.map -N -T main.ld \
-	-Lgcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
-LDFLAGSlab = -init main -Map=$(builddir)/main.map -N -T main.ld \
-	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
-# TODO add cowan files
 
-SOURCESx64=main.c $(shell find src -name '*.c') $(shell find test-resources -name '*.c')
-SOURCES=$(SOURCESx64) $(shell find include/labenv -name '*.c')
-OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) # TODO add assembly files
+
+LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
+	-L$(armlibs) # SET THIS ENV VAR
+LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
+	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
+	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
+#- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
+
+SOURCESx64=main.c $(shell find src -name '*.c') $(shell find test-resources -name '*.c') \
+                  $(shell find include/kernel/glue -name '*.c')
+SOURCES=$(SOURCESx64) $(shell find include/kernel/labenv -name '*.c')
+SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c')
+
+OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES))
+OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(builddirversatilepb)/src/startup.o
 OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES))
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 
-x64stdlib: $(builddirx64)/main
+x64stdlib:
+	- mkdir -p build
+	- mkdir -p $(builddirx64)
+	- make $(builddirx64)/main
 
 $(builddirx64)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -58,11 +77,14 @@ $(builddirx64)/main: $(OBJECTSx64)
 
 
 
-arm: $(builddir)/main.bin
+arm:
+	-mkdir -p build
+	-mkdir -p $(builddir)
+	-make $(builddir)/main.bin
 
 $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
-	$(XCC) $(CFLAGS) $< -S -o $@
+	$(XCC) $(CFLAGS_ARM_LAB) $< -S -o $@
 
 $(builddir)/src/%.o: src/%.s
 	@mkdir -p $(dir $@)
@@ -73,37 +95,34 @@ $(builddir)/%.o: $(builddir)/%.s
 	$(AS) $(ASFLAGS) $< -o $@
 
 $(builddir)/main.elf: $(OBJECTS)
-	$(LD) $(LDFLAGS) -o $@ $(OBJECTS) -lgcc
+	$(LD) $(LDFLAGSarm) -o $@ $(OBJECTS) -lgcc
 
 $(builddir)/main.bin: $(builddir)/main.elf
 	$(OBJCOPY) -O binary $(builddir)/main.elf $(builddir)/main.bin
 
 
-trainslab: $(builddirlab)/main.bin
+trainslab:
+	-mkdir -p build
+	-mkdir -p $(builddirlab)
+	-make $(builddirlab)/main.bin
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
-	$(LABPATH)gcc $(CFLAGS) $< -S -o $@
+	$(LABPATH)gcc $(CFLAGS_ARM_LAB) -O2  $< -S -o $@
 
 $(builddirlab)/src/%.o: src/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS) $< -o $@
+	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
 
 $(builddirlab)/%.o: $(builddirlab)/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS) $< -o $@
+	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
 	$(LABPATH)ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc
 
 $(builddirlab)/main.bin: $(builddirlab)/main.elf
 	$(LABPATH)objcopy -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
-
-#$(current_dir)/src/track/track_data.c:
-#	$(current_dir)/src/track/parse_track tracka trackb
-
-#$(current_dir)/src/track/track_data.h:
-#	$(current_dir)/src/track/parse_track tracka trackb
 
 #bwio.s: bwio.c
 #	$(XCC) -S $(CFLAGS) bwio.c
@@ -114,6 +133,30 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 
 test:
 	-cd test && make all && make test || cd ..
+
+versatilepb:
+	-mkdir -p build
+	-mkdir -p $(builddirversatilepb)
+	-make $(builddirversatilepb)/main.bin
+
+$(builddirversatilepb)/%.s: %.c
+	@mkdir -p $(dir $@)
+	$(XCC) $(CFLAGS_versatilepb) -O0  $< -S -o $@
+
+$(builddirversatilepb)/src/%.o: src/%.s
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS_versatilepb) $< -o $@
+
+$(builddirversatilepb)/%.o: $(builddirversatilepb)/%.s
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS_versatilepb) $< -o $@
+
+$(builddirversatilepb)/main.elf: $(OBJECTSversatilepb)
+	$(LD) $(LDFLAGSversatilepb) -o $(builddirversatilepb)/main.elf $(OBJECTSversatilepb) -lgcc
+
+$(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
+	$(OBJCOPY) -O binary $(builddirversatilepb)/main.elf $(builddirversatilepb)/main.bin
+
 
 all:
 	-make arm
@@ -128,8 +171,6 @@ clean:
 	-rm -f *.s *.a *.o \
 	  $(builddir)/main.map $(builddir)/main.elf $(builddir)/*.o
 	-rm -rf build/*
-	-rm -rf buildx64/*
-	-rm -rf buildlab/*
 	-cd test && make clean && cd ..
 
 upload:
