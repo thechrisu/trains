@@ -25,6 +25,7 @@
 #ifdef TESTING
 
 #include <boost/integer.hpp>
+#include <cstring>
 #define my_memset(dst, src, n) printf("%p, %p, %d", dst, src, n)
 #define my_memcpy(s, c, n) printf("%p, %d, %u", s, c, n)
 
