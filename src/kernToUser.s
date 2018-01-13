@@ -14,9 +14,18 @@ leave_kernel:
 */
   MOV sp, r1
 
+  LDR r1, [sp, #4]
+
+  mov r4, #0x01F00000
+  add r4, r4, #0xC0000
+  add r4, r4, #0xFF00
+  add r4, r4, #0xCF
+  cmp sp, r4
+  beq crash
+
+
 /* LOAD SPECIAL REGISTERS */
 /* Save return value in r0 */
-  LDR r1, [sp, #4]
   LDR r2, [sp, #8]
   LDR r3, [sp, #12]
   LDR r4, [sp, #16]

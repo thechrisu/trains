@@ -21,9 +21,11 @@ AS	= arm-none-eabi-as
 LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
-QEMU = qemu-system-arm/kernel/glue
+QEMU = qemu-system-arm
 QEMUWIN = qemu-system-arm.exe
-QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc -d guest_errors
+QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin
+QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
+QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
@@ -187,7 +189,13 @@ upload:
 
 qemu:
 	-make versatilepb
-	-$(QEMU) $(QEMUARGS)
+	-$(QEMU) $(QEMUGUIARGS)
 
 qemuwin: versatilepb
-	-$(QEMUWIN) $(QEMUARGS)
+	-$(QEMUWIN) $(QEMUGUIARGS)
+
+qemuconsole: versatilepb
+	-$(QEMU) $(QEMUCONSOLEARGS)
+
+qemuwinconsole: versatilepb
+	-$(QEMUWIN) $(QEMUCONSOLEARGS)
