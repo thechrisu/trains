@@ -162,7 +162,8 @@ int trysendbyte(int channel) {
       return -2;
   }
   while (canputc(channel) && !char_buffer_is_empty(buf)) {
-    putc(channel, char_buffer_get(buf));
+    char c = char_buffer_get(buf);
+    putc(channel, c);
   }
   return 0;
 }
@@ -183,6 +184,8 @@ int tryreceivebyte(int channel) {
     }
   }
   while (cangetc(channel)) {
+    // putc(TERMINAL, cangetc(TERMINAL) ? 'T' : 'F');
+    // putc(TRAIN, cangetc(TERMINAL) ? 'T' : 'F');
     if (char_buffer_is_full(buf)) {
       putc(TERMINAL, 'Y');
       putc(TERMINAL, '0' + channel);
@@ -360,7 +363,6 @@ int putc(int channel, char c) {
 #if VERSATILEPB
       flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART0_BASE + UART_DATA_OFFSET);
-
 #else
       flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART1_BASE + UART_DATA_OFFSET);
@@ -380,7 +382,11 @@ int putc(int channel, char c) {
   }
   // TXFF: Transmit buffer full
   if (TRAIN == channel) {
+#if VERSATILEPB
+    while ((*flags & TXFF_MASK));
+#else
     while ((*flags & TXFF_MASK) || !(*flags & CTS_MASK));
+#endif
   } else {
     while ((*flags & TXFF_MASK));
   }

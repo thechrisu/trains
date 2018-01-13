@@ -25,4 +25,5 @@ reset_handler:
 	LDR sp, =stack_top
 	BL cp_vectors
 	BL main
-	B . /* BRANCH */
+	LDR pc, =0xffffff
+	#B . /* BRANCH */

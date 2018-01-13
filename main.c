@@ -19,7 +19,7 @@ char rawSensors[sensorBufSize];
 char_buffer termBuf; // stores prefix of current command
 char cmdPrefix[cmdSz + 1]; // +1 because of the \0 hack (you'll see..)
 
-uint64_t nloops = 0;
+uint64_t nloops;
 uint64_t time_for_nloops = 0;
 uint64_t last_loop, worst_time, last_train_send, last_train_receive;
 void bootstrap() {
@@ -158,14 +158,17 @@ bool interpret_cmd(char_buffer *cmd_buf) {
   }
   return false; // appease gcc
 }
-
-int main() {
+int main(int argc, char *argv[]) {
+  (void)argc;
+  (void)argv;
   bootstrap();
   my_time t;
   bool shouldStop = false;
   worst_time = 0;
   last_loop = 0;
+  nloops = 0;
   uint32_t timestamp;
+
   while (!shouldStop) {
     last_loop = get_clockticks();
     time_for_nloops = get_clockticks();
@@ -173,6 +176,11 @@ int main() {
     get_time_struct(&t, &timestamp);
     print_time(t.min, t.sec, t.dsec);
     trysendbyte(TERMINAL);
+    /*if (nloops % 10000 == 0) {
+      //go_to_pos(20, 1);
+      printf("TEST %d%s", nloops, HIDE_CURSOR_TO_EOL);
+    }*/
+    // if (nloops == 20000) while(1);
     get_time_struct(&t, &timestamp);
     trysendbyte(TERMINAL);
     check_reverse(timestamp);
