@@ -176,11 +176,6 @@ int main(int argc, char *argv[]) {
     get_time_struct(&t, &timestamp);
     print_time(t.min, t.sec, t.dsec);
     trysendbyte(TERMINAL);
-    /*if (nloops % 10000 == 0) {
-      //go_to_pos(20, 1);
-      printf("TEST %d%s", nloops, HIDE_CURSOR_TO_EOL);
-    }*/
-    // if (nloops == 20000) while(1);
     get_time_struct(&t, &timestamp);
     trysendbyte(TERMINAL);
     check_reverse(timestamp);
