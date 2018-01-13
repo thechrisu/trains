@@ -2,7 +2,7 @@
 
 .PRECIOUS: test_buffer.out
 
-FLAGS = -DTESTING --std=c++14 -pthread -I$(GTEST) -I$(BOOST) /usr/local/lib/libgtest.a
+FLAGS = -DTESTING --std=c++14 -pthread -I$(GTEST) -I$(BOOST) $(LIBGTEST)
 SRC = $(shell find ../src -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/kernel/glue/mytimer.c)
 
 all:

@@ -12,6 +12,12 @@
 #include "myio.h"
 #include "../../../test-resources/assert.h"
 
+char_buffer train_input_buf, train_output_buf,
+    terminal_input_buf, terminal_output_buf;
+
+char train_input_chars[IOBUFFERSZ], train_output_chars[IOBUFFERSZ],
+    terminal_input_chars[IOBUFFERSZ], terminal_output_chars[IOBUFFERSZ];
+
 int oe_in_sensor = 0;
 
 void empty_buf(int channel, bool out) {
