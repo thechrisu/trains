@@ -21,6 +21,10 @@ AS	= arm-none-eabi-as
 LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
+QEMU = qemu-system-arm
+QEMUWIN = qemu-system-arm.exe
+QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc
+
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
@@ -180,4 +184,7 @@ upload:
 
 qemu:
 	-make versatilepb
-	-qemu-system-arm -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc
+	-$(QEMU) $(QEMUARGS)
+
+qemuwin: versatilepb
+	-$(QEMUWIN) $(QEMUARGS)
