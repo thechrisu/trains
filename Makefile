@@ -14,18 +14,18 @@ builddirversatilepb =build/versatilepb
 
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s $(builddirlab)/include/kernel/labenv/bwio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s
+.PRECIOUS: $(builddir)/main.s $(builddirlab)/include/kernel/labenv/bwio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s $(builddirversatilepb)/usr/first_user_task.s
 
 XCC	= arm-none-eabi-gcc
 AS	= arm-none-eabi-as
 LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
-QEMU = qemu-system-arm
+QEMU = qemu-system-arm/kernel/glue
 QEMUWIN = qemu-system-arm.exe
-QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc
+QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc -d guest_errors
 
-CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -fno-builtin
+CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm926ej-s -g -nostdlib
@@ -49,12 +49,15 @@ LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
 
 SOURCESx64=main.c $(shell find src -name '*.c') $(shell find test-resources -name '*.c') \
-                  $(shell find include/kernel/glue -name '*.c')
+                  $(shell find include/kernel/glue -name '*.c') $(shell find usr -name '*.c')
 SOURCES=$(SOURCESx64) $(shell find include/kernel/labenv -name '*.c')
 SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c')
 
-OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES))
-OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(builddirversatilepb)/src/startup.o
+ASM=$(shell find src -name '*.s' -not -name 'startup.s')
+ASMversatilepb=$(shell find src -name '*.s')
+
+OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) $(patsubst %.s, $(builddir)/%.o, $(ASM))
+OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirversatilepb)/%.o, $(ASMversatilepb))
 OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES))
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 

@@ -419,6 +419,15 @@ int putx(int channel, char c) {
   // return putc(channel, chl);
 }
 
+int bwputx(int channel, char c) {
+  char chh, chl;
+
+  chh = c2x(c / 16);
+  chl = c2x(c % 16);
+  putc(channel, chh);
+  return putc(channel, chl);
+}
+
 int putr(int channel, unsigned int reg) {
   int byte;
   char *ch = (char *) &reg;
@@ -428,6 +437,16 @@ int putr(int channel, unsigned int reg) {
   }
   return sendbyte_buffered(channel, ' ');
   //return putc(channel, ' ');
+}
+
+int bwputr(int channel, unsigned int reg) {
+  int byte;
+  char *ch = (char *) &reg;
+
+  for (byte = 3; byte >= 0; byte--) {
+    bwputx(channel, ch[byte]);
+  }
+  return putc(channel, ' ');
 }
 
 int putstr(int channel, char *str) {
@@ -451,6 +470,15 @@ void putw(int channel, int n, char fc, char *bf) {
   while ((ch = *bf++)) sendbyte_buffered(channel, ch);
   // while (n-- > 0) putc(channel, fc);
   // while ((ch = *bf++)) putc(channel, ch);
+}
+
+void bwputw(int channel, int n, char fc, char *bf) {
+  char ch;
+  char *p = bf;
+
+  while (*p++ && n > 0) n--;
+  while (n-- > 0) putc(channel, fc);
+  while ((ch = *bf++)) putc(channel, ch);
 }
 
 uint16_t last_err = 0;
@@ -642,11 +670,75 @@ void format(int channel, char *fmt, va_list va) {
     }
   }
 }
+void bwformat(int channel, char *fmt, va_list va) {
+  char bf[12];
+  char ch, lz;
+  int w;
+
+  while ((ch = *(fmt++))) {
+    if (ch != '%')
+      putc(channel, ch);
+    else {
+      lz = 0;
+      w = 0;
+      ch = *(fmt++);
+      switch (ch) {
+        case '0':
+          lz = 1;
+          ch = *(fmt++);
+          break;
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          ch = a2i(ch, &fmt, 10, &w);
+          break;
+      }
+      switch (ch) {
+        case 0:return;
+        case 'c':
+          putc(channel, va_arg(va, char));
+          break;
+        case 's':
+          bwputw(channel, w, 0, va_arg(va, char *));
+          break;
+        case 'u':
+          ui2a(va_arg(va, unsigned int), 10, bf);
+          bwputw(channel, w, lz, bf);
+          break;
+        case 'd':
+          i2a(va_arg(va, int), bf);
+          bwputw(channel, w, lz, bf);
+          break;
+        case 'x':
+          ui2a(va_arg(va, unsigned int), 16, bf);
+          bwputw(channel, w, lz, bf);
+          break;
+        case '%':
+          putc(channel, ch);
+          break;
+      }
+    }
+  }
+}
 
 void printf(char *fmt, ...) {
   va_list va;
 
   va_start(va, fmt);
   format(TERMINAL, fmt, va);
+  va_end(va);
+}
+
+void bwprintf(char *fmt, ...) {
+  va_list va;
+
+  va_start(va, fmt);
+  bwformat(TERMINAL, fmt, va);
   va_end(va);
 }

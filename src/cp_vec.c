@@ -3,12 +3,7 @@
 //
 
 #include "stdlib.h"
-#include "../include/kernel/glue/myio.h"
-
-void __attribute__((interrupt("SWI"))) swi_handler() {
-  // setup_io();
-  printf("SUCCESS");
-}
+#include "myio.h"
 
 void cp_vectors() {
   extern uint32_t vec_start;
