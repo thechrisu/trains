@@ -33,12 +33,6 @@ typedef char *va_list;
  * Input: TO the ARM box
  * Output: FROM the ARM box
  */
-char_buffer train_input_buf, train_output_buf,
-    terminal_input_buf, terminal_output_buf;
-
-char train_input_chars[IOBUFFERSZ], train_output_chars[IOBUFFERSZ],
-    terminal_input_chars[IOBUFFERSZ], terminal_output_chars[IOBUFFERSZ];
-
 
 void setup_io();
 int trysendall();
@@ -74,6 +68,9 @@ void printf(char *format, ...);
 
 #else
 
+#define TRAIN 1
+#define TERMINAL 0
+
 #if (HOSTCONFIG || TESTING)
 
 #include <stdio.h>
@@ -87,8 +84,6 @@ void printf(char *format, ...);
 #else
 
 #include "../labenv/ts7200.h"
-#define TRAIN 1
-#define TERMINAL 0
 
 #endif /* HOSTCONFIG || TESTING */
 #endif /* VERSATILEPB */
