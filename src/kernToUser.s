@@ -12,20 +12,41 @@ leave_kernel:
   Load address to trapframe into stack pointer. This address
   was passed as an argument to switch.
 */
+  #MOV spsr_svc, cpsr_usr
+  # When we call movs, we'll go into usermode
+  MSR SPSR_c, 0x10
+
+  LDR r14, [r1, #64]
+
+
+  /*mov r4, #0x1e000000
+  add r4, r4, #0xad0000
+  add r4, r4, #0xbe00
+  add r4, r4, #0xe8
+  cmp lr, r4
+  beq crash*/
+  //CMP lr, #0
+  //BNE crash
+
+  MSR cpsr_c, 0x1F
+
   MOV sp, r1
 
-  LDR r1, [sp, #4]
-
+/*
   mov r4, #0x01F00000
   add r4, r4, #0xC0000
   add r4, r4, #0xFF00
   add r4, r4, #0xCF
   cmp sp, r4
   beq crash
+*/
 
+  #CMP sp, #0
+  #BEQ crash
 
 /* LOAD SPECIAL REGISTERS */
 /* Save return value in r0 */
+  LDR r1, [sp, #4]
   LDR r2, [sp, #8]
   LDR r3, [sp, #12]
   LDR r4, [sp, #16]
@@ -39,8 +60,16 @@ leave_kernel:
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
   LDR r14, [sp, #56]
-  ADD sp, #64
+  ADD sp, #68
+  MSR cpsr_c, 0x13
+
+  /*MOV r1, lr
+  MOV r0, #1
+  BL bwputr*/
+
 
 /* Go back to user mode (MOVS updates the PSR) */
 /* Branch to instruction after SWI, giving control back to user task */
+  ADD lr, lr, #8
+  //B crash
   MOVS pc, lr

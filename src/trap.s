@@ -3,7 +3,14 @@
 .type	enter_kernel, %function
 enter_kernel: /* called on an interrupt */
 /* Save user's registers in a trap frame on the user task's stack */
-  SUB sp, #64
+  #CMP sp, #64
+  #BEQ crash
+  //B crash
+
+
+  MSR cpsr_c, 0x1F
+
+  SUB sp, #68
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -22,6 +29,9 @@ enter_kernel: /* called on an interrupt */
 
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
+
+  MSR cpsr_c, 0x13
+  STR r14, [r0, #4]
 
 /* Change sp to kernel sp */
 /* Load global offset table base address into r4 */
