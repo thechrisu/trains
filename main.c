@@ -27,14 +27,15 @@ int main() {
 #if VERSATILEPB
   uint32_t *first_user_task_stack = (uint32_t *)(0x01FFFFFF);
 #else
-  uint32_t *first_user_task_stack = (uint32_t *)(0x01fdd000);
+  uint32_t *first_user_task_stack = (uint32_t *)(0x00fdd000);
 #endif /* VERSTILEPB */
-  
+
   trapframe *tf = (trapframe *)((uint32_t)first_user_task_stack - sizeof(trapframe));
-  tf->r1 = 0x2EADBEE0;
-  tf->r2 = 0x2EADBEE1;
-  tf->r3 = 0x2EADBEE2;
-  tf->r4 = 0x2EADBEE3;
+  tf->r1 = 0x1EADBEE0;
+  tf->r2 = 0x1EADBEE1;
+  tf->r3 = 0x1EADBEE2;
+  tf->r4 = 0x1EADBEE3;
+  bwprintf("Setting tf, mem: %x. TF at %x\n\r", &(tf->r5), tf);
   tf->r5 = 0x1EADBEE4;
   tf->r6 = 0x1EADBEE5;
   tf->r7 = 0x1EADBEE6;
@@ -59,7 +60,7 @@ int main() {
 #if VERSATILEPB  
   uint32_t *second_user_task_stack = (uint32_t *)(0x01FCFFFF);
 #else
-  uint32_t *second_user_task_stack = (uint32_t *)(0x01fad000);
+  uint32_t *second_user_task_stack = (uint32_t *)(0x00fad000);
 #endif /* VERSATILEPB */  
 
   trapframe *tf2 = (trapframe *)((uint32_t)second_user_task_stack - sizeof(trapframe));
@@ -91,7 +92,9 @@ int main() {
 #endif /* CONTEXT_SWITCH_DEBUG */
 
   leave_kernel(0, tf);
+#if VERSATILEPB  
   CRASH();
-  /* Should never reach */
+#else
   return 0;
+#endif /* VERSATILEPB */  
 }
