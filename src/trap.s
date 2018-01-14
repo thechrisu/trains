@@ -2,6 +2,7 @@
 .global enter_kernel
 .type	enter_kernel, %function
 enter_kernel: /* called on an interrupt */
+                                 
 /* Enter system mode. */
   MSR cpsr_c, #0x1F
 
@@ -32,5 +33,15 @@ enter_kernel: /* called on an interrupt */
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
 
+/* Get the number of the system call */
+  LDR r2, [r14, #-4]
+/* Write to r1 whether it's a syscall */
+  BIC r1, r2, #0xF0FFFFFF
+  CMP r1, #0x0F000000
+  MOVEQ r1, #1
+  MOVNE r1, #0
+/* Write to r2 the number from the interrupt */
+  BIC r2, r2, #0xFF000000
+                                         
 /* Service interrupt. */
   B handle_interrupt

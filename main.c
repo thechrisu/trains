@@ -45,7 +45,7 @@ int main() {
   tf->fp = 0x1EADBEEA;
   tf->ip = 0x1EADBEEB;
   tf->sp = (uint32_t)tf;
-  tf->lr = 0x1EADBEED;
+  tf->lr = (uint32_t)(&enter_kernel);
   tf->pc = (uint32_t)(&first_user_task);
   tf->k_lr = (uint32_t)(&first_user_task);
 
@@ -77,7 +77,7 @@ int main() {
   tf2->fp = 0x2EADBEEA;
   tf2->ip = 0x2EADBEEB;
   tf2->sp = (uint32_t)tf2;
-  tf2->lr = 0x2EADBEED;
+  tf2->lr = (uint32_t)(&enter_kernel);
   tf2->pc = (uint32_t)(&second_user_task);
   tf2->k_lr = (uint32_t)(&second_user_task);
 

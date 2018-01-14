@@ -36,10 +36,11 @@ void print_tf(trapframe *tf) {
   putc(TERMINAL, '\r');
 }
 
-void handle_interrupt(trapframe *tf) {
+void handle_interrupt(trapframe *tf, bool is_syscall, unsigned int interrupt_number) {
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
 #ifdef CONTEXT_SWITCH_DEBUG
+  bwprintf("Interrupt number: %x, is syscall ? %s\n\r", interrupt_number, is_syscall ? "yes": "no");
   bwprintf("r0: %x\n\r", tf->r0);
   bwprintf("current: %d\n\r", current_task);
   print_tf((trapframe *)tf);
@@ -49,6 +50,7 @@ void handle_interrupt(trapframe *tf) {
   bwprintf("current: %d\n\r", current_task);
   print_tf((trapframe *)stack_pointers[current_task]);
 #endif /* CONTEXT_SWITCH_DEBUG */
-
-  leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
+  //if (is_syscall) {
+    leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
+    //}
 }
