@@ -51,10 +51,12 @@ void handle_interrupt(trapframe *tf) {
   bwprintf("current: %d\n\r", current_task);
   print_tf((trapframe *)stack_pointers[current_task]);
 #endif /* CONTEXT_SWITCH_DEBUG */
-  if (tf->r0 == 0)
+  if (tf->r0 == 0) {
+    bwprintf("Exit code: %x\n\r", tf->r1);
     tasks_ended += 1;
+  }
   if (tasks_ended == 2)
     CRASH();
-    
+
   leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
 }

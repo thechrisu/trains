@@ -11,7 +11,7 @@ unsigned int software_interrupt(unsigned int num) {
   return result;
 }
 
-void first_user_task() {
+int first_user_task() {
   int i;
 
   bwprintf("We made it!\n\r");
@@ -25,6 +25,7 @@ void first_user_task() {
   bwprintf("We made it, 4x\n\r");
   software_interrupt(1);
   bwprintf("TASK 1: THIS SHOULD NEVER PRINT\n\r");
+  return 0xDEADBEEF;
 }
 
 void second_user_task() {

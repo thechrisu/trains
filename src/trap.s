@@ -40,5 +40,6 @@ enter_kernel: /* called on an interrupt */
 .global sys_exit
 .type	sys_exit, %function
 sys_exit:
+  mov r1, r0
   mov r0, #0
   swi 0
