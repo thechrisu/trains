@@ -94,6 +94,13 @@ int main() {
 #endif /* CONTEXT_SWITCH_DEBUG */
 
   leave_kernel(0, tf);
+
+  __asm__(
+    ".text\n\t"
+    ".global get_me_outta_here\n\t"
+    ".type get_me_outta_here, %function\n\t"
+    "get_me_outta_here:"
+  );
 #if VERSATILEPB
   CRASH();
 #else

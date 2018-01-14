@@ -4,6 +4,7 @@
 #include "tasks.h"
 
 extern void leave_kernel(int ret_code, trapframe *tf);
+extern void get_me_outta_here();
 
 unsigned int *stack_pointers;
 unsigned int current_task;
@@ -56,7 +57,7 @@ void handle_interrupt(trapframe *tf) {
     tasks_ended += 1;
   }
   if (tasks_ended == 2)
-    CRASH();
+    get_me_outta_here();
 
   leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
 }
