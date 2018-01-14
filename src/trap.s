@@ -2,13 +2,10 @@
 .global enter_kernel
 .type	enter_kernel, %function
 enter_kernel: /* called on an interrupt */
-/* Save user's registers in a trap frame on the user task's stack */
-  #CMP sp, #64
-  #BEQ crash
-
-
+/* Enter system mode. */
   MSR cpsr_c, 0x1F
 
+/* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, #68
   STR r0, [sp, #0]
   STR r1, [sp, #4]
@@ -29,9 +26,14 @@ enter_kernel: /* called on an interrupt */
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
 
+/* Enter kernel mode. */
   MSR cpsr_c, 0x13
+
+/* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
 
+/* TODO this should not be necessary. Since we're in kernel mode, we should already
+   have the kernel stack pointer. */
 /* Change sp to kernel sp */
 /* Load global offset table base address into r4 */
 	LDR	r4, global_offset_table_information
@@ -48,7 +50,7 @@ need_kernel_sp:
 /* Update stack pointer. */
 	LDR	sp, [r4, r3]
 
-/* Service interrupt */
+/* Service interrupt. */
   B handle_interrupt
 
 global_offset_table_information:
