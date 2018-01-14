@@ -3,8 +3,6 @@
 #include "myio.h"
 #include "tasks.h"
 
-unsigned int *kernel_stack_pointer;
-
 unsigned int *stack_pointers;
 unsigned int current_task;
 

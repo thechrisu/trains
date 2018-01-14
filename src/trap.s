@@ -32,27 +32,5 @@ enter_kernel: /* called on an interrupt */
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
 
-/* TODO this should not be necessary. Since we're in kernel mode, we should already
-   have the kernel stack pointer. */
-/* Change sp to kernel sp */
-/* Load global offset table base address into r4 */
-	LDR	r4, global_offset_table_information
-need_kernel_sp:
-/*
-  Add pc (which will be equal to need_kernel_sp + 8 when
-  it is actually read for the ADD instruction) to r4. Once
-  we reach need_kernel_sp + 8, r4 will just contain
-  _GLOBAL_OFFSET_TABLE_.
-*/
-	ADD	r4, pc, r4
-/* Load offset of kernel_stack_pointer within global offset table. */
-	LDR	r3, global_offset_table_information + 4
-/* Update stack pointer. */
-	LDR	sp, [r4, r3]
-
 /* Service interrupt. */
   B handle_interrupt
-
-global_offset_table_information:
-	.word	_GLOBAL_OFFSET_TABLE_ - (need_kernel_sp + 8)
-	.word	kernel_stack_pointer(GOT)
