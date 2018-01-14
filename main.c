@@ -8,11 +8,10 @@
 #include "stdlib.h"
 #include "myio.h"
 
-
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
 extern void enter_kernel();
-extern void leave_kernel(int ret_code, struct trapframe *tf);
+extern void leave_kernel(int ret_code, trapframe *tf);
 
 int main() {
   setup_io();
@@ -27,7 +26,7 @@ int main() {
 
   uint32_t *first_user_task_stack = (uint32_t *)(0x01FFFFFF);
 
-  struct trapframe *tf = (struct trapframe *)((uint32_t)first_user_task_stack - sizeof(struct trapframe));
+  trapframe *tf = (trapframe *)((uint32_t)first_user_task_stack - sizeof(trapframe));
   tf->r1 = 0x2EADBEE0;
   tf->r2 = 0x2EADBEE1;
   tf->r3 = 0x2EADBEE2;
@@ -45,13 +44,16 @@ int main() {
   tf->pc = (uint32_t)(&first_user_task);
   tf->k_lr = (uint32_t)(&first_user_task);
 
+#ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("MAIN");
 
   bwputr(TERMINAL, (uint32_t)tf);
   putc(TERMINAL, '\n');
+#endif /* CONTEXT_SWITCH_DEBUG */
+
   uint32_t *second_user_task_stack = (uint32_t *)(0x01FCFFFF);
 
-  struct trapframe *tf2 = (struct trapframe *)((uint32_t)second_user_task_stack - sizeof(struct trapframe));
+  trapframe *tf2 = (trapframe *)((uint32_t)second_user_task_stack - sizeof(trapframe));
   tf2->r1 = 0x2EADBEE0;
   tf2->r2 = 0x2EADBEE1;
   tf2->r3 = 0x2EADBEE2;
@@ -72,11 +74,12 @@ int main() {
   stack_pointers[0] = (uint32_t)tf;
   stack_pointers[1] = (uint32_t)tf2;
 
+#ifdef CONTEXT_SWITCH_DEBUG
   print_tf(tf);
   print_tf(tf2);
   bwprintf("Stackpointers: %x, Current: %x\n", stack_pointers, &current_task);
   bwprintf("IN MAIN: (%x, %x) with sps: (%x, %x)\n", (uint32_t)tf, (uint32_t)tf2, stack_pointers[0], stack_pointers[1]);
-
+#endif /* CONTEXT_SWITCH_DEBUG */
 
   leave_kernel(0, tf);
   CRASH();

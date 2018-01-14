@@ -3,7 +3,7 @@
 
 #include "stdlib.h"
 
-struct trapframe {
+typedef struct {
   uint32_t r0;
   uint32_t r1;
   uint32_t r2;
@@ -21,7 +21,7 @@ struct trapframe {
   uint32_t lr;
   uint32_t pc;
   uint32_t k_lr;
-};// trapframe;
+} trapframe;
 
-void print_tf(struct trapframe *tf);
+void print_tf(trapframe *tf);
 #endif /* INTERRUPT_H */

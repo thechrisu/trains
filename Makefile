@@ -30,7 +30,7 @@ QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
-CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm926ej-s -g -nostdlib
+CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -DCONTEXT_SWITCH_DEBUG -mcpu=arm926ej-s -g -nostdlib
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point

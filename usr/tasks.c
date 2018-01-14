@@ -1,23 +1,23 @@
 #include "myio.h"
 #include "crash.h"
 
-int count = 0;
-
 unsigned int software_interrupt(unsigned int num) {
-  (void)num;
-  __asm__("swi 0");
-  bwprintf("Return from swi\n\r");
+  register int arg0 __asm__ ("r0");
+  register int result __asm__ ("r0");
+
+  arg0 = num;
+  __asm__("swi 0" : "=r" (result) : "r" (arg0));
+  return result;
 }
 
 void first_user_task() {
+  int i;
+
   bwprintf("We made it!\n\r");
 
-  if (count == 5) {
-    CRASH();
-  }
-  count += 1;
-  software_interrupt(0);
+  i = software_interrupt(0xDEADBEEF);
   bwprintf("We made it, twice\n\r");
+  bwprintf("Return value: %x\n\r", i);
   software_interrupt(0);
   bwprintf("We made it, thrice\n\r");
   software_interrupt(0);

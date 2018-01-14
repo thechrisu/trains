@@ -10,7 +10,7 @@ volatile uint32_t timer1_lastval;
 volatile uint64_t sys_time;
 
 void setup_timer() {
-  setup_timer1(0xFFFFFFFF);
+  setup_timer1(0xFFFF);
 }
 
 void setup_timer1(uint16_t countdown_val) {
