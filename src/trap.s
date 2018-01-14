@@ -5,7 +5,6 @@ enter_kernel: /* called on an interrupt */
 /* Save user's registers in a trap frame on the user task's stack */
   #CMP sp, #64
   #BEQ crash
-  //B crash
 
 
   MSR cpsr_c, 0x1F
@@ -31,7 +30,7 @@ enter_kernel: /* called on an interrupt */
   MOV r0, sp
 
   MSR cpsr_c, 0x13
-  STR r14, [r0, #4]
+  STR r14, [r0, #64]
 
 /* Change sp to kernel sp */
 /* Load global offset table base address into r4 */

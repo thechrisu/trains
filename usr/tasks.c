@@ -16,16 +16,23 @@ void first_user_task() {
     CRASH();
   }
   count += 1;
-  bwprintf("We made it, again\n\r");
-  bwprintf("We made it, again\n\r");
   software_interrupt(0);
-  bwprintf("We made it, again\n\r");
-  bwprintf("We made it, again\n\r");
-  CRASH();
+  bwprintf("We made it, twice\n\r");
+  software_interrupt(0);
+  bwprintf("We made it, thrice\n\r");
+  software_interrupt(0);
+  bwprintf("We made it, 4x\n\r");
+  software_interrupt(0);
+  bwprintf("TASK 1: THIS SHOULD NEVER PRINT\n\r");
 }
 
 void second_user_task() {
-  bwprintf("Second user task\n\r");
+  bwprintf("Second user task once\n\r");
   software_interrupt(0);
-  bwprintf("Second user task, again\n\r");
+  bwprintf("Second user task twice\n\r");
+  software_interrupt(0);
+  bwprintf("Second user task thrice\n\r");
+  software_interrupt(0);
+  bwprintf("Second user task, finally, now crash\n\r");
+  CRASH();
 }

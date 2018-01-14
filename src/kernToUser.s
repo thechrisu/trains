@@ -16,18 +16,29 @@ leave_kernel:
   # When we call movs, we'll go into usermode
   MSR SPSR_c, 0x10
 
+
+
   LDR r14, [r1, #64]
 
-
-  /*mov r4, #0x1e000000
-  add r4, r4, #0xad0000
-  add r4, r4, #0xbe00
-  add r4, r4, #0xe8
+  mov r4, #0x00000000
+  add r4, r4, #0x010000
+  add r4, r4, #0xb100
+  add r4, r4, #0x4c
   cmp lr, r4
-  beq crash*/
+  beq tmp_lbl
+
+
+  mov r4, #0x00000000
+  add r4, r4, #0x010000
+  add r4, r4, #0xb200
+  add r4, r4, #0x24
+  cmp lr, r4
+  beq tmp_lbl
+
+  //B crash
   //CMP lr, #0
   //BNE crash
-
+tmp_lbl:
   MSR cpsr_c, 0x1F
 
   MOV sp, r1
@@ -70,6 +81,6 @@ leave_kernel:
 
 /* Go back to user mode (MOVS updates the PSR) */
 /* Branch to instruction after SWI, giving control back to user task */
-  ADD lr, lr, #8
+  //ADD lr, lr, #8
   //B crash
   MOVS pc, lr

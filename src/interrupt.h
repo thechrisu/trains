@@ -23,4 +23,5 @@ struct trapframe {
   uint32_t k_lr;
 };// trapframe;
 
+void print_tf(struct trapframe *tf);
 #endif /* INTERRUPT_H */

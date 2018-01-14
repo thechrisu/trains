@@ -9,7 +9,7 @@ unsigned int *stack_pointers;
 unsigned int current_task;
 
 void print_tf(struct trapframe *tf) {
-  bwprintf("TF AT LOC %x\n", tf);
+  //bwprintf("TF AT LOC %x\n", tf);
   bwputr(TERMINAL, tf->r0);
   bwputr(TERMINAL, tf->r1);
   bwputr(TERMINAL, tf->r2);
@@ -34,11 +34,11 @@ void print_tf(struct trapframe *tf) {
 }
 
 void handle_interrupt(struct trapframe *tf) {
-  bwprintf("current loc %x\n", &current_task);
+  //bwprintf("current loc %x\n", &current_task);
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
-  bwputr(TERMINAL, *((uint32_t *)0x0));
-  putc(TERMINAL, '\n');
+  //bwputr(TERMINAL, *((uint32_t *)0x0));
+  //putc(TERMINAL, '\n');
   bwprintf("current: %d\n", current_task);
   print_tf(tf);
   current_task = (current_task + 1) % 2;

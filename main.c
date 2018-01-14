@@ -68,8 +68,11 @@ int main() {
   stack_pointers[0] = (uint32_t)tf;
   stack_pointers[1] = (uint32_t)tf2;
 
+  print_tf(tf);
+  print_tf(tf2);
   bwprintf("Stackpointers: %x, Current: %x\n", stack_pointers, &current_task);
   bwprintf("IN MAIN: (%x, %x) with sps: (%x, %x)\n", (uint32_t)tf, (uint32_t)tf2, stack_pointers[0], stack_pointers[1]);
+
 
   leave_kernel(0, tf);
   CRASH();
