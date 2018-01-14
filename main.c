@@ -10,12 +10,14 @@
 
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
-extern void enter_kernel();
+extern unsigned int tasks_ended;
+extern void sys_exit();
 extern void leave_kernel(int ret_code, trapframe *tf);
 
 int main() {
   setup_io();
   current_task = 0;
+  tasks_ended = 0;
   unsigned int local_sps[2];
   stack_pointers = local_sps;
 
@@ -45,7 +47,7 @@ int main() {
   tf->fp = 0x1EADBEEA;
   tf->ip = 0x1EADBEEB;
   tf->sp = (uint32_t)tf;
-  tf->lr = (uint32_t)(&enter_kernel);
+  tf->lr = (uint32_t)(&sys_exit);
   tf->pc = (uint32_t)(&first_user_task);
   tf->k_lr = (uint32_t)(&first_user_task);
 
@@ -57,11 +59,11 @@ int main() {
   putc(TERMINAL, '\r');
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-#if VERSATILEPB  
+#if VERSATILEPB
   uint32_t *second_user_task_stack = (uint32_t *)(0x01FCFFFF);
 #else
   uint32_t *second_user_task_stack = (uint32_t *)(0x00fad000);
-#endif /* VERSATILEPB */  
+#endif /* VERSATILEPB */
 
   trapframe *tf2 = (trapframe *)((uint32_t)second_user_task_stack - sizeof(trapframe));
   tf2->r1 = 0x2EADBEE0;
@@ -77,7 +79,7 @@ int main() {
   tf2->fp = 0x2EADBEEA;
   tf2->ip = 0x2EADBEEB;
   tf2->sp = (uint32_t)tf2;
-  tf2->lr = (uint32_t)(&enter_kernel);
+  tf2->lr = (uint32_t)(&sys_exit);
   tf2->pc = (uint32_t)(&second_user_task);
   tf2->k_lr = (uint32_t)(&second_user_task);
 
@@ -92,9 +94,9 @@ int main() {
 #endif /* CONTEXT_SWITCH_DEBUG */
 
   leave_kernel(0, tf);
-#if VERSATILEPB  
+#if VERSATILEPB
   CRASH();
 #else
   return 0;
-#endif /* VERSATILEPB */  
+#endif /* VERSATILEPB */
 }
