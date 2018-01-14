@@ -11,7 +11,7 @@
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
 extern void enter_kernel();
-extern void leave_kernel(int ret_code, struct trapframe *tf);
+extern void leave_kernel(int ret_code, trapframe *tf);
 
 int main() {
   setup_io();
@@ -26,7 +26,7 @@ int main() {
 
   uint32_t *first_user_task_stack = (uint32_t *)(0x01FFFFFF);
 
-  struct trapframe *tf = (struct trapframe *)((uint32_t)first_user_task_stack - sizeof(struct trapframe));
+  trapframe *tf = (trapframe *)((uint32_t)first_user_task_stack - sizeof(trapframe));
   tf->r1 = 0x2EADBEE0;
   tf->r2 = 0x2EADBEE1;
   tf->r3 = 0x2EADBEE2;
@@ -53,7 +53,7 @@ int main() {
 
   uint32_t *second_user_task_stack = (uint32_t *)(0x01FCFFFF);
 
-  struct trapframe *tf2 = (struct trapframe *)((uint32_t)second_user_task_stack - sizeof(struct trapframe));
+  trapframe *tf2 = (trapframe *)((uint32_t)second_user_task_stack - sizeof(trapframe));
   tf2->r1 = 0x2EADBEE0;
   tf2->r2 = 0x2EADBEE1;
   tf2->r3 = 0x2EADBEE2;

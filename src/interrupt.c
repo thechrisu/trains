@@ -3,12 +3,12 @@
 #include "myio.h"
 #include "tasks.h"
 
-extern void leave_kernel(int ret_code, struct trapframe *tf);
+extern void leave_kernel(int ret_code, trapframe *tf);
 
 unsigned int *stack_pointers;
 unsigned int current_task;
 
-void print_tf(struct trapframe *tf) {
+void print_tf(trapframe *tf) {
   bwputr(TERMINAL, tf->r0);
   bwputr(TERMINAL, tf->r1);
   bwputr(TERMINAL, tf->r2);
@@ -32,19 +32,19 @@ void print_tf(struct trapframe *tf) {
   putc(TERMINAL, '\n');
 }
 
-void handle_interrupt(struct trapframe *tf) {
+void handle_interrupt(trapframe *tf) {
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
 #ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("r0: %x\n", tf->r0);
   bwprintf("current: %d\n", current_task);
-  print_tf((struct trapframe *)tf);
+  print_tf((trapframe *)tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
   current_task = (current_task + 1) % 2;
 #ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("current: %d\n", current_task);
-  print_tf((struct trapframe *)stack_pointers[current_task]);
+  print_tf((trapframe *)stack_pointers[current_task]);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  leave_kernel(current_task + 1, (struct trapframe *)stack_pointers[current_task]);
+  leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
 }
