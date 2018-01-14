@@ -11,7 +11,7 @@ leave_kernel:
 /*
   Set saved PSR mode so that, when we call movs, we'll go into usermode.
 */
-  MSR SPSR_c, 0x10
+  MSR SPSR_c, #0x10
 
 /*
   Store kernel link register in trapframe's k_lr member variable.
@@ -21,7 +21,7 @@ leave_kernel:
 /*
   Go into system mode.
 */
-  MSR cpsr_c, 0x1F
+  MSR cpsr_c, #0x1F
 
 /*
   Load address to trapframe into stack pointer. This address
@@ -46,12 +46,12 @@ leave_kernel:
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
   LDR r14, [sp, #56]
-  ADD sp, #68
+  ADD sp, sp, #68
 
 /*
   Back to kernel mode.
 */
-  MSR cpsr_c, 0x13
+  MSR cpsr_c, #0x13
 
 /*
   Go back to user mode (MOVS updates the PSR). Branch to instruction after SWI,

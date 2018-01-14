@@ -3,10 +3,10 @@
 .type	enter_kernel, %function
 enter_kernel: /* called on an interrupt */
 /* Enter system mode. */
-  MSR cpsr_c, 0x1F
+  MSR cpsr_c, #0x1F
 
 /* Save user's registers in a trap frame on the user task's stack. */
-  SUB sp, #68
+  SUB sp, sp, #68
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -27,7 +27,7 @@ enter_kernel: /* called on an interrupt */
   MOV r0, sp
 
 /* Enter kernel mode. */
-  MSR cpsr_c, 0x13
+  MSR cpsr_c, #0x13
 
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]

@@ -22,10 +22,14 @@ int main() {
 #ifndef VERSATILEPB
   uint32_t *swi_handler = (uint32_t *)0x28;
   *swi_handler = (uint32_t)(&enter_kernel);
-#endif
+#endif /* VERSATILEPB */
 
+#if VERSATILEPB
   uint32_t *first_user_task_stack = (uint32_t *)(0x01FFFFFF);
-
+#else
+  uint32_t *first_user_task_stack = (uint32_t *)(0x01fdd000);
+#endif /* VERSTILEPB */
+  
   trapframe *tf = (trapframe *)((uint32_t)first_user_task_stack - sizeof(trapframe));
   tf->r1 = 0x2EADBEE0;
   tf->r2 = 0x2EADBEE1;
@@ -49,9 +53,14 @@ int main() {
 
   bwputr(TERMINAL, (uint32_t)tf);
   putc(TERMINAL, '\n');
+  putc(TERMINAL, '\r');
 #endif /* CONTEXT_SWITCH_DEBUG */
 
+#if VERSATILEPB  
   uint32_t *second_user_task_stack = (uint32_t *)(0x01FCFFFF);
+#else
+  uint32_t *second_user_task_stack = (uint32_t *)(0x01fad000);
+#endif /* VERSATILEPB */  
 
   trapframe *tf2 = (trapframe *)((uint32_t)second_user_task_stack - sizeof(trapframe));
   tf2->r1 = 0x2EADBEE0;
@@ -77,8 +86,8 @@ int main() {
 #ifdef CONTEXT_SWITCH_DEBUG
   print_tf(tf);
   print_tf(tf2);
-  bwprintf("Stackpointers: %x, Current: %x\n", stack_pointers, &current_task);
-  bwprintf("IN MAIN: (%x, %x) with sps: (%x, %x)\n", (uint32_t)tf, (uint32_t)tf2, stack_pointers[0], stack_pointers[1]);
+  bwprintf("Stackpointers: %x, Current: %x\n\r", stack_pointers, &current_task);
+  bwprintf("IN MAIN: (%x, %x) with sps: (%x, %x)\n\r", (uint32_t)tf, (uint32_t)tf2, stack_pointers[0], stack_pointers[1]);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
   leave_kernel(0, tf);
