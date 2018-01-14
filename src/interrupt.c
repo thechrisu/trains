@@ -44,5 +44,5 @@ void handle_interrupt(struct trapframe *tf) {
   bwprintf("current: %d\n", current_task);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  leave_kernel(0, stack_pointers[current_task]);
+  leave_kernel(current_task + 1, stack_pointers[current_task]);
 }
