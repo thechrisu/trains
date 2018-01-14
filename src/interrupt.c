@@ -9,7 +9,6 @@ unsigned int *stack_pointers;
 unsigned int current_task;
 
 void print_tf(struct trapframe *tf) {
-  //bwprintf("TF AT LOC %x\n", tf);
   bwputr(TERMINAL, tf->r0);
   bwputr(TERMINAL, tf->r1);
   bwputr(TERMINAL, tf->r2);
@@ -34,37 +33,17 @@ void print_tf(struct trapframe *tf) {
 }
 
 void handle_interrupt(struct trapframe *tf) {
-  //bwprintf("current loc %x\n", &current_task);
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
-  //bwputr(TERMINAL, *((uint32_t *)0x0));
-  //putc(TERMINAL, '\n');
+#ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("current: %d\n", current_task);
   print_tf(tf);
+#endif /* CONTEXT_SWITCH_DEBUG */
   current_task = (current_task + 1) % 2;
+#ifdef CONTEXT_SWITCH_DEBUG
   print_tf(stack_pointers[current_task]);
   bwprintf("current: %d\n", current_task);
+#endif /* CONTEXT_SWITCH_DEBUG */
 
-  /*__asm__(
-    "MOV r0, #0\n\t"
-    "ldr r1, r3\n\t"
-  :
-  :
-  );
-  goto leave_kernel;*/
   leave_kernel(0, stack_pointers[current_task]);
-  // CRASH();
-
-   /*bwputr(TERMINAL, (uint32_t)(&second_user_task));
-   bwputr(TERMINAL, (uint32_t)tf);
-   putc(TERMINAL, '0' + ((uint32_t)tf == 0x01FFFFAF));
-   putc(TERMINAL, '\n');*/
-
-  /*if ((uint32_t)tf == 0x01FFFFBF) {
-    bwprintf("INTERRUPT TO SECOND");
-    leave_kernel(0, 0x01FCFFBF);
-  } else {
-    bwprintf("INTERRUPT TO FIRST");
-    leave_kernel(0, 0x01FFFFBF);
-  }*/
 }
