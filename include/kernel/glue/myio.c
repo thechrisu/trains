@@ -111,7 +111,7 @@ uint16_t getnumreadable_bytes(int channel) {
     }
     default:
       assert(0);
-      return 0xFFFFFFFF;
+      return 0xFFFF;
   }
   return char_buffer_get_num_elems(buf);
 }

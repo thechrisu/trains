@@ -3,6 +3,8 @@
 #include "myio.h"
 #include "tasks.h"
 
+extern void leave_kernel(int ret_code, struct trapframe *tf);
+
 unsigned int *stack_pointers;
 unsigned int current_task;
 
@@ -36,13 +38,13 @@ void handle_interrupt(struct trapframe *tf) {
 #ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("r0: %x\n", tf->r0);
   bwprintf("current: %d\n", current_task);
-  print_tf(tf);
+  print_tf((struct trapframe *)tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
   current_task = (current_task + 1) % 2;
 #ifdef CONTEXT_SWITCH_DEBUG
-  print_tf(stack_pointers[current_task]);
   bwprintf("current: %d\n", current_task);
+  print_tf((struct trapframe *)stack_pointers[current_task]);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  leave_kernel(current_task + 1, stack_pointers[current_task]);
+  leave_kernel(current_task + 1, (struct trapframe *)stack_pointers[current_task]);
 }
