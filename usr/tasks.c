@@ -2,9 +2,11 @@
 #include "crash.h"
 
 unsigned int software_interrupt(unsigned int num) {
-  (void)num;
+  register int arg0 __asm__ ("r0");
   register int result __asm__ ("r0");
-  __asm__("swi 0" : "=r" (result));
+
+  arg0 = num;
+  __asm__("swi 0" : "=r" (result) : "r" (arg0));
   return result;
 }
 
@@ -13,7 +15,7 @@ void first_user_task() {
 
   bwprintf("We made it!\n\r");
 
-  i = software_interrupt(0);
+  i = software_interrupt(0xDEADBEEF);
   bwprintf("We made it, twice\n\r");
   bwprintf("Return value: %x\n\r", i);
   software_interrupt(0);

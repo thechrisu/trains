@@ -34,6 +34,7 @@ void handle_interrupt(struct trapframe *tf) {
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
 #ifdef CONTEXT_SWITCH_DEBUG
+  bwprintf("r0: %x\n", tf->r0);
   bwprintf("current: %d\n", current_task);
   print_tf(tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
