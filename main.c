@@ -1,4 +1,7 @@
+#if VERSATILEPB
 #include "cp_vec.h"
+#endif
+
 #include "crash.h"
 #include "tasks.h"
 #include "interrupt.h"
@@ -8,6 +11,8 @@
 
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
+extern void enter_kernel();
+extern void leave_kernel(int ret_code, struct trapframe *tf);
 
 int main() {
   setup_io();
@@ -40,7 +45,6 @@ int main() {
   tf->pc = (uint32_t)(&first_user_task);
   tf->k_lr = (uint32_t)(&first_user_task);
 
-  int x = 1;
   bwprintf("MAIN");
 
   bwputr(TERMINAL, (uint32_t)tf);

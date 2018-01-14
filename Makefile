@@ -50,10 +50,10 @@ LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
 
-SOURCESx64=main.c $(shell find src -name '*.c') $(shell find test-resources -name '*.c') \
+SOURCESx64=main.c $(shell find src -name '*.c' -not -name 'cp_vec.c') $(shell find test-resources -name '*.c') \
                   $(shell find include/kernel/glue -name '*.c') $(shell find usr -name '*.c')
 SOURCES=$(SOURCESx64) $(shell find include/kernel/labenv -name '*.c')
-SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c')
+SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c') src/cp_vec.c
 
 ASM=$(shell find src -name '*.s' -not -name 'startup.s')
 ASMversatilepb=$(shell find src -name '*.s')

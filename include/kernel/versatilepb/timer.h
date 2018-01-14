@@ -11,7 +11,7 @@
 #include "../../../src/stdlib.h"
 
 void setup_timer();
-void setup_timer1();
+void setup_timer1(uint16_t countdown_val);
 uint32_t get_time();
 uint32_t get_clockticks();
 void get_time_struct(my_time *sto, uint32_t *timestamp);
