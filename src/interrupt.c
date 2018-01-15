@@ -4,15 +4,15 @@
 #include "stdlib.h"
 #include "tasks.h"
 
-#define kassert(value) __kassert((bool)value)
+#define kassert(expr) __kassert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
 
 unsigned int handle_interrupt_fp;
 unsigned int handle_interrupt_sp;
 bool assertion_failed;
 
-void __kassert(bool value) {
+void __kassert(bool value, const char * caller_name, const char *file_name, int line_num) {
   if (!value) {
-    bwprintf("Assertion failed!\n\r");
+    bwprintf("Assertion failed! \"%s\" at %s:%d\n", caller_name, file_name, line_num);
     assertion_failed = true;
     __asm__(
       "mov fp, %0\n\t"
