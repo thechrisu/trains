@@ -1,18 +1,5 @@
 #include "ready_queue.h"
 
-int ready_queue_is_empty(ready_queue *rq) {
-  return *rq == NULL_READY_QUEUE;
-}
-
-/**
- * @param   rq A ready queue.
- * @returns Whether or not the queue has one element.
- */
-int ready_queue_has_one_element(ready_queue *rq) {
-  task_descriptor *head = *rq;
-  return head->next == head;
-}
-
 int ready_queue_length(ready_queue *rq) {
   if (ready_queue_is_empty(rq))
     return 0;
@@ -24,6 +11,19 @@ int ready_queue_length(ready_queue *rq) {
     length += 1;
   } while(td != *rq);
   return length;
+}
+
+int ready_queue_is_empty(ready_queue *rq) {
+  return *rq == NULL_READY_QUEUE;
+}
+
+/**
+ * @param   rq A ready queue.
+ * @returns Whether or not the queue has one element.
+ */
+int ready_queue_has_one_element(ready_queue *rq) {
+  task_descriptor *head = *rq;
+  return head->next == head;
 }
 
 void ready_queue_enqueue(ready_queue *rq, task_descriptor *td) {
