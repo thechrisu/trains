@@ -10,15 +10,20 @@ all:
 	-make clean
 	-make test_buffer.out
 	-make test_ready_queue.out
+	-make test_scheduler.out
 
 test:
 	-./test_buffer.out
 	-./test_ready_queue.out
+	-./test_scheduler.out
 
 test_buffer.out: test_buffer.cc $(SRC)
 	g++ -o $@ $< $(SRC) $(FLAGS)
 
 test_ready_queue.out: test_ready_queue.cc $(SRC_SCHEDULER)
+	g++ -o $@ $< $(SRC_SCHEDULER) $(FLAGS)
+
+test_scheduler.out: test_scheduler.cc $(SRC_SCHEDULER)
 	g++ -o $@ $< $(SRC_SCHEDULER) $(FLAGS)
 
 clean:
