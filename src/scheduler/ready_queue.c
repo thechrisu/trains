@@ -26,7 +26,7 @@ int ready_queue_length(ready_queue *rq) {
   return length;
 }
 
-void ready_queue_push(ready_queue *rq, task_descriptor *td) {
+void ready_queue_enqueue(ready_queue *rq, task_descriptor *td) {
   task_descriptor *head, *tail;
 
   if (ready_queue_is_empty(rq)) {
@@ -43,7 +43,7 @@ void ready_queue_push(ready_queue *rq, task_descriptor *td) {
   }
 }
 
-task_descriptor *ready_queue_pop(ready_queue *rq) {
+task_descriptor *ready_queue_dequeue(ready_queue *rq) {
   task_descriptor *head, *new_head, *tail;
 
   if (ready_queue_is_empty(rq))

@@ -19,23 +19,23 @@ TEST(ReadyQueueTest, is_empty_returns_false_for_a_non_empty_queue) {
   ASSERT_FALSE(ready_queue_is_empty(&rq));
 }
 
-TEST(ReadyQueueTest, push_pushes_a_task_onto_an_empty_queue) {
+TEST(ReadyQueueTest, enqueue_enqueues_a_task_onto_an_empty_queue) {
   task_descriptor td;
   ready_queue rq = NULL;
 
-  ready_queue_push(&rq, &td);
+  ready_queue_enqueue(&rq, &td);
 
   ASSERT_EQ(ready_queue_length(&rq), 1);
   ASSERT_EQ(rq->next, &td);
   ASSERT_EQ(rq->prev, &td);
 }
 
-TEST(ReadyQueueTest, push_pushes_a_task_onto_a_queue_with_one_task) {
+TEST(ReadyQueueTest, enqueue_enqueues_a_task_onto_a_queue_with_one_task) {
   task_descriptor td1, td2;
   ready_queue rq = NULL;
 
-  ready_queue_push(&rq, &td1);
-  ready_queue_push(&rq, &td2);
+  ready_queue_enqueue(&rq, &td1);
+  ready_queue_enqueue(&rq, &td2);
 
   ASSERT_EQ(ready_queue_length(&rq), 2);
   ASSERT_EQ(rq->next, &td2);
@@ -44,13 +44,13 @@ TEST(ReadyQueueTest, push_pushes_a_task_onto_a_queue_with_one_task) {
   ASSERT_EQ(rq->prev->prev, &td1);
 }
 
-TEST(ReadyQueueTest, push_pushes_a_task_onto_a_queue_with_two_tasks) {
+TEST(ReadyQueueTest, enqueue_enqueues_a_task_onto_a_queue_with_two_tasks) {
   task_descriptor td1, td2, td3;
   ready_queue rq = NULL;
 
-  ready_queue_push(&rq, &td1);
-  ready_queue_push(&rq, &td2);
-  ready_queue_push(&rq, &td3);
+  ready_queue_enqueue(&rq, &td1);
+  ready_queue_enqueue(&rq, &td2);
+  ready_queue_enqueue(&rq, &td3);
 
   ASSERT_EQ(ready_queue_length(&rq), 3);
   ASSERT_EQ(rq->next, &td2);
@@ -61,13 +61,13 @@ TEST(ReadyQueueTest, push_pushes_a_task_onto_a_queue_with_two_tasks) {
   ASSERT_EQ(rq->prev->prev->prev, &td1);
 }
 
-TEST(ReadyQueueTest, push_pushes_a_task_onto_a_queue_with_five_tasks) {
+TEST(ReadyQueueTest, enqueue_enqueues_a_task_onto_a_queue_with_five_tasks) {
   int i;
   ready_queue rq = NULL;
 
   task_descriptor td[6];
   for (i = 0; i < 6; i += 1) {
-    ready_queue_push(&rq, &(td[i]));
+    ready_queue_enqueue(&rq, &(td[i]));
   }
 
   ASSERT_EQ(ready_queue_length(&rq), 6);
@@ -75,43 +75,43 @@ TEST(ReadyQueueTest, push_pushes_a_task_onto_a_queue_with_five_tasks) {
   ASSERT_EQ(rq->prev, &(td[5]));
 }
 
-TEST(ReadyQueueTest, pop_returns_zero_if_the_queue_is_empty) {
+TEST(ReadyQueueTest, dequeue_returns_zero_if_the_queue_is_empty) {
   ready_queue rq = NULL;
-  ASSERT_EQ(ready_queue_pop(&rq), (task_descriptor *)0);
+  ASSERT_EQ(ready_queue_dequeue(&rq), (task_descriptor *)0);
   ASSERT_EQ(ready_queue_length(&rq), 0);
 }
 
-TEST(ReadyQueueTest, pop_pops_a_task_from_a_queue_with_one_task) {
+TEST(ReadyQueueTest, dequeue_dequeues_a_task_from_a_queue_with_one_task) {
   task_descriptor td1;
   ready_queue rq = NULL;
 
-  ready_queue_push(&rq, &td1);
+  ready_queue_enqueue(&rq, &td1);
 
-  ASSERT_EQ(ready_queue_pop(&rq), &td1);
+  ASSERT_EQ(ready_queue_dequeue(&rq), &td1);
   ASSERT_EQ(ready_queue_length(&rq), 0);
 }
 
-TEST(ReadyQueueTest, pop_pops_a_task_from_a_queue_with_two_tasks) {
+TEST(ReadyQueueTest, dequeue_dequeues_a_task_from_a_queue_with_two_tasks) {
   task_descriptor td1, td2;
   ready_queue rq = NULL;
 
-  ready_queue_push(&rq, &td1);
-  ready_queue_push(&rq, &td2);
+  ready_queue_enqueue(&rq, &td1);
+  ready_queue_enqueue(&rq, &td2);
 
-  ASSERT_EQ(ready_queue_pop(&rq), &td1);
+  ASSERT_EQ(ready_queue_dequeue(&rq), &td1);
   ASSERT_EQ(ready_queue_length(&rq), 1);
 }
 
-TEST(ReadyQueueTest, pop_pops_a_task_from_a_queue_with_five_tasks) {
+TEST(ReadyQueueTest, dequeue_dequeues_a_task_from_a_queue_with_five_tasks) {
   int i;
   ready_queue rq = NULL;
 
   task_descriptor td[5];
   for (i = 0; i < 5; i += 1) {
-    ready_queue_push(&rq, &(td[i]));
+    ready_queue_enqueue(&rq, &(td[i]));
   }
 
-  ASSERT_EQ(ready_queue_pop(&rq), &(td[0]));
+  ASSERT_EQ(ready_queue_dequeue(&rq), &(td[0]));
   ASSERT_EQ(ready_queue_length(&rq), 4);
 }
 
