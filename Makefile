@@ -185,7 +185,7 @@ clean:
 upload:
 	-make clean
 	-make trainslab
-	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/csulshoe/
+	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(whoami)/
 
 qemu:
 	-make versatilepb
