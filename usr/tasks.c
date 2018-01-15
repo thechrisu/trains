@@ -24,7 +24,7 @@ int first_user_task() {
   software_interrupt(1);
   bwprintf("We made it, 4x\n\r");
   software_interrupt(1);
-  bwprintf("TASK 1: THIS SHOULD NEVER PRINT\n\r");
+  bwprintf("TASK 1: THIS SHOULD PRINT\n\r");
   return 0xDEADBEEF;
 }
 
