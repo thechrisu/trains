@@ -6,6 +6,19 @@ TEST(ReadyQueueTest, length_returns_zero_for_null_queue) {
   ASSERT_EQ(ready_queue_length(&rq), 0);
 }
 
+TEST(ReadyQueueTest, is_empty_returns_true_for_an_empty_queue) {
+  ready_queue rq = NULL;
+  ASSERT_TRUE(ready_queue_is_empty(&rq));
+}
+
+TEST(ReadyQueueTest, is_empty_returns_false_for_a_non_empty_queue) {
+  task_descriptor td;
+  ready_queue rq = NULL;
+
+  ready_queue_enqueue(&rq, &td);
+  ASSERT_FALSE(ready_queue_is_empty(&rq));
+}
+
 TEST(ReadyQueueTest, push_pushes_a_task_onto_an_empty_queue) {
   task_descriptor td;
   ready_queue rq = NULL;
