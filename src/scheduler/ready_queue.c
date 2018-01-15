@@ -1,7 +1,7 @@
 #include "ready_queue.h"
 
 int ready_queue_length(ready_queue *rq) {
-  if (*rq == (ready_queue)0)
+  if (*rq == NULL_READY_QUEUE)
     return 0;
 
   int length = 0;
@@ -38,7 +38,7 @@ task_descriptor *ready_queue_pop(ready_queue *rq) {
       return (task_descriptor *)0;
     case 1:
       head = *rq;
-      *rq = (ready_queue)0;
+      *rq = NULL_READY_QUEUE;
       return head;
     default:
       head = *rq;

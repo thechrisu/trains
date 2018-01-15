@@ -3,6 +3,8 @@
 
 #include "../task_descriptor.h"
 
+#define NULL_READY_QUEUE (ready_queue)0
+
 /**
  * A ready queue is a pointer to a task descriptor. If the queue is empty, it is
  * represented by `(ready_queue)0`.
