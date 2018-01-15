@@ -1,12 +1,10 @@
 #ifndef TASK_DESCRIPTOR_H
 #define TASK_DESCRIPTOR_H
 
-struct td {
+typedef struct {
   int priority;
   struct td *prev;
   struct td *next;
-};
-
-typedef struct td task_descriptor;
+} task_descriptor;
 
 #endif /* TASK_DESCRIPTOR_H */
