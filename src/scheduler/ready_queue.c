@@ -35,7 +35,7 @@ task_descriptor *ready_queue_pop(ready_queue *rq) {
 
   switch (ready_queue_length(rq)) {
     case 0:
-      return (task_descriptor *)0;
+      return NULL_TASK_DESCRIPTOR;
     case 1:
       head = *rq;
       *rq = NULL_READY_QUEUE;
