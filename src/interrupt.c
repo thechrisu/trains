@@ -56,8 +56,14 @@ void handle_interrupt(trapframe *tf) {
     bwprintf("Exit code: %x\n\r", tf->r1);
     tasks_ended += 1;
   }
-  if (tasks_ended == 2)
+  if (tasks_ended == 2) {
+    __asm__("add sp, sp, #32");
     return;
+  }
+
+  volatile int k_sp;
+  bwprintf("Something in the current stack frame: %x\n\r", &k_sp);
+  __asm__("add sp, sp, #32");
 
   leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
 }

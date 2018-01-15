@@ -1,22 +1,18 @@
 /*
 TODO store/load multiple
-TODO really get register values
 TODO test
-TODO write wrapper for this
 */
 .text
 .global leave_kernel
 .type	leave_kernel, %function
 leave_kernel:
-  STR r14, [sp, #0]
-  SUB sp, sp, #4
 /*
   Set saved PSR mode so that, when we call movs, we'll go into usermode.
 */
   MSR SPSR_c, #0x10
 
 /*
-  Store kernel link register in trapframe's k_lr member variable.
+  Load kernel link register from trapframe's k_lr member variable.
 */
   LDR r14, [r1, #64]
 
@@ -60,3 +56,11 @@ leave_kernel:
   giving control back to user task.
 */
   MOVS pc, lr
+
+.text
+.global leave_main
+.type	leave_main, %function
+leave_main:
+  STR r14, [sp, #0]
+  SUB sp, sp, #4
+  B leave_kernel

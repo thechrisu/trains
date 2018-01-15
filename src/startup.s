@@ -20,4 +20,3 @@ reset_handler:
 	LDR sp, =stack_top
 	BL cp_vectors
 	BL main
-	B crash

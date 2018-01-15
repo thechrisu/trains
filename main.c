@@ -16,7 +16,7 @@ extern unsigned int *stack_pointers;
 extern unsigned int current_task;
 extern unsigned int tasks_ended;
 extern void sys_exit();
-extern void leave_kernel(int ret_code, trapframe *tf);
+extern void leave_main(int ret_code, trapframe *tf);
 
 int main() {
   setup_io();
@@ -97,7 +97,7 @@ int main() {
   bwprintf("IN MAIN: (%x, %x) with sps: (%x, %x)\n\r", (uint32_t)tf, (uint32_t)tf2, stack_pointers[0], stack_pointers[1]);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  leave_kernel(0, tf);
+  leave_main(0, tf);
 
   bwprintf("Return from get_me_outta_here\n\r");
 #if VERSATILEPB
