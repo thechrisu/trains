@@ -12,7 +12,7 @@ bool assertion_failed;
 
 void __kassert(bool value, const char * caller_name, const char *file_name, int line_num) {
   if (!value) {
-    bwprintf("Assertion failed! \"%s\" at %s:%d\n", caller_name, file_name, line_num);
+    bwprintf("\033[31mAssertion failed! \"%s\" at %s:%d\033[39m\n", caller_name, file_name, line_num);
     assertion_failed = true;
     __asm__(
       "mov fp, %0\n\t"
@@ -84,7 +84,6 @@ void handle_interrupt(trapframe *tf) {
     bwprintf("Exit code: %x\n\r", tf->r1);
 #endif /* CONTEXT_SWITCH_DEBUG */
     tasks_ended += 1;
-    kassert(false);
   }
   trapframe *next = (trapframe *)stack_pointers[current_task];
   if (tasks_ended == 2) {
