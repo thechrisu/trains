@@ -44,11 +44,11 @@ void print_tf(trapframe *tf) {
 unsigned int tasks_ended;
 
 void handle_interrupt(trapframe *tf) {
+  /* Setup variables for kernel assertions */
   __asm__(
     "mov %0, fp\n\t"
     "mov %1, sp\n\t"
   : "=r" (handle_interrupt_fp), "=r" (handle_interrupt_sp));
-
   assertion_failed = false;
 
   current_task = current_task % 2;
@@ -81,12 +81,15 @@ void handle_interrupt(trapframe *tf) {
   bwprintf("Something in the current stack frame: %x\n\r", &k_sp);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
+  /*
+    Failed kernel assertions branch to this label after setting
+    assertion_failed = true.
+  */
   __asm__(
     ".text\n\t"
     ".global kassert_exit\n\t"
     "kassert_exit:\n\t"
   );
-
   if (assertion_failed)
     next = main_trapframe;
 
