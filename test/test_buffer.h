@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <boost/integer.hpp>
-#include "../include/kernel/glue/myio.h"
+#include "myio.h"
 #include "../src/buffer.h"
 #include "../src/a0terminal.h"
 

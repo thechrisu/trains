@@ -14,7 +14,7 @@ builddirversatilepb =build/versatilepb
 
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s $(builddirlab)/include/kernel/labenv/bwio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s
+.PRECIOUS: $(builddir)/main.s $(builddirversatilepb)/src/a0terminal.s $(builddirversatilepb)/include/kernel/glue/myio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s $(builddirversatilepb)/usr/tasks.s $(builddirversatilepb)/src/interrupt.s $(builddirlab)/usr/tasks.s $(builddirlab)/src/interrupt.s $(builddirlab)/main.s %.s
 
 XCC	= arm-none-eabi-gcc
 AS	= arm-none-eabi-as
@@ -23,12 +23,14 @@ OBJCOPY = arm-none-eabi-objcopy
 
 QEMU = qemu-system-arm
 QEMUWIN = qemu-system-arm.exe
-QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -serial vc -serial vc
+QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin
+QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
+QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
-CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -fno-builtin
-CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION)
+CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
+CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) -DCONTEXT_SWITCH_DEBUG
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
-CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm926ej-s -g -nostdlib
+CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -DCONTEXT_SWITCH_DEBUG -mcpu=arm926ej-s -g -nostdlib $(OPTIMIZATION)
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
@@ -48,14 +50,17 @@ LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
 
-SOURCESx64=main.c $(shell find src -name '*.c') $(shell find test-resources -name '*.c') \
-                  $(shell find include/kernel/glue -name '*.c')
+SOURCESx64=main.c $(shell find src -name '*.c' -not -name 'cp_vec.c') $(shell find test-resources -name '*.c') \
+                  $(shell find include/kernel/glue -name '*.c') $(shell find usr -name '*.c')
 SOURCES=$(SOURCESx64) $(shell find include/kernel/labenv -name '*.c')
-SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c')
+SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c') src/cp_vec.c
 
-OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES))
-OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(builddirversatilepb)/src/startup.o
-OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES))
+ASM=$(shell find src -name '*.s' -not -name 'startup.s')
+ASMversatilepb=$(shell find src -name '*.s')
+
+OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) $(patsubst %.s, $(builddir)/%.o, $(ASM))
+OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirversatilepb)/%.o, $(ASMversatilepb))
+OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES)) $(patsubst %.s, $(builddirlab)/%.o, $(ASM))
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 
 x64stdlib:
@@ -112,7 +117,7 @@ trainslab:
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
-	$(LABPATH)gcc $(CFLAGS_ARM_LAB) -O2  $< -S -o $@
+	$(LABPATH)gcc $(CFLAGS_ARM_LAB)  $< -S -o $@
 
 $(builddirlab)/src/%.o: src/%.s
 	@mkdir -p $(dir $@)
@@ -180,11 +185,17 @@ clean:
 upload:
 	-make clean
 	-make trainslab
-	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/csulshoe/
+	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
 
 qemu:
 	-make versatilepb
-	-$(QEMU) $(QEMUARGS)
+	-$(QEMU) $(QEMUGUIARGS)
 
 qemuwin: versatilepb
-	-$(QEMUWIN) $(QEMUARGS)
+	-$(QEMUWIN) $(QEMUGUIARGS)
+
+qemuconsole: versatilepb
+	-$(QEMU) $(QEMUCONSOLEARGS)
+
+qemuwinconsole: versatilepb
+	-$(QEMUWIN) $(QEMUCONSOLEARGS)

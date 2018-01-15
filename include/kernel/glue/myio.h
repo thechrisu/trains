@@ -48,6 +48,7 @@ void empty_buf(int channel, bool out);
 int setfifo(int channel, int state);
 int setspeed(int channel, int speed);
 int putc(int channel, char c);
+int bwputr(int channel, unsigned int reg);
 int canputc(int channel);
 /**
  *
@@ -57,6 +58,7 @@ int canputc(int channel);
 int cangetc(int channel);
 int getc(int channel);
 void printf(char *format, ...);
+void bwprintf(char *format, ...);
 
 
 

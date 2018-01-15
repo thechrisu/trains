@@ -84,7 +84,7 @@ static uint64_t get_debug_timer_time() {
  */
 void setup_timer() {
   // set_debug_timer(true);
-  set_tc3_timer(0xFFFFFFFF, 1);
+  set_tc3_timer(0xFFFF, 1);
   set_debug_timer(0);
   get_debug_timer_time();
 }
