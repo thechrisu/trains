@@ -1,7 +1,26 @@
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
+#include "stdlib.h"
 #include "tasks.h"
+
+#define kassert(value) __kassert((bool)value)
+
+unsigned int handle_interrupt_fp;
+unsigned int handle_interrupt_sp;
+bool assertion_failed;
+
+void __kassert(bool value) {
+  if (!value) {
+    bwprintf("Assertion failed!\n\r");
+    assertion_failed = true;
+    __asm__(
+      "mov fp, %0\n\t"
+      "mov sp, %1\n\t"
+      "b kassert_exit"
+    : : "r" (handle_interrupt_fp), "r" (handle_interrupt_sp));
+  }
+}
 
 extern void leave_kernel(int ret_code, trapframe *tf);
 extern void get_me_outta_here();
@@ -41,6 +60,13 @@ void print_tf(trapframe *tf) {
 unsigned int tasks_ended;
 
 void handle_interrupt(trapframe *tf) {
+  __asm__(
+    "mov %0, fp\n\t"
+    "mov %1, sp\n\t"
+  : "=r" (handle_interrupt_fp), "=r" (handle_interrupt_sp));
+
+  assertion_failed = false;
+
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
 #ifdef CONTEXT_SWITCH_DEBUG
@@ -58,6 +84,7 @@ void handle_interrupt(trapframe *tf) {
     bwprintf("Exit code: %x\n\r", tf->r1);
 #endif /* CONTEXT_SWITCH_DEBUG */
     tasks_ended += 1;
+    kassert(false);
   }
   trapframe *next = (trapframe *)stack_pointers[current_task];
   if (tasks_ended == 2) {
@@ -70,6 +97,16 @@ void handle_interrupt(trapframe *tf) {
   volatile int k_sp;
   bwprintf("Something in the current stack frame: %x\n\r", &k_sp);
 #endif /* CONTEXT_SWITCH_DEBUG */
+
+  __asm__(
+    ".text\n\t"
+    ".global kassert_exit\n\t"
+    "kassert_exit:\n\t"
+  );
+
+  if (assertion_failed)
+    next = main_trapframe;
+
   __asm__ volatile(
   "MOV r0, %0\n\t"
   "MOV r1, %1\n\t"
