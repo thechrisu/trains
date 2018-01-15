@@ -15,6 +15,7 @@ extern void enter_kernel(unsigned int syscall_code);
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
 extern unsigned int tasks_ended;
+extern trapframe *main_trapframe;
 extern void sys_exit();
 extern void leave_main(int ret_code, trapframe *tf);
 
@@ -96,7 +97,7 @@ int main() {
   bwprintf("Stackpointers: %x, Current: %x\n\r", stack_pointers, &current_task);
   bwprintf("IN MAIN: (%x, %x) with sps: (%x, %x)\n\r", (uint32_t)tf, (uint32_t)tf2, stack_pointers[0], stack_pointers[1]);
 #endif /* CONTEXT_SWITCH_DEBUG */
-
+  __asm__ volatile("mov %0, r13\n\t" : "=r"((uint32_t)main_trapframe));
   leave_main(0, tf);
 
   bwprintf("Return from get_me_outta_here\n\r");

@@ -6,6 +6,7 @@
 extern void leave_kernel(int ret_code, trapframe *tf);
 extern void get_me_outta_here();
 
+trapframe *main_trapframe;
 unsigned int *stack_pointers;
 unsigned int current_task;
 
@@ -56,14 +57,18 @@ void handle_interrupt(trapframe *tf) {
     bwprintf("Exit code: %x\n\r", tf->r1);
     tasks_ended += 1;
   }
+  trapframe *next = stack_pointers[current_task];
   if (tasks_ended == 2) {
-    __asm__("add sp, sp, #32");
-    return;
+    bwprintf("Both tasks finished!\n\r");
+    next = main_trapframe;
   }
-
+#ifdef CONTEXT_SWITCH_DEBUG
   volatile int k_sp;
   bwprintf("Something in the current stack frame: %x\n\r", &k_sp);
-  __asm__("add sp, sp, #32");
-
-  leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
+#endif /* CONTEXT_SWITCH_DEBUG */
+  __asm__ volatile(
+  "MOV r0, %0\n\t"
+  "MOV r1, %1\n\t"
+  "MOV r2, %2\n\t"
+  : :"r"(current_task + 1), "r"(next), "r"(next == main_trapframe) : "r0", "r1", "r2");
 }

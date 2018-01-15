@@ -31,9 +31,12 @@ enter_kernel: /* called on an interrupt */
 
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
-  LDR r14, [sp, #4]
 /* Service interrupt. */
-  B handle_interrupt
+  BL handle_interrupt
+/* Move to main/user conditionally */
+  CMP r2, #1
+  BEQ enter_main
+  BNE leave_kernel
 
 .text
 .global sys_exit
