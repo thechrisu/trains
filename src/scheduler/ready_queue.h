@@ -32,7 +32,7 @@ int ready_queue_length(ready_queue *rq);
 int ready_queue_is_empty(ready_queue *rq);
 
 /**
- * Pushes a task descriptor onto a ready queue.
+ * Enqueues a task descriptor onto a ready queue.
  *
  * @param rq A ready queue.
  * @param td The task descriptor to push onto the ready queue.
@@ -40,7 +40,7 @@ int ready_queue_is_empty(ready_queue *rq);
 void ready_queue_enqueue(ready_queue *rq, task_descriptor *td);
 
 /**
- * Pops the task descriptor at the head of a ready queue off the queue.
+ * Dequeues the task descriptor at the head of a ready queue from the queue.
  *
  * @param   rq A ready queue.
  * @returns NULL_TASK_DESCRIPTOR if the ready queue is empty, and the popped
