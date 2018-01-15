@@ -75,9 +75,9 @@ TEST(ReadyQueueTest, enqueue_enqueues_a_task_onto_a_queue_with_five_tasks) {
   ASSERT_EQ(rq->prev, &(td[5]));
 }
 
-TEST(ReadyQueueTest, dequeue_returns_zero_if_the_queue_is_empty) {
+TEST(ReadyQueueTest, dequeue_returns_null_task_descriptor_if_the_queue_is_empty) {
   ready_queue rq = NULL;
-  ASSERT_EQ(ready_queue_dequeue(&rq), (task_descriptor *)0);
+  ASSERT_EQ(ready_queue_dequeue(&rq), NULL_TASK_DESCRIPTOR);
   ASSERT_EQ(ready_queue_length(&rq), 0);
 }
 
