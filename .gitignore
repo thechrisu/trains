@@ -8,6 +8,6 @@ build/*
 
 src/track/diagrams/
 
-test/test_buffer.out
+test/*.out
 
 *.gch

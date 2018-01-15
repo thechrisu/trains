@@ -23,7 +23,7 @@ void ready_queue_push(ready_queue *rq, task_descriptor *td);
  * Pops the task descriptor at the head of a ready queue off the queue.
  *
  * @param   rq A ready queue.
- * @returns NULL if the ready queue is empty, and the popped task descriptor
+ * @returns 0 if the ready queue is empty, and the popped task descriptor
             otherwise.
  */
 task_descriptor *ready_queue_pop(ready_queue *rq);
