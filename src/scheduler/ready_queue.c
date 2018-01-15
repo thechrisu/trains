@@ -1,7 +1,24 @@
 #include "ready_queue.h"
 
+/**
+ * @param   rq A ready queue.
+ * @returns Whether or not the queue is empty.
+ */
+int ready_queue_is_empty(ready_queue *rq) {
+  return *rq == NULL_READY_QUEUE;
+}
+
+/**
+ * @param   rq A ready queue.
+ * @returns Whether or not the queue has one element.
+ */
+int ready_queue_has_one_element(ready_queue *rq) {
+  task_descriptor *head = *rq;
+  return head->next == head;
+}
+
 int ready_queue_length(ready_queue *rq) {
-  if (*rq == NULL_READY_QUEUE)
+  if (ready_queue_is_empty(rq))
     return 0;
 
   int length = 0;
@@ -16,7 +33,7 @@ int ready_queue_length(ready_queue *rq) {
 void ready_queue_push(ready_queue *rq, task_descriptor *td) {
   task_descriptor *head, *tail;
 
-  if (ready_queue_length(rq) == 0) {
+  if (ready_queue_is_empty(rq)) {
     td->prev = td;
     td->next = td;
     *rq = td;
@@ -33,20 +50,19 @@ void ready_queue_push(ready_queue *rq, task_descriptor *td) {
 task_descriptor *ready_queue_pop(ready_queue *rq) {
   task_descriptor *head, *new_head, *tail;
 
-  switch (ready_queue_length(rq)) {
-    case 0:
-      return NULL_TASK_DESCRIPTOR;
-    case 1:
-      head = *rq;
-      *rq = NULL_READY_QUEUE;
-      return head;
-    default:
-      head = *rq;
-      new_head = head->next;
-      tail = head->prev;
-      new_head->prev = tail;
-      tail->next = new_head;
-      *rq = new_head;
-      return head;
+  if (ready_queue_is_empty(rq))
+    return NULL_TASK_DESCRIPTOR;
+
+  if (ready_queue_has_one_element(rq)) {
+    head = *rq;
+    *rq = NULL_READY_QUEUE;
+  } else {
+    head = *rq;
+    new_head = head->next;
+    tail = head->prev;
+    new_head->prev = tail;
+    tail->next = new_head;
+    *rq = new_head;
   }
+  return head;
 }
