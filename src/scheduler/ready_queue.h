@@ -5,7 +5,12 @@
 
 /**
  * A ready queue is a pointer to a task descriptor. If the queue is empty, it is
- * represented by (ready_queue)0.
+ * represented by `(ready_queue)0`.
+ *
+ * The data structure behind ready queues is a doubly-linked circular list. Each
+ * task has a pointer to the element before it and after it in the queue. The
+ * head task's `next` pointer points to the tail task, and the tail task's `prev`
+ * pointer points to the head task.
  */
 typedef task_descriptor *ready_queue;
 
