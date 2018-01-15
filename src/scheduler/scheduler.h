@@ -36,11 +36,12 @@ int scheduler_register(scheduler *s, task_descriptor *td);
 /**
  * Gets the next task from a scheduler.
  *
- * Stores the task descriptor at the head of the highest-priority non-empty
- * ready queue in the scheduler.
+ * Returns the task descriptor at the head of the highest-priority non-empty
+ * ready queue in the scheduler. Removes the returned task descriptor from its
+ * ready queue.
  * @param   s A scheduler.
- * @returns NULL if there are no task descriptors on any of the scheduler's
-            ready queues, and the next task descriptor otherwise.
+ * @returns NULL_TASK_DESCRIPTOR if there are no task descriptors on any of the
+            scheduler's ready queues, and the next task descriptor otherwise.
  */
 task_descriptor *scheduler_next_task(scheduler *s);
 
