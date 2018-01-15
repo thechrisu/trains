@@ -6,7 +6,7 @@ unsigned int software_interrupt(unsigned int num) {
   register int result __asm__ ("r0");
 
   arg0 = num;
-  __asm__("swi 0" : "=r" (result) : "r" (arg0));
+  __asm__ volatile ("swi 0\n\t" : "=r" (result) : "r" (arg0));
   bwprintf("End of software_interrupt\n\r");
   return result;
 }

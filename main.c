@@ -8,6 +8,10 @@
 #include "stdlib.h"
 #include "myio.h"
 
+#ifndef VERSATILEPB
+extern void enter_kernel(unsigned int syscall_code);
+#endif
+
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
 extern unsigned int tasks_ended;
@@ -95,12 +99,7 @@ int main() {
 
   leave_kernel(0, tf);
 
-  __asm__(
-    ".text\n\t"
-    ".global get_me_outta_here\n\t"
-    ".type get_me_outta_here, %function\n\t"
-    "get_me_outta_here:"
-  );
+  bwprintf("Return from get_me_outta_here\n\r");
 #if VERSATILEPB
   CRASH();
 #else

@@ -57,7 +57,7 @@ void handle_interrupt(trapframe *tf) {
     tasks_ended += 1;
   }
   if (tasks_ended == 2)
-    get_me_outta_here();
+    return;
 
   leave_kernel(current_task + 1, (trapframe *)stack_pointers[current_task]);
 }

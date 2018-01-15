@@ -14,7 +14,7 @@ builddirversatilepb =build/versatilepb
 
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s $(builddirversatilepb)/src/a0terminal.s $(builddirversatilepb)/include/kernel/glue/myio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s $(builddirversatilepb)/usr/tasks.s $(builddirversatilepb)/src/interrupt.s $(builddirlab)/usr/tasks.s $(builddirlab)/src/interrupt.s
+.PRECIOUS: $(builddir)/main.s $(builddirversatilepb)/src/a0terminal.s $(builddirversatilepb)/include/kernel/glue/myio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/cp_vec.s $(builddirversatilepb)/usr/tasks.s $(builddirversatilepb)/src/interrupt.s $(builddirlab)/usr/tasks.s $(builddirlab)/src/interrupt.s $(builddirlab)/main.s %.s
 
 XCC	= arm-none-eabi-gcc
 AS	= arm-none-eabi-as

@@ -8,6 +8,8 @@ TODO write wrapper for this
 .global leave_kernel
 .type	leave_kernel, %function
 leave_kernel:
+  STR r14, [sp, #0]
+  SUB sp, sp, #4
 /*
   Set saved PSR mode so that, when we call movs, we'll go into usermode.
 */

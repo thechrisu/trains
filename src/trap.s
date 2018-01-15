@@ -2,7 +2,6 @@
 .global enter_kernel
 .type	enter_kernel, %function
 enter_kernel: /* called on an interrupt */
-
 /* Enter system mode. */
   MSR cpsr_c, #0x1F
 
@@ -32,7 +31,7 @@ enter_kernel: /* called on an interrupt */
 
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
-
+  LDR r14, [sp, #4]
 /* Service interrupt. */
   B handle_interrupt
 
