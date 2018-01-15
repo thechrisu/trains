@@ -54,12 +54,16 @@ void handle_interrupt(trapframe *tf) {
   print_tf((trapframe *)stack_pointers[current_task]);
 #endif /* CONTEXT_SWITCH_DEBUG */
   if (tf->r0 == 0) {
+#ifdef CONTEXT_SWITCH_DEBUG
     bwprintf("Exit code: %x\n\r", tf->r1);
+#endif /* CONTEXT_SWITCH_DEBUG */
     tasks_ended += 1;
   }
   trapframe *next = stack_pointers[current_task];
   if (tasks_ended == 2) {
+#ifdef CONTEXT_SWITCH_DEBUG
     bwprintf("Both tasks finished!\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */
     next = main_trapframe;
   }
 #ifdef CONTEXT_SWITCH_DEBUG

@@ -7,7 +7,9 @@ unsigned int software_interrupt(unsigned int num) {
 
   arg0 = num;
   __asm__ volatile ("swi 0\n\t" : "=r" (result) : "r" (arg0));
+#ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("End of software_interrupt\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */
   return result;
 }
 

@@ -42,7 +42,6 @@ int main() {
   tf->r2 = 0x1EADBEE1;
   tf->r3 = 0x1EADBEE2;
   tf->r4 = 0x1EADBEE3;
-  bwprintf("Setting tf, mem: %x. TF at %x\n\r", &(tf->r5), tf);
   tf->r5 = 0x1EADBEE4;
   tf->r6 = 0x1EADBEE5;
   tf->r7 = 0x1EADBEE6;
@@ -100,7 +99,9 @@ int main() {
   __asm__ volatile("mov %0, r13\n\t" : "=r"((uint32_t)main_trapframe));
   leave_main(0, tf);
 
+#if CONTEXT_SWITCH_DEBUG
   bwprintf("Return from get_me_outta_here\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */
 #if VERSATILEPB
   CRASH();
 #else
