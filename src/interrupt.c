@@ -57,7 +57,7 @@ void handle_interrupt(trapframe *tf) {
     bwprintf("Exit code: %x\n\r", tf->r1);
     tasks_ended += 1;
   }
-  trapframe *next = stack_pointers[current_task];
+  trapframe *next = (trapframe *)stack_pointers[current_task];
   if (tasks_ended == 2) {
     bwprintf("Both tasks finished!\n\r");
     next = main_trapframe;
