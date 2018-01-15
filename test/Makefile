@@ -22,4 +22,4 @@ test_ready_queue.out: test_ready_queue.cc $(SRC_SCHEDULER)
 	g++ -o $@ $< $(SRC_SCHEDULER) $(FLAGS)
 
 clean:
-	-  rm -f a.out test_buffer.out
+	-  rm -f *.out
