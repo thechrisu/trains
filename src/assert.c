@@ -1,8 +1,8 @@
 #include "assert.h"
 
-extern bool handle_interrupt_fp;
-extern bool handle_interrupt_sp;
-extern bool assertion_failed;
+extern int handle_interrupt_fp;
+extern int handle_interrupt_sp;
+extern int assertion_failed;
 
 void __kassert(bool value, const char * caller_name, const char *file_name, int line_num) {
   if (!value) {
