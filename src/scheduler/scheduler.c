@@ -23,7 +23,7 @@ int scheduler_register(scheduler *s, task_descriptor *td) {
 task_descriptor *scheduler_next_task(scheduler *s) {
   for (int i = s->max_priority; i >= 0; i -= 1) {
     ready_queue *rq = &(s->queues[i]);
-    if (ready_queue_length(rq) > 0)
+    if (!ready_queue_is_empty(rq))
       return ready_queue_pop(rq);
   }
   return NULL_TASK_DESCRIPTOR;

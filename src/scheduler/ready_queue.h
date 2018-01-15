@@ -16,11 +16,20 @@
  */
 typedef task_descriptor *ready_queue;
 
+
 /**
  * @param   rq A ready queue.
  * @returns The length of the ready queue.
  */
 int ready_queue_length(ready_queue *rq);
+
+/**
+ * Returns whether or not a ready queue is empty in constant time.
+ *
+ * @param   rq A ready queue.
+ * @returns Whether or not the queue is empty.
+ */
+int ready_queue_is_empty(ready_queue *rq);
 
 /**
  * Pushes a task descriptor onto a ready queue.

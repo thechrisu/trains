@@ -1,9 +1,5 @@
 #include "ready_queue.h"
 
-/**
- * @param   rq A ready queue.
- * @returns Whether or not the queue is empty.
- */
 int ready_queue_is_empty(ready_queue *rq) {
   return *rq == NULL_READY_QUEUE;
 }
