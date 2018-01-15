@@ -9,9 +9,6 @@ unsigned int handle_interrupt_fp;
 unsigned int handle_interrupt_sp;
 bool assertion_failed;
 
-extern void leave_kernel(int ret_code, trapframe *tf);
-extern void get_me_outta_here();
-
 trapframe *main_trapframe;
 unsigned int *stack_pointers;
 unsigned int current_task;

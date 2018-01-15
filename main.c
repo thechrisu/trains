@@ -100,8 +100,9 @@ int main() {
   leave_main(0, tf);
 
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Return from get_me_outta_here\n\r");
+  bwprintf("Return from leave_main\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
+
 #if VERSATILEPB
   CRASH();
 #else
