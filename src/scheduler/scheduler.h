@@ -13,11 +13,13 @@ typedef struct {
  *
  * Set's the scheduler's max priority and array of ready queues to the
  * provided values, then sets all the ready queues to NULL.
- * @param s            A scheduler.
- * @param max_priority The maximum priority that a task in the scheduler can have.
- * @param queues       An array of max_priority + 1 ready queues.
+ * @param   s            A scheduler.
+ * @param   max_priority The maximum priority that a task in the scheduler can have.
+                         Must be greater than or equal to zero.
+ * @param   queues       An array of max_priority + 1 ready queues.
+ * @returns -1 if max_priority is negative, and 0 otherwise.
  */
-void scheduler_init(scheduler *s, int max_priority, ready_queue *queues);
+int scheduler_init(scheduler *s, int max_priority, ready_queue *queues);
 
 /**
  * Registers a task descriptor with a scheduler.
