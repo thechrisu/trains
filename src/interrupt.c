@@ -59,7 +59,7 @@ void handle_interrupt(trapframe *tf) {
 #endif /* CONTEXT_SWITCH_DEBUG */
     tasks_ended += 1;
   }
-  trapframe *next = stack_pointers[current_task];
+  trapframe *next = (trapframe *)stack_pointers[current_task];
   if (tasks_ended == 2) {
 #ifdef CONTEXT_SWITCH_DEBUG
     bwprintf("Both tasks finished!\n\r");
