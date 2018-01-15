@@ -32,7 +32,7 @@ TEST(SchedulerTest, register_returns_negative_one_if_task_priority_is_negative) 
   task_descriptor td;
   td.priority = -1;
 
-  scheduler_init(&s, 1, rq);
+  scheduler_init(&s, 0, rq);
   ASSERT_EQ(scheduler_register(&s, &td), -1);
 }
 
@@ -42,7 +42,7 @@ TEST(SchedulerTest, register_returns_negative_one_if_task_priority_is_greater_th
   task_descriptor td;
   td.priority = 1;
 
-  scheduler_init(&s, 1, rq);
+  scheduler_init(&s, 0, rq);
   ASSERT_EQ(scheduler_register(&s, &td), -1);
 }
 
@@ -84,9 +84,8 @@ TEST(SchedulerTest, next_task_returns_task_from_highest_priority_non_empty_queue
 
   scheduler_init(&s, 9, rq);
   for (i = 0; i < 5; i += 1) {
-    task_descriptor *td = &(td[i]);
-    td->priority = 2 * i + 1;
-    scheduler_register(&s, td);
+    td[i].priority = 2 * i + 1;
+    scheduler_register(&s, &(td[i]));
   }
 
   for (i = 4; i >= 0; i -= 1)
@@ -101,9 +100,8 @@ TEST(SchedulerTest, next_task_has_fifo_ordering) {
 
   scheduler_init(&s, 0, rq);
   for (i = 0; i < 10; i += 1) {
-    task_descriptor *td = &(td[i]);
-    td->priority = 0;
-    scheduler_register(&s, td);
+    td[i].priority = 0;
+    scheduler_register(&s, &(td[i]));
   }
 
   for (i = 0; i < 10; i += 1)
