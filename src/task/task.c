@@ -49,15 +49,35 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
 void task_activate(task_descriptor *task) {
   task->state = TASK_ACTIVE;
   current_task = task;
+#ifndef TESTING
+  leave_kernel(0, task->tf);
+#endif
 }
 
 void task_runnable(task_descriptor *task) {
   task->state = TASK_RUNNABLE;
 }
 
-void task_retire(task_descriptor *task, uint16_t exit_code) {
+void task_retire(task_descriptor *task, int16_t exit_code) {
   task->state = TASK_ZOMBIE;
   task->exit_code = exit_code;
+  task->tf->r0 = 0x745C0000 + task->tid;
+  task->tf->r1 = 0x745C0000 + task->tid;
+  task->tf->r2 = 0x745C0000 + task->tid;
+  task->tf->r3 = 0x745C0000 + task->tid;
+  task->tf->r4 = 0x745C0000 + task->tid;
+  task->tf->r5 = 0x745C0000 + task->tid;
+  task->tf->r6 = 0x745C0000 + task->tid;
+  task->tf->r7 = 0x745C0000 + task->tid;
+  task->tf->r8 = 0x745C0000 + task->tid;
+  task->tf->r9 = 0x745C0000 + task->tid;
+  task->tf->r10 = 0x745C0000 + task->tid;
+  task->tf->fp = 0x745C0000 + task->tid;
+  task->tf->ip = 0x745C0000 + task->tid;
+  task->tf->sp = 0x745C0000 + task->tid;
+  task->tf->lr = 0x745C0000 + task->tid;
+  task->tf->sp = 0x745C0000 + task->tid;
+  task->tf = NULL_TRAPFRAME;
 }
 
 tid_t task_get_tid(task_descriptor *task) {
