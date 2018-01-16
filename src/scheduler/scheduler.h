@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include "ready_queue.h"
+#include "../task/task.h"
 
 typedef struct {
   int max_priority;
