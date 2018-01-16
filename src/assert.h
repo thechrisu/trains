@@ -10,15 +10,20 @@
  * If value is false, prints information about where the assertion failed, then exits
  * the kernel.
  *
+ * A FAILED ASSERTION ABOVE THE INITIALIZATION CODE AT THE TOP OF MAIN() WILL CAUSE
+ * FP AND SP TO BE SET TO UNPREDICTABLE VALUES.
+ *
  * To exit the kernel, kassert branches to the kassert_exit label at the end of
- * handle_interrupt. This relies on the existence of a handle_interrupt stack frame
- * on the kernel stack. Consequently:
+ * main(). A FAILED ASSERTION BELOW THIS LABEL WILL LEAD TO AN INFINITE LOOP.
  *
- * KASSERT WILL LIKELY CAUSE BUGS IF CALLED FROM THE PARTS OF THE CONTEXT SWITCH THAT ARE
- * WRITTEN IN ASSEMBLY, OR FROM USER CODE.
+ * To make an assertion in assembly, do something like:
  *
- * However, kassert should work if called from inside handle_interrupt, or if called from
- * a function that is called inside handle_interrupt.
+ *     MOV r0, #1
+ *     BL __kassert
+ *
+ * Make sure to save r0 somewhere else before overwriting it. You could also pass
+ * other information you want printed if the assertion fails in r1, r2, and r3.
+ *
  * @param value       The value to assert.
  * @param caller_name The name of the function in which kassert was called.
  * @param file_name   The name of the file in which kassert was called.
