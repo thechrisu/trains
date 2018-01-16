@@ -19,7 +19,8 @@ extern void sys_exit();
 typedef enum task_state {
   TASK_ACTIVE,
   TASK_RUNNABLE,
-  TASK_ZOMBIE
+  TASK_ZOMBIE,
+  TASK_BLOCKED
 } task_state;
 
 typedef uint16_t tid_t;
@@ -32,6 +33,7 @@ struct td {
   trapframe *tf;
   task_state state;
   tid_t tid;
+  uint16_t exit_code;
 };
 
 typedef struct td task_descriptor;

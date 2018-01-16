@@ -51,8 +51,9 @@ void task_runnable(task_descriptor *task) {
   task->state = TASK_RUNNABLE;
 }
 
-void task_retire(task_descriptor *task) {
+void task_retire(task_descriptor *task, uint16_t exit_code) {
   task->state = TASK_ZOMBIE;
+  task->exit_code = exit_code;
 }
 
 tid_t task_get_tid(task_descriptor *task) {
