@@ -5,7 +5,7 @@
 #ifndef TRAINS_SYSCALL_H
 #define TRAINS_SYSCALL_H
 
-#include "../task/task.h"
+#include "../multitasking/task.h"
 
 extern void enter_main();
 

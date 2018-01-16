@@ -1,7 +1,7 @@
 #ifndef READY_QUEUE_H
 #define READY_QUEUE_H
 
-#include "../task/task.h"
+#include "task.h"
 
 #define NULL_READY_QUEUE (ready_queue)0
 
