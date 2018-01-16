@@ -1,7 +1,6 @@
 #include "task.h"
 
 
-tid_t max_tid = (STACK_TOP - STACK_BOTTOM) / BYTES_PER_TASK;
 tid_t next_task_id = 0;
 task_descriptor *current_task;
 task_descriptor *all_tasks[MAX_TASKS];

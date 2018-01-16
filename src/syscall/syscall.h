@@ -8,7 +8,6 @@
 #include "../task/task.h"
 
 extern void enter_main();
-extern 
 
 void syscall_create(int priority, void (*code)());
 int syscall_mytid();

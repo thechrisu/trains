@@ -41,7 +41,6 @@ struct td {
 
 typedef struct td task_descriptor;
 
-extern tid_t max_tid;
 extern tid_t next_task_id;
 extern task_descriptor *current_task;
 extern task_descriptor *all_tasks[];
