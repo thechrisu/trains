@@ -69,7 +69,6 @@ void handle_interrupt(trapframe *tf) {
   volatile int k_sp;
   bwprintf("Something in the current stack frame: %x\n\r", &k_sp);
 #endif /* CONTEXT_SWITCH_DEBUG */
-
   __asm__ volatile(
   "MOV r0, %0\n\t"
   "MOV r1, %1\n\t"
