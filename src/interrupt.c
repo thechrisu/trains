@@ -41,6 +41,9 @@ trapframe *handle_interrupt(trapframe *tf) {
       syscall_exit();
       // tf->r0 = 0;
       // DON'T DO THE ABOVE HERE YOU ASSHOLE. DO IT FOR OTHER SYSCALLS BUT NOT THIS ONE.
+      break;
+    default:
+      tf->r0 = 0xCAFED00D;
   }
 #if TRAPFRAME_DEBUG
   bwprintf("End of handle_interrupt\n\r");
