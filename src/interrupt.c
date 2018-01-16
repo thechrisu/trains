@@ -1,8 +1,6 @@
-#include "assert.h"
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
-#include "stdlib.h"
 #include "tasks.h"
 
 trapframe *main_trapframe;

@@ -2,7 +2,6 @@
 #include "cp_vec.h"
 #endif
 
-#include "assert.h"
 #include "crash.h"
 #include "tasks.h"
 #include "interrupt.h"
