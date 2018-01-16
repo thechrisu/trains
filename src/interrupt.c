@@ -4,9 +4,6 @@
 #include "myio.h"
 #include "tasks.h"
 
-extern void leave_kernel(int ret_code, trapframe *tf);
-extern void get_me_outta_here();
-
 trapframe *main_trapframe;
 unsigned int *stack_pointers;
 unsigned int current_task;
