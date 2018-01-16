@@ -51,4 +51,4 @@ tid_t task_get_tid(task_descriptor *task);
 
 tid_t task_get_parent_id(task_descriptor *task);
 
-#endif //TRAINS_TASK_H
+#endif /* TRAINS_TASK_H */
