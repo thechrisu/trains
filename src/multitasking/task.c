@@ -1,8 +1,6 @@
 #include "task.h"
 
-
 tid_t next_task_id = 0;
-task_descriptor *current_task;
 task_descriptor *all_tasks[MAX_TASKS];
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
