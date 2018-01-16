@@ -17,7 +17,7 @@
 #define MAX_TASKS       64 // 32MB/384K gives > 80, but 64 is divisible by 2 and I had to pick __some__ number
 
 extern void sys_exit();
-extern void leave_kernel(int ret_code, trapframe *tf);
+extern trapframe *leave_kernel(int ret_code, trapframe *tf);
 
 typedef enum task_state {
   TASK_ACTIVE,
@@ -43,7 +43,7 @@ typedef struct td task_descriptor;
 
 extern tid_t next_task_id;
 extern task_descriptor *current_task;
-extern task_descriptor *all_tasks[];
+extern task_descriptor all_tasks[];
 
 /**
  * Initializes the task structure.

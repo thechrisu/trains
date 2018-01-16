@@ -1,7 +1,8 @@
+#include "interrupt.h"
 #include "task.h"
 
 tid_t next_task_id = 0;
-task_descriptor *all_tasks[MAX_TASKS];
+task_descriptor all_tasks[MAX_TASKS];
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
   task->tid = next_task_id++;
@@ -10,7 +11,6 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->next = NULL_TASK_DESCRIPTOR;
   task->prev = NULL_TASK_DESCRIPTOR;
   task->parent = parent;
-  all_tasks[task->tid] = task;
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
@@ -38,17 +38,29 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
 #else
   task->tf->sp = (uint32_t)task->tf;
   task->tf->lr = (uint32_t)(&sys_exit);
-  task->tf->pc = (uint32_t)task_main;
+  task->tf->pc = 0xF433000D + (task->tid << 4);
+  task->tf->k_lr = (uint32_t)task_main;
+#if SCHEDULE_DEBUG
+  bwprintf("task_main: %x\n\r", (uint32_t)task_main);
+#endif /* SCHEDULE_DEBUG */
 #endif /* TESTING */
   // TODO set cpsr
 }
 
 void task_activate(task_descriptor *task) {
+#if TRAPFRAME_DEBUG
+  bwprintf("Start of task_activate\n\r");
+  print_tf(task->tf);
+#endif /* TRAPFRAME_DEBUG */
   task->state = TASK_ACTIVE;
   current_task = task;
 #ifndef TESTING
-  leave_kernel(task->tf->r0, task->tf);
+  task->tf = leave_kernel(task->tf->r0, task->tf);
 #endif
+#if TRAPFRAME_DEBUG
+  bwprintf("End of task_activate\n\r");
+  print_tf(task->tf);
+#endif /* TRAPFRAME_DEBUG */
 }
 
 void task_runnable(task_descriptor *task) {

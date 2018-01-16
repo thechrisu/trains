@@ -1,6 +1,5 @@
 #include "syscall.h"
 
-
 int syscall_create(int priority, void (*code)()) {
   if (next_task_id >= MAX_TASKS) {
     return -2;
@@ -10,7 +9,7 @@ int syscall_create(int priority, void (*code)()) {
   if (priority < 0) {
     return -1;
   }
-  task_descriptor *ret = (task_descriptor *)all_tasks[next_task_id];
+  task_descriptor *ret = &(all_tasks[next_task_id]);
   task_init(ret, priority, code, current_task);
   int register_result = register_task(ret);
   if (register_result) {
@@ -41,8 +40,5 @@ void syscall_pass() {
 }
 
 void syscall_exit() {
-#ifndef TESTING
-  enter_main();
-#endif /* TESTING */
   task_retire(current_task, 0);
 }

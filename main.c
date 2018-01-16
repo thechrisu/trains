@@ -7,6 +7,8 @@
 #include "interrupt.h"
 #include "stdlib.h"
 #include "myio.h"
+#include "./src/syscall/syscall.h"
+#include "./src/multitasking/schedule.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
@@ -14,13 +16,6 @@ extern void enter_kernel(unsigned int syscall_code);
 
 unsigned int handle_interrupt_fp;
 unsigned int handle_interrupt_sp;
-
-extern unsigned int *stack_pointers;
-extern unsigned int current_task;
-extern unsigned int tasks_ended;
-extern trapframe *main_trapframe;
-extern void sys_exit();
-extern void leave_main(int ret_code, trapframe *tf);
 
 void kmain() {
   setup_io();
@@ -30,7 +25,11 @@ void kmain() {
   *swi_handler = (uint32_t)(&enter_kernel);
 #endif /* VERSATILEPB */
 
-  // TODO call syscall_create to create first user task
+  setup_scheduler();
+
+  // TODO call syscall_create to create ONLY first user task
+  syscall_create(0, &first_user_task);
+  syscall_create(0, &second_user_task);
 
   while(schedule());
 

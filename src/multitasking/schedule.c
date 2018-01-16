@@ -1,17 +1,26 @@
+#include "assert.h"
+#include "myio.h"
 #include "schedule.h"
 
 scheduler kscheduler;
 ready_queue scheduler_queues[MAX_PRIORITY + 1];
 task_descriptor *current_task;
 
-void scheduler_setup() {
+void setup_scheduler() {
   scheduler_init(&kscheduler, MAX_PRIORITY, scheduler_queues);
 }
 
 bool schedule() {
   task_descriptor *next = scheduler_next_task(&kscheduler);
+#if SCHEDULE_DEBUG
+  bwprintf("Next task: %x\n\r", next);
+#endif /* SCHEDULE_DEBUG */
   if (unlikely(next == NULL_TASK_DESCRIPTOR))
     return false;
+#if SCHEDULE_DEBUG
+  bwprintf("Next task's tid: %d\n\r", next->tid);
+  bwprintf("Next task's k_lr: %x\n\r", next->tf->k_lr);
+#endif /* SCHEDULE_DEBUG */
   task_activate(next); // TODO Set to zombie mode if task is done in interrupt
   if (likely(next->state != TASK_ZOMBIE)) {
     task_runnable(next);
