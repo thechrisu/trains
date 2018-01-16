@@ -21,11 +21,19 @@ int syscall_create(int priority, void (*code)()) {
 }
 
 int syscall_mytid() {
-  return task_get_tid(current_task);
+  if (current_task == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  } else {
+    return task_get_tid(current_task);
+  }
 }
 
 int syscall_myparent_tid() {
-  return task_get_parent_tid(current_task);
+  if (current_task == NULL_TASK_DESCRIPTOR) {
+    return -2;
+  } else {
+    return task_get_parent_tid(current_task);
+  }
 }
 
 void syscall_pass() {
