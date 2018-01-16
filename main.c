@@ -12,6 +12,9 @@
 extern void enter_kernel(unsigned int syscall_code);
 #endif
 
+unsigned int handle_interrupt_fp;
+unsigned int handle_interrupt_sp;
+
 extern unsigned int *stack_pointers;
 extern unsigned int current_task;
 extern unsigned int tasks_ended;
@@ -19,7 +22,7 @@ extern trapframe *main_trapframe;
 extern void sys_exit();
 extern void leave_main(int ret_code, trapframe *tf);
 
-int main() {
+void kmain() {
   setup_io();
   current_task = 0;
   tasks_ended = 0;
@@ -56,11 +59,7 @@ int main() {
   tf->k_lr = (uint32_t)(&first_user_task);
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  bwprintf("MAIN");
-
-  bwputr(TERMINAL, (uint32_t)tf);
-  putc(TERMINAL, '\n');
-  putc(TERMINAL, '\r');
+  bwprintf("MAIN - tf: %x\n\r", (uint32_t)tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
 #if VERSATILEPB
@@ -100,8 +99,30 @@ int main() {
   leave_main(0, tf);
 
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Return from get_me_outta_here\n\r");
+  bwprintf("Return from leave_main\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
+}
+
+/*
+  A wrapper for kmain() that sets up kernel assertions.
+*/
+int main() {
+  /* Setup variables for kernel assertions */
+  __asm__( /* CALLS TO KASSERT ABOVE THIS LINE MAY CAUSE BUGS */
+    "mov %0, fp\n\t"
+    "mov %1, sp\n\t"
+  : "=r" (handle_interrupt_fp), "=r" (handle_interrupt_sp));
+
+  /* kmain() contains actual program functionality. */
+  kmain();
+
+  /* Failed kernel assertions branch to this label. */
+  __asm__(
+    ".text\n\t"
+    ".global kassert_exit\n\t"
+    "kassert_exit:\n\t"
+  ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
+
 #if VERSATILEPB
   CRASH();
 #else
