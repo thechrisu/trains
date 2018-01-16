@@ -42,6 +42,8 @@ void handle_interrupt(trapframe *tf) {
   switch (tf->r0) {
     case SYS_EXIT:
       syscall_exit();
+      // tf->r0 = 0;
+      // DON'T DO THE ABOVE HERE YOU ASSHOLE. DO IT FOR OTHER SYSCALLS BUT NOT THIS ONE.
   }
 
   current_task = current_task % 2;

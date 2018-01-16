@@ -47,7 +47,7 @@ void task_activate(task_descriptor *task) {
   task->state = TASK_ACTIVE;
   current_task = task;
 #ifndef TESTING
-  leave_kernel(0, task->tf);
+  leave_kernel(task->tf->r0, task->tf);
 #endif
 }
 

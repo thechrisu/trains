@@ -13,7 +13,7 @@ bool schedule() {
   if (unlikely(next == NULL_TASK_DESCRIPTOR))
     return false;
   task_activate(next); // TODO Set to zombie mode if task is done in interrupt
-  if (next->state != TASK_ZOMBIE) {
+  if (likely(next->state != TASK_ZOMBIE)) {
     task_runnable(next);
     scheduler_register(&kscheduler, next);
   }

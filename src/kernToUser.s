@@ -38,7 +38,7 @@ leave_kernel:
 
 /*
   Load address to trapframe into stack pointer. This address
-  was passed as an argument to switch.
+  was passed as an argument to leave_kernel.
 */
   MOV sp, r1
 
