@@ -1,3 +1,4 @@
+#include "codes.h"
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
@@ -41,6 +42,11 @@ void print_tf(trapframe *tf) {
 unsigned int tasks_ended;
 
 void handle_interrupt(trapframe *tf) {
+  switch (tf->r0) {
+    case SYS_EXIT:
+      syscall_exit();
+  }
+
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
 #ifdef CONTEXT_SWITCH_DEBUG

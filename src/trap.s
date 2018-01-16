@@ -33,10 +33,23 @@ enter_kernel: /* called on an interrupt */
   STR r14, [r0, #64]
 /* Service interrupt. */
   BL handle_interrupt
-/* Move to main/user conditionally */
-  CMP r2, #1
-  BEQ enter_main
-  BNE leave_kernel
+
+/* Load kernel trapframe to return to instruction after e.g. task_activate in schedule. */
+  LDR r1, [sp, #4]
+  LDR r2, [sp, #8]
+  LDR r3, [sp, #12]
+  LDR r4, [sp, #16]
+  LDR r5, [sp, #20]
+  LDR r6, [sp, #24]
+  LDR r7, [sp, #28]
+  LDR r8, [sp, #32]
+  LDR r9, [sp, #36]
+  LDR r10, [sp, #40]
+  LDR r11, [sp, #44]
+  LDR r12, [sp, #48]
+  LDR r13, [sp, #52]
+  ADD sp, sp, #68
+  LDR r15, [sp, #-12]
 
 .text
 .global sys_exit

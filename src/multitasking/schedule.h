@@ -7,6 +7,7 @@
 #define TRAINS_SCHEDULE_H
 
 #include "scheduler.h"
+#include "stdlib.h"
 #include "task.h"
 
 #define MAX_PRIORITY 64
@@ -19,8 +20,9 @@ void setup_scheduler();
 /**
  * Gets the next task to be run from the scheduler, runs it.
  * If task has exited, don't schedule it again.
+ * @returns Whether or not there is still a running task.
  */
-void schedule();
+bool schedule();
 
 /**
  * Kernel-level API for registering a task (as opposed to putting it in the data structure)

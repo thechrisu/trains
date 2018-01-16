@@ -42,6 +42,7 @@ void syscall_pass() {
 
 void syscall_exit() {
 #ifndef TESTING
- enter_main();
+  enter_main();
 #endif /* TESTING */
+  task_retire(current_task, 0);
 }
