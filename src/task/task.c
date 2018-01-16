@@ -15,7 +15,11 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->parent = parent;
   all_tasks[task->tid] = task;
 
+#ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
+#else
+  task->tf = (trapframe *)malloc(sizeof(trapframe)); // :(
+#endif
   task->tf->r0 = 0xF4330000 + (task->tid << 4);
   task->tf->r1 = 0xF4330001 + (task->tid << 4);
   task->tf->r2 = 0xF4330002 + (task->tid << 4);
@@ -60,7 +64,7 @@ tid_t task_get_tid(task_descriptor *task) {
   return task->tid;
 }
 
-tid_t task_get_parent_id(task_descriptor *task) {
+tid_t task_get_parent_tid(task_descriptor *task) {
   if (task->parent == NULL_TASK_DESCRIPTOR) {
     return -1;
   }

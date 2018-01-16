@@ -1,6 +1,10 @@
 #ifndef TRAINS_TASK_H
 #define TRAINS_TASK_H
 
+#if TESTING
+#include <stdlib.h>
+#endif
+
 #include "../stdlib.h"
 #include "../interrupt.h"
 
@@ -15,7 +19,6 @@
 
 extern void sys_exit();
 
-
 typedef enum task_state {
   TASK_ACTIVE,
   TASK_RUNNABLE,
@@ -23,7 +26,7 @@ typedef enum task_state {
   TASK_BLOCKED
 } task_state;
 
-typedef uint16_t tid_t;
+typedef int16_t tid_t;
 
 struct td {
   int priority;
@@ -38,6 +41,7 @@ struct td {
 
 typedef struct td task_descriptor;
 
+extern task_descriptor *all_tasks[];
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent);
 
@@ -49,6 +53,6 @@ void task_retire(task_descriptor *task);
 
 tid_t task_get_tid(task_descriptor *task);
 
-tid_t task_get_parent_id(task_descriptor *task);
+tid_t task_get_parent_tid(task_descriptor *task);
 
 #endif /* TRAINS_TASK_H */
