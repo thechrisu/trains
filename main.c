@@ -116,9 +116,7 @@ int main() {
   /* kmain() contains actual program functionality. */
   kmain();
 
-  /*
-    Failed kernel assertions branch to this label.
-  */
+  /* Failed kernel assertions branch to this label. */
   __asm__(
     ".text\n\t"
     ".global kassert_exit\n\t"
