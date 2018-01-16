@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-06.
-//
-
+/**
+ * @file
+ * @brief Contains ring buffer tests
+ */
 #ifndef TRAINS_TEST_BUFFER_H
 #define TRAINS_TEST_BUFFER_H
 

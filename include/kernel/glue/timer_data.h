@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-12.
-//
-
+/**
+ * @file
+ * @brief Timer data structures
+ */
 #ifndef TRAINS_TIMER_DATA_H
 #define TRAINS_TIMER_DATA_H
 

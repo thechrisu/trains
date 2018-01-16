@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Helper functions for track/train state
+ */
 #ifndef TRACK_DATA_H
 #define TRACK_DATA_H
 

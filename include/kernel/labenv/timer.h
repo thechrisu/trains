@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-05.
-//
-
+/**
+ * @file
+ * @brief Functions for using the timers on the TS7200
+ */
 #ifndef TRAINS_LAB_TIMER_H
 #define TRAINS_LAB_TIMER_H
 

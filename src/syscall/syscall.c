@@ -17,7 +17,10 @@ int syscall_myparent_tid() {
 }
 
 void syscall_pass() {
-  // TODO Implement integration of scheduler + tasks. After that, implement this function.
+  register_task(current_task);
+#ifndef TESTING
+  enter_main(); // will call schedule()
+#endif /* TESTING */
 }
 
 void syscall_exit() {

@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-05.
-//
-
+/**
+ * @file
+ * @brief (Wrapper) Functions for timer devices
+ */
 #ifndef TRAINS_MYTIMER_H
 #define TRAINS_MYTIMER_H
 

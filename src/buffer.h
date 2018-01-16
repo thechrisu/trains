@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
-
+/**
+ * @file
+ * @brief Implementation of ring buffers
+ */
 #ifndef TRAINS_BUFFER_H
 #define TRAINS_BUFFER_H
 

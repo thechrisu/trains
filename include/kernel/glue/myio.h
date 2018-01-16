@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief I/O (wrapper) functions
+ */
 #ifndef MY_IO_H
 #define MY_IO_H
 

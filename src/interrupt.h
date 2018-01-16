@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Interrupt handler
+ */
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
