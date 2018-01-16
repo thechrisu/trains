@@ -14,7 +14,7 @@
  * handle_interrupt. This relies on the existence of a handle_interrupt stack frame
  * on the kernel stack. Consequently:
  *
- * KASSERT WILL LIKELY NOT WORK IF CALLED FROM THE PARTS OF THE CONTEXT SWITCH THAT ARE
+ * KASSERT WILL LIKELY CAUSE BUGS IF CALLED FROM THE PARTS OF THE CONTEXT SWITCH THAT ARE
  * WRITTEN IN ASSEMBLY, OR FROM USER CODE.
  *
  * However, kassert should work if called from inside handle_interrupt, or if called from

@@ -50,7 +50,7 @@ void handle_interrupt(trapframe *tf) {
     "mov %1, sp\n\t"
   : "=r" (handle_interrupt_fp), "=r" (handle_interrupt_sp));
   assertion_failed = false;
-  /* ASSERTIONS PLACED ABOVE THIS LINE MAY NOT WORK */
+  /* CALLS TO KASSERT ABOVE THIS LINE MAY CAUSE BUGS */
 
   current_task = current_task % 2;
   stack_pointers[current_task] = (uint32_t)tf;
@@ -86,7 +86,7 @@ void handle_interrupt(trapframe *tf) {
     Failed kernel assertions branch to this label after setting
     assertion_failed = true.
   */
-  /* ASSERTIONS PLACED BELOW THIS LINE MAY NOT WORK */
+  /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
   __asm__(
     ".text\n\t"
     ".global kassert_exit\n\t"
