@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Assert things.
+ */
 #ifndef KASSERT_H
 #define KASSERT_H
 
