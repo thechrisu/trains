@@ -75,9 +75,9 @@ void Abort()__attribute((noreturn));
  * Generally, you should use the #Assert(expr) macro instead of this function.
  *
  * @param value       The value to assert.
- * @param caller_name The name of the function in which kassert was called.
- * @param file_name   The name of the file in which kassert was called.
- * @param line_num    The line number in the file at which kassert was called.
+ * @param caller_name The name of the function in which __Assert was called.
+ * @param file_name   The name of the file in which __Assert was called.
+ * @param line_num    The line number in the file at which __Assert was called.
  */
 void __Assert(bool value, const char * caller_name, const char *file_name, int line_num);
 
