@@ -7,6 +7,7 @@
 
 #include "../multitasking/schedule.h"
 #include "../multitasking/task.h"
+#include "myio.h"
 
 extern void enter_main();
 

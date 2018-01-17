@@ -2,21 +2,31 @@
 #include "task.h"
 
 tid_t next_task_id = 0;
-task_descriptor all_tasks[MAX_TASKS];
+task_descriptor *all_tasks;
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
-  task->tid = next_task_id++;
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Enter task_init, location of task in memory %x\n\r", task);
+#endif /* CONTEXT_SWITCH_DEBUG */  
+  task->tid = next_task_id;
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Was able to access task struct\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */  
+  next_task_id++;
   task->priority = priority;
   task->state = TASK_RUNNABLE;
   task->next = NULL_TASK_DESCRIPTOR;
   task->prev = NULL_TASK_DESCRIPTOR;
   task->parent = parent;
-
+  
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
 #else
   task->tf = (trapframe *)malloc(sizeof(trapframe)); // :(
 #endif
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("task_init: Location of tf: %x", task->tf);
+#endif /* CONTEXT_SWITCH_DEBUG */  
   task->tf->r0 = 0xF4330000 + (task->tid << 4);
   task->tf->r1 = 0xF4330001 + (task->tid << 4);
   task->tf->r2 = 0xF4330002 + (task->tid << 4);

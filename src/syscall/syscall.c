@@ -6,11 +6,17 @@ int syscall_create(int priority, void (*code)()) {
   }
   // We do it this way instead of passing the result of register_task(),
   // because we won't use up the task's tid
-  if (priority < 0) {
+  if (priority < 0 || priority > MAX_PRIORITY) {
     return -1;
   }
   task_descriptor *ret = &(all_tasks[next_task_id]);
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Got task descriptor memory\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */  
   task_init(ret, priority, code, current_task);
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Set up task in syscall_create\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */  
   int register_result = register_task(ret);
   if (register_result) {
     return register_result;

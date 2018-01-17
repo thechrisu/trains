@@ -13,24 +13,32 @@
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
 #endif
+extern int next_task_id;
 
 unsigned int handle_interrupt_fp;
 unsigned int handle_interrupt_sp;
 
 void kmain() {
   setup_io();
-
+  task_descriptor all_tasks_on_stack[MAX_TASKS];
+  all_tasks = (task_descriptor*)all_tasks_on_stack;
+  next_task_id = 0;
 #ifndef VERSATILEPB
   uint32_t *swi_handler = (uint32_t *)0x28;
   *swi_handler = (uint32_t)(&enter_kernel);
 #endif /* VERSATILEPB */
 
   setup_scheduler();
-
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Set up scheduler\n\r");
+#endif /* CONTEXT_SWTICH_DEBUG */
   // TODO call syscall_create to create ONLY first user task
   syscall_create(0, &first_user_task);
   syscall_create(0, &second_user_task);
 
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Set up tasks\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */  
   while(schedule());
 
 #if CONTEXT_SWITCH_DEBUG

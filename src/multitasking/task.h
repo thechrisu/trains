@@ -5,12 +5,13 @@
 #include <stdlib.h>
 #endif
 
+#include "../assert.h"
 #include "../stdlib.h"
 #include "../interrupt.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 
-#define STACK_TOP       (uint32_t)0x02000000 // 0x00000000-0x02000000 is 32MB
+#define STACK_TOP       (uint32_t)0x01FDCFFC // 0x00000000-0x02000000 is 32MB
 #define STACK_BOTTOM    (uint32_t)0x00000000
 #define BYTES_PER_TASK  (uint32_t)0x00060000 // 384 K
 
@@ -43,7 +44,7 @@ typedef struct td task_descriptor;
 
 extern tid_t next_task_id;
 extern task_descriptor *current_task;
-extern task_descriptor all_tasks[];
+extern task_descriptor *all_tasks;
 
 /**
  * Initializes the task structure.
