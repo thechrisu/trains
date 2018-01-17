@@ -61,5 +61,6 @@ enter_kernel: /* called on an interrupt */
 .type	sys_exit, %function
 sys_exit:
   mov r1, r0
+  /* SYS_EXIT in syscall/codes.h */
   mov r0, #0
   swi 0
