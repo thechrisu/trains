@@ -15,8 +15,8 @@ extern void enter_kernel(unsigned int syscall_code);
 #endif
 extern int next_task_id;
 
-unsigned int handle_interrupt_fp;
-unsigned int handle_interrupt_sp;
+unsigned int main_fp;
+unsigned int main_sp;
 
 void kmain() {
   setup_io();
@@ -37,7 +37,7 @@ void kmain() {
 
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up tasks\n\r");
-#endif /* CONTEXT_SWITCH_DEBUG */  
+#endif /* CONTEXT_SWITCH_DEBUG */
   while(schedule());
 
 #if CONTEXT_SWITCH_DEBUG
@@ -45,24 +45,29 @@ void kmain() {
 #endif /* CONTEXT_SWITCH_DEBUG */
 }
 
-/*
-  A wrapper for kmain() that sets up kernel assertions.
-*/
+/**
+ * A wrapper for <code>kmain()</code> that sets up the syscall_panic function,
+ * which is used by:
+ *   - <code>kassert()</code>
+ *   - The <code>Panic()</code> syscall
+ *   - The <code>Assert()</code> syscall
+ *
+ * @returns 0 on the ARM box, crashes without returning in QEMU.
+ */
 int main() {
-  /* Setup variables for kernel assertions */
   __asm__( /* CALLS TO KASSERT ABOVE THIS LINE MAY CAUSE BUGS */
     "mov %0, fp\n\t"
     "mov %1, sp\n\t"
-  : "=r" (handle_interrupt_fp), "=r" (handle_interrupt_sp));
+  : "=r" (main_fp), "=r" (main_sp));
 
   /* kmain() contains actual program functionality. */
   kmain();
 
-  /* Failed kernel assertions branch to this label. */
+  /* Calls to syscall_panic branch to this label. */
   __asm__(
     ".text\n\t"
-    ".global kassert_exit\n\t"
-    "kassert_exit:\n\t"
+    ".global panic_exit\n\t"
+    "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
 #if VERSATILEPB
