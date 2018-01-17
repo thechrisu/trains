@@ -6,7 +6,7 @@ enter_kernel: /* called on an interrupt */
   MSR cpsr_c, #0x1F
 
 /* Save user's registers in a trap frame on the user task's stack. */
-  SUB sp, sp, #68
+  SUB sp, sp, #72
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -31,6 +31,11 @@ enter_kernel: /* called on an interrupt */
 
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
+
+/* Put the saved program status register in the psr field. */
+  MRS r4, spsr
+  STR r4, [r0, #68]
+
 /* Service interrupt. */
   BL handle_interrupt
 
@@ -48,8 +53,8 @@ enter_kernel: /* called on an interrupt */
   LDR r11, [sp, #44]
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
-  ADD sp, sp, #68
-  LDR r15, [sp, #-12]
+  ADD sp, sp, #72
+  LDR r15, [sp, #-16] /* Update me if sizeof(trapframe) changes */
 
 .text
 .global sys_exit

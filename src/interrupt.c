@@ -29,6 +29,7 @@ void print_tf(trapframe *tf) {
   bwputr(TERMINAL, tf->lr);
   bwputr(TERMINAL, tf->pc);
   bwputr(TERMINAL, tf->k_lr);
+  bwputr(TERMINAL, tf->psr);
   putc(TERMINAL, '\n');
   putc(TERMINAL, '\r');
 }

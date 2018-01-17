@@ -7,7 +7,7 @@ TODO test
 .type	leave_kernel, %function
 leave_kernel:
   /* Store kernel trapframe. */
-  SUB sp, sp, #68
+  SUB sp, sp, #72
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -24,8 +24,10 @@ leave_kernel:
   STR r13, [sp, #52]
   STR r14, [sp, #56]
 
-/* Prepare to go into usermode */
-  MSR SPSR_c, #0x10
+/* Put the trapframe's psr field in the saved program status register. */
+  LDR r4, [r1, #68]
+  MSR spsr, r4
+
 /*
   Load kernel link register from trapframe's k_lr member variable.
 */
@@ -59,7 +61,7 @@ leave_kernel:
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
   LDR r14, [sp, #56]
-  ADD sp, sp, #68
+  ADD sp, sp, #72
 
 /*
   Back to kernel mode.

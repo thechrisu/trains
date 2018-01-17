@@ -21,6 +21,7 @@ typedef struct {
   uint32_t lr;
   uint32_t pc;
   uint32_t k_lr;
+  uint32_t psr;
 } trapframe;
 
 #define NULL_TRAPFRAME (trapframe *)0
