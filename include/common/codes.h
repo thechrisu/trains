@@ -54,9 +54,9 @@ int MyTid();
 int MyParentTid();
 
 /**
- * Aborts the kernel, ending all tasks.
+ * Causes a kernel panic, ending all tasks.
  */
-void Abort()__attribute((noreturn));
+void Panic()__attribute((noreturn));
 
 /**
  * @def Assert(expr)
@@ -86,6 +86,6 @@ void __Assert(bool value, const char * caller_name, const char *file_name, int l
 #define SYS_CREATE    2
 #define SYS_MYTID     3
 #define SYS_PARENTTID 4
-#define SYS_ABORT     5
+#define SYS_PANIC     5
 
 #endif /* CODES_H */

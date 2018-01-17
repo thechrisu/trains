@@ -52,10 +52,10 @@ void syscall_exit() {
   task_retire(current_task, 0);
 }
 
-void syscall_abort() {
+void syscall_panic() {
   __asm__(
     "mov fp, %0\n\t"
     "mov sp, %1\n\t"
-    "b abort_exit"
+    "b panic_exit"
   : : "r" (main_fp), "r" (main_sp));
 }

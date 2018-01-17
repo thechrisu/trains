@@ -51,8 +51,8 @@ trapframe *handle_interrupt(trapframe *tf) {
     case SYS_PARENTTID:
       tf->r0 = syscall_myparent_tid();
       break;
-    case SYS_ABORT:
-      syscall_abort();
+    case SYS_PANIC:
+      syscall_panic();
       break;
     default:
       tf->r0 = 0xABADC0DE;

@@ -46,10 +46,10 @@ void kmain() {
 }
 
 /**
- * A wrapper for <code>kmain()</code> that sets up the syscall_abort function,
+ * A wrapper for <code>kmain()</code> that sets up the syscall_panic function,
  * which is used by:
  *   - <code>kassert()</code>
- *   - The <code>Abort()</code> syscall
+ *   - The <code>Panic()</code> syscall
  *   - The <code>Assert()</code> syscall
  *
  * @returns 0 on the ARM box, crashes without returning in QEMU.
@@ -63,11 +63,11 @@ int main() {
   /* kmain() contains actual program functionality. */
   kmain();
 
-  /* Calls to syscall_abort branch to this label. */
+  /* Calls to syscall_panic branch to this label. */
   __asm__(
     ".text\n\t"
-    ".global abort_exit\n\t"
-    "abort_exit:\n\t"
+    ".global panic_exit\n\t"
+    "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
 #if VERSATILEPB

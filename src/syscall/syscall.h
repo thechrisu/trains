@@ -50,8 +50,8 @@ void syscall_pass();
 void syscall_exit();
 
 /**
- * Aborts the kernel, ending all tasks.
+ * Causes a kernel panic, ending all tasks.
  */
-void syscall_abort();
+void syscall_panic();
 
 #endif /* TRAINS_SYSCALL_H */
