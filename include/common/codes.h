@@ -50,10 +50,16 @@ int MyTid();
  */
 int MyParentTid();
 
+/**
+ * Aborts the kernel, ending all tasks.
+ */
+void Abort()__attribute((noreturn));
+
 #define SYS_EXIT      0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS      1
 #define SYS_CREATE    2
 #define SYS_MYTID     3
 #define SYS_PARENTTID 4
+#define SYS_ABORT     5
 
 #endif /* CODES_H */

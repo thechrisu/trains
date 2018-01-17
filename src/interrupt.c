@@ -34,14 +34,10 @@ void print_tf(trapframe *tf) {
   putc(TERMINAL, '\r');
 }
 
-unsigned int tasks_ended;
-
 trapframe *handle_interrupt(trapframe *tf) {
   switch (tf->r0) {
     case SYS_EXIT:
       syscall_exit();
-      // tf->r0 = 0;
-      // DON'T DO THE ABOVE HERE YOU ASSHOLE. DO IT FOR OTHER SYSCALLS BUT NOT THIS ONE.
       break;
     case SYS_PASS:
       syscall_pass();
@@ -54,6 +50,9 @@ trapframe *handle_interrupt(trapframe *tf) {
       break;
     case SYS_PARENTTID:
       tf->r0 = syscall_myparent_tid();
+      break;
+    case SYS_ABORT:
+      syscall_abort();
       break;
     default:
       tf->r0 = 0xABADC0DE;

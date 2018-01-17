@@ -1,5 +1,8 @@
 #include "syscall.h"
 
+extern unsigned int main_fp;
+extern unsigned int main_sp;
+
 int syscall_create(int priority, void (*code)()) {
   if (next_task_id >= MAX_TASKS) {
     return -2;
@@ -12,11 +15,11 @@ int syscall_create(int priority, void (*code)()) {
   task_descriptor *ret = &(all_tasks[next_task_id]);
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Got task descriptor memory\n\r");
-#endif /* CONTEXT_SWITCH_DEBUG */  
+#endif /* CONTEXT_SWITCH_DEBUG */
   task_init(ret, priority, code, current_task);
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up task in syscall_create\n\r");
-#endif /* CONTEXT_SWITCH_DEBUG */  
+#endif /* CONTEXT_SWITCH_DEBUG */
   int register_result = register_task(ret);
   if (register_result) {
     return register_result;
@@ -47,4 +50,12 @@ void syscall_pass() {
 
 void syscall_exit() {
   task_retire(current_task, 0);
+}
+
+void syscall_abort() {
+  __asm__(
+    "mov fp, %0\n\t"
+    "mov sp, %1\n\t"
+    "b abort_exit"
+  : : "r" (main_fp), "r" (main_sp));
 }

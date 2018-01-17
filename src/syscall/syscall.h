@@ -49,4 +49,9 @@ void syscall_pass();
  */
 void syscall_exit();
 
+/**
+ * Aborts the kernel, ending all tasks.
+ */
+void syscall_abort();
+
 #endif /* TRAINS_SYSCALL_H */

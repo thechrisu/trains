@@ -5,7 +5,6 @@ inline int software_interrupt3(unsigned int num, unsigned int arg1_a, unsigned i
 inline int software_interrupt2(unsigned int num, unsigned int arg1_a)__attribute((always_inline, visibility("internal")));
 inline int software_interrupt1(unsigned int num)__attribute((always_inline, visibility("internal")));
 
-
 inline int software_interrupt3(unsigned int num, unsigned int arg1_a, unsigned int arg2_a) {
   register unsigned int arg0 __asm__ ("r0");
   register unsigned int arg1 __asm__ ("r1");
@@ -76,4 +75,9 @@ int MyTid() {
 
 int MyParentTid() {
   return software_interrupt1(SYS_PARENTTID);
+}
+
+void Abort() {
+  software_interrupt1(SYS_ABORT);
+  while(1); // To fool gcc into thinking this function does not return.
 }

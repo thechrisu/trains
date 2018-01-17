@@ -8,6 +8,7 @@
 #include "attributes.h"
 #include "myio.h"
 #include "stdlib.h"
+#include "./syscall/syscall.h"
 
 #define kassert(expr) __kassert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
 
@@ -15,10 +16,10 @@
  * If value is false, prints information about where the assertion failed, then exits
  * the kernel.
  *
- * A FAILED ASSERTION ABOVE THE INITIALIZATION CODE AT THE TOP OF MAIN() WILL CAUSE
- * FP AND SP TO BE SET TO UNPREDICTABLE VALUES.
+ * A FAILED ASSERTION ABOVE THE ABORT SYSCALL INITIALIZATION CODE AT THE TOP OF MAIN()
+ * WILL CAUSE FP AND SP TO BE SET TO UNPREDICTABLE VALUES.
  *
- * To exit the kernel, kassert branches to the kassert_exit label at the end of
+ * To exit the kernel, kassert branches to the abort_exit label at the end of
  * main(). A FAILED ASSERTION BELOW THIS LABEL WILL LEAD TO AN INFINITE LOOP.
  *
  * To make an assertion in assembly, do something like:
