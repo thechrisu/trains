@@ -45,10 +45,6 @@ void kmain() {
 #endif /* CONTEXT_SWITCH_DEBUG */
 }
 
-/*
-
-
-*/
 /**
  * A wrapper for <code>kmain()</code> that sets up the syscall_abort function,
  * which is used by:
