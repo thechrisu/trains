@@ -17,7 +17,7 @@ void setup_timer1(uint16_t countdown_val) {
   volatile unsigned int *TIMER_VALUE = (unsigned int *)(TIMER1_BASE + LDR_OFFSET);
   volatile unsigned int *TIMER_CTRL = (unsigned int *)(TIMER1_BASE + CTRL_OFFSET);
   sys_time = 0;
-  timer1_divisor = 1000000; // TODO find more fine-grained value
+  timer1_divisor = 1000000;
   timer1_countdown = countdown_val;
   timer1_lastval = countdown_val;
   *TIMER_VALUE = countdown_val;
@@ -49,7 +49,6 @@ uint32_t get_clockticks() {
   return sys_time;
 }
 
-// TODO write main function in glue, only change get_time, setup
 void get_time_struct(my_time *sto, uint32_t *timestamp) {
   get_time();
   uint32_t adjusted_time = (1000 * sys_time) / timer1_divisor;

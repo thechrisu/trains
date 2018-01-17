@@ -7,26 +7,26 @@ task_descriptor *all_tasks;
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Enter task_init, location of task in memory %x\n\r", task);
-#endif /* CONTEXT_SWITCH_DEBUG */  
+#endif /* CONTEXT_SWITCH_DEBUG */
   task->tid = next_task_id;
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Was able to access task struct\n\r");
-#endif /* CONTEXT_SWITCH_DEBUG */  
+#endif /* CONTEXT_SWITCH_DEBUG */
   next_task_id++;
   task->priority = priority;
   task->state = TASK_RUNNABLE;
   task->next = NULL_TASK_DESCRIPTOR;
   task->prev = NULL_TASK_DESCRIPTOR;
   task->parent = parent;
-  
+
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
 #else
   task->tf = (trapframe *)malloc(sizeof(trapframe)); // :(
 #endif
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("task_init: Location of tf: %x", task->tf);
-#endif /* CONTEXT_SWITCH_DEBUG */  
+  bwprintf("task_init: Location of tf: %x\n\r", task->tf);
+#endif /* CONTEXT_SWITCH_DEBUG */
   task->tf->r0 = 0xF4330000 + (task->tid << 4);
   task->tf->r1 = 0xF4330001 + (task->tid << 4);
   task->tf->r2 = 0xF4330002 + (task->tid << 4);
@@ -50,11 +50,12 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf->lr = (uint32_t)(&sys_exit);
   task->tf->pc = 0xF433000D + (task->tid << 4);
   task->tf->k_lr = (uint32_t)task_main;
+#endif /* TESTING */
+  task->tf->psr = 0x10;
+
 #if SCHEDULE_DEBUG
   bwprintf("task_main: %x\n\r", (uint32_t)task_main);
 #endif /* SCHEDULE_DEBUG */
-#endif /* TESTING */
-  // TODO set cpsr
 }
 
 void task_activate(task_descriptor *task) {
