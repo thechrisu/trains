@@ -1,4 +1,4 @@
-#include "./syscall/codes.h"
+#include "../include/common/codes.h"
 #include "./syscall/syscall.h"
 #include "crash.h"
 #include "interrupt.h"
@@ -43,8 +43,20 @@ trapframe *handle_interrupt(trapframe *tf) {
       // tf->r0 = 0;
       // DON'T DO THE ABOVE HERE YOU ASSHOLE. DO IT FOR OTHER SYSCALLS BUT NOT THIS ONE.
       break;
+    case SYS_PASS:
+      syscall_pass();
+      break;
+    case SYS_CREATE:
+      tf->r0 = syscall_create(tf->r1, (void(*)(void))tf->r2);
+      break;
+    case SYS_MYTID:
+      tf->r0 = syscall_mytid();
+      break;
+    case SYS_PARENTTID:
+      tf->r0 = syscall_myparent_tid();
+      break;
     default:
-      tf->r0 = 0xCAFED00D;
+      tf->r0 = 0xABADC0DE;
   }
 #if TRAPFRAME_DEBUG
   bwprintf("End of handle_interrupt\n\r");
