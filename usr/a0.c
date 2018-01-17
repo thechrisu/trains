@@ -180,7 +180,7 @@ int a0_main(int argc, char *argv[]) {
     trysendbyte(TERMINAL);
     check_reverse(timestamp);
     trysendbyte(TERMINAL);
-    check_sensors(rawSensors, &recentSensorsBuf, timestamp); // TODO refactor
+    check_sensors(rawSensors, &recentSensorsBuf, timestamp);
     turn_off_solenoid_if_necessary(timestamp);
     trysendbyte(TERMINAL);
     check_turnout_buffer();

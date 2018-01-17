@@ -21,7 +21,7 @@ bool schedule() {
   bwprintf("Next task's tid: %d\n\r", next->tid);
   bwprintf("Next task's k_lr: %x\n\r", next->tf->k_lr);
 #endif /* SCHEDULE_DEBUG */
-  task_activate(next); // TODO Set to zombie mode if task is done in interrupt
+  task_activate(next);
   if (likely(next->state != TASK_ZOMBIE)) {
     task_runnable(next);
     scheduler_register(&kscheduler, next);

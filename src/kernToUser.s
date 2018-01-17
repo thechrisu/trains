@@ -1,6 +1,5 @@
 /*
 TODO store/load multiple
-TODO test
 */
 .text
 .global leave_kernel

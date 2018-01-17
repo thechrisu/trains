@@ -242,7 +242,6 @@ int setfifo(int channel, int state) {
   buf = *line;
   /**
    * TRAIN: 1 start bit, 2 stop bits, no parity, 8 data bits
-   * TODO adapt this for versatilepb
    */
   if (channel == TRAIN) {
     buf |= STP2_MASK;
@@ -305,7 +304,7 @@ int setspeed(int channel, int speed) {
       return 0;
     case 2400: // used for train set
       *high = 0x0;
-      *low = 0xBF; //0xC0; // 115200 * 4 / 2400 = 192 -> 0xC0 TODO
+      *low = 0xBF; // 115200 * 4 / 2400 = 192 -> 0xC0
       return 0;
     default:
       return -1;
@@ -525,7 +524,7 @@ int getc(int channel) {
   switch (channel) {
     case TRAIN:
 #if VERSATILEPB
-      data = (int *) UART0_BASE + UART_DATA_OFFSET; // TODO double check
+      data = (int *) UART0_BASE + UART_DATA_OFFSET;
 #else
       data = (int *) (UART1_BASE + UART_DATA_OFFSET);
 #endif
@@ -558,7 +557,7 @@ int getc(int channel) {
       got_err = false;
     }
   }
-  c = *data & DATA_MASK; // TODO check error etc
+  c = *data & DATA_MASK;
   return c;
 }
 
