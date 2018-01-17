@@ -81,3 +81,11 @@ void Abort() {
   software_interrupt1(SYS_ABORT);
   while(1); // To fool gcc into thinking this function does not return.
 }
+
+void __Assert(bool value, const char * caller_name, const char *file_name, int line_num) {
+  if (unlikely(!value)) {
+    bwprintf("\033[31mAssertion failed! \"%s\" at %s:%d\033[39m\n", caller_name, file_name, line_num);
+    /* Call software_interrupt1 instead of Abort to allow inlining. */
+    software_interrupt1(SYS_ABORT);
+  }
+}

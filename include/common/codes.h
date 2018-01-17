@@ -6,6 +6,9 @@
 #ifndef CODES_H
 #define CODES_H
 
+#include "attributes.h"
+#include "stdlib.h"
+
 /**
  * System call to exit the currently running task.
  * Alternatively, just return from the task (assuming you don't mess up your link register).
@@ -54,6 +57,29 @@ int MyParentTid();
  * Aborts the kernel, ending all tasks.
  */
 void Abort()__attribute((noreturn));
+
+/**
+ * @def Assert(expr)
+ *
+ * If expr evaluates to false, prints information about where the assertion failed,
+ * then exits the kernel.
+ *
+ * @param expr The expression to check for truthiness.
+ */
+#define Assert(expr) __Assert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
+
+/**
+ * If value is false, prints information about where the assertion failed, then exits
+ * the kernel.
+ *
+ * Generally, you should use the #Assert(expr) macro instead of this function.
+ *
+ * @param value       The value to assert.
+ * @param caller_name The name of the function in which kassert was called.
+ * @param file_name   The name of the file in which kassert was called.
+ * @param line_num    The line number in the file at which kassert was called.
+ */
+void __Assert(bool value, const char * caller_name, const char *file_name, int line_num);
 
 #define SYS_EXIT      0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS      1
