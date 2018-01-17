@@ -50,6 +50,7 @@ void kmain() {
  * which is used by:
  *   - <code>kassert()</code>
  *   - The <code>Abort()</code> syscall
+ *   - The <code>Assert()</code> syscall
  *
  * @returns 0 on the ARM box, crashes without returning in QEMU.
  */
