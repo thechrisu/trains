@@ -33,8 +33,7 @@ void kmain() {
   bwprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
   // TODO call syscall_create to create ONLY first user task
-  syscall_create(0, &first_user_task);
-  syscall_create(0, &second_user_task);
+  syscall_create(5, &first_user_task);
 
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up tasks\n\r");
