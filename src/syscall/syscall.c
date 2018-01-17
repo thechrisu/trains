@@ -43,9 +43,6 @@ int syscall_myparent_tid() {
 
 void syscall_pass() {
   register_task(current_task);
-#ifndef TESTING
-  enter_main(); // will call schedule()
-#endif /* TESTING */
 }
 
 void syscall_exit() {
