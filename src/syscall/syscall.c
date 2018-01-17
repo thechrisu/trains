@@ -1,19 +1,44 @@
 #include "syscall.h"
 
-
-void syscall_create(int priority, void (*code)()) {
-  if (next_task_id >= MAX_TASKS)
-    ; // TODO return error
-  task_descriptor *ret = (task_descriptor *)all_tasks[next_task_id];
+int syscall_create(int priority, void (*code)()) {
+  if (next_task_id >= MAX_TASKS) {
+    return -2;
+  }
+  // We do it this way instead of passing the result of register_task(),
+  // because we won't use up the task's tid
+  if (priority < 0 || priority > MAX_PRIORITY) {
+    return -1;
+  }
+  task_descriptor *ret = &(all_tasks[next_task_id]);
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Got task descriptor memory\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */  
   task_init(ret, priority, code, current_task);
+#if CONTEXT_SWITCH_DEBUG
+  bwprintf("Set up task in syscall_create\n\r");
+#endif /* CONTEXT_SWITCH_DEBUG */  
+  int register_result = register_task(ret);
+  if (register_result) {
+    return register_result;
+  } else {
+    return task_get_tid(ret);
+  }
 }
 
 int syscall_mytid() {
-  return task_get_tid(current_task);
+  if (current_task == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  } else {
+    return task_get_tid(current_task);
+  }
 }
 
 int syscall_myparent_tid() {
-  return task_get_parent_tid(current_task);
+  if (current_task == NULL_TASK_DESCRIPTOR) {
+    return -2;
+  } else {
+    return task_get_parent_tid(current_task);
+  }
 }
 
 void syscall_pass() {
@@ -24,7 +49,5 @@ void syscall_pass() {
 }
 
 void syscall_exit() {
-#ifndef TESTING
- enter_main();
-#endif /* TESTING */
+  task_retire(current_task, 0);
 }
