@@ -3,10 +3,13 @@
 
 unsigned int software_interrupt(unsigned int num) {
   register int arg0 __asm__ ("r0");
-  register int result __asm__ ("r0");
+  int result;
 
   arg0 = num;
-  __asm__ volatile ("swi 0\n\t" : "=r" (result) : "r" (arg0));
+  __asm__ volatile (
+    "swi 0\n\t"
+    "mov %0, r0"
+  : "=r" (result) : "r" (arg0));
 #ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("End of software_interrupt\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */

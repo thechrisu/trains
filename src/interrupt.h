@@ -23,5 +23,7 @@ typedef struct {
   uint32_t k_lr;
 } trapframe;
 
+#define NULL_TRAPFRAME (trapframe *)0
+
 void print_tf(trapframe *tf);
 #endif /* INTERRUPT_H */

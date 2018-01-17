@@ -2,12 +2,19 @@
 // Created by Christoph Ulshöfer on 2018-01-12.
 //
 
+#include "assert.h"
 #include "stdlib.h"
 #include "myio.h"
 
 extern void enter_kernel();
 
+bool cp_vectors_called = false;
+
 void cp_vectors() {
+  kassert(!cp_vectors_called);
+
+  cp_vectors_called = true;
+
 #ifdef CONTEXT_SWITCH_DEBUG
   bwprintf("VECTORS ");
 #endif /* CONTEXT_SWITCH_DEBUG */

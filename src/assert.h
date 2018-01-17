@@ -1,6 +1,7 @@
 #ifndef KASSERT_H
 #define KASSERT_H
 
+#include "attributes.h"
 #include "myio.h"
 #include "stdlib.h"
 
