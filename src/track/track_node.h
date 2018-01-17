@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Data structures describing the track/train state
+ */
 #ifndef TRACK_NODE_H
 #define TRACK_NODE_H
 

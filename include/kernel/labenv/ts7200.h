@@ -1,5 +1,6 @@
-/*
- * ts7200.h - definitions describing the ts7200 peripheral registers
+/**
+ * @file
+ * @brief ts7200.h - definitions describing the ts7200 peripheral registers
  *
  * Specific to the TS-7200 ARM evaluation board
  *

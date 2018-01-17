@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-12.
-//
-
+/**
+ * @file
+ * @brief Functions to use the timers on the versatilepb platform
+ */
 #ifndef TRAINS_VERSATILEPB_TIMER_H
 #define TRAINS_VERSATILEPB_TIMER_H
 

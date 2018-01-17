@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-15.
-//
-
+/**
+ * @file
+ * @brief Syscall kernel-level functions
+ */
 #ifndef TRAINS_SYSCALL_H
 #define TRAINS_SYSCALL_H
 

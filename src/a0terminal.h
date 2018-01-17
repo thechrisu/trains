@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
-
+/**
+ * @file
+ * @brief Functions that print the state of the track to the terminal
+ */
 #ifndef A0_TERMINAL_H
 #define A0_TERMINAL_H
 

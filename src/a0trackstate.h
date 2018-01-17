@@ -1,6 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-
+/**
+ * @file
+ * @brief Functions that modify the model of the track
+ */
 #ifndef A0_TRACKSTATE_H
 #define A0_TRACKSTATE_H
 

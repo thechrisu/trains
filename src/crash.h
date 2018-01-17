@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Contains a macro for an instruction that crashes reliably (on versatilepb)
+ */
 #ifndef CRASH_H
 #define CRASH_H
 

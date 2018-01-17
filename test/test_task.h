@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Contains tests for the task implementation
+ */
 #ifndef TRAINS_TEST_TASK_H
 #define TRAINS_TEST_TASK_H
 

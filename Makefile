@@ -1,4 +1,4 @@
-.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test qemu
+.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test qemu docs
 default: upload;
 
 OPTIMIZATION = -O0
@@ -201,3 +201,6 @@ qemuconsole: versatilepb
 
 qemuwinconsole: versatilepb
 	-$(QEMUWIN) $(QEMUCONSOLEARGS)
+
+docs:
+	-doxygen Doxyfile

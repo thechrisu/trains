@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Ready queue implementation
+ */
 #ifndef READY_QUEUE_H
 #define READY_QUEUE_H
 

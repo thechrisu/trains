@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief User tasks to test context-switching
+ */
 #ifndef FIRST_USER_TASK_H
 #define FIRST_USER_TASK_H
 

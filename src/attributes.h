@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Wrappers for our favourite GCC annotations.
+ */
 #ifndef ATTRIBUTES_H
 #define ATTRIBUTES_H
 

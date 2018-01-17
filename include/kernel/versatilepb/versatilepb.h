@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-12.
-//
-
+/**
+ * @file
+ * @brief Definitions describing the versatilepb registers
+ */
 #ifndef TRAINS_VERSATILEPB_H
 #define TRAINS_VERSATILEPB_H
 

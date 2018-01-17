@@ -1,7 +1,7 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
-
+/**
+ * @file
+ * @brief (Re-)Implementation of stdlib functions/types
+ */
 #ifndef TRAINS_STDLIB_H
 #define TRAINS_STDLIB_H
 

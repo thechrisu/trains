@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief A0 user program
+ */
 #ifndef A0_H
 #define A0_H
 
