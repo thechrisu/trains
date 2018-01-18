@@ -66,7 +66,12 @@ int main() {
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
 #if VERSATILEPB
-  CRASH();
+   __asm__(
+	"MOV r0, #0x18\n\t"
+	"MOV r1, #0x20000\n\t"
+	"ADD r1, r1, #0x026\n\t"
+    "SVC 0x00123456\n\t"
+  ); // ALlows us to quit QEMU cleanly
 #else
   return 0;
 #endif /* VERSATILEPB */
