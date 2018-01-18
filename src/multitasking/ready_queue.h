@@ -20,7 +20,6 @@
  */
 typedef task_descriptor *ready_queue;
 
-
 /**
  * @param   rq A ready queue.
  * @returns The length of the ready queue.

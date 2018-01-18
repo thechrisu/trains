@@ -49,4 +49,9 @@ void syscall_pass();
  */
 void syscall_exit();
 
+/**
+ * Causes a kernel panic, ending all tasks.
+ */
+void syscall_panic();
+
 #endif /* TRAINS_SYSCALL_H */
