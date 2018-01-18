@@ -1,13 +1,13 @@
 # Trains
 ## Supported Make targets
--`make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
--`make qemu`/`make qemuwin` Does `make versatilepb` and starts the QEMU GUI.
--`make qemuconsole`/`make qemuwinconsole` Does `make versatilepb` and starts QEMU with terminal output showing in the console.
--`make arm` Compile the kernel with the train lab configuration on your machine.
--`make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
--`make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab.
--`make test` Runs all Googletest unit tests.
--`make` Does the same as `make upload`.
+- `make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
+- `make qemu`/`make qemuwin` Does `make versatilepb` and starts the QEMU GUI.
+- `make qemuconsole`/`make qemuwinconsole` Does `make versatilepb` and starts QEMU with terminal output showing in the console.
+- `make arm` Compile the kernel with the train lab configuration on your machine.
+- `make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
+- `make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab.
+- `make test` Runs all Googletest unit tests.
+- `make` Does the same as `make upload`.
 
 ## Environment variables
 Some targets use environment variables to find their compiler/libraries.
