@@ -76,7 +76,7 @@ int main() {
 	"MOV r1, #0x20000\n\t"
 	"ADD r1, r1, #0x026\n\t"
     "SVC 0x00123456\n\t"
-  ); // ALlows us to quit QEMU cleanly
+  ); // Allows us to quit QEMU cleanly
 #else
   return 0;
 #endif /* VERSATILEPB */
