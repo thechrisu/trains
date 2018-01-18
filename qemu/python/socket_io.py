@@ -1,48 +1,40 @@
-import os
-import SocketServer
+from subprocess import Popen
+import platform
+import socketserver
+from queue import Queue
 
-# windows: \\\\.\\Global\\ + path
-# elsewhere: /dev/virtio-ports/ + path
-HOST, PORT = 'localhost', 9999
-SocketServer.TCPServer((HOST, PORT), handler)
-
-def test_x():
-    train_interface(received_train_byte, received_terminal_byte)
-    send_train_bytes(x)
-    send_terminal_bytes(x)
+tr_sv_addr = ('127.0.0.1', 9990)
+te_sv_addr = ('127.0.0.1', 9991)
 
 
-class TrainSimuRequestHandler(SocketServer.BaseRequestHandler):
-    def __init__(self, real_handler):
-        self.real_handler = real_handler
-        
+class TwoWayHandler(socketserver.StreamRequestHandler):
+    def __init__(self, val):
+        self.val = val
+
     def handle(self):
-        self.real_handler(self.rfile.read())
+        self.val[0]((self.rfile.read(), self.val[1]))
 
-def train_interface(received_train_bytes, received_terminal_bytes):
-    tr_hd =TrainSimuRequestHandler(received_train_bytes)
-    te_hd = TrainSimuRequestHandler(received_terminal_bytes)
-    tr_sv = ThreadingTCPServer(('localhost', 9990), tr_hd)
-    te_sv = ThreadingTCPServer(('localhost', 9991), te_hd)
-    close_all = lambda x: tr_sv.server_close(); te_sv.server_close()
-    return close_all
+    def __call__(self, req, addr, serv):
+        socketserver.StreamRequestHandler.__init__(TwoWayHandler(self.val), req, addr, serv)
 
-def received_train_byte():
-    pass
 
-def received_terminal_byte():
-    pass
+def call_qemu_tcp(optimised):
+    if platform.system() == 'Microsoft' or platform.system() == 'Windows':
+        Popen('cd .. && make qemutcpwinrun%s' % ('o' if optimised else ''))
+    else:
+        Popen('cd .. && make qemutcprun%s' % ('o' if optimised else ''))
 
-def send_terminal_byte():
-    pass
 
-def send_train_byte():
-    pass
-
-if __name__ == "__main__":
-    SocketServer.ThreadingTCPServer()
-    
-    train_port = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    train_port.connect('train.sock')
-    terminal_port = socket.socket(socket.AF_UNIX, socket.SOCK_STREAM)
-    terminal_port.connect('terminal.sock')
+def train_interface(timeout):
+    q = Queue()
+    tr_sv_o = socketserver.ThreadingTCPServer(tr_sv_addr, TwoWayHandler((q.put, False)))
+    te_sv_o = socketserver.ThreadingTCPServer(te_sv_addr, TwoWayHandler((q.put, True)))
+    tr_sv_o.timeout = timeout
+    te_sv_o.timeout = timeout
+    tr_sv_o.handle_request()
+    te_sv_o.handle_request()
+    val1 = q.get()
+    val2 = q.get()
+    terminal_data = val1[0] if val1[1] else val2[0]
+    train_data = val2[0] if val1[1] else val1[0]
+    return train_data, terminal_data
