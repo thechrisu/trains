@@ -1,39 +1,35 @@
-# trains
-TODO include gtest install /usr/local/include/gtest (GTEST env var)
-TODO include /u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2 (armlibs env var)
+# Trains
+##Supported Make targets
+-`make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
+-`make qemu`/`make qemuwin` Does `make versatilepb` and starts the QEMU GUI.
+-`make qemuconsole`/`make qemuwinconsole` Does `make versatilepb` and starts QEMU with terminal output showing in the console.
+-`make arm` Compile the kernel with the train lab configuration on your machine.
+-`make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
+-`make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab.
+-`make test` Runs all Googletest unit tests.
+-`make` Does the same as `make upload`.
 
+##Environment variables
+Some targets use environment variables to find their compiler/libraries.
+###Googletest/Boost
+`make test` requires Googletest and Boost to be installed.
+- `GTEST` should point to the installed header files of Googletest (on our machines `/usr/local/include/gtest`).
+- `LIBGTEST` should point to the Googletest library (on our machines `/usr/local/lib/libgtest.a`).
+- `BOOST` should point to the installed header files of Boost (on our machines `/usr/local/include/boost`).
 
-## Instructions
-1. I'm sorry, but this currently only works on my machine.
-2. Install googletest (1. Clone via git submodules, 2. Use google to find out how to install googletest)
-3. Stare at the Makefile
-4. buildlab is for builds on the UW servers, build is for local ARM builds, buildx64 is for x86-x64 local builds
+###ARM Compilation
+To compile to ARM outside of the student environment, you need to
+- Add a cross-compiler to your PATH (e.g. `/some/dir/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-gcc`
+- Set the environment variable `armlibs` to the libraries of the cross-compiler. We only need it for `libgcc.a`
+  (e.g. `/some/dir/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1`).
 
-# Wishlist
-1. QEMU
-2. Assertions that really work and give nice output
-3. Automated HiL Unit Testing
-4. Profiling
-5. Valgrind
-6. Virtual Memory
-(7. GDB -B Cowan has said people did not find it useful)
-(8. SiL Testing in CI)
-
-Gotchas:
-1. Always. Document. (Need to hand in documentation after we're done with the kernel)
-2. Get QEMU running ASAP
-3. Get googletest running on Travis ASAP
-4. Read algos/DS in kernel spec!
-5. Read the RTOS books
-6. For T1, set up dynamic calibration (talked about in T2 description)
-7. Think about project proposal early
-
+## Assignment progress
 Kernel
-1. "Scheduler"
-2. "Message passing"
-3. "Interrupts + clock server"
-4. "Interrupt-driven IO + a0 + loose ends"
+- [X] "Scheduler"
+- [ ] "Message passing"
+- [ ] "Interrupts + clock server"
+- [ ] "Interrupt-driven IO + a0 + loose ends"
 
 Train Control
-1. "Stop train anywhere reliably" -> Stop reliably is more important than having a large set of possible destinations
-2. "Improve stopping precision, detect single switch/sensor error"
+- [ ] "Stop train anywhere reliably" -> Stop reliably is more important than having a large set of possible destinations
+- [ ] "Improve stopping precision, detect single switch/sensor error"
