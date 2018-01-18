@@ -25,7 +25,7 @@ OBJCOPY = arm-none-eabi-objcopy
 
 QEMU = qemu-system-arm
 QEMUWIN = qemu-system-arm.exe
-QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin
+QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
