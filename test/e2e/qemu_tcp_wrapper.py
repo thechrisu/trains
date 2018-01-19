@@ -4,7 +4,7 @@ import socket
 import socketserver
 import sys
 from queue import Queue
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, call
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -71,6 +71,18 @@ old_stdin = sys.stdin
 old_stderr = sys.stderr
 
 
+def kill_qemu(handle):
+    handle.stdout.close()
+    handle.stdin.close()
+    handle.stderr.close()
+    if handle.poll() is None:
+        os.killpg(os.getpgid(handle.pid), signal.SIGTERM)
+    sys.stdout = old_stdout
+    sys.stdin = old_stdin
+    sys.stderr = old_stderr
+    handle.wait()
+
+
 def call_qemu_tcp(optimized):
     os.chdir(os.path.join(dir_path, '../..'))
     if len(sys.argv) > 1 and sys.argv[1] == 'win':
@@ -87,18 +99,14 @@ def call_qemu_tcp(optimized):
         if 'QEMU waiting' in line:
             return handle
         elif 'failed' in line or 'Failed' in line:
-            handle.kill()
+            kill_qemu(handle)
             raise ConnectionError(
                 lines + '\n\r' + handle.stderr.read().decode('utf-8'))
         i += 1
         if i > 20:
-            handle.kill()
+            kill_qemu(handle)
             raise ConnectionAbortedError(
                 lines + handle.stderr.read().decode('utf-8'))
-
-
-def kill_qemu(handle):
-    os.killpg(os.getpgid(handle.pid), signal.SIGTERM)
 
 
 def qemu_oneshot_test(prog, te_data, timeout):
@@ -141,4 +149,6 @@ def qemu_oneshot_test(prog, te_data, timeout):
 
 if __name__ == "__main__":
     r = qemu_oneshot_test('test', '', 10)
+    s = qemu_oneshot_test('k1', '', 10)
     print(r)
+    print(s)
