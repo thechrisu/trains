@@ -24,8 +24,13 @@ AS	= arm-none-eabi-as
 LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
+# Detect if in Windows Subsystem for Linux
+ifeq (,$(wildcard /proc/version))
 QEMU = qemu-system-arm
-QEMUWIN = qemu-system-arm.exe
+else
+QEMU = qemu-system-arm.exe
+endif
+
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
@@ -226,26 +231,14 @@ qemu:
 	-make versatilepb
 	-$(QEMU) $(QEMUGUIARGS)
 
-qemuwin: versatilepb
-	-$(QEMUWIN) $(QEMUGUIARGS)
-
 qemuconsole: versatilepb
 	-$(QEMU) $(QEMUCONSOLEARGS)
-
-qemuwinconsole: versatilepb
-	-$(QEMUWIN) $(QEMUCONSOLEARGS)
 
 qemutesting: e2etest
 	-$(QEMU) $(QEMUTESTINGGUIARGS)
 
-qemuwintesting: e2etest
-	-$(QEMU) $(QEMUTESTINGGUIARGS)
-
 qemutcprun: e2etest
 	- $(QEMU) $(QEMUTCPARGS)
-
-qemutcpwinrun: e2etest
-	- $(QEMUWIN) $(QEMUTCPARGS)
 
 docs:
 	-doxygen Doxyfile
