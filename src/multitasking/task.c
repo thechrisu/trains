@@ -2,6 +2,7 @@
 
 tid_t next_task_id = 1;
 task_descriptor *all_tasks;
+task_descriptor **send_queues;
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
@@ -17,6 +18,8 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->next = NULL_TASK_DESCRIPTOR;
   task->prev = NULL_TASK_DESCRIPTOR;
   task->parent = parent;
+  send_queues[task->tid] = (task_descriptor*)0;
+  task->send_queue = (task_descriptor **)&(send_queues[task->tid]);
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));

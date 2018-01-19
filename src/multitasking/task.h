@@ -28,8 +28,8 @@ typedef enum task_state {
   TASK_ACTIVE,
   TASK_RUNNABLE,
   TASK_ZOMBIE,
-  TASK_SEND_BLOCKED, // State task is in after calling Send(), before anything else happened (esp. before Receive() was called).
-  TASK_RECEIVE_BLOCKED, // State task is in after calling Receive() without a message ready.
+  TASK_SEND_BLOCKED, // State sender task is in after calling Send(), before anything else happened (esp. before Receive() was called).
+  TASK_RECEIVE_BLOCKED, // State receiver task is in after calling Receive() without a message ready.
   TASK_REPLY_BLOCKED // State sender is in after Receive() has been called, but Reply() has not.
 } task_state;
 
@@ -44,6 +44,9 @@ struct td {
   task_state state;
   tid_t tid;
   int16_t exit_code;
+  struct td *prevmsg;
+  struct td *nextmsg;
+  struct td **send_queue;
 };
 
 typedef struct td task_descriptor;
@@ -51,6 +54,7 @@ typedef struct td task_descriptor;
 extern tid_t next_task_id;
 extern task_descriptor *current_task;
 extern task_descriptor *all_tasks;
+extern task_descriptor **send_queues;
 
 /**
  * Initializes the task structure.

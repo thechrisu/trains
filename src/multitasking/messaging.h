@@ -1,9 +1,11 @@
-#ifndef TRAINS_BLOCK_H
-#define TRAINS_BLOCK_H
+#ifndef TRAINS_MESSAGING_H
+#define TRAINS_MESSAGING_H
 
 #include "task.h"
 #include "schedule.h"
 #include "stdlib.h"
+#include "send_queue.h"
+#include "../attributes.h"
 
 /**
  * To be called when a task called Send(). If the receiver is TASK_RECEIVE_BLOCKED, will
@@ -16,4 +18,4 @@
  */
 void send(task_descriptor *sender, task_descriptor *receiver);
 
-#endif /* TRAINS_BLOCK_H */
+#endif /* TRAINS_MESSAGING_H */
