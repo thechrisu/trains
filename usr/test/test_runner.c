@@ -1,7 +1,7 @@
 #include "test_runner.h"
 
-void exec_prog(void (*code)()) {
-  Create(2, code);
+void exec_prog(int priority, void (*code)()) {
+  Create(priority, code);
   bwprintf("ENDPROG\r");
 }
 
@@ -29,9 +29,9 @@ void test_runner() {
     buf[i] = '\0';
 
     if (strcmp(buf, "a0")) {
-      exec_prog(&a0_main);
+      exec_prog(2, &a0_main);
     } else if (strcmp(buf, "k1")) {
-      exec_prog(&k1_first_user_task);
+      exec_prog(5, &k1_first_user_task);
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
       bwprintf("ENDPROG\r");
