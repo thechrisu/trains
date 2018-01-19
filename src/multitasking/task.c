@@ -42,22 +42,21 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf->r10 = 0xF433000A + (task->tid << 4);
   task->tf->fp = 0xF433000B + (task->tid << 4);
   task->tf->ip = 0xF433000C + (task->tid << 4);
+  task->tf->sp = (register_t)task->tf;
 #ifdef TESTING
   // Need uint64_t here, otherwise the compiler generate 'cast from pointer to smaller type' errors when compiling tests
-  task->tf->sp = (uint64_t)task->tf;
-  task->tf->lr = (uint64_t)(task_main); // When generating tests, we can't include the ARM asm file
-  task->tf->pc = (uint64_t)task_main;
-  task->tf->k_lr = (uint64_t)task_main;
+  task->tf->lr = (register_t)(task_main); // When generating tests, we can't include the ARM asm file
+  task->tf->pc = (register_t)task_main;
 #else
-  task->tf->sp = (uint32_t)task->tf;
-  task->tf->lr = (uint32_t)(&sys_exit);
+  task->tf->sp = (register_t)task->tf;
+  task->tf->lr = (register_t)(&sys_exit);
   task->tf->pc = 0xF433000D + (task->tid << 4);
-  task->tf->k_lr = (uint32_t)task_main;
 #endif /* TESTING */
+  task->tf->k_lr = (register_t)task_main;
   task->tf->psr = 0x10;
 
 #if SCHEDULE_DEBUG
-  bwprintf("task_main: %x\n\r", (uint32_t)task_main);
+  bwprintf("task_main: %x\n\r", (register_t)task_main);
 #endif /* SCHEDULE_DEBUG */
 }
 

@@ -12,12 +12,13 @@
 #include "../assert.h"
 #include "../stdlib.h"
 #include "../interrupt.h"
+#include "../../include/common/register.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 
-#define STACK_TOP       (uint32_t)0x01FDCFFC // 0x00000000-0x02000000 is 32MB
-#define STACK_BOTTOM    (uint32_t)0x00000000
-#define BYTES_PER_TASK  (uint32_t)0x00060000 // 384 K
+#define STACK_TOP       (register_t)0x01FDCFFC // 0x00000000-0x02000000 is 32MB
+#define STACK_BOTTOM    (register_t)0x00000000
+#define BYTES_PER_TASK  (register_t)0x00060000 // 384 K
 
 #define MAX_TASKS       64 // 32MB/384K gives > 80, but 64 is divisible by 2 and I had to pick __some__ number
 
