@@ -2,6 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#ifndef ALLTESTS
+int oe_in_sensor = false;
+#endif /* ALLTESTS */
+
 TEST(MessagePassingTest, send_blocks_a_task_if_receiver_isnt_zombie_or_receive_blocked) {
   setup_scheduler();
   task_descriptor sender, receiver;
@@ -21,9 +25,9 @@ TEST(MessagePassingTest, on_receiver_task_blocked_if_sender_message_too_long_rec
   ASSERT_EQ(sender.state, TASK_SEND_BLOCKED);
 }
 
-/*
+#ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-*/
+#endif /* ALLTESTS */

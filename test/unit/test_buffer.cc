@@ -8,6 +8,10 @@
 
 #define BUF_SIZE 10
 
+#ifndef ALLTESTS
+int oe_in_sensor = false;
+#endif /* ALLTESTS */
+
 TEST(BufferTest, should_print_correctly) {
   char buf_data[BUF_SIZE];
   char_buffer buf;
@@ -48,9 +52,9 @@ TEST(BufferTest, buffer_should_work_i_am_sorry_i_dont_have_more_detail) {
   }
 }
 
-/*
+#ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-*/
+#endif /* ALLTESTS */

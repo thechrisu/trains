@@ -108,9 +108,9 @@ TEST(SchedulerTest, next_task_has_fifo_ordering) {
     ASSERT_EQ(scheduler_next_task(&s), &(td[i]));
 }
 
-/*
+#ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
-*/
+#endif /* ALLTESTS */

@@ -23,7 +23,7 @@ test:
 	-python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
 
 test_all.out: $(SRC) $(SRC_TEST)
-	g++ -o unit/$@ $(SRC) $(SRC_TEST) $(FLAGS)
+	g++ -o unit/$@ $(SRC) $(SRC_TEST) $(FLAGS) -DALLTESTS
 
 test_buffer.out: unit/test_buffer.cc $(SRC)
 	g++ -o unit/$@ $< $(SRC) $(FLAGS)
