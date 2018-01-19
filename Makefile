@@ -30,8 +30,9 @@ QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semiho
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
-QEMUTCPBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin -semihosting
-QEMUTCPARGS = $(QEMUTCPBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
+QEMUTESTINGBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin -semihosting
+QEMUTESTINGGUIARGS = $(QEMUTESTINGBASEARGS) -serial vc -serial vc
+QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -233,6 +234,12 @@ qemuconsole: versatilepb
 
 qemuwinconsole: versatilepb
 	-$(QEMUWIN) $(QEMUCONSOLEARGS)
+
+qemutesting: e2etest
+	-$(QEMU) $(QEMUTESTINGGUIARGS)
+
+qemuwintesting: e2etest
+	-$(QEMU) $(QEMUTESTINGGUIARGS)
 
 qemutcprun: e2etest
 	- $(QEMU) $(QEMUTCPARGS)
