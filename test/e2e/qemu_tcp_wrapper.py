@@ -52,7 +52,7 @@ def send_data_socket(s, data, queue, addr, prog):
     # tcp_lock.release()
 
 
-def get_until_cr(sock, limit=None, may_send_cr=False):
+def read_socket(sock, limit=None, may_send_cr=False):
     received = ''
     i = 0
     while limit is None or i < limit:
@@ -101,7 +101,7 @@ def kill_qemu(handle):
     os.killpg(os.getpgid(handle.pid), signal.SIGTERM)
 
 
-def train_interface(timeout, te_data, prog):
+def qemu_oneshot_test(prog, te_data, timeout):
     qemu_handle = call_qemu_tcp(False)
     q = Queue()
     # time.sleep(1)
@@ -115,7 +115,7 @@ def train_interface(timeout, te_data, prog):
         signal.signal(signal.SIGTERM, handle_signal)
         signal.signal(signal.SIGINT, handle_signal)
         s.connect(te_sv_addr)
-        junk = get_until_cr(s, 1000)
+        junk = read_socket(s, 1000)
         if junk is None:
             kill_qemu(qemu_handle)
             s.close()
@@ -124,11 +124,11 @@ def train_interface(timeout, te_data, prog):
             prog_name = '%s\r' % prog
             s.sendall(bytes(prog_name, 'ascii'))
             s.sendall(bytes(te_data, 'ascii'))
-            prog_output = get_until_cr(s, may_send_cr=True)
+            prog_output = read_socket(s, may_send_cr=True)
             if prog_output.startswith(prog + '\n\r'):
                 prog_output = prog_output.split(prog + '\n\r')[1]
             s.sendall(bytes('q\r', 'ascii'))
-            get_until_cr(s, 1000)
+            read_socket(s, 1000)
             kill_qemu(qemu_handle)
             s.close()
             return prog_output
@@ -140,5 +140,5 @@ def train_interface(timeout, te_data, prog):
 
 
 if __name__ == "__main__":
-    r = train_interface(10, '', 'test')
+    r = qemu_oneshot_test('test', '', 10)
     print(r)
