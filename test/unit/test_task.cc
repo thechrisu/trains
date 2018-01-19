@@ -7,6 +7,7 @@ TEST(TaskTest, init_sets_task_correctly) {
   task_descriptor first_task;
   task_init(&first_task, 0, (void (*)())0xCAFEBABE, nullptr);
   ASSERT_EQ(first_task.tf->k_lr, (uint32_t)0xCAFEBABE);
+  ASSERT_EQ(first_task.state, TASK_RUNNABLE);
   ASSERT_EQ(first_task.tf->psr, 0x10);
 
 }
