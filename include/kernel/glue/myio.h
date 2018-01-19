@@ -61,6 +61,7 @@ int canputc(int channel);
  */
 int cangetc(int channel);
 int getc(int channel);
+int bwgetc(int channel);
 void printf(char *format, ...) __attribute((format(printf, 1, 0)));
 void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
 

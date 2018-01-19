@@ -3,7 +3,8 @@
 #endif
 
 #include "crash.h"
-#include "tasks.h"
+#include "k1.h"
+#include "test/test_runner.h"
 #include "interrupt.h"
 #include "stdlib.h"
 #include "myio.h"
@@ -32,8 +33,12 @@ void kmain() {
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
-  // TODO call syscall_create to create ONLY first user task
-  syscall_create(5, &first_user_task);
+
+#if TESTING
+  syscall_create(1, &test_runner);
+#else
+  syscall_create(1, &k1_first_user_task);
+#endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up tasks\n\r");
