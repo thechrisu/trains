@@ -9,7 +9,7 @@ void test_runner() {
     i = 0;
     buf[0] = '\0';
 
-    bwprintf("Enter a test program (q to exit): ");
+    bwprintf("Enter a test program (q to exit): \r");
 
     c = bwgetc(TERMINAL);
     while (c != '\r') {
@@ -27,6 +27,8 @@ void test_runner() {
       Create(2, &a0_main);
     } else if (strcmp(buf, "k1")) {
       Create(2, &k1_first_user_task);
+    } else if (strcmp(buf, "test")) {
+      bwprintf("TestReturn\n\r", buf);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

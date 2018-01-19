@@ -34,7 +34,7 @@ void kmain() {
   bwprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
 
-#if TESTING
+#if E2ETESTING
   syscall_create(1, &test_runner);
 #else
   syscall_create(1, &k1_first_user_task);

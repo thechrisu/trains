@@ -12,6 +12,7 @@ builddir = $(current_dir)build/arm
 builddirx64 = $(current_dir)build/x8664
 builddirlab = $(current_dir)build/lab
 builddirversatilepb =build/versatilepb
+builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
@@ -29,10 +30,14 @@ QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semiho
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
+QEMUTCPBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin -semihosting
+QEMUTCPARGS = $(QEMUTCPBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
+
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
+CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
@@ -47,6 +52,8 @@ ASFLAGS_versatilepb = -mcpu=arm926ej-s -mapcs-32 -g
 LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
 	-L$(armlibs) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
+	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T versatilepb_e2e.ld \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
 LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
@@ -63,6 +70,7 @@ ASMversatilepb=$(shell find src -name '*.s')
 
 OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) $(patsubst %.s, $(builddir)/%.o, $(ASM))
 OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirversatilepb)/%.o, $(ASMversatilepb))
+OBJECTSversatilepb_e2e=$(patsubst %.c, $(builddirtesting)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirtesting)/%.o, $(ASMversatilepb))
 OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES)) $(patsubst %.s, $(builddirlab)/%.o, $(ASM))
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 
@@ -170,6 +178,29 @@ $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 	$(OBJCOPY) -O binary $(builddirversatilepb)/main.elf $(builddirversatilepb)/main.bin
 
 
+e2etest:
+	-mkdir -p build
+	-mkdir -p $(builddirtesting)
+	-make $(builddirtesting)/main.bin
+
+$(builddirtesting)/%.s: %.c
+	@mkdir -p $(dir $@)
+	$(XCC) $(CFLAGS_versatilepb_e2e)  $< -S -o $@
+
+$(builddirtesting)/src/%.o: src/%.s
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS_versatilepb) $< -o $@
+
+$(builddirtesting)/%.o: $(builddirtesting)/%.s
+	@mkdir -p $(dir $@)
+	$(AS) $(ASFLAGS_versatilepb) $< -o $@
+
+$(builddirtesting)/main.elf: $(OBJECTSversatilepb_e2e)
+	$(LD) $(LDFLAGSversatilepb_e2e) -o $(builddirtesting)/main.elf $(OBJECTSversatilepb_e2e) -lgcc
+
+$(builddirtesting)/main.bin: $(builddirtesting)/main.elf
+	$(OBJCOPY) -O binary $(builddirtesting)/main.elf $(builddirtesting)/main.bin
+
 all:
 	-make arm
 	-make x64stdlib
@@ -202,6 +233,9 @@ qemuconsole: versatilepb
 
 qemuwinconsole: versatilepb
 	-$(QEMUWIN) $(QEMUCONSOLEARGS)
+
+qemutcprun: e2etest
+	- $(QEMU) $(QEMUTCPARGS)
 
 docs:
 	-doxygen Doxyfile

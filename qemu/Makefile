@@ -4,6 +4,7 @@ all:
 	- arm-none-eabi-gcc -c -mcpu=arm926ej-s -g test.c -o test.o
 	- arm-none-eabi-ld -T test.ld test.o startup.o cp_vec.o -o test.elf
 	- arm-none-eabi-objcopy -O binary test.elf test.bin
+	- qemu-system-arm -M versatilepb -m 32M -nographic -kernel test.bin -serial tcp,127.0.0.1:9990 -serial tcp,127.0.0.1:9991
 
 # launch with qemu-system-arm -M versatilepb -m 128M -nographic -kernel test.bin
 #qemu-system-arm -M versatilepb -m 32M -kernel test.bin -serial vc -serial vc mon:stdio
