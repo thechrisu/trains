@@ -1,5 +1,10 @@
 #include "test_runner.h"
 
+void exec_prog(void (*code)()) {
+  Create(2, code);
+  bwprintf("ENDPROG");
+}
+
 void test_runner() {
   char c = '\0';
   char buf[512];
@@ -24,11 +29,12 @@ void test_runner() {
     buf[i] = '\0';
 
     if (strcmp(buf, "a0")) {
-      Create(2, &a0_main);
+      exec_prog(&a0_main);
     } else if (strcmp(buf, "k1")) {
-      Create(2, &k1_first_user_task);
+      exec_prog(&k1_first_user_task);
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
+      bwprintf("ENDPROG");
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
