@@ -12,6 +12,8 @@ build/*
 
 src/track/diagrams/
 
-test/*.out
+*.pyc
+__pycache__
+*.out
 
 *.gch

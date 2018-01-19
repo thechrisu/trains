@@ -6,6 +6,9 @@
 #define INTERRUPT_H
 
 #include "stdlib.h"
+#if TESTING
+#include "multitasking/task.h"
+#endif /* TESTING */
 
 typedef struct {
   uint32_t r0;

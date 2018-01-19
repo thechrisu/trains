@@ -10,7 +10,6 @@
  */
 
 #include "myio.h"
-#include "../../../test-resources/assert.h"
 
 char_buffer train_input_buf, train_output_buf,
     terminal_input_buf, terminal_output_buf;
@@ -110,14 +109,14 @@ uint16_t getnumreadable_bytes(int channel) {
       break;
     }
     default:
-      assert(0);
+      // assert(0);
       return 0xFFFF;
   }
   return char_buffer_get_num_elems(buf);
 }
 
 bool canreadbyte_buffered(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
+  // assert(channel == TRAIN || channel == TERMINAL);
   char_buffer *buf;
   switch(channel) {
     case TRAIN: {
@@ -129,14 +128,14 @@ bool canreadbyte_buffered(int channel) {
       break;
     }
     default:
-      assert(0);
+      // assert(0);
       return 0xFFFFFFFF;
   }
   return !char_buffer_is_empty(buf);
 }
 
 char readbyte_buffered(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
+  // assert(channel == TRAIN || channel == TERMINAL);
   char_buffer *buf;
   switch(channel) {
     case TRAIN: {
@@ -313,7 +312,7 @@ int setspeed(int channel, int speed) {
 }
 
 int canputc(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
+  // assert(channel == TRAIN || channel == TERMINAL);
   volatile int *flags;
   switch (channel) {
     case TRAIN:
@@ -338,7 +337,7 @@ int canputc(int channel) {
 }
 
 int cangetc(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
+  // assert(channel == TRAIN || channel == TERMINAL);
   volatile int *flags;
   switch (channel) {
     case TRAIN:
@@ -484,7 +483,7 @@ uint16_t last_err = 0;
 bool got_err = false;
 
 char get_error(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
+  // assert(channel == TRAIN || channel == TERMINAL);
   volatile int *ERROR_REG;
 #if VERSATILEPB
   switch (channel) {

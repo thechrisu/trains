@@ -4,7 +4,15 @@
 #include "interrupt.h"
 #include "myio.h"
 
+#if TESTING
+extern void syscall_exit();
+extern void syscall_pass();
+extern int syscall_mytid();
+extern int syscall_myparenttid();
+#endif /* TESTING */
+
 void print_tf(trapframe *tf) {
+#ifndef TESTING
   bwputr(TERMINAL, tf->r0);
   bwputr(TERMINAL, tf->r1);
   bwputr(TERMINAL, tf->r2);
@@ -31,6 +39,7 @@ void print_tf(trapframe *tf) {
   bwputr(TERMINAL, tf->psr);
   putc(TERMINAL, '\n');
   putc(TERMINAL, '\r');
+#endif /* TESTING */
 }
 
 trapframe *handle_interrupt(trapframe *tf) {
@@ -42,7 +51,9 @@ trapframe *handle_interrupt(trapframe *tf) {
       syscall_pass();
       break;
     case SYS_CREATE:
+#ifndef TESTING
       tf->r0 = syscall_create(tf->r1, (void(*)(void))tf->r2);
+#endif /* TESTING */
       break;
     case SYS_MYTID:
       tf->r0 = syscall_mytid();

@@ -8,7 +8,6 @@
 #include "../glue/mytimer.h"
 #include "../../../src/stdlib.h"
 #include "../../../src/buffer.h"
-#include "../../../test-resources/assert.h"
 
 extern int oe_in_sensor;
 

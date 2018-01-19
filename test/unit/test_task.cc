@@ -1,14 +1,21 @@
 #include "test_task.h"
 #include <gtest/gtest.h>
 
+int oe_in_sensor = false;
+
 TEST(TaskTest, init_sets_task_correctly) {
+  task_descriptor first_task;
+  task_init(&first_task, 0, (void (*)())0xCAFEBABE, nullptr);
+  ASSERT_EQ(first_task.tf->k_lr, (uint32_t)0xCAFEBABE);
+  ASSERT_EQ(first_task.tf->psr, 0x10);
+
+}
+
+TEST(TaskTest, parents_set_correctly) {
   task_descriptor first_task, second_task;
   task_init(&first_task, 0, (void (*)())0xCAFED00D, nullptr);
-  task_init(&second_task, 0, (void (*)())nullptr, &first_task);
-  ASSERT_EQ(all_tasks[first_task.tid], &first_task);
-  ASSERT_EQ(all_tasks[second_task.tid], &second_task);
+  task_init(&second_task, 0, (void (*)())nullptr, &(first_task));
   ASSERT_EQ(second_task.parent, &first_task);
-  ASSERT_EQ(first_task.tf->lr, (uint32_t)0xCAFED00D);
 }
 
 TEST(TaskTest, stacks_dont_overlap_at_least_for_trapframe) {
