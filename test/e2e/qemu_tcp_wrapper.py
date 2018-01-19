@@ -73,10 +73,7 @@ old_stderr = sys.stderr
 
 def call_qemu_tcp(optimized):
     os.chdir(os.path.join(dir_path, '../..'))
-    if len(sys.argv) > 1 and sys.argv[1] == 'win':
-        popen_arg = 'exec make qemutcpwinrun%s' % ('o' if optimized else '')
-    else:
-        popen_arg = 'exec make qemutcprun%s' % ('o' if optimized else '')
+    popen_arg = 'exec make qemutcprun%s' % ('o' if optimized else '')
     handle = Popen(popen_arg, shell=True, stdout=PIPE,
                    stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)  # , env=os.environ.copy())
     i = 0
