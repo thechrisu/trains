@@ -15,6 +15,10 @@ extern int oe_in_sensor;
 #include "./track/track_data.h"
 #include "../include/kernel/glue/mytimer.h"
 
+#if TESTING
+#define assert(expr) printf("%s\r\n", expr ? "Assertion true" : "Assertion false");
+#endif /* TESTING */
+
 void blink_headlights(char loco);
 
 void set_speed(int train, int speed);
