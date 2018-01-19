@@ -24,14 +24,20 @@ AS	= arm-none-eabi-as
 LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
+# Detect if in Windows Subsystem for Linux
+ifeq (,$(wildcard /proc/version))
 QEMU = qemu-system-arm
-QEMUWIN = qemu-system-arm.exe
+else
+QEMU = qemu-system-arm.exe
+endif
+
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
-QEMUTCPBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin -semihosting
-QEMUTCPARGS = $(QEMUTCPBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
+QEMUTESTINGBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin -semihosting
+QEMUTESTINGGUIARGS = $(QEMUTESTINGBASEARGS) -serial vc -serial vc
+QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -225,20 +231,14 @@ qemu:
 	-make versatilepb
 	-$(QEMU) $(QEMUGUIARGS)
 
-qemuwin: versatilepb
-	-$(QEMUWIN) $(QEMUGUIARGS)
-
 qemuconsole: versatilepb
 	-$(QEMU) $(QEMUCONSOLEARGS)
 
-qemuwinconsole: versatilepb
-	-$(QEMUWIN) $(QEMUCONSOLEARGS)
+qemutesting: e2etest
+	-$(QEMU) $(QEMUTESTINGGUIARGS)
 
 qemutcprun: e2etest
 	- $(QEMU) $(QEMUTCPARGS)
-
-qemutcpwinrun: e2etest
-	- $(QEMUWIN) $(QEMUTCPARGS)
 
 docs:
 	-doxygen Doxyfile

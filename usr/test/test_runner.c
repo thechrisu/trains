@@ -2,7 +2,7 @@
 
 void exec_prog(void (*code)()) {
   Create(2, code);
-  bwprintf("ENDPROG");
+  bwprintf("ENDPROG\r");
 }
 
 void test_runner() {
@@ -34,7 +34,7 @@ void test_runner() {
       exec_prog(&k1_first_user_task);
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
-      bwprintf("ENDPROG");
+      bwprintf("ENDPROG\r");
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

@@ -18,7 +18,7 @@ test:
 	-./unit/test_ready_queue.out
 	-./unit/test_scheduler.out
 	-./unit/test_task.out
-	-python3 e2e/test_test.py
+	-python3 e2e/test_test.py -v
 
 test_buffer.out: unit/test_buffer.cc $(SRC)
 	g++ -o unit/$@ $< $(SRC) $(FLAGS)
