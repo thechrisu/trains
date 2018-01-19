@@ -237,5 +237,8 @@ qemuwinconsole: versatilepb
 qemutcprun: e2etest
 	- $(QEMU) $(QEMUTCPARGS)
 
+qemutcpwinrun: e2etest
+	- $(QEMUWIN) $(QEMUTCPARGS)
+
 docs:
 	-doxygen Doxyfile

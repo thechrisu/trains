@@ -1,7 +1,7 @@
 from subprocess import Popen, PIPE
-import platform
 import socketserver
 import socket
+import sys
 from queue import Queue
 import threading
 
@@ -28,7 +28,7 @@ class TwoWayHandler(socketserver.StreamRequestHandler):
 
 def call_qemu_tcp(optimized):
     os.chdir(os.path.join(dir_path, '../..'))
-    if platform.system() == 'Microsoft' or platform.system() == 'Windows':
+    if len(sys.argv) > 1 and sys.argv[1] == 'win':
         popen_arg = 'make qemutcpwinrun%s' % ('o' if optimized else '')
     else:
         popen_arg = 'make qemutcprun%s' % ('o' if optimized else '')
