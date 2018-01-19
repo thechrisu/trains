@@ -1,12 +1,10 @@
-from subprocess import Popen, PIPE
-import socketserver
+import os
+import signal
 import socket
+import socketserver
 import sys
 from queue import Queue
-import signal
-import threading
-
-import os
+from subprocess import Popen, PIPE
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -26,37 +24,6 @@ class TwoWayHandler(socketserver.StreamRequestHandler):
     def __call__(self, req, addr, serv):
         socketserver.StreamRequestHandler.__init__(
             TwoWayHandler(self.val), req, addr, serv)
-
-
-old_stdout = sys.stdout
-old_stdin = sys.stdin
-old_stderr = sys.stderr
-
-
-def call_qemu_tcp(optimized):
-    os.chdir(os.path.join(dir_path, '../..'))
-    if len(sys.argv) > 1 and sys.argv[1] == 'win':
-        popen_arg = 'exec make qemutcpwinrun%s' % ('o' if optimized else '')
-    else:
-        popen_arg = 'exec make qemutcprun%s' % ('o' if optimized else '')
-    handle = Popen(popen_arg, shell=True, stdout=PIPE,
-                   stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)  # , env=os.environ.copy())
-    i = 0
-    lines = ''
-    while True:
-        line = handle.stderr.readline().decode('utf-8')
-        lines += line if line != '' else ''
-        if 'QEMU waiting' in line:
-            return handle
-        elif 'failed' in line or 'Failed' in line:
-            handle.kill()
-            raise ConnectionError(
-                lines + '\n\r' + handle.stderr.read().decode('utf-8'))
-        i += 1
-        if i > 20:
-            handle.kill()
-            raise ConnectionAbortedError(
-                lines + handle.stderr.read().decode('utf-8'))
 
 
 class ThreadingTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
@@ -99,6 +66,37 @@ def get_until_cr(sock, limit=None, may_send_cr=False):
     return received if len(received) > 0 else None
 
 
+old_stdout = sys.stdout
+old_stdin = sys.stdin
+old_stderr = sys.stderr
+
+
+def call_qemu_tcp(optimized):
+    os.chdir(os.path.join(dir_path, '../..'))
+    if len(sys.argv) > 1 and sys.argv[1] == 'win':
+        popen_arg = 'exec make qemutcpwinrun%s' % ('o' if optimized else '')
+    else:
+        popen_arg = 'exec make qemutcprun%s' % ('o' if optimized else '')
+    handle = Popen(popen_arg, shell=True, stdout=PIPE,
+                   stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)  # , env=os.environ.copy())
+    i = 0
+    lines = ''
+    while True:
+        line = handle.stderr.readline().decode('utf-8')
+        lines += line if line != '' else ''
+        if 'QEMU waiting' in line:
+            return handle
+        elif 'failed' in line or 'Failed' in line:
+            handle.kill()
+            raise ConnectionError(
+                lines + '\n\r' + handle.stderr.read().decode('utf-8'))
+        i += 1
+        if i > 20:
+            handle.kill()
+            raise ConnectionAbortedError(
+                lines + handle.stderr.read().decode('utf-8'))
+
+
 def kill_qemu(handle):
     os.killpg(os.getpgid(handle.pid), signal.SIGTERM)
 
@@ -111,7 +109,9 @@ def train_interface(timeout, te_data, prog):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(timeout)
 
-        def handle_signal(sign, frame): return kill_qemu(qemu_handle)
+        def handle_signal(sign, frame):
+            return kill_qemu(qemu_handle)
+
         signal.signal(signal.SIGTERM, handle_signal)
         signal.signal(signal.SIGINT, handle_signal)
         s.connect(te_sv_addr)
@@ -137,6 +137,7 @@ def train_interface(timeout, te_data, prog):
     except:
         kill_qemu(qemu_handle)
         return None
+
 
 if __name__ == "__main__":
     r = train_interface(10, '', 'test')
