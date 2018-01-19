@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Function us to dynamically call different main functions.
+ */
 #ifndef TEST_RUNNER
 #define TEST_RUNNER
 
