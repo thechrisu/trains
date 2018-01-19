@@ -12,7 +12,6 @@
 #include "../assert.h"
 #include "../stdlib.h"
 #include "../interrupt.h"
-#include "../../include/common/register.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 

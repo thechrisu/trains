@@ -5,7 +5,6 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
-#include "../include/common/register.h"
 #include "stdlib.h"
 
 typedef struct {
