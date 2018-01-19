@@ -37,7 +37,7 @@ void kmain() {
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(1, &k1_first_user_task);
+  syscall_create(5, &k1_first_user_task);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
