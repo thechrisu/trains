@@ -31,5 +31,5 @@ Kernel
 - [ ] "Interrupt-driven IO + a0 + loose ends"
 
 Train Control
-- [ ] "Stop train anywhere reliably" -> Stop reliably is more important than having a large set of possible destinations
+- [ ] "Stop train anywhere reliably" -> Stopping reliably is more important than having a large set of possible destinations
 - [ ] "Improve stopping precision, detect single switch/sensor error"
