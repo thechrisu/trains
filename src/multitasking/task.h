@@ -28,7 +28,9 @@ typedef enum task_state {
   TASK_ACTIVE,
   TASK_RUNNABLE,
   TASK_ZOMBIE,
-  TASK_BLOCKED
+  TASK_SEND_BLOCKED, // State task is in after calling Send(), before anything else happened (esp. before Receive() was called).
+  TASK_RECEIVE_BLOCKED, // State task is in after calling Receive() without a message ready.
+  TASK_REPLY_BLOCKED // State sender is in after Receive() has been called, but Reply() has not.
 } task_state;
 
 typedef int16_t tid_t;
@@ -69,10 +71,11 @@ void task_activate(task_descriptor *task);
 
 /**
  * On being unblocked, tasks should call this function.
- * Sets the task state to TASK_RUNNABLE (Currently has no effect).
+ * Sets the task state to a certain task state.
  * @param task Task to be set runnable
+ * @param state State the task should be set to
  */
-void task_runnable(task_descriptor *task);
+void task_set_state(task_descriptor *task, task_state state);
 
 /**
  * Task state is set to <code>TASK_ZOMBIE</code>, its trapframe is set to <code>0x745CXXXX</code>

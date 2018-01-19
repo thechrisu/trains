@@ -13,11 +13,13 @@ all:
 	-make test_ready_queue.out
 	-make test_scheduler.out
 	-make test_task.out
+	-make test_messagepassing.out
 test:
 	#-./test_buffer.out
 	-./unit/test_ready_queue.out
 	-./unit/test_scheduler.out
 	-./unit/test_task.out
+	-./unit/test_messagepassing.out
 	-python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
 
 test_buffer.out: unit/test_buffer.cc $(SRC)
@@ -28,6 +30,9 @@ test_ready_queue.out: unit/test_ready_queue.cc $(SRC_SCHEDULER)
 
 test_scheduler.out: unit/test_scheduler.cc $(SRC_SCHEDULER)
 	g++ -o unit/$@ $< $(SRC_SCHEDULER) $(FLAGS)
+
+test_messagepassing.out: unit/test_messagepassing.cc $(SRC)
+	g++ -o unit/$@ $< $(SRC) $(FLAGS)
 
 test_task.out: unit/test_task.cc $(SRC_TASK)
 	g++ -o unit/$@ $< $(SRC_TASK) $(FLAGS)

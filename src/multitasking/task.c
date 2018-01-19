@@ -74,8 +74,8 @@ void task_activate(task_descriptor *task) {
 #endif /* TRAPFRAME_DEBUG */
 }
 
-void task_runnable(task_descriptor *task) {
-  task->state = TASK_RUNNABLE;
+void task_set_state(task_descriptor *task, task_state state) {
+  task->state = state;
 }
 
 void task_retire(task_descriptor *task, int16_t exit_code) {
