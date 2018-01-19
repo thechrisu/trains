@@ -8,8 +8,6 @@
 
 #define BUF_SIZE 10
 
-int oe_in_sensor = false;
-
 TEST(BufferTest, should_print_correctly) {
   char buf_data[BUF_SIZE];
   char_buffer buf;
@@ -24,7 +22,7 @@ TEST(BufferTest, should_print_correctly) {
     }
     char_buffer_put(&buf, i + 32);
   }
-  print_triggered_sensors(&buf);
+  // print_triggered_sensors(&buf);
 }
 
 TEST(BufferTest, buffer_should_work_i_am_sorry_i_dont_have_more_detail) {
@@ -50,7 +48,9 @@ TEST(BufferTest, buffer_should_work_i_am_sorry_i_dont_have_more_detail) {
   }
 }
 
+/*
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+*/

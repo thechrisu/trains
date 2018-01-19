@@ -1,8 +1,6 @@
 #include "test_task.h"
 #include <gtest/gtest.h>
 
-int oe_in_sensor = false;
-
 TEST(TaskTest, init_sets_task_correctly) {
   task_descriptor first_task;
   task_init(&first_task, 0, (void (*)())0xCAFEBABE, nullptr);
@@ -50,7 +48,9 @@ TEST(TaskTest, task_ids_assigned_incrementally) {
   ASSERT_EQ(task_get_tid(&first_task) + 1, task_get_tid(&second_task));
 }
 
+/*
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+*/
