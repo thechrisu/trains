@@ -561,6 +561,39 @@ int getc(int channel) {
   return c;
 }
 
+int bwgetc( int channel ) {
+  volatile int *data;
+  volatile int *flags;
+  volatile unsigned char c;
+
+  switch (channel) {
+    case TRAIN:
+#if VERSATILEPB
+      flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
+      data = (int *) UART0_BASE + UART_DATA_OFFSET;
+#else
+      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
+      data = (int *) (UART1_BASE + UART_DATA_OFFSET);
+#endif
+      break;
+    case TERMINAL:
+#if VERSATILEPB
+      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
+      data = (int *) UART1_BASE + UART_DATA_OFFSET;
+#else
+      flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
+      data = (int *) (UART2_BASE + UART_DATA_OFFSET);
+#endif
+      break;
+    default:
+      return -1;
+  }
+
+  while (!(*flags & RXFF_MASK));
+  c = *data;
+  return c;
+}
+
 int a2d(char ch) {
   if (ch >= '0' && ch <= '9') return ch - '0';
   if (ch >= 'a' && ch <= 'f') return ch - 'a' + 10;

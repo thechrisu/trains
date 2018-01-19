@@ -19,4 +19,9 @@ void *memset(void *s, int c, unsigned int n) {
   return s;
 }
 
+int strcmp(char *destination, char *source) {
+  while (*destination && *source && (*(destination++) == *(source++)));
+  return !(*destination || *source);
+}
+
 #endif

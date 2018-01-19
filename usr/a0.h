@@ -5,6 +5,6 @@
 #ifndef A0_H
 #define A0_H
 
-int a0_main(int argc, char *argv[]);
+void a0_main();
 
 #endif /* A0_H */

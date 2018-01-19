@@ -3,7 +3,6 @@
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
-#include "tasks.h"
 
 void print_tf(trapframe *tf) {
   bwputr(TERMINAL, tf->r0);

@@ -13,6 +13,7 @@
 #else
 
 #define bool _Bool
+int strcmp(char *destination, char *source);
 
 #endif
 
