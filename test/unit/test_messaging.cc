@@ -1,4 +1,4 @@
-#include "test_messagepassing.h"
+#include "test_messaging.h"
 
 #include <gtest/gtest.h>
 

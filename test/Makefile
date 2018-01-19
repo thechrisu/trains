@@ -1,4 +1,4 @@
-.PHONY: test_all.out test_buffer.out test_ready_queue.out test_scheduler.out test_messagepassing.out test_task.out
+.PHONY: test_all.out test_buffer.out test_ready_queue.out test_scheduler.out test_messaging.out test_task.out alltests
 
 .PRECIOUS: test_buffer.out test_all.out
 
@@ -15,8 +15,17 @@ all:
 	-make test_ready_queue.out
 	-make test_scheduler.out
 	-make test_task.out
-	-make test_messagepassing.out
+	-make test_messaging.out
 	-make test_all.out
+	-./unit/test_all.out
+	-./unit/test_buffer.out
+	-./unit/test_ready_queue.out
+	-./unit/test_scheduler.out
+	-./unit/test_messaging.out
+	-./unit/test_task.out
+
+alltests: test_all.out
+	-make test
 
 test:
 	-./unit/test_all.out
@@ -34,7 +43,7 @@ test_ready_queue.out: unit/test_ready_queue.cc $(SRC_SCHEDULER)
 test_scheduler.out: unit/test_scheduler.cc $(SRC_SCHEDULER)
 	g++ -o unit/$@ $< $(SRC_SCHEDULER) $(FLAGS)
 
-test_messagepassing.out: unit/test_messagepassing.cc $(SRC)
+test_messaging.out: unit/test_messaging.cc $(SRC)
 	g++ -o unit/$@ $< $(SRC) $(FLAGS)
 
 test_task.out: unit/test_task.cc $(SRC_TASK)
