@@ -1,4 +1,3 @@
-#include "interrupt.h"
 #include "task.h"
 
 tid_t next_task_id = 1;
@@ -45,6 +44,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf->sp = (uint64_t)task->tf;
   task->tf->lr = (uint64_t)(task_main); // When generating tests, we can't include the ARM asm file
   task->tf->pc = (uint64_t)task_main;
+  task->tf->k_lr = (uint64_t)task_main;
 #else
   task->tf->sp = (uint32_t)task->tf;
   task->tf->lr = (uint32_t)(&sys_exit);

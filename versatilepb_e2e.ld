@@ -1,9 +1,12 @@
-ENTRY (_Reset)
+ENTRY (vec_start)
 SECTIONS
 {
   . = 0x10000;
-  .startup . : { startup.o(.text) }
-  .text : { *(.text) }
+  .text : {
+  build/testing/src/startup.o
+  *(.text)
+  *(.rodata)
+  }
   .data : { *(.data) }
   .bss : { *(.bss COMMON) }
   . = ALIGN(8);

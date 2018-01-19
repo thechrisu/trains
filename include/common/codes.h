@@ -6,7 +6,7 @@
 #ifndef CODES_H
 #define CODES_H
 
-#include "attributes.h"
+#include "../../src/attributes.h"
 #include "stdlib.h"
 
 /**

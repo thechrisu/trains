@@ -10,7 +10,6 @@
  */
 
 #include "myio.h"
-#include "../../../test-resources/assert.h"
 
 char_buffer train_input_buf, train_output_buf,
     terminal_input_buf, terminal_output_buf;
@@ -558,6 +557,39 @@ int getc(int channel) {
     }
   }
   c = *data & DATA_MASK;
+  return c;
+}
+
+int bwgetc( int channel ) {
+  volatile int *data;
+  volatile int *flags;
+  volatile unsigned char c;
+
+  switch (channel) {
+    case TRAIN:
+#if VERSATILEPB
+      flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
+      data = (int *) UART0_BASE + UART_DATA_OFFSET;
+#else
+      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
+      data = (int *) (UART1_BASE + UART_DATA_OFFSET);
+#endif
+      break;
+    case TERMINAL:
+#if VERSATILEPB
+      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
+      data = (int *) UART1_BASE + UART_DATA_OFFSET;
+#else
+      flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
+      data = (int *) (UART2_BASE + UART_DATA_OFFSET);
+#endif
+      break;
+    default:
+      return -1;
+  }
+
+  while (!(*flags & RXFF_MASK));
+  c = *data;
   return c;
 }
 

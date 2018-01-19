@@ -53,9 +53,11 @@ void syscall_exit() {
 }
 
 void syscall_panic() {
+#ifndef TESTING
   __asm__(
     "mov fp, %0\n\t"
     "mov sp, %1\n\t"
     "b panic_exit"
   : : "r" (main_fp), "r" (main_sp));
+#endif /* TESTING */
 }
