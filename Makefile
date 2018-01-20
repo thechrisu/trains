@@ -25,10 +25,14 @@ LD	= arm-none-eabi-ld
 OBJCOPY = arm-none-eabi-objcopy
 
 # Detect if in Windows Subsystem for Linux
-ifeq $(or (,$(wildcard /proc/version)), ($(CI), true))
+ifeq (,$(wildcard /proc/version))
 QEMU = qemu-system-arm
 else
 QEMU = qemu-system-arm.exe
+endif
+
+ifeq ($(CI), true)
+QEMU=qemu-system-arm
 endif
 
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
