@@ -7,6 +7,9 @@ int oe_in_sensor = false;
 
 TEST(TaskTest, init_sets_task_correctly) {
   task_descriptor first_task;
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = (send_queue*)send_queues_on_stack;
+
   task_init(&first_task, 0, (void (*)())0xCAFEBABE, nullptr);
   ASSERT_EQ(first_task.tf->k_lr, (uint32_t)0xCAFEBABE);
   ASSERT_EQ(first_task.state, TASK_RUNNABLE);
@@ -16,6 +19,9 @@ TEST(TaskTest, init_sets_task_correctly) {
 
 TEST(TaskTest, parents_set_correctly) {
   task_descriptor first_task, second_task;
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = (send_queue*)send_queues_on_stack;
+
   task_init(&first_task, 0, (void (*)())0xCAFED00D, nullptr);
   task_init(&second_task, 0, (void (*)())nullptr, &(first_task));
   ASSERT_EQ(second_task.parent, &first_task);
@@ -23,6 +29,9 @@ TEST(TaskTest, parents_set_correctly) {
 
 TEST(TaskTest, stacks_dont_overlap_at_least_for_trapframe) {
   task_descriptor first_task, second_task;
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = (send_queue*)send_queues_on_stack;
+
   task_init(&first_task, 0, (void (*)())nullptr, nullptr);
   task_init(&second_task, 0, (void (*)())nullptr, nullptr);
   uint64_t first_task_top = ((uint64_t)first_task.tf) + sizeof(trapframe);
@@ -39,6 +48,9 @@ TEST(TaskTest, stacks_dont_overlap_at_least_for_trapframe) {
 
 TEST(TaskTest, getters_task_id) {
   task_descriptor first_task, second_task;
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = (send_queue*)send_queues_on_stack;
+
   task_init(&first_task, 0, (void (*)())nullptr, nullptr);
   task_init(&second_task, 0, (void (*)())nullptr, &first_task);
   ASSERT_EQ(task_get_parent_tid(&first_task), -1);
@@ -47,6 +59,9 @@ TEST(TaskTest, getters_task_id) {
 
 TEST(TaskTest, task_ids_assigned_incrementally) {
   task_descriptor first_task, second_task;
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = (send_queue*)send_queues_on_stack;
+
   task_init(&first_task, 0, (void (*)())nullptr, nullptr);
   task_init(&second_task, 0, (void (*)())nullptr, nullptr);
   ASSERT_EQ(task_get_tid(&first_task) + 1, task_get_tid(&second_task));

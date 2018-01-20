@@ -5,21 +5,38 @@ matrix:
   - os: linux
     dist: trusty
     compiler: gcc
-    addons:
-      apt:
-        packages:
-	 - gcc-arm-none-eabi
-	 - qemu
-
 
 notifications:
   email: false
 
+cache:
+  directories:
+   - /home/travis/build/culshoefer/trains/test/googletest/build
+
 before_install:
+  - sudo apt-get install qemu gcc-arm-none-eabi libboost-all-dev doxygen
   - git submodule update --init --recursive
   - mkdir test/build
-  - cd test/build && cmake .. && make -j2
+  - cd test/googletest
+  - chmod +x ci/travis.sh
+  - ./ci/travis.sh
+  - mv googletest gtest
 
+env:
+  -GTEST=/home/travis/build/culshoefer/trains/test/googletest/gtest/include
+  -LIBGTEST=/home/travis/build/culshoefer/trains/test/googletest/build/googlemock/gtest/libgtest.a
+  -BOOST=/usr/local/include/boost
+  -armlibs=/usr/lib/gcc/arm-none-eabi/4.8.2
 
 script:
-  - make ci
+  - ls
+  - ls /usr/local
+  - which doxygen
+  - ls $GTEST
+  - ls $LIBGTEST
+    - ls $BOOST
+  - ls $armlibs
+  - pwd
+    - set -e
+  - cd ../..
+  - make all
