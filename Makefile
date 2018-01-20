@@ -31,7 +31,7 @@ else
 QEMU = qemu-system-arm.exe
 endif
 
-ifeq ($(CI), "TRUE")
+ifeq ($(CI), true)
 QEMU=qemu-system-arm
 endif
 
@@ -225,8 +225,8 @@ ci:
 	make arm
 	make versatilepb
 	make e2etest
-	make test
 	cd test && make all || cd ..
+	make test
 
 clean:
 	rm -f *.s *.a *.o \
