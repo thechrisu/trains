@@ -110,7 +110,7 @@ $(builddirx64)/main: $(OBJECTSx64)
 arm:
 	mkdir -p build
 	mkdir -p $(builddir)
-	make $(builddir)/main.bin
+	make $(builddir)/main.bin -j2
 
 $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -134,7 +134,7 @@ $(builddir)/main.bin: $(builddir)/main.elf
 trainslab:
 	mkdir -p build
 	mkdir -p $(builddirlab)
-	make $(builddirlab)/main.bin
+	make $(builddirlab)/main.bin -j2
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -167,7 +167,7 @@ test:
 versatilepb:
 	mkdir -p build
 	mkdir -p $(builddirversatilepb)
-	make $(builddirversatilepb)/main.bin
+	make $(builddirversatilepb)/main.bin -j2
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -191,7 +191,7 @@ $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 e2etest:
 	mkdir -p build
 	mkdir -p $(builddirtesting)
-	make $(builddirtesting)/main.bin
+	make $(builddirtesting)/main.bin -j2
 
 $(builddirtesting)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -213,20 +213,20 @@ $(builddirtesting)/main.bin: $(builddirtesting)/main.elf
 
 all:
 	set -e
-	make docs
-	make arm
-	make versatilepb
-	make e2etest
-	make test
+	make docs -j2
+	make arm -j2
+	make versatilepb -j2
+	make e2etest -j2
+	make test -j2
 
 ci:
 	set -e
-	make docs
-	make arm
-	make versatilepb
-	make e2etest
-	cd test && make all || cd ..
-	make test
+	make docs -j2
+	make arm -j2
+	make versatilepb -j2
+	make e2etest -j2
+	cd test && make all -j2 || cd ..
+	make test -j2
 
 clean:
 	rm -f *.s *.a *.o \
