@@ -212,11 +212,15 @@ all:
 	make docs
 	make arm
 	make versatilepb
+	make e2etest
 	make test
 
 ci:
+	set -e
+	make docs
 	make arm
 	make versatilepb
+	make e2etest
 	make test
 
 clean:

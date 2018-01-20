@@ -34,9 +34,9 @@ script:
   - which doxygen
   - ls $GTEST
   - ls $LIBGTEST
-    - ls $BOOST
+  - ls $BOOST
   - ls $armlibs
   - pwd
     - set -e
   - cd ../..
-  - make all
+  - make ci
