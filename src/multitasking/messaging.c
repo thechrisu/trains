@@ -11,6 +11,8 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
   }
   task_set_state(src, TASK_REPLY_BLOCKED);
   task_set_state(dst, TASK_RUNNABLE);
+  volatile int* sender_tid = (int*)dst->tf->r1;
+  *sender_tid = task_get_tid(src);
 }
 
 void send(task_descriptor *sender, task_descriptor *receiver) {
@@ -45,11 +47,11 @@ void reply(task_descriptor *called_send, task_descriptor *called_reply) {
     if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?
       called_send->tf->r0 = -1;
       called_reply->tf->r0 = -1;
-      memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r3, called_send->tf->r5);
+      memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_send->tf->r5);
     } else {
       called_send->tf->r0 = called_reply->tf->r3;
       called_reply->tf->r0 = 0;
-      memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r3, called_reply->tf->r3);
+      memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_reply->tf->r3);
       task_set_state(called_send, TASK_RUNNABLE);
       task_set_state(called_reply, TASK_RUNNABLE);
       register_task(called_send);

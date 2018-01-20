@@ -18,4 +18,7 @@
  */
 void send(task_descriptor *sender, task_descriptor *receiver);
 
+void receive(task_descriptor *receiver);
+void reply(task_descriptor *called_send, task_descriptor *called_reply);
+
 #endif /* TRAINS_MESSAGING_H */
