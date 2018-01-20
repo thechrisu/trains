@@ -31,6 +31,10 @@ else
 QEMU = qemu-system-arm.exe
 endif
 
+ifeq ($(CI), "TRUE")
+QEMU=qemu-system-arm
+endif
+
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
