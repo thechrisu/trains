@@ -37,6 +37,6 @@ script:
   - ls $BOOST
   - ls $armlibs
   - pwd
-    - set -e
+  - set -e
   - cd ../..
   - make ci

@@ -222,6 +222,7 @@ ci:
 	make versatilepb
 	make e2etest
 	make test
+	cd test && make all || cd ..
 
 clean:
 	rm -f *.s *.a *.o \
