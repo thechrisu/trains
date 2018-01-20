@@ -18,7 +18,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->next = NULL_TASK_DESCRIPTOR;
   task->prev = NULL_TASK_DESCRIPTOR;
   task->parent = parent;
-  send_queues[task->tid] = (task_descriptor*)0;
+  send_queues[task->tid] = NULL_TASK_DESCRIPTOR;
   task->send_queue = (task_descriptor **)&(send_queues[task->tid]);
 
 #ifndef TESTING
