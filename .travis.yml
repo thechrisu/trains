@@ -29,12 +29,9 @@ env:
   -armlibs=/usr/lib/gcc/arm-none-eabi/4.8.2
 
 script:
-  - ls
-  - ls /usr/local
   - which doxygen
   - ls $GTEST
   - ls $LIBGTEST
-  - ls $BOOST
   - ls $armlibs
   - pwd
   - set -e
