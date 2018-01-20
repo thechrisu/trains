@@ -97,13 +97,11 @@ def call_qemu_tcp(optimized):
             return handle
         elif 'failed' in line or 'Failed' in line:
             kill_qemu(handle)
-            raise ConnectionError(
-                lines + '\n\r' + handle.stderr.read().decode('utf-8'))
+            raise ConnectionError(lines)
         i += 1
         if i > 20:
             kill_qemu(handle)
-            raise ConnectionAbortedError(
-                lines + handle.stderr.read().decode('utf-8'))
+            raise ConnectionAbortedError(lines)
 
 
 def qemu_oneshot_test(prog, te_data, timeout):

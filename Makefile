@@ -1,4 +1,4 @@
-.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test qemu docs
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs
 default: upload;
 
 OPTIMIZATION = -O0
@@ -29,6 +29,10 @@ ifeq (,$(wildcard /proc/version))
 QEMU = qemu-system-arm
 else
 QEMU = qemu-system-arm.exe
+endif
+
+ifeq ($(CI), true)
+QEMU=qemu-system-arm
 endif
 
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
@@ -81,9 +85,9 @@ OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES)) $(patsubst %.s, $(bui
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 
 x64stdlib:
-	- mkdir -p build
-	- mkdir -p $(builddirx64)
-	- make $(builddirx64)/main
+	mkdir -p build
+	mkdir -p $(builddirx64)
+	make $(builddirx64)/main
 
 $(builddirx64)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -104,9 +108,9 @@ $(builddirx64)/main: $(OBJECTSx64)
 
 
 arm:
-	-mkdir -p build
-	-mkdir -p $(builddir)
-	-make $(builddir)/main.bin
+	mkdir -p build
+	mkdir -p $(builddir)
+	make $(builddir)/main.bin -j2
 
 $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -128,9 +132,9 @@ $(builddir)/main.bin: $(builddir)/main.elf
 
 
 trainslab:
-	-mkdir -p build
-	-mkdir -p $(builddirlab)
-	-make $(builddirlab)/main.bin
+	mkdir -p build
+	mkdir -p $(builddirlab)
+	make $(builddirlab)/main.bin -j2
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -158,12 +162,12 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	-cd test && make alltests || cd ..
+	cd test && make alltests || cd ..
 
 versatilepb:
-	-mkdir -p build
-	-mkdir -p $(builddirversatilepb)
-	-make $(builddirversatilepb)/main.bin
+	mkdir -p build
+	mkdir -p $(builddirversatilepb)
+	make $(builddirversatilepb)/main.bin -j2
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -185,9 +189,9 @@ $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 
 
 e2etest:
-	-mkdir -p build
-	-mkdir -p $(builddirtesting)
-	-make $(builddirtesting)/main.bin
+	mkdir -p build
+	mkdir -p $(builddirtesting)
+	make $(builddirtesting)/main.bin -j2
 
 $(builddirtesting)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -208,37 +212,45 @@ $(builddirtesting)/main.bin: $(builddirtesting)/main.elf
 	$(OBJCOPY) -O binary $(builddirtesting)/main.elf $(builddirtesting)/main.bin
 
 all:
-	-make arm
-	-make versatilepb
-	-make test
+	set -e
+	make docs -j2
+	make arm -j2
+	make versatilepb -j2
+	make e2etest -j2
+	make test -j2
 
 ci:
-	-make x64stdlib
-	-make test
+	set -e
+	make docs -j2
+	make arm -j2
+	make versatilepb -j2
+	make e2etest -j2
+	cd test && make all -j2 || cd ..
+	make test -j2
 
 clean:
-	-rm -f *.s *.a *.o \
+	rm -f *.s *.a *.o \
 	  $(builddir)/main.map $(builddir)/main.elf $(builddir)/*.o
-	-rm -rf build/*
-	-cd test && make clean && cd ..
+	rm -rf build/*
+	cd test && make clean && cd ..
 
 upload:
-	-make clean
-	-make trainslab
-	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
+	make clean
+	make trainslab
+	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
 
 qemu:
-	-make versatilepb
-	-$(QEMU) $(QEMUGUIARGS)
+	make versatilepb
+	$(QEMU) $(QEMUGUIARGS)
 
 qemuconsole: versatilepb
-	-$(QEMU) $(QEMUCONSOLEARGS)
+	$(QEMU) $(QEMUCONSOLEARGS)
 
 qemutesting: e2etest
-	-$(QEMU) $(QEMUTESTINGGUIARGS)
+	$(QEMU) $(QEMUTESTINGGUIARGS)
 
 qemutcprun: e2etest
-	- $(QEMU) $(QEMUTCPARGS)
+	$(QEMU) $(QEMUTCPARGS)
 
 docs:
-	-doxygen Doxyfile
+	doxygen Doxyfile
