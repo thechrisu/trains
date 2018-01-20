@@ -6,7 +6,7 @@
 *.elf
 .idea
 cmake-build-debug
-test/build
+test/build/
 docs
 build/*
 
