@@ -18,7 +18,20 @@
  */
 void send(task_descriptor *sender, task_descriptor *receiver);
 
+/**
+ * If there is nobody on the receiver's send queue, put the receiver into the state
+ * TASK_RECEIVE_BLOCKED. Otherwise, dequeue the first task on the send queue, put it
+ * into the state TASK_REPLY_BLOCKED, and transfer the message from the sender to
+ * the receiver.
+ * @param receiver called Receive().
+ */
 void receive(task_descriptor *receiver);
+
+/**
+ * Copy the reply from the task that replied to the sender and make both tasks runnable.
+ * @param called_send called Send().
+ * @param called_reply called Reply().
+ */
 void reply(task_descriptor *called_send, task_descriptor *called_reply);
 
 #endif /* TRAINS_MESSAGING_H */
