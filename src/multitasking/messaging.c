@@ -37,6 +37,7 @@ void receive(task_descriptor *receiver) {
   } else {
     task_descriptor *sender = send_queue_dequeue(receiver->send_queue);
     transmit_message(sender, receiver);
+    task_set_state(sender, TASK_REPLY_BLOCKED);
   }
 }
 
