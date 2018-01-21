@@ -1,5 +1,6 @@
 #include "stdlib.h"
 #include "myio.h"
+#include "syscall/syscall.h"
 
 typedef enum abort_mode {
   UNDEFINED,
@@ -65,6 +66,6 @@ void handle_abort(abort_mode abort_type) {
   __asm__ volatile("mov %0, r14\n\t" : "=r"(culprit_instruction));
   culprit_instruction += pc_offset;
   bwprintf("Offending address: 0x%x\n\r", culprit_instruction);
-  __asm__("B panic_exit\n\t");
+  syscall_panic();
 #endif /* TESTING */
 }
