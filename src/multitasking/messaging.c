@@ -44,16 +44,17 @@ void receive(task_descriptor *receiver) {
 void reply(task_descriptor *called_send, task_descriptor *called_reply) {
   if (called_send->state != TASK_REPLY_BLOCKED) {
     called_reply->tf->r0 = -3;
-  } else if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?
-    called_send->tf->r0 = -1;
-    called_reply->tf->r0 = -1;
-    memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_send->tf->r5);
   } else {
-    called_send->tf->r0 = called_reply->tf->r3;
-    called_reply->tf->r0 = 0;
-    memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_reply->tf->r3);
+    if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?
+      called_send->tf->r0 = -1;
+      called_reply->tf->r0 = -1;
+      memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_send->tf->r5);
+    } else {
+      called_send->tf->r0 = called_reply->tf->r3;
+      called_reply->tf->r0 = 0;
+      memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_reply->tf->r3);
+    }
     task_set_state(called_send, TASK_RUNNABLE);
-    task_set_state(called_reply, TASK_RUNNABLE);
     register_task(called_send);
   }
 }
