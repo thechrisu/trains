@@ -79,7 +79,7 @@ void syscall_receive() {
 void syscall_reply() {
   register_t sender_tid = (register_t)current_task->tf->r1;
   // register_t is unsigned, so gcc gives a warning if we check if receiver_tid < 0
-  if (sender_tid < 0 || sender_tid >= MAX_TASKS) {
+  if (sender_tid >= MAX_TASKS) {
     current_task->tf->r0 = -2;
     return;
   }
