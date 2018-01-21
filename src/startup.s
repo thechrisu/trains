@@ -7,8 +7,8 @@
 vec_start:
   B reset_handler /* Reset */
   B handle_undefined_abort /* Undefined */
-  B handle_prefetch_abort /* Prefetch Abort */
   B enter_kernel /* SWI */
+  B handle_prefetch_abort /* Prefetch Abort */
   B handle_data_abort /* Data Abort */
   B . /* reserved */
   B . /* IRQ */
