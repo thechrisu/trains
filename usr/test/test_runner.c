@@ -37,6 +37,8 @@ void test_runner() {
       bwprintf("ENDPROG\r");
     } else if (strcmp(buf, "messaging_basic")) {
       exec_prog(5, &test_messaging_basic);
+    } else if (strcmp(buf, "messaging_receive_before_send")) {
+      exec_prog(5, &test_messaging_receive_before_send);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
