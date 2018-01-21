@@ -41,9 +41,10 @@ void print_proc_mode(arm_proc_mode mode) {
 }
 
 void handle_abort(abort_mode abort_type) {
+#ifndef TESTING
   unsigned int cpsr_val; // TODO change to register_t
 
-  __asm__ volatile("mrs %0, cpsr\n\t" : "=r"(cpsr_val));
+  __asm__ volatile("MRS %0, cpsr\n\t" : "=r"(cpsr_val));
   int pc_offset;
   char *abort_type_str;
   switch (abort_type) {
@@ -58,11 +59,12 @@ void handle_abort(abort_mode abort_type) {
       break;
   }
   bwprintf("\033[94m\033[5mReceived abort\033[25m\033[39m type: %s\n\r", abort_type_str);
-  print_proc_mode(cpsr_val & PROC_MODE_MASK);
+  print_proc_mode((arm_proc_mode)(cpsr_val & PROC_MODE_MASK));
   bwprintf("CPSR: 0x%x\n\r", cpsr_val);
   unsigned int culprit_instruction;
   __asm__ volatile("mov %0, r14\n\t" : "=r"(culprit_instruction));
   culprit_instruction += pc_offset;
   bwprintf("Offending address: 0x%x\n\r", culprit_instruction);
-  __asm__("b panic_exit\n\t");
+  __asm__("B panic_exit\n\t");
+#endif /* TESTING */
 }
