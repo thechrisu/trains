@@ -1,3 +1,11 @@
+/**
+ * @file
+ * @brief Concrete send queue implementation
+ *
+ * A send queue maintains a list of tasks that are waiting to send messages to a given
+ * receiver task. When the receiver task calls the <code>Receive</code> syscall wrapper,
+ * one task is dequeued and sends its message to the receiver.
+ */
 #include "send_queue.h"
 
 #define QUEUE_TYPE     send_queue
