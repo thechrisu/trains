@@ -1,5 +1,6 @@
 #include "../include/common/codes.h"
 #include "./syscall/syscall.h"
+#include "./multitasking/messaging.h"
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
@@ -63,6 +64,15 @@ trapframe *handle_interrupt(trapframe *tf) {
       break;
     case SYS_PANIC:
       syscall_panic();
+      break;
+    case SYS_SEND:
+      syscall_send();
+      break;
+    case SYS_RECEIVE:
+      syscall_receive();
+      break;
+    case SYS_REPLY:
+      syscall_reply();
       break;
     default:
       tf->r0 = 0xABADC0DE;

@@ -6,8 +6,10 @@
 #define TRAINS_SYSCALL_H
 
 #include "../multitasking/schedule.h"
+#include "../multitasking/messaging.h"
 #include "../multitasking/task.h"
 #include "myio.h"
+#include "stdlib.h"
 
 extern void enter_main();
 
@@ -53,5 +55,20 @@ void syscall_exit();
  * Causes a kernel panic, ending all tasks.
  */
 void syscall_panic();
+
+/**
+ * Sends a message to another task. Arguments passed in the current task's trapframe.
+ */
+void syscall_send();
+
+/**
+ * Receives a message from another task. Arguments passed in the current task's trapframe.
+ */
+void syscall_receive();
+
+/**
+ * Replies to a message from another task. Arguments passed in the current task's trapframe.
+ */
+void syscall_reply();
 
 #endif /* TRAINS_SYSCALL_H */
