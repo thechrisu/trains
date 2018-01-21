@@ -3,7 +3,13 @@ from qemu_tcp_wrapper import qemu_oneshot_test
 
 TIMEOUT = 10
 
-expected_messaging_basic_output = ''
+expected_messaging_basic_output = 'Created task 3\n\r' \
+                                  'Received message: Sending a message!\n\r' \
+                                  'Message length: 19\n\r' \
+                                  'Received reply: Got your message!\n\r' \
+                                  'Reply length: 17\n\r' \
+                                  'Sent reply: Got your message!\n\r'
+
 
 
 class TestMessaging(unittest.TestCase):
