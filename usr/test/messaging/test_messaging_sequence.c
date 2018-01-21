@@ -1,4 +1,4 @@
-#include "test_messaging_basic.h"
+#include "test_messaging_truncation.h"
 
 void child() {
   int parent_tid;
