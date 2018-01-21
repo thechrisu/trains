@@ -70,3 +70,32 @@ void __Assert(bool value, const char * caller_name, const char *file_name, int l
     software_interrupt(SYS_PANIC, 0, NULL_ARGS);
   }
 }
+
+int Send(int tid, char *msg, int msglen, char *reply, int rplen) {
+  unsigned int args[] = {
+    (unsigned int)tid,
+    (unsigned int)msg,
+    (unsigned int)msglen,
+    (unsigned int)reply,
+    (unsigned int)rplen
+  };
+  return software_interrupt(SYS_SEND, 5, args);
+}
+
+int Receive(int *tid, char *msg, int msglen) {
+  unsigned int args[] = {
+    (unsigned int)tid,
+    (unsigned int)msg,
+    (unsigned int)msglen,
+  };
+  return software_interrupt(SYS_RECEIVE, 3, args);
+}
+
+int Reply(int tid, char *reply, int rplen) {
+  unsigned int args[] = {
+    (unsigned int)tid,
+    (unsigned int)reply,
+    (unsigned int)rplen
+  };
+  return software_interrupt(SYS_REPLY, 3, args);
+}
