@@ -15,6 +15,7 @@
 #define bool _Bool
 int strlen(char *s);
 int strcmp(char *destination, char *source);
+int strncmp(const char *destination, const char *source, int max_length);
 
 #endif
 
