@@ -23,6 +23,6 @@ void test_messaging_receive_before_send() {
   bwprintf("Message length: %d\n\r", message_length);
   Assert(message_length > 0);
 
-  Assert(Reply(sender_tid, reply, strlen(reply)) == 0);
+  Assert(Reply(sender_tid, reply, strlen(reply) + 1) == 0);
   bwprintf("Sent reply: %s\n\r", reply);
 }

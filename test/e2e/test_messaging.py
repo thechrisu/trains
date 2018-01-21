@@ -7,7 +7,7 @@ expected_messaging_basic_output = 'Created task 3\n\r' \
                                   'Received message: Sending a message!\n\r' \
                                   'Message length: 19\n\r' \
                                   'Received reply: Got your message!\n\r' \
-                                  'Reply length: 17\n\r' \
+                                  'Reply length: 18\n\r' \
                                   'Sent reply: Got your message!\n\r'
 
 expected_messaging_receive_before_send_output = 'Created task 3\n\r' \
@@ -15,7 +15,7 @@ expected_messaging_receive_before_send_output = 'Created task 3\n\r' \
                                                 'Message length: 19\n\r' \
                                                 'Sent reply: Got your message!\n\r' \
                                                 'Received reply: Got your message!\n\r' \
-                                                'Reply length: 17\n\r'
+                                                'Reply length: 18\n\r'
 
 
 class TestMessaging(unittest.TestCase):
