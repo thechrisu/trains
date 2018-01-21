@@ -6,10 +6,10 @@
 
 vec_start:
   B reset_handler /* Reset */
-  B . /* Undefined */
+  B handle_undefined_abort /* Undefined */
+  B handle_prefetch_abort /* Prefetch Abort */
   B enter_kernel /* SWI */
-  B . /* Prefetch Abort */
-  B . /* Data Abort */
+  B handle_data_abort /* Data Abort */
   B . /* reserved */
   B . /* IRQ */
   B . /* FIQ */
@@ -20,3 +20,15 @@ reset_handler:
 	LDR sp, =stack_top
 	BL cp_vectors
 	BL main
+
+handle_undefined_abort:
+  MOV r0, #0
+  BL handle_abort
+
+handle_prefetch_abort:
+  MOV r0, #1
+  BL handle_abort
+
+handle_data_abort:
+  MOV r0, #2
+  BL handle_abort
