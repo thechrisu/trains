@@ -1,6 +1,6 @@
-#include "test_messaging_truncation.h"
+#include "test_messaging.h"
 
-void receiver() {
+void truncation_receiver() {
   int sender_tid;
   int length;
   char msg[5];
@@ -19,7 +19,7 @@ void test_messaging_truncation() {
   char msg[] = "Sending a message!";
   char reply[5];
 
-  receiver_tid = Create(4, &receiver);
+  receiver_tid = Create(4, &truncation_receiver);
   bwprintf("Created task %d\n\r", receiver_tid);
 
   length = Send(receiver_tid, msg, strlen(msg) + 1, reply, 5);

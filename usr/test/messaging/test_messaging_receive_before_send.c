@@ -1,6 +1,6 @@
-#include "test_messaging_receive_before_send.h"
+#include "test_messaging.h"
 
-void sender() {
+void receive_before_send_sender() {
   char msg[] = "Sending a message!";
   char reply[64];
 
@@ -15,7 +15,7 @@ void test_messaging_receive_before_send() {
   char msg[64];
   char reply[] = "Got your message!";
 
-  sender_tid = Create(4, &sender);
+  sender_tid = Create(4, &receive_before_send_sender);
   bwprintf("Created task %d\n\r", sender_tid);
 
   int message_length = Receive(&sender_tid, msg, 64);

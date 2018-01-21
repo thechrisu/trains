@@ -1,6 +1,6 @@
-#include "test_messaging_basic.h"
+#include "test_messaging.h"
 
-void recipient() {
+void basic_receiver() {
   int sender_tid;
   char msg[64];
   char reply[] = "Got your message!";
@@ -19,7 +19,7 @@ void test_messaging_basic() {
   char msg[] = "Sending a message!";
   char reply[64];
 
-  receiver_tid = Create(4, &recipient);
+  receiver_tid = Create(4, &basic_receiver);
   bwprintf("Created task %d\n\r", receiver_tid);
 
   int reply_length = Send(receiver_tid, msg, strlen(msg) + 1, reply, 64);

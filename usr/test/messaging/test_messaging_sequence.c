@@ -1,6 +1,6 @@
-#include "test_messaging_truncation.h"
+#include "test_messaging.h"
 
-void child() {
+void sequence_child() {
   int parent_tid;
   int length;
   char sent_msg[] = "Message to parent";
@@ -31,7 +31,7 @@ void test_messaging_sequence() {
   char sent_reply[] = "Reply to child";
   char received_reply[64];
 
-  child_tid = Create(4, &child);
+  child_tid = Create(4, &sequence_child);
   bwprintf("Created task %d\n\r", child_tid);
 
   for (int i = 0; i < 4; i += 1) {
