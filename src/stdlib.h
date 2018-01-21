@@ -40,10 +40,10 @@ typedef unsigned long long uint64_t;
 
 typedef signed char int8_t;
 typedef signed int int16_t;
-// typedef signed long int int32_t;
+typedef signed long int int32_t;
 typedef signed long long int64_t;
 
-typedef uint32_t register_t;
+typedef int32_t register_t;
 
 void memcpy(void *dst, void *src, unsigned int n);
 void *memset(void *s, int c, unsigned int n);
