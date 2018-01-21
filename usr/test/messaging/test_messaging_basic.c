@@ -11,7 +11,7 @@ void basic_receiver() {
   Assert(message_length > 0);
 
   Assert(Reply(sender_tid, reply, strlen(reply) + 1) == 0);
-  bwprintf("Sent reply: %s\n\r", reply);
+  bwprintf("Sent repl: %s\n\r", reply);
 }
 
 void test_messaging_basic() {
