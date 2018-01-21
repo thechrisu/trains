@@ -8,6 +8,7 @@
 #include "../../include/common/codes.h"
 #include "../a0.h"
 #include "../k1.h"
+#include "./test_messaging_basic.h"
 #include "myio.h"
 #include "stdlib.h"
 

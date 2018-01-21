@@ -24,4 +24,13 @@ int strcmp(char *destination, char *source) {
   return !(*destination || *source);
 }
 
+int strlen(char *s) {
+  int result = 0;
+  while (*s) {
+    s += 1;
+    result += 1;
+  }
+  return result;
+};
+
 #endif

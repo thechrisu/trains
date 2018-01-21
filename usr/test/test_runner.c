@@ -35,6 +35,8 @@ void test_runner() {
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
       bwprintf("ENDPROG\r");
+    } else if (strcmp(buf, "messaging_basic")) {
+      exec_prog(5, &test_messaging_basic);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

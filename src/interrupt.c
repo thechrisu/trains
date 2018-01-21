@@ -66,6 +66,8 @@ trapframe *handle_interrupt(trapframe *tf) {
       syscall_panic();
       break;
     case SYS_SEND:
+      bwprintf("syscall_send\n\r");
+      print_tf(current_task->tf);
       syscall_send();
       break;
     case SYS_RECEIVE:

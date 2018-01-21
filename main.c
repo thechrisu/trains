@@ -5,6 +5,7 @@
 #include "crash.h"
 #include "k1.h"
 #include "test/test_runner.h"
+#include "test/test_messaging_basic.h"
 #include "interrupt.h"
 #include "stdlib.h"
 #include "myio.h"
@@ -43,7 +44,7 @@ void kmain() {
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(5, &k1_first_user_task);
+  syscall_create(5, &test_messaging_basic);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
