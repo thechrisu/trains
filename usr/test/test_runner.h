@@ -11,6 +11,7 @@
 #include "./messaging/test_messaging_basic.h"
 #include "./messaging/test_messaging_receive_before_send.h"
 #include "./messaging/test_messaging_sequence.h"
+#include "./messaging/test_messaging_truncation.h"
 #include "myio.h"
 #include "stdlib.h"
 
