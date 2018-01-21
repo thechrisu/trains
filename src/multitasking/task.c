@@ -68,7 +68,7 @@ void task_activate(task_descriptor *task) {
   task->state = TASK_ACTIVE;
   current_task = task;
 #ifndef TESTING
-  task->tf = leave_kernel(task->tf->r0, task->tf);
+  leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG
   bwprintf("End of task_activate\n\r");

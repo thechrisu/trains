@@ -69,7 +69,6 @@ void syscall_send() {
     current_task->tf->r0 = -2;
     return;
   }
-  bwprintf("receiver_tid: %d\n\r", receiver_tid);
   send(current_task, &(all_tasks[receiver_tid]));
 }
 
