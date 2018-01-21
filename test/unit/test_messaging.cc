@@ -20,6 +20,19 @@ TEST(MessagePassingTest, send_blocks_a_task_if_receiver_isnt_zombie_or_receive_b
   ASSERT_EQ(sender.state, TASK_SEND_BLOCKED);
 }
 
+TEST(MessagePassingTest, send_sets_the_return_value_to_negative_three_if_recipient_is_zombie) {
+  setup_scheduler();
+  task_descriptor sender, receiver;
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = (send_queue*)send_queues_on_stack;
+  task_init(&sender, 1, nullptr, nullptr);
+  task_init(&receiver, 1, nullptr, nullptr);
+  task_set_state(&receiver, TASK_ZOMBIE);
+
+  send(&sender, &receiver);
+  ASSERT_EQ(sender.tf->r0, -3);
+}
+
 TEST(MessagePassingTest, on_receiver_task_blocked_actually_copies_buf) {
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
@@ -75,7 +88,6 @@ TEST(MessagePassingTest, on_receiver_task_blocked_if_sender_message_too_long_rec
   sender.tf->r2 = (register_t)send_buf;
   sender.tf->r3 = 15;
 
-
   int sender_tid;
   receiver.tf->r1 = (register_t)&sender_tid;
   receiver.tf->r2 = (register_t)receive_buf;
@@ -104,7 +116,6 @@ TEST(MessagePassingTest, on_receiver_task_blocked_states_set_correctly) {
   char send_buf[10];
   sender.tf->r2 = (register_t)send_buf;
   sender.tf->r3 = 10;
-
 
   int sender_tid;
   receiver.tf->r1 = (register_t)&sender_tid;
