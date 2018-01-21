@@ -31,6 +31,10 @@ expected_messaging_truncation_output = 'Created task 3\n\r' \
                                        'Reply length (sender): -1\n\r' \
                                        'Reply status (receiver): -1\n\r'
 
+expected_messaging_invalid_tid_output = 'Send task ID -1: -2\n\r' \
+                                        'Send task ID 3: -2\n\r' \
+                                        'Reply task ID -1: -2\n\r' \
+                                        'Reply task ID 3: -2\n\r' \
 
 def test_messaging(self, test_name, expected_output):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT)
@@ -53,6 +57,9 @@ class TestMessaging(unittest.TestCase):
 
     def test_messaging_truncation(self):
         test_messaging(self, 'messaging_truncation', expected_messaging_truncation_output)
+
+    def test_messaging_invalid_tid(self):
+        test_messaging(self, 'messaging_invalid_tid', expected_messaging_invalid_tid_output)
 
 
 if __name__ == "__main__":

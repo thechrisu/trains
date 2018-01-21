@@ -43,6 +43,8 @@ void test_runner() {
       exec_prog(5, &test_messaging_sequence);
     } else if (strcmp(buf, "messaging_truncation")) {
       exec_prog(5, &test_messaging_truncation);
+    } else if (strcmp(buf, "messaging_invalid_tid")) {
+      exec_prog(5, &test_messaging_invalid_tid);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
