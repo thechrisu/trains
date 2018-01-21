@@ -31,6 +31,6 @@ int strlen(char *s) {
     result += 1;
   }
   return result;
-};
+}
 
 #endif
