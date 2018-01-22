@@ -5,7 +5,7 @@
 - `make qemuconsole`/`make qemuwinconsole` Does `make versatilepb` and starts QEMU with terminal output showing in the console.
 - `make arm` Compile the kernel with the train lab configuration on your machine.
 - `make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
-- `make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab.
+- `make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab. Run `TEST_RUNNER=true make upload` to build with the test runner as the first user task.
 - `make test` Runs all Googletest unit tests.
 - `make` Does the same as `make upload`.
 
