@@ -27,6 +27,7 @@ void kmain() {
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
   next_task_id = 1;
+  bwprintf("");
 #ifndef VERSATILEPB
   uint32_t *undefined_handler = (uint32_t*)0x24;
   uint32_t *swi_handler = (uint32_t *)0x28;

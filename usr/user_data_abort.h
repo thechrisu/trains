@@ -5,8 +5,12 @@
 #ifndef TRAINS_USER_DATA_ABORT_H
 #define TRAINS_USER_DATA_ABORT_H
 
+/**
+ * Triggers UNDEFINED.
+ * See http://bear.ces.cwru.edu/eecs_382/ARM7-TDMI-manual-pt2.pdf page 2 of the PDF.
+ */
 void UNDEFINED() {
-  int *i = 0x01000000;
+  int *i = (int *)0x01000000;
   *i = 0x06000010;
   __asm__("mov pc, %0\n\t" :: "r"(i));
 }
