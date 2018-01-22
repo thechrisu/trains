@@ -9,5 +9,9 @@ void test_messaging_receive_before_send();
 void test_messaging_sequence();
 void test_messaging_truncation();
 void test_messaging_invalid_tid();
+void test_messaging_fifo_send();
+void test_messaging_same_priority();
+void test_messaging_send_recipient_zombie();
+void test_messaging_reply_target_zombie();
 
 #endif /* TEST_MESSAGING_H */

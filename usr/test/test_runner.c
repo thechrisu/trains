@@ -45,6 +45,14 @@ void test_runner() {
       exec_prog(5, &test_messaging_truncation);
     } else if (strcmp(buf, "messaging_invalid_tid")) {
       exec_prog(5, &test_messaging_invalid_tid);
+    } else if (strcmp(buf, "messaging_fifo_send")) {
+      exec_prog(5, &test_messaging_fifo_send);
+    } else if (strcmp(buf, "messaging_same_priority")) {
+      exec_prog(5, &test_messaging_same_priority);
+    } else if (strcmp(buf, "messaging_send_recipient_zombie")) {
+      exec_prog(5, &test_messaging_send_recipient_zombie);
+    } else if (strcmp(buf, "messaging_reply_target_zombie")) {
+      exec_prog(5, &test_messaging_reply_target_zombie);
     } else if (strcmp(buf, "test_nameserver_errors")) {
       exec_prog(5, &test_nameserver_errors);
     } else if (strcmp(buf, "test_nameserver_too_many")) {

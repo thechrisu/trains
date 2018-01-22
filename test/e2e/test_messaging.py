@@ -34,7 +34,18 @@ expected_messaging_truncation_output = 'Created task 3\n\r' \
 expected_messaging_invalid_tid_output = 'Send task ID -1: -2\n\r' \
                                         'Send task ID 3: -2\n\r' \
                                         'Reply task ID -1: -2\n\r' \
-                                        'Reply task ID 3: -2\n\r' \
+                                        'Reply task ID 3: -2\n\r'
+
+expected_messaging_fifo_send_output = 'Received "A" from task 3\n\r' \
+                                      'Received "B" from task 4\n\r' \
+                                      'Received "C" from task 5\n\r' \
+                                      'Received "D" from task 6\n\r'
+
+expected_messaging_same_priority_output = 'Sender should run first\n\r' \
+                                          'Receiver should run second\n\r'
+
+expected_messaging_zombie_output = 'Exiting...\n\r' \
+                                   'Error code: -2\n\r'
 
 def test_messaging(self, test_name, expected_output):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT)
@@ -60,6 +71,18 @@ class TestMessaging(unittest.TestCase):
 
     def test_messaging_invalid_tid(self):
         test_messaging(self, 'messaging_invalid_tid', expected_messaging_invalid_tid_output)
+
+    def test_messaging_fifo_send(self):
+        test_messaging(self, 'messaging_fifo_send', expected_messaging_fifo_send_output)
+
+    def test_messaging_same_priority(self):
+        test_messaging(self, 'messaging_same_priority', expected_messaging_same_priority_output)
+
+    def test_messaging_send_recipient_zombie(self):
+        test_messaging(self, 'messaging_send_recipient_zombie', expected_messaging_zombie_output)
+
+    def test_messaging_reply_target_zombie(self):
+        test_messaging(self, 'messaging_reply_target_zombie', expected_messaging_zombie_output)
 
 
 if __name__ == "__main__":
