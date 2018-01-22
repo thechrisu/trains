@@ -26,9 +26,16 @@ void nameserver_main() {
     } else {
       switch (incoming_msg_buffer[0]) {
         case 'R':
-          memcpy(names[next_name], incoming_msg_buffer+1, ret - 1); // TODO overwrite old names
-          task_ids[next_name] = sender_tid;
-          next_name++;
+          if (next_name >= TOTAL_NUM_NAMES) {
+            char too_many_warning = 'M' + 128; // "Many"
+            Reply(sender_tid, &too_many_warning, 1);
+          } else {
+            memcpy(names[next_name], incoming_msg_buffer + 1, ret - 1); // TODO overwrite old names
+            task_ids[next_name] = sender_tid;
+            next_name++;
+            char correct = 'C';
+            Reply(sender_tid, &correct, 1);
+          }
           break;
         case 'W': {
           bool found = false;
@@ -40,10 +47,13 @@ void nameserver_main() {
             }
           }
           if (!found) {
-            char not_found_warning =  'N' + 128;
+            char not_found_warning =  'N' + 128; // "Not found"
             Reply(sender_tid, &not_found_warning, 1);
           }
           break;
+        }
+        case 'K': {
+          return;
         }
         default: {
           char wrong_command = 'W' + 128; // "Wrong"
