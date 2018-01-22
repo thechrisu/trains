@@ -35,6 +35,8 @@ void test_runner() {
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
       bwprintf("ENDPROG\n\r");
+    } else if (strcmp(buf, "test_undefined_handler")) {
+      exec_prog(5, &test_undefined_handler);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
