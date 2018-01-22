@@ -13,7 +13,20 @@
 #else
 
 #define bool _Bool
+
+/**
+ * Counts the number of character up to and NOT including the \0. Expects \0 to be there.
+ * @param s String.
+ * @return Length of string.
+ */
 int strlen(char *s);
+
+/**
+ * Compares two strings.
+ * @param destination A string to compare.
+ * @param source      Another string to compare.
+ * @return 1 if they're equal, 0 if not.
+ */
 int strcmp(char *destination, char *source);
 
 #endif
