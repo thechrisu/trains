@@ -2,7 +2,7 @@
 
 void exec_prog(int priority, void (*code)()) {
   Create(priority, code);
-  bwprintf("ENDPROG\r");
+  bwprintf("ENDPROG\n\r");
 }
 
 void test_runner() {
@@ -14,7 +14,7 @@ void test_runner() {
     i = 0;
     buf[0] = '\0';
 
-    bwprintf("Enter a test program (q to exit): \r");
+    bwprintf("Enter a test program (q to exit): \n\r");
 
     c = bwgetc(TERMINAL);
     while (c != '\r') {
