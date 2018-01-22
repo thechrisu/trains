@@ -4,10 +4,10 @@
 void test_nameserver_errors() {
   ns_tid = Create(5, &nameserver_main);
 
-  char send_buf[32]; // TODO factor out MAX_NAMESERVER_MSG_LENGTH_OR_WHATEVER_ITS_CALLED
+  char send_buf[NAMESERVER_MSG_LENGTH];
   char reply_buf;
 
-  Send(ns_tid, send_buf, 33, &reply_buf, 1);
+  Send(ns_tid, send_buf, NAMESERVER_MSG_LENGTH + 1, &reply_buf, 1);
   bwprintf("Truncated: %d\n\r", reply_buf);
 
   Send(ns_tid, send_buf, 0, &reply_buf, 1);

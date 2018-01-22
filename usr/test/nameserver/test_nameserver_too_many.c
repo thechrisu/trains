@@ -3,7 +3,7 @@
 void test_nameserver_too_many() {
   ns_tid = Create(5, &nameserver_main);
 
-  for(int i = 0; i < 63; i++) {
+  for(int i = 0; i < TOTAL_NUM_NAMES - 1; i++) {
     char fake[6];
     fake[0] = i;
     fake[1] = 'S';
