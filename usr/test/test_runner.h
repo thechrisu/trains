@@ -9,6 +9,8 @@
 #include "../a0.h"
 #include "../k1.h"
 #include "./messaging/test_messaging.h"
+#include "nameserver/test_nameserver_errors.h"
+#include "nameserver/test_nameserver_too_many.h"
 #include "myio.h"
 #include "stdlib.h"
 
