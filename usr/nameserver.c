@@ -1,7 +1,12 @@
 #include "nameserver.h"
 
 #define NAMESERVER_MSG_LENGTH 32
+
+#if E2ETESTING
+#define TOTAL_NUM_NAMES 64
+#else
 #define TOTAL_NUM_NAMES 512
+#endif /* E2ETESTING */
 
 void nameserver_main() {
   char names[TOTAL_NUM_NAMES][NAMESERVER_MSG_LENGTH];
