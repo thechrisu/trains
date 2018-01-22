@@ -60,8 +60,8 @@ def read_socket(sock, limit=None, may_send_cr=False):
         if not d or (not may_send_cr and d.decode('ascii') == '\r'):
             break
         received += d.decode('ascii')
-        if 'ENDPROG\r' in received:
-            received = received.split('ENDPROG\r')[0]
+        if 'ENDPROG\n\r' in received:
+            received = received.split('ENDPROG\n\r')[0]
             break
     return received if len(received) > 0 else None
 
@@ -97,13 +97,11 @@ def call_qemu_tcp(optimized):
             return handle
         elif 'failed' in line or 'Failed' in line:
             kill_qemu(handle)
-            raise ConnectionError(
-                lines + '\n\r' + handle.stderr.read().decode('utf-8'))
+            raise ConnectionError(lines)
         i += 1
         if i > 20:
             kill_qemu(handle)
-            raise ConnectionAbortedError(
-                lines + handle.stderr.read().decode('utf-8'))
+            raise ConnectionAbortedError(lines)
 
 
 def qemu_oneshot_test(prog, te_data, timeout):
