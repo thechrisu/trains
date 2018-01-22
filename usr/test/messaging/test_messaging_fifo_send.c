@@ -11,16 +11,16 @@ void fifo_sender() {
 }
 
 void test_messaging_fifo_send() {
-  int sender_tids[4];
   int sender_tid;
   char msg[2];
 
   for (int i = 0; i < 4; i += 1) {
-    sender_tids[i] = Create(4, &fifo_sender);
+    Create(4, &fifo_sender);
   }
 
   for (int i = 0; i < 4; i += 1) {
     Assert(Receive(&sender_tid, msg, 2) == 2);
+    Reply(sender_tid, (char *)0, 0);
     bwprintf("Received \"%s\" from task %d\n\r", msg, sender_tid);
   }
 }
