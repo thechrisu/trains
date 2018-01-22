@@ -18,7 +18,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
 void send(task_descriptor *sender, task_descriptor *receiver) {
   switch (receiver->state) {
     case TASK_ZOMBIE:
-      sender->tf->r0 = -3;
+      sender->tf->r0 = -2;
       break;
     case TASK_RECEIVE_BLOCKED:
       transmit_message(sender, receiver);

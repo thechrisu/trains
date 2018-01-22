@@ -20,7 +20,7 @@ TEST(MessagePassingTest, send_blocks_a_task_if_receiver_isnt_zombie_or_receive_b
   ASSERT_EQ(sender.state, TASK_SEND_BLOCKED);
 }
 
-TEST(MessagePassingTest, send_sets_the_return_value_to_negative_three_if_recipient_is_zombie) {
+TEST(MessagePassingTest, send_sets_the_return_value_to_negative_two_if_recipient_is_zombie) {
   setup_scheduler();
   task_descriptor sender, receiver;
   send_queue send_queues_on_stack[MAX_TASKS];
@@ -30,7 +30,7 @@ TEST(MessagePassingTest, send_sets_the_return_value_to_negative_three_if_recipie
   task_set_state(&receiver, TASK_ZOMBIE);
 
   send(&sender, &receiver);
-  ASSERT_EQ(sender.tf->r0, -3);
+  ASSERT_EQ(sender.tf->r0, -2);
 }
 
 TEST(MessagePassingTest, on_receiver_task_blocked_actually_copies_buf) {

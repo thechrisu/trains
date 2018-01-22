@@ -11,5 +11,6 @@ void test_messaging_truncation();
 void test_messaging_invalid_tid();
 void test_messaging_fifo_send();
 void test_messaging_same_priority();
+void test_messaging_send_recipient_zombie();
 
 #endif /* TEST_MESSAGING_H */
