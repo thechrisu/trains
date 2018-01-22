@@ -60,8 +60,8 @@ def read_socket(sock, limit=None, may_send_cr=False):
         if not d or (not may_send_cr and d.decode('ascii') == '\r'):
             break
         received += d.decode('ascii')
-        if 'ENDPROG\r' in received:
-            received = received.split('ENDPROG\r')[0]
+        if 'ENDPROG\n\r' in received:
+            received = received.split('ENDPROG\n\r')[0]
             break
     return received if len(received) > 0 else None
 
