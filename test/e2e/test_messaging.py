@@ -44,8 +44,8 @@ expected_messaging_fifo_send_output = 'Received "A" from task 3\n\r' \
 expected_messaging_same_priority_output = 'Sender should run first\n\r' \
                                           'Receiver should run second\n\r'
 
-expected_messaging_send_recipient_zombie_output = 'Exiting...\n\r' \
-                                                  'Error code: -2\n\r'
+expected_messaging_zombie_output = 'Exiting...\n\r' \
+                                   'Error code: -2\n\r'
 
 def test_messaging(self, test_name, expected_output):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT)
@@ -79,7 +79,10 @@ class TestMessaging(unittest.TestCase):
         test_messaging(self, 'messaging_same_priority', expected_messaging_same_priority_output)
 
     def test_messaging_send_recipient_zombie(self):
-        test_messaging(self, 'messaging_send_recipient_zombie', expected_messaging_send_recipient_zombie_output)
+        test_messaging(self, 'messaging_send_recipient_zombie', expected_messaging_zombie_output)
+
+    def test_messaging_reply_target_zombie(self):
+        test_messaging(self, 'messaging_reply_target_zombie', expected_messaging_zombie_output)
 
 
 if __name__ == "__main__":

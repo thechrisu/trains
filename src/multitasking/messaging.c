@@ -42,7 +42,9 @@ void receive(task_descriptor *receiver) {
 }
 
 void reply(task_descriptor *called_send, task_descriptor *called_reply) {
-  if (called_send->state != TASK_REPLY_BLOCKED) {
+  if (called_send->state == TASK_ZOMBIE) {
+    called_reply->tf->r0 = -2;
+  } else if (called_send->state != TASK_REPLY_BLOCKED) {
     called_reply->tf->r0 = -3;
   } else {
     if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?

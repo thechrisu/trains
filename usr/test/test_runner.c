@@ -51,6 +51,8 @@ void test_runner() {
       exec_prog(5, &test_messaging_same_priority);
     } else if (strcmp(buf, "messaging_send_recipient_zombie")) {
       exec_prog(5, &test_messaging_send_recipient_zombie);
+    } else if (strcmp(buf, "messaging_reply_target_zombie")) {
+      exec_prog(5, &test_messaging_reply_target_zombie);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
