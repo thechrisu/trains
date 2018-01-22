@@ -5,6 +5,10 @@
 #ifndef TRAINS_USER_DATA_ABORT_H
 #define TRAINS_USER_DATA_ABORT_H
 
-#define PREFETCH_ABORT()   __asm__("MSR cpsr_c, #0x1F\n\t");
+void UNDEFINED() {
+  int *i = 0x01000000;
+  *i = 0x06000010;
+  __asm__("mov pc, %0\n\t" :: "r"(i));
+}
 
 #endif /* TRAINS_USER_DATA_ABORT_H */
