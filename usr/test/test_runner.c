@@ -34,7 +34,7 @@ void test_runner() {
       exec_prog(5, &k1_first_user_task);
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
-      bwprintf("ENDPROG\r");
+      bwprintf("ENDPROG\n\r");
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
