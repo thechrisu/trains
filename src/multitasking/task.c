@@ -1,8 +1,8 @@
-#include "interrupt.h"
 #include "task.h"
 
 tid_t next_task_id = 1;
 task_descriptor *all_tasks;
+task_descriptor **send_queues;
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
@@ -18,6 +18,8 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->next = NULL_TASK_DESCRIPTOR;
   task->prev = NULL_TASK_DESCRIPTOR;
   task->parent = parent;
+  send_queues[task->tid] = NULL_TASK_DESCRIPTOR;
+  task->send_queue = (task_descriptor **)&(send_queues[task->tid]);
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
@@ -40,21 +42,21 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf->r10 = 0xF433000A + (task->tid << 4);
   task->tf->fp = 0xF433000B + (task->tid << 4);
   task->tf->ip = 0xF433000C + (task->tid << 4);
+  task->tf->sp = (register_t)task->tf;
 #ifdef TESTING
   // Need uint64_t here, otherwise the compiler generate 'cast from pointer to smaller type' errors when compiling tests
-  task->tf->sp = (uint64_t)task->tf;
-  task->tf->lr = (uint64_t)(task_main); // When generating tests, we can't include the ARM asm file
-  task->tf->pc = (uint64_t)task_main;
+  task->tf->lr = (register_t)(task_main); // When generating tests, we can't include the ARM asm file
+  task->tf->pc = (register_t)task_main;
 #else
-  task->tf->sp = (uint32_t)task->tf;
-  task->tf->lr = (uint32_t)(&sys_exit);
+  task->tf->sp = (register_t)task->tf;
+  task->tf->lr = (register_t)(&sys_exit);
   task->tf->pc = 0xF433000D + (task->tid << 4);
-  task->tf->k_lr = (uint32_t)task_main;
 #endif /* TESTING */
+  task->tf->k_lr = (register_t)task_main;
   task->tf->psr = 0x10;
 
 #if SCHEDULE_DEBUG
-  bwprintf("task_main: %x\n\r", (uint32_t)task_main);
+  bwprintf("task_main: %x\n\r", (register_t)task_main);
 #endif /* SCHEDULE_DEBUG */
 }
 
@@ -66,7 +68,7 @@ void task_activate(task_descriptor *task) {
   task->state = TASK_ACTIVE;
   current_task = task;
 #ifndef TESTING
-  task->tf = leave_kernel(task->tf->r0, task->tf);
+  leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG
   bwprintf("End of task_activate\n\r");
@@ -74,8 +76,8 @@ void task_activate(task_descriptor *task) {
 #endif /* TRAPFRAME_DEBUG */
 }
 
-void task_runnable(task_descriptor *task) {
-  task->state = TASK_RUNNABLE;
+void task_set_state(task_descriptor *task, task_state state) {
+  task->state = state;
 }
 
 void task_retire(task_descriptor *task, int16_t exit_code) {

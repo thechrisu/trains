@@ -1,14 +1,19 @@
 \#*#
+.#*
 *~
 *.o
+*.bin
+*.elf
 .idea
 cmake-build-debug
-
+test/build/
 docs
 build/*
 
 src/track/diagrams/
 
-test/*.out
+*.pyc
+__pycache__
+*.out
 
 *.gch

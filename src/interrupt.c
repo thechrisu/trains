@@ -1,11 +1,19 @@
 #include "../include/common/codes.h"
 #include "./syscall/syscall.h"
+#include "./multitasking/messaging.h"
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
-#include "tasks.h"
+
+#if TESTING
+extern void syscall_exit();
+extern void syscall_pass();
+extern int syscall_mytid();
+extern int syscall_myparenttid();
+#endif /* TESTING */
 
 void print_tf(trapframe *tf) {
+#ifndef TESTING
   bwputr(TERMINAL, tf->r0);
   bwputr(TERMINAL, tf->r1);
   bwputr(TERMINAL, tf->r2);
@@ -32,9 +40,12 @@ void print_tf(trapframe *tf) {
   bwputr(TERMINAL, tf->psr);
   putc(TERMINAL, '\n');
   putc(TERMINAL, '\r');
+#endif /* TESTING */
 }
 
 trapframe *handle_interrupt(trapframe *tf) {
+  current_task->tf = tf;
+
   switch (tf->r0) {
     case SYS_EXIT:
       syscall_exit();
@@ -43,7 +54,9 @@ trapframe *handle_interrupt(trapframe *tf) {
       syscall_pass();
       break;
     case SYS_CREATE:
+#ifndef TESTING
       tf->r0 = syscall_create(tf->r1, (void(*)(void))tf->r2);
+#endif /* TESTING */
       break;
     case SYS_MYTID:
       tf->r0 = syscall_mytid();
@@ -53,6 +66,15 @@ trapframe *handle_interrupt(trapframe *tf) {
       break;
     case SYS_PANIC:
       syscall_panic();
+      break;
+    case SYS_SEND:
+      syscall_send();
+      break;
+    case SYS_RECEIVE:
+      syscall_receive();
+      break;
+    case SYS_REPLY:
+      syscall_reply();
       break;
     default:
       tf->r0 = 0xABADC0DE;

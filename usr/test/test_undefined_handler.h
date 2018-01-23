@@ -1,0 +1,6 @@
+#ifndef TRAINS_TEST_UNDEFINED_HANDLER_H
+#define TRAINS_TEST_UNDEFINED_HANDLER_H
+
+void test_undefined_handler();
+
+#endif /* TRAINS_TEST_UNDEFINED_HANDLER_H */

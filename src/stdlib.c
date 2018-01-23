@@ -19,4 +19,27 @@ void *memset(void *s, int c, unsigned int n) {
   return s;
 }
 
+int strncmp(const char *destination, const char *source, int max_length) {
+  for(int i = 0; i < max_length; i++) {
+    if (destination[i] == '\0' && source[i] == '\0') return 0;
+    if (destination[i] > source[i]) return 1;
+    if (destination[i] < source[i]) return -1;
+  }
+  return 0;
+}
+
+int strcmp(char *destination, char *source) {
+  while (*destination && *source && (*(destination++) == *(source++)));
+  return !(*destination || *source);
+}
+
+int strlen(char *s) {
+  int result = 0;
+  while (*s) {
+    s += 1;
+    result += 1;
+  }
+  return result;
+}
+
 #endif

@@ -53,9 +53,33 @@ void syscall_exit() {
 }
 
 void syscall_panic() {
+#ifndef TESTING
   __asm__(
     "mov fp, %0\n\t"
     "mov sp, %1\n\t"
     "b panic_exit"
   : : "r" (main_fp), "r" (main_sp));
+#endif /* TESTING */
+}
+
+void syscall_send() {
+  register_t receiver_tid = (register_t)current_task->tf->r1;
+  if (receiver_tid < 0 || receiver_tid >= next_task_id) {
+    current_task->tf->r0 = -2;
+    return;
+  }
+  send(current_task, &(all_tasks[receiver_tid]));
+}
+
+void syscall_receive() {
+  receive(current_task);
+}
+
+void syscall_reply() {
+  register_t sender_tid = (register_t)current_task->tf->r1;
+  if (sender_tid < 0 || sender_tid >= next_task_id) {
+    current_task->tf->r0 = -2;
+    return;
+  }
+  reply(&(all_tasks[sender_tid]), current_task);
 }

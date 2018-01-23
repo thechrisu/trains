@@ -3,16 +3,22 @@
 #endif
 
 #include "crash.h"
-#include "tasks.h"
+#include "k1.h"
+#include "test/test_runner.h"
 #include "interrupt.h"
 #include "stdlib.h"
 #include "myio.h"
 #include "./src/syscall/syscall.h"
 #include "./src/multitasking/schedule.h"
+#include "./src/multitasking/send_queue.h"
+#include "./src/multitasking/task.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
-#endif
+extern void handle_data_abort();
+extern void handle_prefetch_abort();
+extern void handle_undefined_abort();
+#endif /* VERSATILEPB */
 extern int next_task_id;
 
 unsigned int main_fp;
@@ -22,18 +28,33 @@ void kmain() {
   setup_io();
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
+
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = send_queues_on_stack;
+
   next_task_id = 1;
+  bwprintf("");
 #ifndef VERSATILEPB
+  uint32_t *undefined_handler = (uint32_t*)0x24;
   uint32_t *swi_handler = (uint32_t *)0x28;
+  uint32_t *prefetch_handler = (uint32_t*)0x2C;
+  uint32_t *data_handler = (uint32_t*)0x30;
+  *undefined_handler = (uint32_t)(&handle_undefined_abort);
   *swi_handler = (uint32_t)(&enter_kernel);
+  *prefetch_handler = (uint32_t)(&handle_prefetch_abort);
+  *data_handler = (uint32_t)(&handle_data_abort);
 #endif /* VERSATILEPB */
 
   setup_scheduler();
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
-  // TODO call syscall_create to create ONLY first user task
-  syscall_create(5, &first_user_task);
+
+#if E2ETESTING
+  syscall_create(1, &test_runner);
+#else
+  syscall_create(5, &k1_first_user_task);
+#endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("Set up tasks\n\r");

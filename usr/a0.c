@@ -158,9 +158,7 @@ bool interpret_cmd(char_buffer *cmd_buf) {
   }
   return false; // appease gcc
 }
-int a0_main(int argc, char *argv[]) {
-  (void)argc;
-  (void)argv;
+void a0_main() {
   bootstrap();
   my_time t;
   bool shouldStop = false;
@@ -210,6 +208,4 @@ int a0_main(int argc, char *argv[]) {
     }
 #endif
   }
-
-  return 0;
 }

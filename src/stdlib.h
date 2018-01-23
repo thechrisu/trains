@@ -14,6 +14,22 @@
 
 #define bool _Bool
 
+/**
+ * Counts the number of character up to and NOT including the \0. Expects \0 to be there.
+ * @param s String.
+ * @return Length of string.
+ */
+int strlen(char *s);
+
+/**
+ * Compares two strings.
+ * @param destination A string to compare.
+ * @param source      Another string to compare.
+ * @return 1 if they're equal, 0 if not.
+ */
+int strcmp(char *destination, char *source);
+int strncmp(const char *destination, const char *source, int max_length);
+
 #endif
 
 #define true 1
@@ -37,8 +53,10 @@ typedef unsigned long long uint64_t;
 
 typedef signed char int8_t;
 typedef signed int int16_t;
-// typedef signed long int int32_t;
+typedef signed long int int32_t;
 typedef signed long long int64_t;
+
+typedef int32_t register_t;
 
 void memcpy(void *dst, void *src, unsigned int n);
 void *memset(void *s, int c, unsigned int n);

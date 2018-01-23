@@ -64,3 +64,30 @@ sys_exit:
   /* SYS_EXIT in syscall/codes.h */
   mov r0, #0
   swi 0
+
+.text
+.global handle_undefined_abort
+.type handle_undefined_abort, %function
+handle_undefined_abort:
+  MOV r13, #0x01f00000
+  MOV r0, #0
+  MOV r1, r14
+  B handle_abort
+
+.text
+.global handle_prefetch_abort
+.type handle_prefetch_abort, %function
+handle_prefetch_abort:
+  MOV r13, #0x01f00000
+  MOV r0, #1
+  MOV r1, r14
+  B handle_abort
+
+.text
+.global handle_data_abort
+.type handle_data_abort, %function
+handle_data_abort:
+  MOV r13, #0x01f00000
+  MOV r0, #2
+  MOV r1, r14
+  B handle_abort

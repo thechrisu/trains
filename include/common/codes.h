@@ -6,8 +6,12 @@
 #ifndef CODES_H
 #define CODES_H
 
-#include "attributes.h"
+#include "../../src/attributes.h"
 #include "stdlib.h"
+
+#ifdef E2ETESTING
+#include "../../usr/test/nameserver/fake_nameserver_functions.h"
+#endif
 
 /**
  * System call to exit the currently running task.
@@ -81,11 +85,78 @@ void Panic()__attribute((noreturn));
  */
 void __Assert(bool value, const char * caller_name, const char *file_name, int line_num);
 
+/**
+ * Sends a message to a specific task and blocks until a reply is received.
+ *
+ * @param   tid    The task ID of the process to which to send the message.
+ * @param   msg    A buffer containing the message to send.
+ * @param   msglen The length of the message to send.
+ * @param   reply  A buffer in which to place the reply.
+ * @param   rplen  The length of the reply buffer.
+ * @returns The length of the reply, if the reply was successful and wasn't truncated.
+ *          -1 if the reply was truncated.
+ *          -2 if the task ID is invalid or a zombie.
+ */
+int Send(int tid, char *msg, int msglen, char *reply, int rplen);
+
+/**
+ * Blocks until a message has been received, then stores the message and the task ID
+ * of the sender.
+ *
+ * @param   tid    A place to store the task ID of the sender.
+ * @param   msg    A buffer in which to place the received message.
+ * @param   msglen The length of the receive buffer.
+ * @returns The length of the message, if it wasn't truncated.
+ *          -1 if the message was truncated.
+ */
+int Receive(int *tid, char *msg, int msglen);
+
+/**
+ * Reply to a message.
+ *
+ * @param   tid   The ID of the task to which to reply.
+ * @param   reply The reply to send.
+ * @param   rplen The length of the reply.
+ * @returns 0 if the reply wasn't truncated.
+ *         -1 if it was truncated.
+ *         -2 if the task ID was invalid or a zombie.
+ *         -3 if the target task isn't waiting for a reply.
+ */
+int Reply(int tid, char *reply, int rplen);
+
+/**
+ * Register the calling task with the nameserver under the given name.
+ *
+ * @param   name The name under which to register the calling task.
+ * @returns 0 if the calling task was registered successfully.
+ *          -1 if the nameserver task ID is invalid.
+ *          -2 if the name was longer than 31 characters (including the null terminator).
+ *          -3 if the name was empty.
+ *          -4 if the nameserver has registered too many tasks and cannot register any more.
+ */
+int RegisterAs(char *name);
+
+/**
+ * Look up the task ID associated with the given name by the nameserver.
+ *
+ * Long description
+ * @param   name The name to look up
+ * @returns The task ID of the registered task (>= 1).
+ *          -1 if the nameserver task ID is invalid.
+ *          -2 if the name was longer than 31 characters (including the null terminator).
+ *          -3 if the name was empty.
+ *          -4 if the name was not found.
+ */
+int WhoIs(char *name);
+
 #define SYS_EXIT      0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS      1
 #define SYS_CREATE    2
 #define SYS_MYTID     3
 #define SYS_PARENTTID 4
 #define SYS_PANIC     5
+#define SYS_SEND      6
+#define SYS_RECEIVE   7
+#define SYS_REPLY     8
 
 #endif /* CODES_H */
