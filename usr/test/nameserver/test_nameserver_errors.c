@@ -16,8 +16,11 @@ void test_nameserver_errors() {
   Send(ns_tid, send_buf, 1, &reply_buf, 1);
   bwprintf("Too short(1): %d\n\r", reply_buf);
 
-  send_buf[0] = 'X';
   Send(ns_tid, send_buf, 2, &reply_buf, 1);
+  bwprintf("Too short(2): %d\n\r", reply_buf);
+
+  send_buf[0] = 'X';
+  Send(ns_tid, send_buf, 3, &reply_buf, 1);
   bwprintf("Wrong: %d\n\r", reply_buf);
 
   bwprintf("Not found: %d\n\r", fake_WhoIs("Bill Cowan"));

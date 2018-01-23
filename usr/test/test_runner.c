@@ -59,6 +59,8 @@ void test_runner() {
       exec_prog(5, &test_messaging_exit_with_blocked);
     } else if (strcmp(buf, "test_nameserver_errors")) {
       exec_prog(5, &test_nameserver_errors);
+    } else if (strcmp(buf, "test_nameserver_wrapper_errors")) {
+      exec_prog(5, &test_nameserver_wrapper_errors);
     } else if (strcmp(buf, "test_nameserver_too_many")) {
       exec_prog(5, &test_nameserver_too_many);
     } else if (strcmp(buf, "test_nameserver_happypath")) {

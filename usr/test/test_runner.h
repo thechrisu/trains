@@ -10,6 +10,7 @@
 #include "../k1.h"
 #include "./messaging/test_messaging.h"
 #include "nameserver/test_nameserver_errors.h"
+#include "nameserver/test_nameserver_wrapper_errors.h"
 #include "nameserver/test_nameserver_too_many.h"
 #include "nameserver/test_nameserver_happypath.h"
 #include "./test_undefined_handler.h"

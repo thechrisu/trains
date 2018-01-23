@@ -1,6 +1,9 @@
 #ifndef TRAINS_TEST_NAMESERVER_HAPPYPATH_H
 #define TRAINS_TEST_NAMESERVER_HAPPYPATH_H
 
+#include "myio.h"
+#include "../../../include/common/codes.h"
+
 #include "fake_nameserver_functions.h"
 #include "../../nameserver.h"
 

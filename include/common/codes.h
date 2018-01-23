@@ -9,6 +9,10 @@
 #include "../../src/attributes.h"
 #include "stdlib.h"
 
+#ifdef E2ETESTING
+#include "../../usr/test/nameserver/fake_nameserver_functions.h"
+#endif
+
 /**
  * System call to exit the currently running task.
  * Alternatively, just return from the task (assuming you don't mess up your link register).
@@ -91,8 +95,7 @@ void __Assert(bool value, const char * caller_name, const char *file_name, int l
  * @param   rplen  The length of the reply buffer.
  * @returns The length of the reply, if the reply was successful and wasn't truncated.
  *          -1 if the reply was truncated.
- *          -2 if the task ID is invalid.
- *          -3 if the recipient task is a zombie.
+ *          -2 if the task ID is invalid or a zombie.
  */
 int Send(int tid, char *msg, int msglen, char *reply, int rplen);
 
@@ -116,10 +119,35 @@ int Receive(int *tid, char *msg, int msglen);
  * @param   rplen The length of the reply.
  * @returns 0 if the reply wasn't truncated.
  *         -1 if it was truncated.
- *         -2 if the task ID was invalid.
+ *         -2 if the task ID was invalid or a zombie.
  *         -3 if the target task isn't waiting for a reply.
  */
 int Reply(int tid, char *reply, int rplen);
+
+/**
+ * Register the calling task with the nameserver under the given name.
+ *
+ * @param   name The name under which to register the calling task.
+ * @returns 0 if the calling task was registered successfully.
+ *          -1 if the nameserver task ID is invalid.
+ *          -2 if the name was longer than 31 characters (including the null terminator).
+ *          -3 if the name was empty.
+ *          -4 if the nameserver has registered too many tasks and cannot register any more.
+ */
+int RegisterAs(char *name);
+
+/**
+ * Look up the task ID associated with the given name by the nameserver.
+ *
+ * Long description
+ * @param   name The name to look up
+ * @returns The task ID of the registered task (>= 1).
+ *          -1 if the nameserver task ID is invalid.
+ *          -2 if the name was longer than 31 characters (including the null terminator).
+ *          -3 if the name was empty.
+ *          -4 if the name was not found.
+ */
+int WhoIs(char *name);
 
 #define SYS_EXIT      0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS      1
