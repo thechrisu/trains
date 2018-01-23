@@ -21,7 +21,7 @@ void nameserver_main() {
     if (ret == -1) {
       char msg_truncated_warning = 'T' + 128; // "T stands for truncated"
       Reply(sender_tid, &msg_truncated_warning, 1); // including \0
-    } else if (ret < 2) {
+    } else if (ret <= 2) {
       char too_short_warning = 'S' + 128; // "Short"
       Reply(sender_tid, &too_short_warning, 1);
     } else {

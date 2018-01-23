@@ -6,6 +6,7 @@ expected_errorcodes_output = [
     'Truncated: %d' % (ord('T') + 128),
     'Too short(0): %d' % (ord('S') + 128),
     'Too short(1): %d' % (ord('S') + 128),
+    'Too short(2): %d' % (ord('S') + 128),
     'Wrong: %d' % (ord('W') + 128),
     'Not found: %d' % (ord('N') + 128)
 ]
