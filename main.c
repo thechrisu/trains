@@ -10,6 +10,8 @@
 #include "myio.h"
 #include "./src/syscall/syscall.h"
 #include "./src/multitasking/schedule.h"
+#include "./src/multitasking/send_queue.h"
+#include "./src/multitasking/task.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
@@ -26,6 +28,10 @@ void kmain() {
   setup_io();
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
+
+  send_queue send_queues_on_stack[MAX_TASKS];
+  send_queues = send_queues_on_stack;
+
   next_task_id = 1;
   bwprintf("");
 #ifndef VERSATILEPB

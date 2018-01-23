@@ -115,7 +115,9 @@ TEST(ReadyQueueTest, dequeue_dequeues_a_task_from_a_queue_with_five_tasks) {
   ASSERT_EQ(ready_queue_length(&rq), 4);
 }
 
+#ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+#endif /* ALLTESTS */

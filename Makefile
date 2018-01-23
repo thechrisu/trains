@@ -1,4 +1,4 @@
-.PHONY: default x64stdlib arm versatilepb trainslab labdebug upload test qemu docs
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs
 default: upload;
 
 OPTIMIZATION = -O0
@@ -31,6 +31,10 @@ else
 QEMU = qemu-system-arm.exe
 endif
 
+ifeq ($(CI), true)
+QEMU=qemu-system-arm
+endif
+
 ifeq (true,$(TEST_RUNNER))
 TEST_RUNNER_FLAG = -DE2ETESTING
 endif
@@ -43,7 +47,7 @@ QEMUTESTINGBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin 
 QEMUTESTINGGUIARGS = $(QEMUTESTINGBASEARGS) -serial vc -serial vc
 QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
-CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/kernel/glue -fno-builtin
+CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/common -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -85,9 +89,9 @@ OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES)) $(patsubst %.s, $(bui
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 
 x64stdlib:
-	- mkdir -p build
-	- mkdir -p $(builddirx64)
-	- make $(builddirx64)/main
+	mkdir -p build
+	mkdir -p $(builddirx64)
+	make $(builddirx64)/main
 
 $(builddirx64)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -108,9 +112,9 @@ $(builddirx64)/main: $(OBJECTSx64)
 
 
 arm:
-	-mkdir -p build
-	-mkdir -p $(builddir)
-	-make $(builddir)/main.bin
+	mkdir -p build
+	mkdir -p $(builddir)
+	make $(builddir)/main.bin -j2
 
 $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -132,9 +136,9 @@ $(builddir)/main.bin: $(builddir)/main.elf
 
 
 trainslab:
-	-mkdir -p build
-	-mkdir -p $(builddirlab)
-	-make $(builddirlab)/main.bin
+	mkdir -p build
+	mkdir -p $(builddirlab)
+	make $(builddirlab)/main.bin -j2
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -162,12 +166,13 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	-cd test && make all && make test || cd ..
+	cd test && make alltests
+	cd ..
 
 versatilepb:
-	-mkdir -p build
-	-mkdir -p $(builddirversatilepb)
-	-make $(builddirversatilepb)/main.bin
+	mkdir -p build
+	mkdir -p $(builddirversatilepb)
+	make $(builddirversatilepb)/main.bin -j2
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -189,9 +194,9 @@ $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 
 
 e2etest:
-	-mkdir -p build
-	-mkdir -p $(builddirtesting)
-	-make $(builddirtesting)/main.bin
+	mkdir -p build
+	mkdir -p $(builddirtesting)
+	make $(builddirtesting)/main.bin -j2
 
 $(builddirtesting)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -212,37 +217,48 @@ $(builddirtesting)/main.bin: $(builddirtesting)/main.elf
 	$(OBJCOPY) -O binary $(builddirtesting)/main.elf $(builddirtesting)/main.bin
 
 all:
-	-make arm
-	-make x64stdlib
-	-make test
+	set -e
+	make docs -j2
+	make arm -j2
+	make versatilepb -j2
+	make e2etest -j2
+	make test -j2
 
 ci:
-	-make x64stdlib
-	-make test
+	set -e
+	make docs -j2
+	make arm -j2
+	make versatilepb -j2
+	make e2etest -j2
+	set +e
+	cd test && make all -j2
+	cd ..
+	set -e
+	make test -j2
 
 clean:
-	-rm -f *.s *.a *.o \
+	rm -f *.s *.a *.o \
 	  $(builddir)/main.map $(builddir)/main.elf $(builddir)/*.o
-	-rm -rf build/*
-	-cd test && make clean && cd ..
+	rm -rf build/*
+	cd test && make clean && cd ..
 
 upload:
-	-make clean
-	-make trainslab
-	-cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
+	make clean
+	make trainslab
+	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
 
 qemu:
-	-make versatilepb
-	-$(QEMU) $(QEMUGUIARGS)
+	make versatilepb
+	$(QEMU) $(QEMUGUIARGS)
 
 qemuconsole: versatilepb
-	-$(QEMU) $(QEMUCONSOLEARGS)
+	$(QEMU) $(QEMUCONSOLEARGS)
 
 qemutesting: e2etest
-	-$(QEMU) $(QEMUTESTINGGUIARGS)
+	$(QEMU) $(QEMUTESTINGGUIARGS)
 
 qemutcprun: e2etest
-	- $(QEMU) $(QEMUTCPARGS)
+	$(QEMU) $(QEMUTCPARGS)
 
 docs:
-	-doxygen Doxyfile
+	doxygen Doxyfile

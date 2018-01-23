@@ -22,8 +22,8 @@ bool schedule() {
   bwprintf("Next task's k_lr: %x\n\r", next->tf->k_lr);
 #endif /* SCHEDULE_DEBUG */
   task_activate(next);
-  if (likely(next->state != TASK_ZOMBIE)) {
-    task_runnable(next);
+  if (likely(next->state == TASK_RUNNABLE || next->state == TASK_ACTIVE)) {
+    task_set_state(current_task, TASK_RUNNABLE);
     scheduler_register(&kscheduler, next);
   }
   return true;

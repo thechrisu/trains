@@ -6,30 +6,28 @@
 #define INTERRUPT_H
 
 #include "stdlib.h"
-#if TESTING
-#include "multitasking/task.h"
-#endif /* TESTING */
 
 typedef struct {
-  uint32_t r0;
-  uint32_t r1;
-  uint32_t r2;
-  uint32_t r3;
-  uint32_t r4;
-  uint32_t r5;
-  uint32_t r6;
-  uint32_t r7;
-  uint32_t r8;
-  uint32_t r9;
-  uint32_t r10;
-  uint32_t fp;
-  uint32_t ip;
-  uint32_t sp;
-  uint32_t lr;
-  uint32_t pc;
-  uint32_t k_lr;
-  uint32_t psr;
+  register_t r0;
+  register_t r1;
+  register_t r2;
+  register_t r3;
+  register_t r4;
+  register_t r5;
+  register_t r6;
+  register_t r7;
+  register_t r8;
+  register_t r9;
+  register_t r10;
+  register_t fp;
+  register_t ip;
+  register_t sp;
+  register_t lr;
+  register_t pc;
+  register_t k_lr;
+  register_t psr;
 } trapframe;
+
 
 #define NULL_TRAPFRAME (trapframe *)0
 
