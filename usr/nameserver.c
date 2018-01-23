@@ -34,7 +34,7 @@ void nameserver_main() {
             int index = get_index_of_name(incoming_msg_buffer + 1, names, next_name);
             if (index == -1) {
               task_ids[next_name] = sender_tid;
-              memcpy(names[next_name], incoming_msg_buffer + 1, ret - 1); // TODO overwrite old names
+              memcpy(names[next_name], incoming_msg_buffer + 1, ret - 1);
               next_name++;
             } else {
               task_ids[index] = sender_tid;
@@ -48,7 +48,7 @@ void nameserver_main() {
           if (index != -1) {
             Reply(sender_tid, (char *)&task_ids[index], 1);
           } else {
-            char not_found_warning =  'N' + 128; // "Not found"
+            char not_found_warning = 'N' + 128; // "Not found"
             Reply(sender_tid, &not_found_warning, 1);
           }
           break;
