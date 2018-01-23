@@ -15,7 +15,10 @@
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
-#endif
+extern void handle_data_abort();
+extern void handle_prefetch_abort();
+extern void handle_undefined_abort();
+#endif /* VERSATILEPB */
 extern int next_task_id;
 
 unsigned int main_fp;
@@ -30,9 +33,16 @@ void kmain() {
   send_queues = send_queues_on_stack;
 
   next_task_id = 1;
+  bwprintf("");
 #ifndef VERSATILEPB
+  uint32_t *undefined_handler = (uint32_t*)0x24;
   uint32_t *swi_handler = (uint32_t *)0x28;
+  uint32_t *prefetch_handler = (uint32_t*)0x2C;
+  uint32_t *data_handler = (uint32_t*)0x30;
+  *undefined_handler = (uint32_t)(&handle_undefined_abort);
   *swi_handler = (uint32_t)(&enter_kernel);
+  *prefetch_handler = (uint32_t)(&handle_prefetch_abort);
+  *data_handler = (uint32_t)(&handle_data_abort);
 #endif /* VERSATILEPB */
 
   setup_scheduler();
