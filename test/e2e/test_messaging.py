@@ -47,6 +47,18 @@ expected_messaging_same_priority_output = 'Sender should run first\n\r' \
 expected_messaging_zombie_output = 'Exiting...\n\r' \
                                    'Error code: -2\n\r'
 
+expected_messaging_tree_output = 'Leaf 4: A\n\r' \
+                                 'Leaf 5: B\n\r' \
+                                 'Leaf 6: C\n\r' \
+                                 'Leaf 7: D\n\r' \
+                                 'Internal node 3: ABCD\n\r' \
+                                 'Leaf 9: F\n\r' \
+                                 'Leaf 10: G\n\r' \
+                                 'Leaf 11: H\n\r' \
+                                 'Leaf 12: I\n\r' \
+                                 'Internal node 8: FGHI\n\r' \
+                                 'Root: ABCDFGHI\n\r'
+
 def test_messaging(self, test_name, expected_output):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT)
     expected_lines = expected_output.split('\n\r')
@@ -83,6 +95,9 @@ class TestMessaging(unittest.TestCase):
 
     def test_messaging_reply_target_zombie(self):
         test_messaging(self, 'messaging_reply_target_zombie', expected_messaging_zombie_output)
+
+    def test_messaging_tree(self):
+        test_messaging(self, 'messaging_tree', expected_messaging_tree_output)
 
 
 if __name__ == "__main__":

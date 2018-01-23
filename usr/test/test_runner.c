@@ -53,6 +53,8 @@ void test_runner() {
       exec_prog(5, &test_messaging_send_recipient_zombie);
     } else if (strcmp(buf, "messaging_reply_target_zombie")) {
       exec_prog(5, &test_messaging_reply_target_zombie);
+    } else if (strcmp(buf, "messaging_tree")) {
+      exec_prog(5, &test_messaging_tree);
     } else if (strcmp(buf, "test_nameserver_errors")) {
       exec_prog(5, &test_nameserver_errors);
     } else if (strcmp(buf, "test_nameserver_too_many")) {
