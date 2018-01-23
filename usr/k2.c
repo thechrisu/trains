@@ -61,6 +61,7 @@ void k2_rps_server() {
   char throws[TASKS];
   int pending_clients[2];
   int pending_clients_index = 0;
+  char replies[2];
 
   int sender_tid;
   char received;
@@ -108,29 +109,28 @@ void k2_rps_server() {
             switch (outcome(received, throws[partner])) {
               case 1:
                 bwprintf("Task %d wins with %c, task %d loses with %c\n\r", sender_tid, received, partner, throws[partner]);
-                bwgetc(TERMINAL);
-                Reply(sender_tid, "W", 1);
-                Reply(partner, "L", 1);
+                replies[0] = 'W';
+                replies[1] = 'L';
                 break;
               case 0:
                 bwprintf("Tasks %d and %d draw with %c\n\r", sender_tid, partner, received);
-                bwgetc(TERMINAL);
-                Reply(sender_tid, "D", 1);
-                Reply(partner, "D", 1);
+                replies[0] = 'D';
+                replies[1] = 'D';
                 break;
               case -1:
                 bwprintf("Task %d wins with %c, task %d loses with %c\n\r", partner, throws[partner], sender_tid, received);
-                bwgetc(TERMINAL);
-                Reply(sender_tid, "L", 1);
-                Reply(partner, "W", 1);
+                replies[0] = 'L';
+                replies[1] = 'W';
                 break;
               default:
                 bwprintf("Invalid game between tasks %d (threw %c) and %d (threw %c)\n\r", sender_tid, received, partner, throws[partner]);
-                bwgetc(TERMINAL);
-                Reply(sender_tid, "N", 1);
-                Reply(partner, "N", 1);
+                replies[0] = 'N';
+                replies[1] = 'N';
                 break;
             }
+            bwgetc(TERMINAL);
+            Reply(sender_tid, &(replies[0]), 1);
+            Reply(partner, &(replies[1]), 1);
             throws[partner] = 0;
           } else {
             throws[sender_tid] = received;
