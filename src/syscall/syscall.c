@@ -64,8 +64,7 @@ void syscall_panic() {
 
 void syscall_send() {
   register_t receiver_tid = (register_t)current_task->tf->r1;
-  // register_t is unsigned, so gcc gives a warning if we check if receiver_tid < 0
-  if (receiver_tid >= MAX_TASKS) {
+  if (receiver_tid < 0 || receiver_tid >= next_task_id) {
     current_task->tf->r0 = -2;
     return;
   }
@@ -78,8 +77,7 @@ void syscall_receive() {
 
 void syscall_reply() {
   register_t sender_tid = (register_t)current_task->tf->r1;
-  // register_t is unsigned, so gcc gives a warning if we check if receiver_tid < 0
-  if (sender_tid >= MAX_TASKS) {
+  if (sender_tid < 0 || sender_tid >= next_task_id) {
     current_task->tf->r0 = -2;
     return;
   }

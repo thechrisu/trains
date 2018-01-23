@@ -162,7 +162,8 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	cd test && make alltests || cd ..
+	cd test && make alltests
+	cd ..
 
 versatilepb:
 	mkdir -p build
@@ -225,7 +226,10 @@ ci:
 	make arm -j2
 	make versatilepb -j2
 	make e2etest -j2
-	cd test && make all -j2 || cd ..
+	set +e
+	cd test && make all -j2
+	cd ..
+	set -e
 	make test -j2
 
 clean:

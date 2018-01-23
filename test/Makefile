@@ -2,7 +2,7 @@
 
 .PRECIOUS: test_buffer.out test_all.out
 
-FLAGS = -DTESTING --std=c++1y -pthread -I../include/kernel/glue -I../include/common -I../src/attributes.h -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated
+FLAGS = -DTESTING --std=c++1y -pthread -I../include/kernel/glue -I../include/common -I../src/attributes.h -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
 SRC = $(shell find ../src -name '*.c' -not -name 'cp_vec.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/kernel/glue/mytimer.c)
 SRC_SCHEDULER = ../src/multitasking/scheduler.c ../src/multitasking/ready_queue.c
 SRC_TASK = $(SRC)

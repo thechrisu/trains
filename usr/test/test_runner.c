@@ -35,6 +35,34 @@ void test_runner() {
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
       bwprintf("ENDPROG\r");
+    } else if (strcmp(buf, "messaging_basic")) {
+      exec_prog(5, &test_messaging_basic);
+    } else if (strcmp(buf, "messaging_receive_before_send")) {
+      exec_prog(5, &test_messaging_receive_before_send);
+    } else if (strcmp(buf, "messaging_sequence")) {
+      exec_prog(5, &test_messaging_sequence);
+    } else if (strcmp(buf, "messaging_truncation")) {
+      exec_prog(5, &test_messaging_truncation);
+    } else if (strcmp(buf, "messaging_invalid_tid")) {
+      exec_prog(5, &test_messaging_invalid_tid);
+    } else if (strcmp(buf, "messaging_fifo_send")) {
+      exec_prog(5, &test_messaging_fifo_send);
+    } else if (strcmp(buf, "messaging_same_priority")) {
+      exec_prog(5, &test_messaging_same_priority);
+    } else if (strcmp(buf, "messaging_send_recipient_zombie")) {
+      exec_prog(5, &test_messaging_send_recipient_zombie);
+    } else if (strcmp(buf, "messaging_reply_target_zombie")) {
+      exec_prog(5, &test_messaging_reply_target_zombie);
+    } else if (strcmp(buf, "messaging_tree")) {
+      exec_prog(5, &test_messaging_tree);
+    } else if (strcmp(buf, "messaging_exit_with_blocked")) {
+      exec_prog(5, &test_messaging_exit_with_blocked);
+    } else if (strcmp(buf, "test_nameserver_errors")) {
+      exec_prog(5, &test_nameserver_errors);
+    } else if (strcmp(buf, "test_nameserver_too_many")) {
+      exec_prog(5, &test_nameserver_too_many);
+    } else if (strcmp(buf, "test_nameserver_happypath")) {
+      exec_prog(5, &test_nameserver_happypath);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

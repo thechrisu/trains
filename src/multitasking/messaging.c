@@ -4,10 +4,10 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
   bool sender_msg_too_big = src->tf->r3 > dst->tf->r3;
   if (sender_msg_too_big) { // Truncated
     dst->tf->r0 = -1;
-    memcpy((void*)dst->tf->r2, (void*)src->tf->r2, dst->tf->r3);
+    memcpy((char *)dst->tf->r2, (char *)src->tf->r2, dst->tf->r3);
   } else {
     dst->tf->r0 = src->tf->r3;
-    memcpy((void*)dst->tf->r2, (void*)src->tf->r2, src->tf->r3);
+    memcpy((char *)dst->tf->r2, (char *)src->tf->r2, src->tf->r3);
   }
   task_set_state(src, TASK_REPLY_BLOCKED);
   task_set_state(dst, TASK_RUNNABLE);
@@ -18,7 +18,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
 void send(task_descriptor *sender, task_descriptor *receiver) {
   switch (receiver->state) {
     case TASK_ZOMBIE:
-      sender->tf->r0 = -3;
+      sender->tf->r0 = -2;
       break;
     case TASK_RECEIVE_BLOCKED:
       transmit_message(sender, receiver);
@@ -42,18 +42,21 @@ void receive(task_descriptor *receiver) {
 }
 
 void reply(task_descriptor *called_send, task_descriptor *called_reply) {
-  if (called_send->state != TASK_REPLY_BLOCKED) {
+  if (called_send->state == TASK_ZOMBIE) {
+    called_reply->tf->r0 = -2;
+  } else if (called_send->state != TASK_REPLY_BLOCKED) {
     called_reply->tf->r0 = -3;
-  } else if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?
-    called_send->tf->r0 = -1;
-    called_reply->tf->r0 = -1;
-    memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_send->tf->r5);
   } else {
-    called_send->tf->r0 = called_reply->tf->r3;
-    called_reply->tf->r0 = 0;
-    memcpy((void*)called_send->tf->r4, (void*)called_reply->tf->r2, called_reply->tf->r3);
+    if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?
+      called_send->tf->r0 = -1;
+      called_reply->tf->r0 = -1;
+      memcpy((char *)called_send->tf->r4, (char *)called_reply->tf->r2, called_send->tf->r5);
+    } else {
+      called_send->tf->r0 = called_reply->tf->r3;
+      called_reply->tf->r0 = 0;
+      memcpy((char *)called_send->tf->r4, (char *)called_reply->tf->r2, called_reply->tf->r3);
+    }
     task_set_state(called_send, TASK_RUNNABLE);
-    task_set_state(called_reply, TASK_RUNNABLE);
     register_task(called_send);
   }
 }

@@ -44,6 +44,8 @@ void print_tf(trapframe *tf) {
 }
 
 trapframe *handle_interrupt(trapframe *tf) {
+  current_task->tf = tf;
+
   switch (tf->r0) {
     case SYS_EXIT:
       syscall_exit();
