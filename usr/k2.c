@@ -235,7 +235,11 @@ void k2_rps_client() {
  * Starts the nameserver and RPS server, then initializes a number of RPS clients.
  */
 void k2_first_user_task() {
+#ifdef E2ETESTING
+  ns_tid = Create(5, &nameserver_main);
+#else
   Create(5, &nameserver_main);
+#endif
   Create(5, &k2_rps_server);
 
   for (int i = 0; i < 4; i += 1) {
