@@ -1,6 +1,12 @@
 #include "codes.h"
 #include "myio.h"
 
+#ifdef E2ETESTING
+#define NAMESERVER_TASK_ID ns_tid
+#else
+#define NAMESERVER_TASK_ID 2
+#endif
+
 #define NULL_ARGS (unsigned int *)0
 
 inline int software_interrupt(unsigned int code, unsigned int argc, unsigned int *argv)__attribute((always_inline));
@@ -98,4 +104,78 @@ int Reply(int tid, char *reply, int rplen) {
     (unsigned int)rplen
   };
   return software_interrupt(SYS_REPLY, 3, args);
+}
+
+/**
+ * Function to call if something goes terribly wrong while sending a message to
+ * the nameserver.
+ *
+ * This shouldn't be used for normal nameserver errors, just situations where
+ * the nameserver returns 'W' or something completely unexpected.
+ *
+ * @param   c        The name that was passed as an argument to the nameserver syscall
+ *                   wrapper.
+ * @param   msg_type The message type ('R' or 'W').
+ * @returns Should never return because it panics. Returns 0xDABBDADD if it does.
+ */
+int nameserver_panic(char *c, char msg_type) {
+  bwprintf("Got 'W' from the nameserver. c = %s, msg_type = %d\n\r", c, msg_type);
+  software_interrupt(SYS_PANIC, 0, NULL_ARGS);
+  return 0xDABBDADD; // Should never reach
+}
+
+/**
+ * Sends a message to the nameserver.
+ *
+ * @param   c       The message to send.
+ * @param   msg_type 'R' for RegisterAs and 'W' for WhoIs.
+ * @returns 0 if everything is OK, the appropriate error code otherwise.
+ */
+int send_message_to_nameserver(char *c, char msg_type) {
+  char reply;
+  char msg[strlen(c) + 2];
+  msg[0] = msg_type;
+  memcpy(msg + 1, c, strlen(c) + 1);
+
+  unsigned int args[] = {
+    NAMESERVER_TASK_ID,
+    (unsigned int)msg,
+    (unsigned int)(strlen(c) + 2),
+    (unsigned int)&reply,
+    1
+  };
+
+  if (software_interrupt(SYS_SEND, 5, args) == -2) {
+    return -1;
+  }
+
+  switch (reply) {
+    case 'T' + 128:
+      return -2;
+    case 'S' + 128:
+      return -3;
+    case 'M' + 128:
+    case 'N' + 128:
+      return -4;
+    case 'C':
+      return 0;
+    case 'W' + 128:
+      return nameserver_panic(c, msg_type);
+    default:
+      if (msg_type == 'R') {
+        return nameserver_panic(c, msg_type);
+      } else if (msg_type == 'W') {
+        return (int)reply;
+      } else {
+        return nameserver_panic(c, msg_type);
+      }
+  }
+}
+
+int RegisterAs(char *c) {
+  return send_message_to_nameserver(c, 'R');
+}
+
+int WhoIs(char *c) {
+  return send_message_to_nameserver(c, 'W');
 }
