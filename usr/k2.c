@@ -138,7 +138,7 @@ void k2_rps_client() {
 
   signup();
 
-  for (int i = 0; i < my_tid; i += 1) {
+  for (int i = 0; i < (my_tid ^ 0x1); i += 1) {
     seed = seed * 1103515245 + 12345;
     char result = play(throws[(unsigned int)(seed / 65536) % 3]);
     if (result == 'N') {
@@ -153,9 +153,9 @@ void k2_rps_client() {
 
 void k2_first_user_task() {
   Create(0, &nameserver_main);
-  Create(1, &k2_rps_server);
+  Create(0, &k2_rps_server);
 
   for (int i = 0; i < 8; i += 1) {
-    Create(1, &k2_rps_client);
+    Create(0, &k2_rps_client);
   }
 }
