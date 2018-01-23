@@ -99,6 +99,9 @@ class TestMessaging(unittest.TestCase):
     def test_messaging_tree(self):
         test_messaging(self, 'messaging_tree', expected_messaging_tree_output)
 
+    def test_messaging_exit_with_blocked(self):
+        test_messaging(self, 'messaging_exit_with_blocked', '')
+
 
 if __name__ == "__main__":
     unittest.main()
