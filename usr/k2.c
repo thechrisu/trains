@@ -101,9 +101,10 @@ void k2_rps_server() {
           Reply(sender_tid, "N", 1);
         } else {
           bwprintf("Task %d quit\n\r", sender_tid);
-          partners[partner] = 0;
           partners[sender_tid] = 0;
+          partners[partner] = 0;
           Reply(sender_tid, "Y", 1);
+          Reply(partner, "N", 1);
         }
         break;
     }
