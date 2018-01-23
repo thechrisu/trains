@@ -40,7 +40,7 @@ class TestNameserver(unittest.TestCase):
         for i, exp in enumerate(expected_errorcodes_output):
             self.assertEqual(lines[i], exp)
 
-    def test_errorcodes(self):
+    def test_wrapper_errors(self):
         terminal_output = qemu_oneshot_test('test_nameserver_wrapper_errors', '', 10)
         lines = list(filter(lambda x: x != '', terminal_output.split('\n\r')))
         self.assertEqual(len(lines), len(expected_wrapper_errors_output))
