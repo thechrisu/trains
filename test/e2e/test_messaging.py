@@ -84,6 +84,9 @@ class TestMessaging(unittest.TestCase):
     def test_messaging_reply_target_zombie(self):
         test_messaging(self, 'messaging_reply_target_zombie', expected_messaging_zombie_output)
 
+    def test_messaging_exit_with_blocked(self):
+        test_messaging(self, 'messaging_exit_with_blocked', '')
+
 
 if __name__ == "__main__":
     unittest.main()
