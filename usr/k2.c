@@ -128,7 +128,9 @@ void k2_rps_server() {
                 replies[1] = 'N';
                 break;
             }
+#ifndef E2ETESTING
             bwgetc(TERMINAL);
+#endif
             Reply(sender_tid, &(replies[0]), 1);
             Reply(partner, &(replies[1]), 1);
             throws[partner] = 0;
@@ -233,10 +235,10 @@ void k2_rps_client() {
  * Starts the nameserver and RPS server, then initializes a number of RPS clients.
  */
 void k2_first_user_task() {
-  Create(0, &nameserver_main);
-  Create(0, &k2_rps_server);
+  Create(5, &nameserver_main);
+  Create(5, &k2_rps_server);
 
   for (int i = 0; i < 4; i += 1) {
-    Create(0, &k2_rps_client);
+    Create(5, &k2_rps_client);
   }
 }
