@@ -1,14 +1,34 @@
+/**
+ * @file
+ * @brief K2 user task implementations: main task, RPS server and clients
+ */
+
 #include "k2.h"
 
 #define TASKS 64
 
 unsigned int prng_seed = 0xBEA71E5;
 
+/**
+ * Uses a linear congruential generator to generate a pseudorandom number.
+ *
+ * @returns A pseudorandomly-generated unsigned integer.
+ */
 unsigned int prng_next() {
   prng_seed = prng_seed * 1103515245 + 12345;
   return prng_seed;
 }
 
+/**
+ * Returns the outcome of a game of RPS. Each throw should be one of 'R', 'P', or 'S'.
+ *
+ * @param   throw1 The first throw.
+ * @param   throw2 The second throw.
+ * @returns 0 if the throws are the same.
+ *          1 if throw1 wins.
+ *          -1 if throw2 wins.
+ *          0xFADED0DE if one or both of the throws is invalid.
+ */
 int outcome(char throw1, char throw2) {
   if (throw1 == throw2) {
     return 0;
@@ -21,6 +41,21 @@ int outcome(char throw1, char throw2) {
   }
 }
 
+/**
+ * A user task that allows clients to play RPS against each other.
+ *
+ * The RPS server registers with the nameserver under the name "RPS".
+ *
+ * All messages sent to the server are expected to be one character long. All replies are
+ * also one character long. Three types of messages are accepted:
+ *
+ * 1. Signup ('B'): Returns 'N' if the task already has a partner, or 'Y' once it
+ *    has been matched with a partner.
+ * 2. Play ('R', 'P', or 'S'): Returns 'N' if the task doesn't have a partner or if either
+ *    the task's or its partner's throw is invalid. Returns 'W' if the task wins, 'L' if
+ *    it loses, and 'D' if there is a draw.
+ * 3. Quit ('Q'): Returns 'N' if the task doesn't have a partner, or 'Y' otherwise.
+ */
 void k2_rps_server() {
   int partners[TASKS];
   char throws[TASKS];
@@ -120,6 +155,12 @@ void k2_rps_server() {
   }
 }
 
+/**
+ * Sends a one-character message to the RPS server.
+ *
+ * @param   c The character to send.
+ * @returns The one-character response from the RPS server.
+ */
 char send_to_rps_server(char c) {
   int rps_server_tid = WhoIs("RPS");
   char received;
@@ -128,18 +169,37 @@ char send_to_rps_server(char c) {
   return received;
 }
 
+/**
+ * Signs the current task up with the RPS server.
+ *
+ * @returns The one-character response from the RPS server.
+ */
 char signup() {
   return send_to_rps_server('B');
 }
 
+/**
+ * Makes a play in a game of RPS.
+ *
+ * @param   throw One of 'R', 'P', or 'S'.
+ * @returns The one-character response from the RPS server.
+ */
 char play(char throw) {
   return send_to_rps_server(throw);
 }
 
+/**
+ * Tells the RPS server that the current task wants to quit.
+ *
+ * @returns The one-character response from the RPS server.
+ */
 char quit() {
   return send_to_rps_server('Q');
 }
 
+/**
+ * Plays a series of RPS games.
+ */
 void play_games() {
   char throws[] = { 'R', 'P', 'S' };
   int my_tid = MyTid();
@@ -156,6 +216,9 @@ void play_games() {
   quit();
 }
 
+/**
+ * Plays a series of RPS games, then plays another series if MyTid() is even.
+ */
 void k2_rps_client() {
   play_games();
 
@@ -166,6 +229,9 @@ void k2_rps_client() {
   bwprintf("Task %d exiting\n\r", MyTid());
 }
 
+/**
+ * Starts the nameserver and RPS server, then initializes a number of RPS clients.
+ */
 void k2_first_user_task() {
   Create(0, &nameserver_main);
   Create(0, &k2_rps_server);

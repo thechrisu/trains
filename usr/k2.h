@@ -10,6 +10,9 @@
 #include "stdlib.h"
 #include "nameserver.h"
 
+/**
+ * The first user task for K2.
+ */
 void k2_first_user_task();
 
 #endif /* K2_FIRST_USER_TASK_H */
