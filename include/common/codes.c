@@ -179,3 +179,8 @@ int RegisterAs(char *c) {
 int WhoIs(char *c) {
   return send_message_to_nameserver(c, 'W');
 }
+
+void EnableCaches(bool enable) {
+  unsigned int args[] = {(unsigned int)enable};
+  software_interrupt(SYS_CACHE_ENABLE, 1, args);
+}

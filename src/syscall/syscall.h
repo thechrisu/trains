@@ -71,4 +71,9 @@ void syscall_receive();
  */
 void syscall_reply();
 
+/**
+ * Enables/Disables the caches on a user's request.
+ */
+void syscall_cache_enable();
+
 #endif /* TRAINS_SYSCALL_H */

@@ -76,6 +76,9 @@ trapframe *handle_interrupt(trapframe *tf) {
     case SYS_REPLY:
       syscall_reply();
       break;
+    case SYS_CACHE_ENABLE:
+      syscall_cache_enable();
+      break;
     default:
       tf->r0 = 0xABADC0DE;
   }

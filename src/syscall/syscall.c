@@ -83,3 +83,22 @@ void syscall_reply() {
   }
   reply(&(all_tasks[sender_tid]), current_task);
 }
+
+void syscall_cache_enable() {
+  bool enable = current_task->tf->r1;
+  if (enable) {
+    __asm__(
+	    "MRC p15, 0, r0, c1, c0, 0\n\t"
+	    "MOV r1, #0x1000\n\t"
+	    "ADD r1, r1, #04\n\t"
+	    "ORR r0, r0, r1\n\t"
+	    "MCR p15, 0, r0, c1, c0, 0\n\t");
+  } else {
+    __asm__(
+	    "MRC p15, 0, r0, c1, c0, 0\n\t"
+	    "MOV r1, #0x1000\n\t"
+	    "ADD r1, r1, #04\n\t"
+	    "BIC r0, r0, r1\n\t"
+	    "MCR p15, 0, r0, c1, c0, 0\n\t");
+  }
+}
