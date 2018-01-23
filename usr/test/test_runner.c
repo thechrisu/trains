@@ -67,6 +67,8 @@ void test_runner() {
       exec_prog(5, &test_nameserver_happypath);
     } else if (strcmp(buf, "test_undefined_handler")) {
       exec_prog(5, &test_undefined_handler);
+    } else if (strcmp(buf, "message_benchmark")) {
+      exec_prog(7, &message_benchmark);
     } else if (!strcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
