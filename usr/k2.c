@@ -2,6 +2,13 @@
 
 #define TASKS 64
 
+unsigned int prng_seed = 0xBEA71E5;
+
+unsigned int prng_next() {
+  prng_seed = prng_seed * 1103515245 + 12345;
+  return prng_seed;
+}
+
 int outcome(char throw1, char throw2) {
   if (throw1 == throw2) {
     return 0;
@@ -134,13 +141,11 @@ char quit() {
 void play_games() {
   char throws[] = { 'R', 'P', 'S' };
   int my_tid = MyTid();
-  int seed = my_tid;
 
   signup();
 
   for (int i = 0; i < (my_tid ^ 0x1); i += 1) {
-    seed = seed * 1103515245 + 12345;
-    char result = play(throws[(unsigned int)seed % 3]);
+    char result = play(throws[prng_next() % 3]);
     if (result == 'N') {
       return;
     }
