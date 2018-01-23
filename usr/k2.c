@@ -108,6 +108,8 @@ void k2_rps_server() {
           Reply(sender_tid, "N", 1);
         } else {
           bwprintf("Task %d quit\n\r", sender_tid);
+          throws[sender_tid] = 0;
+          throws[partner] = 0;
           partners[sender_tid] = 0;
           partners[partner] = 0;
           Reply(sender_tid, "Y", 1);
