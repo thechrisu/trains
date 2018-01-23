@@ -17,8 +17,6 @@
 
 #endif /* QUEUE_H */
 
-typedef task_descriptor *QUEUE_TYPE;
-
 int LENGTH(QUEUE_TYPE)(QUEUE_TYPE *q) {
   if (IS_EMPTY(QUEUE_TYPE)(q))
     return 0;
