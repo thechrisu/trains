@@ -91,8 +91,7 @@ void __Assert(bool value, const char * caller_name, const char *file_name, int l
  * @param   rplen  The length of the reply buffer.
  * @returns The length of the reply, if the reply was successful and wasn't truncated.
  *          -1 if the reply was truncated.
- *          -2 if the task ID is invalid.
- *          -3 if the recipient task is a zombie.
+ *          -2 if the task ID is invalid or a zombie.
  */
 int Send(int tid, char *msg, int msglen, char *reply, int rplen);
 
@@ -116,7 +115,7 @@ int Receive(int *tid, char *msg, int msglen);
  * @param   rplen The length of the reply.
  * @returns 0 if the reply wasn't truncated.
  *         -1 if it was truncated.
- *         -2 if the task ID was invalid.
+ *         -2 if the task ID was invalid or a zombie.
  *         -3 if the target task isn't waiting for a reply.
  */
 int Reply(int tid, char *reply, int rplen);
