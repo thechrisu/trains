@@ -131,7 +131,7 @@ char quit() {
   return send_to_rps_server('Q');
 }
 
-void k2_rps_client() {
+void play_games() {
   char throws[] = { 'R', 'P', 'S' };
   int my_tid = MyTid();
   int seed = my_tid;
@@ -140,22 +140,30 @@ void k2_rps_client() {
 
   for (int i = 0; i < (my_tid ^ 0x1); i += 1) {
     seed = seed * 1103515245 + 12345;
-    char result = play(throws[(unsigned int)(seed / 65536) % 3]);
+    char result = play(throws[(unsigned int)seed % 3]);
     if (result == 'N') {
-      bwprintf("Task %d exiting\n\r", my_tid);
       return;
     }
   }
 
   quit();
-  bwprintf("Task %d exiting\n\r", my_tid);
+}
+
+void k2_rps_client() {
+  play_games();
+
+  if (MyTid() % 2 == 0) {
+    play_games();
+  }
+
+  bwprintf("Task %d exiting\n\r", MyTid());
 }
 
 void k2_first_user_task() {
   Create(0, &nameserver_main);
   Create(0, &k2_rps_server);
 
-  for (int i = 0; i < 8; i += 1) {
+  for (int i = 0; i < 4; i += 1) {
     Create(0, &k2_rps_client);
   }
 }
