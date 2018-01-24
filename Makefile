@@ -176,7 +176,7 @@ versatilepb:
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
-	$(XCC) $(CFLAGS_versatilepb) -O0  $< -S -o $@
+	$(XCC) $(CFLAGS_versatilepb) $< -S -o $@
 
 $(builddirversatilepb)/src/%.o: src/%.s
 	@mkdir -p $(dir $@)
