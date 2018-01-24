@@ -1,4 +1,4 @@
-#include "../include/common/codes.h"
+#include "codes.h"
 #include "myio.h"
 
 void k1_other_user_task() {

@@ -5,7 +5,7 @@
 #ifndef TRAINS_TIMER_DATA_H
 #define TRAINS_TIMER_DATA_H
 
-#include "../../../src/stdlib.h"
+#include "stdlib.h"
 
 struct my_time {
   uint32_t min;

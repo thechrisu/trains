@@ -8,16 +8,13 @@
 extern struct track_state global_track_state;
 extern int oe_in_sensor;
 
-#include "stdlib.h"
 #include "a0terminal.h"
-#include "../test-resources/assert.h"
-#include "./track/track_node.h"
-#include "./track/track_data.h"
-#include "../include/kernel/glue/mytimer.h"
-
-#if TESTING
-#define assert(expr) printf("%s\r\n", expr ? "Assertion true" : "Assertion false");
-#endif /* TESTING */
+#include "assert.h"
+#include "buffer.h"
+#include "mytimer.h"
+#include "stdlib.h"
+#include "../track/track_node.h"
+#include "../track/track_data.h"
 
 void blink_headlights(char loco);
 

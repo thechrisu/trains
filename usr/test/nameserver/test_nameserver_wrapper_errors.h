@@ -6,7 +6,7 @@
 #define TRAINS_TEST_NAMESERVER_WRAPPER_ERRORS_H
 
 #include "myio.h"
-#include "../../../include/common/codes.h"
+#include "../../../lib/project/codes.h"
 
 #include "fake_nameserver_functions.h"
 #include "../../nameserver.h"

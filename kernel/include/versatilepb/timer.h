@@ -6,9 +6,9 @@
 #define TRAINS_VERSATILEPB_TIMER_H
 
 
-#include "../glue/timer_data.h"
+#include "stdlib.h"
+#include "timer_data.h"
 #include "versatilepb.h"
-#include "../../../src/stdlib.h"
 
 void setup_timer();
 void setup_timer1(uint16_t countdown_val);

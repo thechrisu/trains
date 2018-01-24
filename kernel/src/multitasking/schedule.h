@@ -6,7 +6,7 @@
 #ifndef TRAINS_SCHEDULE_H
 #define TRAINS_SCHEDULE_H
 
-#include "../../lib/attributes.h"
+#include "../../../lib/project/attributes.h"
 #include "scheduler.h"
 #include "stdlib.h"
 #include "task.h"

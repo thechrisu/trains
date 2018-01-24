@@ -5,8 +5,8 @@
 #ifndef TRACK_NODE_H
 #define TRACK_NODE_H
 
-#include "../stdlib.h"
-#include "../buffer.h"
+#include "stdlib.h"
+#include "buffer.h"
 
 // The track initialization functions expect an array of this size.
 #define TRACK_MAX 144

@@ -3,15 +3,15 @@
 #endif
 
 #include "crash.h"
-#include "k2.h"
-#include "test/test_runner.h"
 #include "interrupt.h"
-#include "stdlib.h"
+#include "k2.h"
 #include "myio.h"
-#include "./src/syscall/syscall.h"
-#include "./src/multitasking/schedule.h"
-#include "./src/multitasking/send_queue.h"
-#include "./src/multitasking/task.h"
+#include "schedule.h"
+#include "send_queue.h"
+#include "lib/standard/stdlib.h"
+#include "syscall.h"
+#include "task.h"
+#include "test_runner.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);

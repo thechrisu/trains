@@ -179,3 +179,5 @@ int RegisterAs(char *c) {
 int WhoIs(char *c) {
   return send_message_to_nameserver(c, 'W');
 }
+
+#endif /* TESTING */

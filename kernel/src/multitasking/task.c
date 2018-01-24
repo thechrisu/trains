@@ -25,7 +25,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
 #else
   task->tf = (trapframe *)malloc(sizeof(trapframe)); // :(
-#endif
+#endif /* TESTING */
 #if CONTEXT_SWITCH_DEBUG
   bwprintf("task_init: Location of tf: %x\n\r", task->tf);
 #endif /* CONTEXT_SWITCH_DEBUG */

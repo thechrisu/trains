@@ -8,16 +8,11 @@
 #include "timer_data.h"
 
 #if VERSATILEPB // QEMU
-#include "../../../src/stdlib.h"
-#include "../versatilepb/timer.h"
+#include "../kernel/include/versatilepb/timer.h"
+#include "stdlib.h"
 
 #else
-#if TESTING // x86-64 Googletest tests
-#else
 
-#include "../../../src/stdlib.h"
-
-#endif /* VERSATILEPB */
 
 #if (HOSTCONFIG || TESTING) // x86-64 Googletest tests
 #include <time.h>
@@ -25,8 +20,8 @@ void setup_timer();
 uint32_t get_time();
 uint32_t get_cached_time();
 #else // Lab
-#include "../labenv/timer.h"
+#include "../kernel/include/labenv/timer.h"
 #endif /* LAB */
-#endif /* TESTING */
+#endif /* VERSATILEPB */
 
 #endif /* TRAINS_MYTIMER_H */

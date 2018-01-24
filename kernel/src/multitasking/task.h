@@ -5,13 +5,16 @@
 #ifndef TRAINS_TASK_H
 #define TRAINS_TASK_H
 
-#if TESTING
+
+
+#ifdef TESTING
 #include <stdlib.h>
-#endif
+#else
+#endif /* TESTING */
 
 #include "kassert.h"
-#include "stdlib.h"
 #include "interrupt.h"
+#include "../../../lib/standard/stdlib.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 

@@ -5,10 +5,10 @@
 #ifndef MY_IO_H
 #define MY_IO_H
 
-#include "../glue/mytimer.h"
-#include "../../../src/stdlib.h"
-#include "../../../src/buffer.h"
-#include "../../../test-resources/assert.h"
+#include "mytimer.h"
+#include "stdlib.h"
+#include "buffer.h"
+#include "assert.h"
 
 extern int oe_in_sensor;
 
@@ -68,15 +68,11 @@ void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
 
 
 #if VERSATILEPB
-#include "../versatilepb/versatilepb.h"
+#include "../kernel/include/versatilepb/versatilepb.h"
 #define TRAIN 0
 #define TERMINAL 1
 
-
 #else
-
-#define TRAIN 1
-#define TERMINAL 0
 
 #if (HOSTCONFIG || TESTING)
 
@@ -89,10 +85,13 @@ void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
 #define empty_buf(com, outin) printf("%d: %c", com, outin + '0')
 #define bwprintf printf
 #else
-
-#include "../labenv/ts7200.h"
+#include "../kernel/include/labenv/ts7200.h"
 
 #endif /* HOSTCONFIG || TESTING */
+
+#define TRAIN 1
+#define TERMINAL 0
+
 #endif /* VERSATILEPB */
 
 

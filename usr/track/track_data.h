@@ -6,7 +6,7 @@
 #define TRACK_DATA_H
 
 #include "track_node.h"
-#include "../stdlib.h"
+#include "stdlib.h"
 
 void init_track(struct track_state *global_track);
 

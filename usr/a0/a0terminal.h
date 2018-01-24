@@ -7,11 +7,11 @@
 
 extern struct track_state global_track_state;
 
+#include "buffer.h"
 #include "myio.h"
-#include "../include/kernel/glue/mytimer.h"
-#include "./track/track_data.h"
-#include "./track/track_node.h"
-#include "./buffer.h"
+#include "mytimer.h"
+#include "../track/track_data.h"
+#include "../track/track_node.h"
 
 #define RESET_TEXT "\033[0m"
 #define BLACK_TEXT "\033[30m"

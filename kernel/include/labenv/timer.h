@@ -5,9 +5,9 @@
 #ifndef TRAINS_LAB_TIMER_H
 #define TRAINS_LAB_TIMER_H
 
-#include "../glue/timer_data.h"
+#include "stdlib.h"
+#include "timer_data.h"
 #include "ts7200.h"
-#include "../../../src/stdlib.h"
 
 void setup_timer();
 uint32_t get_time();
