@@ -1,7 +1,3 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-12.
-//
-
 /*
  * bwio.c - busy-wait I/O routines for diagnosis
  *

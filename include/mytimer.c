@@ -1,7 +1,3 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-08.
-//
-
 #include "mytimer.h"
 
 #if VERSATILEPB
