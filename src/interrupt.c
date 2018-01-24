@@ -44,6 +44,10 @@ void print_tf(trapframe *tf) {
 }
 
 trapframe *handle_interrupt(trapframe *tf) {
+#if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t* after_kentry = (int16_t*)0x01a00000;
+  *after_kentry = get_clockticks();
+#endif /* CONTEXT_SWITCH_BENCHMARK */
   current_task->tf = tf;
 
   switch (tf->r0) {

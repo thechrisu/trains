@@ -68,6 +68,10 @@ void task_activate(task_descriptor *task) {
   task->state = TASK_ACTIVE;
   current_task = task;
 #ifndef TESTING
+#if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t* before_kexit = (int16_t*)0x01a00004;
+  *before_kexit = get_clockticks();
+#endif /* CONTEXT_SWITCH_BENCHMARK */
   leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG

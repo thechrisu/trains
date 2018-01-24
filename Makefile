@@ -46,8 +46,10 @@ QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
 
 QEMUTESTINGBASEARGS = -M versatilepb -m 32M -kernel $(builddirtesting)/main.bin -semihosting
 QEMUTESTINGGUIARGS = $(QEMUTESTINGBASEARGS) -serial vc -serial vc
+QEMUTESTINGARGS = $(QEMUTESTINGBASEARGS) -serial null -serial stdio
 QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
+#-DCONTEXT_SWITCH_BENCHMARK
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/common -Iinclude/kernel/glue -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
@@ -241,6 +243,7 @@ clean:
 	rm -f *.s *.a *.o \
 	  $(builddir)/main.map $(builddir)/main.elf $(builddir)/*.o
 	rm -rf build/*
+	find . -name ".#*" -print0 | xargs -0 rm -rf
 	cd test && make clean && cd ..
 
 upload:
@@ -257,6 +260,9 @@ qemuconsole: versatilepb
 
 qemutesting: e2etest
 	$(QEMU) $(QEMUTESTINGGUIARGS)
+
+qemutestingconsole: e2etest
+	$(QEMU) $(QEMUTESTINGARGS)
 
 qemutcprun: e2etest
 	$(QEMU) $(QEMUTCPARGS)
