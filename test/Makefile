@@ -2,9 +2,9 @@
 
 .PRECIOUS: test_buffer.out test_all.out
 
-FLAGS = -DTESTING --std=c++1y -pthread -I../include/kernel/glue -I../include/common -I../src/attributes.h -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
-SRC = $(shell find ../src -name '*.c' -not -name 'cp_vec.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/kernel/glue/mytimer.c)
-SRC_SCHEDULER = ../src/multitasking/scheduler.c ../src/multitasking/ready_queue.c
+FLAGS = -DTESTING --std=c++1y -pthread -I../include -I../kernel/src -I../lib/project -I../kernel/src/multitasking -I../kernel/src/syscall -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
+SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib/project -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c')
+SRC_SCHEDULER = ../kernel/src/multitasking/scheduler.c ../kernel/src/multitasking/ready_queue.c
 SRC_TASK = $(SRC)
 
 SRC_TEST = $(shell find unit -name '*.cc')
@@ -24,12 +24,12 @@ all:
 	./unit/test_messaging.out
 	./unit/test_task.out
 
-alltests: # test_all.out
+alltests:
 	make test
 
-test:
-	# ./unit/test_all.out
-	python3 -m unittest discover -s e2e/ -p 'test_kernel_demo.py' -v
+test: test_all.out
+	./unit/test_all.out
+	python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
 
 test_all.out: $(SRC) $(SRC_TEST)
 	g++ -o unit/$@ $(SRC) $(SRC_TEST) $(FLAGS) -DALLTESTS
