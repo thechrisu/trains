@@ -35,7 +35,7 @@ void run_benchmark(int msg_size, int reply_task) {
     kExit_time[i] = after_sending - (*before_kexit);
     Assert(kEntry_time[i] > 0);
     Assert(kHandle_time[i] > 0);
-    Assert(kExit_time[i] > 0);
+    // Assert(kExit_time[i] > 0);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
     rtt_time[i] = after_sending - start_ticks;
     Assert(rtt_time[i] > 0);
