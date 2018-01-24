@@ -25,7 +25,7 @@ void run_benchmark(int msg_size, int reply_task) {
     Assert(rtt_time[i] > 0);
   }
   int16_t worst_time, worst_index, total_time;
-  int64_t average_time, variance;
+  int16_t average_time, variance;
   average_time = 0;
   worst_time = 0;
   worst_index = 0;
@@ -76,5 +76,4 @@ void message_benchmark() {
   EnableCaches(true);
   run_benchmarks_for_msgsize(4);
   run_benchmarks_for_msgsize(64);
-  EnableCaches(false);
 }

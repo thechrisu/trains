@@ -28,6 +28,7 @@ void test_runner() {
 
     buf[i] = '\0';
 
+    
     if (strcmp(buf, "a0")) {
       exec_prog(2, &a0_main);
     } else if (strcmp(buf, "k1")) {
