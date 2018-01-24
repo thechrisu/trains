@@ -73,6 +73,7 @@ void syscall_reply();
 
 /**
  * Enables/Disables the caches on a user's request.
+ * NOTE: Currently we don't disable the caches. Sorry.
  */
 void syscall_cache_enable();
 
