@@ -3,7 +3,7 @@
 #endif
 
 #include "crash.h"
-#include "k1.h"
+#include "k2.h"
 #include "test/test_runner.h"
 #include "interrupt.h"
 #include "stdlib.h"
@@ -53,7 +53,7 @@ void kmain() {
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(5, &k1_first_user_task);
+  syscall_create(5, &k2_first_user_task);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
@@ -86,7 +86,6 @@ int main() {
 
   /* Calls to syscall_panic branch to this label. */
   __asm__(
-    ".text\n\t"
     ".global panic_exit\n\t"
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
