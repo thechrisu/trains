@@ -24,12 +24,12 @@ all:
 	./unit/test_messaging.out
 	./unit/test_task.out
 
-alltests: test_all.out
+alltests: # test_all.out
 	make test
 
 test:
-	./unit/test_all.out
-	python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
+	# ./unit/test_all.out
+	python3 -m unittest discover -s e2e/ -p 'test_kernel_demo.py' -v
 
 test_all.out: $(SRC) $(SRC_TEST)
 	g++ -o unit/$@ $(SRC) $(SRC_TEST) $(FLAGS) -DALLTESTS

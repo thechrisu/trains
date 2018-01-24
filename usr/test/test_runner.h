@@ -8,6 +8,7 @@
 #include "../../include/common/codes.h"
 #include "../a0.h"
 #include "../k1.h"
+#include "../k2.h"
 #include "./messaging/test_messaging.h"
 #include "nameserver/test_nameserver_errors.h"
 #include "nameserver/test_nameserver_wrapper_errors.h"

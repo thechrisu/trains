@@ -1,0 +1,70 @@
+Task 5 signed up to play
+Task 6 signed up to play
+Matched tasks 5 and 6
+Task 7 signed up to play
+Task 8 signed up to play
+Matched tasks 7 and 8
+Task 5 played P
+Task 6 played R
+Task 5 wins with P, task 6 loses with R
+Task 7 played S
+Task 8 played S
+Tasks 8 and 7 draw with S
+Task 6 played R
+Task 5 played S
+Task 6 wins with R, task 5 loses with S
+Task 8 played P
+Task 7 played S
+Task 7 wins with S, task 8 loses with P
+Task 5 played R
+Task 6 played S
+Task 5 wins with R, task 6 loses with S
+Task 7 played P
+Task 8 played S
+Task 8 wins with S, task 7 loses with P
+Task 6 played S
+Task 5 played R
+Task 5 wins with R, task 6 loses with S
+Task 8 played S
+Task 7 played S
+Tasks 7 and 8 draw with S
+Task 5 quit
+Task 5 exiting
+Task 6 tried to play when it doesn't have a partner
+Task 7 played P
+Task 8 played S
+Task 8 wins with S, task 7 loses with P
+Task 6 signed up to play
+Task 8 played P
+Task 7 played P
+Tasks 7 and 8 draw with P
+Task 7 quit
+Task 7 exiting
+Task 8 tried to play when it doesn't have a partner
+Task 8 signed up to play
+Matched tasks 6 and 8
+Task 6 played S
+Task 8 played S
+Tasks 8 and 6 draw with S
+Task 8 played S
+Task 6 played S
+Tasks 6 and 8 draw with S
+Task 6 played R
+Task 8 played P
+Task 8 wins with P, task 6 loses with R
+Task 8 played P
+Task 6 played R
+Task 8 wins with P, task 6 loses with R
+Task 6 played P
+Task 8 played S
+Task 8 wins with S, task 6 loses with P
+Task 8 played P
+Task 6 played R
+Task 8 wins with P, task 6 loses with R
+Task 6 played P
+Task 8 played R
+Task 6 wins with P, task 8 loses with R
+Task 8 played S
+Task 6 quit
+Task 6 exiting
+Task 8 exiting
