@@ -3,7 +3,7 @@ SECTIONS
 {
   . = 0x10000;
   .text : {
-  build/testing/src/startup.o
+  build/testing/kernel/asm/startup.o
   *(.text)
   *(.rodata)
   }

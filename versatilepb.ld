@@ -3,7 +3,7 @@ SECTIONS
 {
   . = 0x10000;
   .text : {
-  build/versatilepb/src/startup.o
+  build/versatilepb/kernel/asm/startup.o
   *(.text)
   *(.rodata)
   }
