@@ -33,7 +33,12 @@ void kmain() {
   send_queues = send_queues_on_stack;
 
   next_task_id = 1;
+
+
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
   bwprintf("");
+#pragma GCC diagnostic warning "-Wformat-zero-length"
+
 #ifndef VERSATILEPB
   uint32_t *undefined_handler = (uint32_t*)0x24;
   uint32_t *swi_handler = (uint32_t *)0x28;

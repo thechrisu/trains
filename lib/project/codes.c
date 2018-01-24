@@ -1,24 +1,25 @@
 #include "codes.h"
 #include "myio.h"
 
+#ifndef TESTING
 #ifdef E2ETESTING
 #define NAMESERVER_TASK_ID ns_tid
 #else
 #define NAMESERVER_TASK_ID 2
 #endif
 
-#define NULL_ARGS (unsigned int *)0
+#define NULL_ARGS (register_t *)0
 
-inline int software_interrupt(unsigned int code, unsigned int argc, unsigned int *argv)__attribute((always_inline));
+inline int software_interrupt(register_t code, register_t argc, register_t *argv)__attribute((always_inline));
 
-inline int software_interrupt(unsigned int code, unsigned int argc, unsigned int *argv) {
-  register unsigned int arg0 __asm__ ("r0");
-  register unsigned int arg1 __asm__ ("r1");
-  register unsigned int arg2 __asm__ ("r2");
-  register unsigned int arg3 __asm__ ("r3");
-  register unsigned int arg4 __asm__ ("r4");
-  register unsigned int arg5 __asm__ ("r5");
-  register unsigned int arg6 __asm__ ("r6");
+inline int software_interrupt(register_t code, register_t argc, register_t *argv) {
+  register register_t arg0 __asm__ ("r0");
+  register register_t arg1 __asm__ ("r1");
+  register register_t arg2 __asm__ ("r2");
+  register register_t arg3 __asm__ ("r3");
+  register register_t arg4 __asm__ ("r4");
+  register register_t arg5 __asm__ ("r5");
+  register register_t arg6 __asm__ ("r6");
   int result;
 
   arg0 = code;
@@ -52,7 +53,7 @@ void Pass() {
 }
 
 int Create(int priority, void (*code)()) {
-  unsigned int args[] = { (unsigned int)priority, (unsigned int)code };
+  register_t args[] = { (register_t)priority, (register_t)code };
   return software_interrupt(SYS_CREATE, 2, args);
 }
 
@@ -78,30 +79,30 @@ void __Assert(bool value, const char * caller_name, const char *file_name, int l
 }
 
 int Send(int tid, char *msg, int msglen, char *reply, int rplen) {
-  unsigned int args[] = {
-    (unsigned int)tid,
-    (unsigned int)msg,
-    (unsigned int)msglen,
-    (unsigned int)reply,
-    (unsigned int)rplen
+  register_t args[] = {
+    (register_t)tid,
+    (register_t)msg,
+    (register_t)msglen,
+    (register_t)reply,
+    (register_t)rplen
   };
   return software_interrupt(SYS_SEND, 5, args);
 }
 
 int Receive(int *tid, char *msg, int msglen) {
-  unsigned int args[] = {
-    (unsigned int)tid,
-    (unsigned int)msg,
-    (unsigned int)msglen,
+  register_t args[] = {
+    (register_t)tid,
+    (register_t)msg,
+    (register_t)msglen,
   };
   return software_interrupt(SYS_RECEIVE, 3, args);
 }
 
 int Reply(int tid, char *reply, int rplen) {
-  unsigned int args[] = {
-    (unsigned int)tid,
-    (unsigned int)reply,
-    (unsigned int)rplen
+  register_t args[] = {
+    (register_t)tid,
+    (register_t)reply,
+    (register_t)rplen
   };
   return software_interrupt(SYS_REPLY, 3, args);
 }
@@ -137,11 +138,11 @@ int send_message_to_nameserver(char *c, char msg_type) {
   msg[0] = msg_type;
   memcpy(msg + 1, c, strlen(c) + 1);
 
-  unsigned int args[] = {
+  register_t args[] = {
     NAMESERVER_TASK_ID,
-    (unsigned int)msg,
-    (unsigned int)(strlen(c) + 2),
-    (unsigned int)&reply,
+    (register_t)msg,
+    (register_t)(strlen(c) + 2),
+    (register_t)&reply,
     1
   };
 
@@ -150,16 +151,16 @@ int send_message_to_nameserver(char *c, char msg_type) {
   }
 
   switch (reply) {
-    case 'T' + 128:
+    case (char)('T' + 128):
       return -2;
-    case 'S' + 128:
+    case (char)('S' + 128):
       return -3;
-    case 'M' + 128:
-    case 'N' + 128:
+    case (char)('M' + 128):
+    case (char)('N' + 128):
       return -4;
     case 'C':
       return 0;
-    case 'W' + 128:
+    case (char)('W' + 128):
       return nameserver_panic(c, msg_type);
     default:
       if (msg_type == 'R') {
