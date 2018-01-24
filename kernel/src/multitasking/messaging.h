@@ -1,11 +1,11 @@
 #ifndef TRAINS_MESSAGING_H
 #define TRAINS_MESSAGING_H
 
-#include "task.h"
+#include "attributes.h"
 #include "schedule.h"
-#include "stdlib.h"
 #include "send_queue.h"
-#include "../attributes.h"
+#include "stdlib.h"
+#include "task.h"
 
 /**
  * To be called when a task called Send(). If the receiver is TASK_RECEIVE_BLOCKED, will

@@ -1,9 +1,9 @@
-#include "../include/common/codes.h"
-#include "./syscall/syscall.h"
-#include "./multitasking/messaging.h"
+#include "codes.h"
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
+#include "multitasking/messaging.h"
+#include "syscall/syscall.h"
 
 #if TESTING
 extern void syscall_exit();

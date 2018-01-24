@@ -1,7 +1,3 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
-
 #include "stdlib.h"
 #if TESTING
 #else

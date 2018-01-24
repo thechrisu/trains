@@ -1,5 +1,5 @@
-#include "assert.h"
-#include "./syscall/syscall.h"
+#include "kassert.h"
+#include "syscall/syscall.h"
 
 void __kassert(bool value, const char * caller_name, const char *file_name, int line_num) {
   if (unlikely(!value)) {

@@ -39,7 +39,6 @@ int strncmp(const char *destination, const char *source, int max_length);
 #else
 
 #ifdef TESTING
-
 #include <boost/integer.hpp>
 #include <cstring>
 #define my_memset(dst, src, n) printf("%p, %p, %d", dst, src, n)

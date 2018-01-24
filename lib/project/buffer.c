@@ -1,7 +1,3 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
-
 #include "buffer.h"
 
 void char_buffer_init(char_buffer *buf, char *data, unsigned int size) {

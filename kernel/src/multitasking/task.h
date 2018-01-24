@@ -9,9 +9,9 @@
 #include <stdlib.h>
 #endif
 
-#include "../assert.h"
-#include "../stdlib.h"
-#include "../interrupt.h"
+#include "kassert.h"
+#include "stdlib.h"
+#include "interrupt.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 

@@ -5,9 +5,9 @@
 #ifndef TRAINS_SYSCALL_H
 #define TRAINS_SYSCALL_H
 
-#include "../multitasking/schedule.h"
-#include "../multitasking/messaging.h"
-#include "../multitasking/task.h"
+#include "schedule.h"
+#include "messaging.h"
+#include "task.h"
 #include "myio.h"
 #include "stdlib.h"
 

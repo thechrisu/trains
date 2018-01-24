@@ -1,10 +1,6 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-12.
-//
-
-#include "assert.h"
-#include "stdlib.h"
+#include "kassert.h"
 #include "myio.h"
+#include "stdlib.h"
 
 extern void enter_kernel();
 

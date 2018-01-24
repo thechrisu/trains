@@ -6,8 +6,8 @@
 #ifndef CODES_H
 #define CODES_H
 
-#include "../../src/attributes.h"
-#include "stdlib.h"
+#include "attributes.h"
+#include "../stdlib.h"
 
 #ifdef E2ETESTING
 #include "../../usr/test/nameserver/fake_nameserver_functions.h"
