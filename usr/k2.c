@@ -243,6 +243,6 @@ void k2_first_user_task() {
   Create(5, &k2_rps_server);
 
   for (int i = 0; i < 4; i += 1) {
-    Create(5, &k2_rps_client);
+    Create(3, &k2_rps_client);
   }
 }
