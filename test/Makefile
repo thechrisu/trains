@@ -24,10 +24,10 @@ all:
 	./unit/test_messaging.out
 	./unit/test_task.out
 
-alltests:
+alltests: test_all.out
 	make test
 
-test: test_all.out
+test:
 	./unit/test_all.out
 	python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
 

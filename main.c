@@ -91,7 +91,6 @@ int main() {
 
   /* Calls to syscall_panic branch to this label. */
   __asm__(
-    ".text\n\t"
     ".global panic_exit\n\t"
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
