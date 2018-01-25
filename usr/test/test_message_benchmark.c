@@ -1,6 +1,6 @@
 #include "test_message_benchmark.h"
 
-#define NUM_MSG 100
+#define NUM_MSG 1000
 
 /**
  * Offsets:
@@ -116,11 +116,11 @@ struct measurement {
  * Applies a subtract operation to every element the first two arguments and saves the result in the third.
  * @param arg1 First argument.
  * @param arg2 Second argument.
- * @param res Result (equivalent to \forall arg1[i], arg2[i], res[i] = arg1[i] - arg2[i])
+ * @param res Result (equivalent to \forall arg1[i], arg2[i], res[i] = arg2[i] - arg1[i])
  */
 void zip_subtract(int16_t arg1[NUM_MSG], int16_t arg2[NUM_MSG], int16_t res[NUM_MSG]) {
   for (int16_t i = 0; i < NUM_MSG; i++) {
-    res[i] = arg1[i] - arg2[i];
+    res[i] = arg2[i] - arg1[i];
   }
 }
 
@@ -190,10 +190,14 @@ void run_benchmark(int msg_size, bool send_first) {
   for (int i = 0; i < NUM_MSG; i++) {
     stats[BEFORE_SEND][i] = (int16_t)get_clockticks();
     Send(reply_tid, msg, msg_size, msg, 64);
-    stats[BEFORE_SEND][i] = (int16_t)get_clockticks();
+    stats[AFTER_SEND][i] = (int16_t)get_clockticks();
     for (int j = 0; j < NUM_TIMEPOINTS; j++) {
       int offset = (j >= NUM_TIMEPOINTS - 4) ? 2 + (j % (NUM_TIMEPOINTS - 4)) : 6 + j;
       stats[offset][i] = (int16_t)*(loc_kEntry_sys_send + 4 * j);
+      if (stats[offset][i] < 0) {
+        bwprintf("%d, %d\n\r");
+        Assert(stats[offset][i] < 0);
+      }
     }
   }
   memcpy(mms[0].name, "RTT", 4);

@@ -50,13 +50,13 @@ trapframe *handle_interrupt(trapframe *tf) {
   volatile int16_t *loc_kEntry_sys_reply= (int16_t*)0x01a0014;
   switch (tf->r0) {
   case SYS_SEND:
-    *kEntry_sys_send = get_clockticks();
+    *loc_kEntry_sys_send = get_clockticks();
     break;
   case SYS_RECEIVE:
-    *kEntry_sys_receive = get_clockticks();
+    *loc_kEntry_sys_receive = get_clockticks();
     break;
   case SYS_REPLY:
-    *kEntry_sys_reply = get_clockticks();
+    *loc_kEntry_sys_reply = get_clockticks();
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */

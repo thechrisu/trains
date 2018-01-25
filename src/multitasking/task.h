@@ -5,6 +5,10 @@
 #ifndef TRAINS_TASK_H
 #define TRAINS_TASK_H
 
+#if CONTEXT_SWITCH_BENCHMARK
+#include "codes.h"
+#endif /* CONTEXT_SWITCH_BENCHMARK */
+
 #if TESTING
 #include <stdlib.h>
 #endif

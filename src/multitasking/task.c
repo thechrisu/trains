@@ -71,12 +71,12 @@ void task_activate(task_descriptor *task) {
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_kExit_sys_send = (int16_t*)0x01a0018;
   volatile int16_t *loc_kExit_sys_receive = (int16_t*)0x01a000C;
-  switch (tf->r0) {
+  switch (task->tf->r0) {
   case SYS_SEND:
-    *kExit_sys_send = get_clockticks();
+    *loc_kExit_sys_send = get_clockticks();
     break;
   case SYS_RECEIVE:
-    *kExit_sys_receive = get_clockticks();
+    *loc_kExit_sys_receive = get_clockticks();
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */
