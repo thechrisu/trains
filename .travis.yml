@@ -15,7 +15,7 @@ cache:
 
 before_install:
   - wget http://www.doc.ironwoodlabs.com/gnuarm/gnuarm-distribution/web/www.gnuarm.com/bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2
-  - tar -xjvf bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 -C ~
+  - tar -xjf bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 -C ~
   - PATH=~/gnuarm-4.0.2/bin:$PATH
   - sudo apt-get install qemu libboost-all-dev doxygen
   - git submodule update --init --recursive
