@@ -7,6 +7,10 @@
 
 #include "stdlib.h"
 
+#ifdef TESTING
+#include <stdint.h>
+#endif
+
 struct my_time {
   uint32_t min;
   uint32_t sec;

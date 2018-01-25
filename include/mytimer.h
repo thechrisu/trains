@@ -16,6 +16,7 @@
 
 #if (HOSTCONFIG || TESTING) // x86-64 Googletest tests
 #include <time.h>
+#include <stdint.h>
 void setup_timer();
 uint32_t get_time();
 uint32_t get_cached_time();

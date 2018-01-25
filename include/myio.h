@@ -78,6 +78,7 @@ void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #define sendbyte_buffered(com, val) printf("%d: %c", com, val)
 #define readbyte_buffered(com) ('a' + com)
 #define getnumreadable_bytes(com) com
