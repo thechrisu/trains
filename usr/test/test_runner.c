@@ -33,7 +33,7 @@ void test_runner() {
     } else if (strcmp(buf, "k1")) {
       exec_prog(5, &k1_first_user_task);
     } else if (strcmp(buf, "k2")) {
-      exec_prog(5, &k2_first_user_task);
+      exec_prog(10, &k2_first_user_task);
     } else if (strcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
       bwprintf("ENDPROG\n\r");
