@@ -2,8 +2,6 @@
 
 void transmit_message(task_descriptor *src, task_descriptor *dst) {
 #if CONTEXT_SWITCH_BENCHMARK  
-  volatile int16_t *loc_before_copy = (int16_t*)0x01a0001C;
-  volatile int16_t *loc_after_copy = (int16_t*)0x01a00020;
   *loc_before_copy = get_clockticks();
   // bwprintf("(%d) Before copy\n\r", *loc_before_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */

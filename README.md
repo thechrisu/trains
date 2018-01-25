@@ -4,7 +4,8 @@
 - `make e2etest` Builds for the Versatile/PB platform but with the test runner as the first user task.
 - `make qemu` Does `make versatilepb` and starts the QEMU GUI.
 - `make qemuconsole` Does `make versatilepb` and starts QEMU with terminal output showing in the console.
-- `make qemutesting` Does `make e2etest` and starts QEMU with the test runner as the first user task and with terminal output showing in the console.
+- `make qemutesting` Does `make e2etest` and starts QEMU with the test runner as the first user task and with terminal output showing in the gui.
+- `make qemutestingconsole` Does `make e2etest` and starts QEMU with the test runner as the first user task and with terminal output showing in the console.
 - `make qemutcprun` Does `make e2etest` and starts QEMU with terminal output sent over port 9991.
 - `make arm` Compile the kernel with the train lab configuration on your machine.
 - `make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
@@ -30,7 +31,7 @@ To compile to ARM outside of the student environment, you need to
 ## Assignment progress
 Kernel
 - [X] "Scheduler"
-- [ ] "Message passing"
+- [X] "Message passing"
 - [ ] "Interrupts + clock server"
 - [ ] "Interrupt-driven IO + a0 + loose ends"
 

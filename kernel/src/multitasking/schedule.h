@@ -11,6 +11,11 @@
 #include "stdlib.h"
 #include "task.h"
 
+
+#if CONTEXT_SWITCH_BENCHMARK
+#include "benchmark.h"
+#endif /* CONTEXT_SWITCH_BENCHMARK */
+
 #define MAX_PRIORITY 64
 
 /**

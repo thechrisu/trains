@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Kernel-level messaging implementation.
+ */
 #ifndef TRAINS_MESSAGING_H
 #define TRAINS_MESSAGING_H
 
@@ -6,6 +10,10 @@
 #include "send_queue.h"
 #include "stdlib.h"
 #include "task.h"
+
+#if CONTEXT_SWITCH_BENCHMARK
+#include "benchmark.h"
+#endif /* CONTEXT_SWITCH_BENCHMARK */
 
 /**
  * To be called when a task called Send(). If the receiver is TASK_RECEIVE_BLOCKED, will

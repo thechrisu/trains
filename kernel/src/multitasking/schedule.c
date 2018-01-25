@@ -22,14 +22,12 @@ bool schedule() {
   bwprintf("Next task's k_lr: %x\n\r", next->tf->k_lr);
 #endif /* SCHEDULE_DEBUG */
 #if CONTEXT_SWITCH_BENCHMARK
-  volatile int16_t *loc_schedule_done = (int16_t*)0x01a00028;
-  *loc_schedule_done = get_clockticks();
+  *loc_after_schedule = get_clockticks();
   // bwprintf("(%d) Scheduling done\n\r", *loc_schedule_done);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   task_activate(next);
 #if CONTEXT_SWITCH_BENCHMARK
-  volatile int16_t *loc_schedule_start = (int16_t*)0x01a00024;
-  *loc_schedule_start = get_clockticks();
+  *loc_before_schedule = get_clockticks();
   // bwprintf("(%d) Scheduling start\n\r", *loc_schedule_start);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   if (likely(next->state == TASK_RUNNABLE || next->state == TASK_ACTIVE)) {

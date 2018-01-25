@@ -69,22 +69,17 @@ void task_activate(task_descriptor *task) {
   current_task = task;
 #ifndef TESTING
 #if CONTEXT_SWITCH_BENCHMARK
-  volatile int tid_send = (int)*((int*)0x01a000A0);
-  volatile int tid_receive_reply = (int)*((int*)0x01a000A4);
-  volatile int is_receive = (int)*((int*)0x01a000A8);
-  if (task->tid == tid_send) {
-    volatile int16_t *loc_kExit_sys_send = (int16_t*)0x01a00018;
+  if (task->tid == *tid_send) {
     *loc_kExit_sys_send = get_clockticks();
     // bwprintf("(%d) kExit Send\n\r", *loc_kExit_sys_send);
   }
-  if (task->tid == tid_receive_reply) {
+  if (task->tid == *tid_receive_reply) {
     if (is_receive) {
-      volatile int16_t *loc_kExit_sys_receive = (int16_t*)0x01a0000C;
       *loc_kExit_sys_receive = get_clockticks();
       // bwprintf("(%d) kExit Receive\n\r", *loc_kExit_sys_receive);
     }
   }
-  kassert(!(task->tid == tid_receive_reply && task->tid == tid_send));
+  kassert(!(task->tid == *tid_receive_reply && task->tid == *tid_send));
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   leave_kernel(task->tf->r0, task->tf);
 #endif

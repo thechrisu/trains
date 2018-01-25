@@ -7,6 +7,7 @@
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "codes.h"
+#include "benchmark.h"
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 
 #ifdef TESTING
