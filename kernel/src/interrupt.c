@@ -45,18 +45,24 @@ void print_tf(trapframe *tf) {
 
 trapframe *handle_interrupt(trapframe *tf) {
 #if CONTEXT_SWITCH_BENCHMARK
-  volatile int16_t *loc_kEntry_sys_send = (int16_t*)0x01a0000;
-  volatile int16_t *loc_kEntry_sys_receive = (int16_t*)0x01a0008;
-  volatile int16_t *loc_kEntry_sys_reply= (int16_t*)0x01a0014;
+  volatile int16_t *loc_kEntry_sys_send =    (int16_t*)0x01a00000;
+  volatile int16_t *loc_kEntry_sys_receive = (int16_t*)0x01a00008;
+  volatile int16_t *loc_kEntry_sys_reply=    (int16_t*)0x01a00014;
+  volatile int* is_receive = (int*)0x01a000A8;
   switch (tf->r0) {
   case SYS_SEND:
     *loc_kEntry_sys_send = get_clockticks();
+    // bwprintf("(%d) kEntry Send\n\r", *loc_kEntry_sys_send);
     break;
   case SYS_RECEIVE:
+    *is_receive = true;
     *loc_kEntry_sys_receive = get_clockticks();
+    // bwprintf("(%d) kEntry Receive\n\r", *loc_kEntry_sys_receive);
     break;
   case SYS_REPLY:
+    *is_receive = false;
     *loc_kEntry_sys_reply = get_clockticks();
+    // bwprintf("(%d) kEntry Reply\n\r", *loc_kEntry_sys_reply);
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */

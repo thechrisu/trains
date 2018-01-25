@@ -1,9 +1,10 @@
 #ifndef TRAINS_MESSAGEBENCHMARK_H
 #define TRAINS_MESSAGEBENCHMARK_H
 
-#include "../../include/common/codes.h"
-#include "../../include/kernel/glue/mytimer.h"
-#include "../../include/kernel/glue/myio.h"
+#include "benchmark.h"
+#include "codes.h"
+#include "mytimer.h"
+#include "myio.h"
 #include "stdlib.h"
 
 void message_benchmark();
