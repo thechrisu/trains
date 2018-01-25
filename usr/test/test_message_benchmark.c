@@ -151,7 +151,6 @@ void print_measurement_array(struct measurement *mms) {
 void run_benchmark(int msg_size, bool send_first) {
   volatile int *tid_send = (int *) 0x01a000A0;
   volatile int *tid_reply = (int *) 0x01a000A4;
-  int errors = 0;
   volatile int16_t *loc_kEntry_sys_send = (int16_t *) 0x01a00000;
   int reply_tid;
   if (send_first) {

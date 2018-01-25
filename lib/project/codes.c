@@ -182,7 +182,7 @@ int WhoIs(char *c) {
 }
 
 void EnableCaches(bool enable) {
-  unsigned int args[] = {(unsigned int)enable};
+  register_t args[] = {(register_t)enable};
   software_interrupt(SYS_CACHE_ENABLE, 1, args);
 }
 
