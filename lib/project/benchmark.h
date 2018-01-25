@@ -10,7 +10,22 @@
 #include "stdlib.h"
 
 #define NUM_TIMEPOINTS (int)11
-#define NUM_MSG 1000
+#define NUM_MSG 2
+
+#define LOC_KENTRY_SYS_SEND     (int16_t *) 0x01A00000;
+#define LOC_BEFORE_RECEIVE      (int16_t *) 0x01A00004;
+#define LOC_KENTRY_SYS_RECEIVE  (int16_t *) 0x01A00008;
+#define LOC_KEXIT_SYS_RECEIVE   (int16_t *) 0x01A0000C;
+#define LOC_AFTER_RECEIVE       (int16_t *) 0x01A00010;
+#define LOC_KENTRY_SYS_REPLY    (int16_t *) 0x01A00014;
+#define LOC_KEXIT_SYS_SEND      (int16_t *) 0x01A00018;
+#define LOC_BEFORE_COPY         (int16_t *) 0x01A0001C;
+#define LOC_AFTER_COPY          (int16_t *) 0x01A00020;
+#define LOC_BEFORE_SCHEDULE     (int16_t *) 0x01A00024;
+#define LOC_AFTER_SCHEDULE      (int16_t *) 0x01A00028;
+#define TID_SEND                (int16_t *) 0x01A000A0;
+#define TID_RECEIVE_REPLY       (int16_t *) 0x01A000A4;
+#define IS_RECEIVE              (int16_t *) 0x01A000A8;
 
 enum benchmark_timepoints {
   BEFORE_SEND,
@@ -33,21 +48,6 @@ struct measurement {
   char name[32];
   int16_t avg, worst, worst_index, var;
 };
-
-extern volatile int16_t *loc_kEntry_sys_send;
-extern volatile int16_t *loc_before_receive;
-extern volatile int16_t *loc_kEntry_sys_receive;
-extern volatile int16_t *loc_kExit_sys_receive;
-extern volatile int16_t *loc_after_receive;
-extern volatile int16_t *loc_kEntry_sys_reply;
-extern volatile int16_t *loc_kExit_sys_send;
-extern volatile int16_t *loc_before_copy;
-extern volatile int16_t *loc_after_copy;
-extern volatile int16_t *loc_before_schedule;
-extern volatile int16_t *loc_after_schedule;
-extern volatile int *tid_send;
-extern volatile int *tid_receive_reply;
-extern volatile int *is_receive;
 
 /**
  * Given an array of messages (int), returns the average value.
@@ -91,8 +91,9 @@ void zip_subtract(int16_t arg1[NUM_MSG], int16_t arg2[NUM_MSG], int16_t res[NUM_
  * @param m Measurement pointer.
  * @param data1 Array of earlier measurement values.
  * @param data2 Array of later measurement values.
+ * @param name Name of the measurement
  */
-void process_measurement(struct measurement *m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG]);
+void process_measurement(struct measurement *m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG], char name[32]);
 
 /**
  * Prints an array of measurements.

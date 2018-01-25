@@ -1,7 +1,8 @@
 #include "messaging.h"
 
 void transmit_message(task_descriptor *src, task_descriptor *dst) {
-#if CONTEXT_SWITCH_BENCHMARK  
+#if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t *loc_before_copy = LOC_BEFORE_COPY;
   *loc_before_copy = get_clockticks();
   // bwprintf("(%d) Before copy\n\r", *loc_before_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
@@ -19,6 +20,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
   volatile int* sender_tid = (int*)dst->tf->r1;
   *sender_tid = task_get_tid(src);
 #if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t *loc_after_copy = LOC_AFTER_COPY;
   *loc_after_copy = get_clockticks();
   // bwprintf("(%d) After copy\n\r", *loc_after_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */

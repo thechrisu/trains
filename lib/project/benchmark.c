@@ -1,20 +1,5 @@
 #include "benchmark.h"
 
-volatile int16_t *loc_kEntry_sys_send = (int16_t *) 0x01a00000;
-volatile int16_t *loc_before_receive = (int16_t *) 0x01a00004;
-volatile int16_t *loc_kEntry_sys_receive = (int16_t *) 0x01a00008;
-volatile int16_t *loc_kExit_sys_receive = (int16_t *) 0x01a0000C;
-volatile int16_t *loc_after_receive = (int16_t *) 0x01a0010;
-volatile int16_t *loc_kEntry_sys_reply = (int16_t *) 0x01a0014;
-volatile int16_t *loc_kExit_sys_send = (int16_t *) 0x01a0018;
-volatile int16_t *loc_before_copy = (int16_t *) 0x01a001C;
-volatile int16_t *loc_after_copy = (int16_t *) 0x01a0020;
-volatile int16_t *loc_before_schedule = (int16_t *) 0x01a0024;
-volatile int16_t *loc_after_schedule = (int16_t *) 0x01a0028; // TODO put this in lib/benchmark_locations.c
-volatile int* tid_send = (int *) 0x01a000A0;
-volatile int* tid_receive_reply = (int *) 0x01a000A4;
-volatile int* is_receive = (int *) 0x01a000A8;
-
 int16_t get_avg(int16_t a[NUM_MSG]) {
   int32_t acc = 0;
   for (int i = 0; i < NUM_MSG; i++) {
@@ -60,12 +45,13 @@ void zip_subtract(int16_t arg1[NUM_MSG], int16_t arg2[NUM_MSG], int16_t res[NUM_
   }
 }
 
-void process_measurement(struct measurement *m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG]) {
+void process_measurement(struct measurement *m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG], char name[32]) {
   zip_subtract(data1, data2, m->data);
   m->avg = get_avg(m->data);
   m->worst = get_worst(m->data);
   m->worst_index = get_worst_index(m->data);
   m->var = get_variance(m->data);
+  memcpy(m->name, name, 32);
 }
 
 void print_measurement_array(struct measurement *mms) {

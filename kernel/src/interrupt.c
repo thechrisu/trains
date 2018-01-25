@@ -45,6 +45,10 @@ void print_tf(trapframe *tf) {
 
 trapframe *handle_interrupt(trapframe *tf) {
 #if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
+  volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
+  volatile int16_t *loc_kEntry_sys_reply = LOC_KENTRY_SYS_REPLY;
+  volatile int16_t *is_receive = IS_RECEIVE;
   switch (tf->r0) {
   case SYS_SEND:
     *loc_kEntry_sys_send = get_clockticks();

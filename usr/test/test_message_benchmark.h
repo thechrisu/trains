@@ -1,7 +1,7 @@
 #ifndef TRAINS_MESSAGEBENCHMARK_H
 #define TRAINS_MESSAGEBENCHMARK_H
 
-#include "benchmark.h"
+#include "../../lib/project/benchmark.h"
 #include "codes.h"
 #include "mytimer.h"
 #include "myio.h"
