@@ -1,8 +1,8 @@
 #ifndef ASSERT_H
 #define ASSERT_H
 
-#include "../src/stdlib.h"
 #include "myio.h"
+#include "stdlib.h"
 
 #ifndef TESTING
 void __assert(bool expr, const char * caller_name, const char *file_name, int line_num);

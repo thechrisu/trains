@@ -5,7 +5,7 @@
 #ifndef TRAINS_TEST_TASK_H
 #define TRAINS_TEST_TASK_H
 
-#include "../../src/multitasking/task.h"
-#include "../../src/multitasking/send_queue.h"
+#include "../../kernel/src/multitasking/task.h"
+#include "../../kernel/src/multitasking/send_queue.h"
 
 #endif //TRAINS_TEST_TASK_H

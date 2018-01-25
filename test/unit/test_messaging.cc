@@ -2,6 +2,8 @@
 
 #include <gtest/gtest.h>
 
+using namespace std;
+
 #ifndef ALLTESTS
 int oe_in_sensor = false;
 #endif /* ALLTESTS */

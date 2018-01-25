@@ -1,6 +1,8 @@
 #include "test_ready_queue.h"
 #include <gtest/gtest.h>
 
+using namespace std;
+
 TEST(ReadyQueueTest, length_returns_zero_for_null_queue) {
   ready_queue rq = NULL_READY_QUEUE;
   ASSERT_EQ(ready_queue_length(&rq), 0);

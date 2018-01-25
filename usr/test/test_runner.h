@@ -5,7 +5,7 @@
 #ifndef TEST_RUNNER
 #define TEST_RUNNER
 
-#include "../../include/common/codes.h"
+#include "../../lib/project/codes.h"
 #include "../a0.h"
 #include "../k1.h"
 #include "../k2.h"

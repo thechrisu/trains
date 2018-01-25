@@ -1,6 +1,8 @@
 #include "test_scheduler.h"
 #include <gtest/gtest.h>
 
+using namespace std;
+
 TEST(SchedulerTest, init_returns_negative_one_if_max_priority_is_negative) {
   scheduler s;
   ASSERT_EQ(scheduler_init(&s, -1, (ready_queue *)0), -1);

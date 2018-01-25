@@ -2,7 +2,7 @@
 default: upload;
 
 OPTIMIZATION = -O0
-#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG
+#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG
 DEBUGFLAGS=
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
@@ -17,7 +17,7 @@ builddirtesting =build/testing
 
 TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s $(builddirversatilepb)/src/a0terminal.s $(builddirversatilepb)/include/kernel/glue/myio.s $(builddirversatilepb)/main.s $(builddirversatilepb)/src/multitasking/task.s $(builddirversatilepb)/usr/tasks.s $(builddirversatilepb)/src/interrupt.s $(builddirlab)/usr/tasks.s $(builddirlab)/src/interrupt.s $(builddirlab)/main.s %.s $(builddirlab)/usr/k1.s
+.PRECIOUS: $(builddir)/main.s
 
 XCC	= arm-none-eabi-gcc
 AS	= arm-none-eabi-as
@@ -49,8 +49,8 @@ QEMUTESTINGGUIARGS = $(QEMUTESTINGBASEARGS) -serial vc -serial vc
 QEMUTESTINGARGS = $(QEMUTESTINGBASEARGS) -serial null -serial stdio
 QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
-#
-CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Isrc -Itest-resources -Iusr -Iinclude/common -Iinclude/kernel/glue -fno-builtin -DCONTEXT_SWITCH_BENCHMARK
+CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
+             -Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib/project -Ilib/standard -Iinclude/ -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -76,14 +76,14 @@ LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
 
-SOURCESx64=main.c $(shell find src -name '*.c' -not -name 'cp_vec.c') $(shell find test-resources -name '*.c') \
-                  $(shell find include/kernel/glue -name '*.c') $(shell find usr -name '*.c') \
-                  $(shell find include/common -name '*.c')
-SOURCES=$(SOURCESx64) $(shell find include/kernel/labenv -name '*.c')
-SOURCESversatilepb=$(SOURCESx64) $(shell find include/kernel/versatilepb -name '*.c') src/cp_vec.c
+SOURCESx64=main.c $(shell find kernel ! -path '*kernel/include/*' -name '*.c' -not -name 'cp_vec.c') $(shell find test-resources -name '*.c') \
+                  $(shell find include -name '*.c') $(shell find usr -name '*.c') \
+                  $(shell find lib -name '*.c')
+SOURCES=$(SOURCESx64) $(shell find kernel/include/labenv -name '*.c')
+SOURCESversatilepb=$(SOURCESx64) $(shell find kernel/include/versatilepb -name '*.c') kernel/src/cp_vec.c
 
-ASM=$(shell find src -name '*.s' -not -name 'startup.s')
-ASMversatilepb=$(shell find src -name '*.s')
+ASM=$(shell find kernel -name '*.s' -not -name 'startup.s')
+ASMversatilepb=$(shell find kernel -name '*.s')
 
 OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) $(patsubst %.s, $(builddir)/%.o, $(ASM))
 OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirversatilepb)/%.o, $(ASMversatilepb))
@@ -100,7 +100,7 @@ $(builddirx64)/%.s: %.c
 	@mkdir -p $(dir $@)
 	gcc $(CFLAGSx64) $< -S -o $@
 
-$(builddirx64)/src/%.o: src/%.s
+$(builddirx64)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
 	as $< -o $@
 
@@ -123,7 +123,7 @@ $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
 	$(XCC) $(CFLAGS_ARM_LAB) $< -S -o $@
 
-$(builddir)/src/%.o: src/%.s
+$(builddir)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) $< -o $@
 
@@ -147,7 +147,7 @@ $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
 	$(LABPATH)gcc $(CFLAGS_ARM_LAB)  $< -S -o $@
 
-$(builddirlab)/src/%.o: src/%.s
+$(builddirlab)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
 	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
 
@@ -181,7 +181,7 @@ $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
 	$(XCC) $(CFLAGS_versatilepb) $< -S -o $@
 
-$(builddirversatilepb)/src/%.o: src/%.s
+$(builddirversatilepb)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS_versatilepb) $< -o $@
 
@@ -205,7 +205,7 @@ $(builddirtesting)/%.s: %.c
 	@mkdir -p $(dir $@)
 	$(XCC) $(CFLAGS_versatilepb_e2e)  $< -S -o $@
 
-$(builddirtesting)/src/%.o: src/%.s
+$(builddirtesting)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS_versatilepb) $< -o $@
 
