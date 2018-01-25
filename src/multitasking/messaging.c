@@ -1,6 +1,12 @@
 #include "messaging.h"
 
 void transmit_message(task_descriptor *src, task_descriptor *dst) {
+#if CONTEXT_SWITCH_BENCHMARK  
+  volatile int16_t *loc_before_copy = (int16_t*)0x01a001C;
+  volatile int16_t *loc_after_copy = (int16_t*)0x01a0020;
+  *loc_before_copy = get_clockticks();
+#endif /* CONTEXT_SWITCH_BENCHMARK */
+  
   bool sender_msg_too_big = src->tf->r3 > dst->tf->r3;
   if (sender_msg_too_big) { // Truncated
     dst->tf->r0 = -1;
@@ -13,6 +19,9 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
   task_set_state(dst, TASK_RUNNABLE);
   volatile int* sender_tid = (int*)dst->tf->r1;
   *sender_tid = task_get_tid(src);
+#if CONTEXT_SWITCH_BENCHMARK  
+  *loc_after_copy = get_clockticks();
+#endif /* CONTEXT_SWITCH_BENCHMARK */  
 }
 
 void send(task_descriptor *sender, task_descriptor *receiver) {

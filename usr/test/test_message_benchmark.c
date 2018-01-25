@@ -1,140 +1,286 @@
 #include "test_message_benchmark.h"
 
-#define NUM_MSG_PER_SIZE 10000
+#define NUM_MSG 100
 
+/**
+ * Offsets:
+ * 00 kEntry_sys_send
+ * 04 before_receive
+ * 08 kEntry_sys_receive
+ * 0C kExit_sys_receive
+ * 10 after_receive
+ * 14 kEntry_sys_reply
+ * 18 kExit_sys_send
+ * 1C before_copy
+ * 20 after_copy
+ *
+ * Send first: 
+ * before_entry                                   |
+ * Send()                                         |
+ * kEntry (sys_send)                              |
+ * -- handle Send(), schedule next task #######   |
+ * before_receive                                 |
+ * Receive()                                      |
+ * kEntry (sys_receive)                           |
+ * -- handle Receive(), schedule same task again  |
+ * kExit (sys_receive)                            |
+ * after_receive/before_reply                     |
+ * kEntry (sys_reply)                             |
+ * before_copy                                    |
+ * -- handle Reply(), schedule send task again    |
+ * after_copy                                     |
+ * kExit (sys_send)                               |
+ * after_entry                                    |
+ * 
+ * Receive first:
+ * before_receive
+ * Receive()
+ * kEntry (sys_receive)
+ * -- handle Receive(), block, schedule next task #####
+ * before_entry
+ * Send()
+ * kEntry(sys_send)
+ * -- handle Send(), copy message, schedule receiver
+ * kExit(sys_receive)
+ * after_receive/before_reply
+ * kEntry(sys_reply)
+ * before_copy
+ * -- handle Reply(), schedule sender
+ * after_copy (before schedule)
+ * kExit(sys_send)
+ * after_entry
+ */
 void benchmark_reply() {
   int tid;
   char msg[64];
   char msglen = 64;
-  for (int i = 0; i < NUM_MSG_PER_SIZE; i++) {
+  volatile int16_t *loc_after_receive = (int16_t*)0x01a0010;
+  volatile int16_t *loc_before_receive = (int16_t*)0x01a0004;
+  for (int i = 0; i < NUM_MSG; i++) {
+    *loc_before_receive = (int16_t)get_clockticks();
     int bytes_received = Receive(&tid, msg, msglen);
+    *loc_after_receive = (int16_t)get_clockticks();
     Assert(bytes_received >= 0);
     Reply(tid, msg, bytes_received);
   }
 }
 
-void run_benchmark(int msg_size, int reply_task) {
-  int16_t rtt_time[NUM_MSG_PER_SIZE];
-#if CONTEXT_SWITCH_BENCHMARK
-  int16_t kEntry_time[NUM_MSG_PER_SIZE];
-  int16_t kHandle_time[NUM_MSG_PER_SIZE];
-  int16_t kExit_time[NUM_MSG_PER_SIZE];
-  volatile int16_t* after_kentry = (int16_t*)0x01a00000;
-  volatile int16_t* before_kexit = (int16_t*)0x01a00004;
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-  char msg[64];
-  int16_t total_start = get_clockticks();
-  for(int i = 0; i < NUM_MSG_PER_SIZE; i++) {
-    int16_t start_ticks = (int16_t)get_clockticks();
-    Send(reply_task, msg, msg_size, msg, 64);
-    int16_t after_sending = (int16_t)get_clockticks();
-#if CONTEXT_SWITCH_BENCHMARK
-    kEntry_time[i] = (*after_kentry) - start_ticks;
-    Assert(kEntry_time[i] < 10000000);
-    kHandle_time[i] = (*before_kexit) - (*after_kentry);
-    kExit_time[i] = after_sending - (*before_kexit);
-    Assert(kEntry_time[i] > 0);
-    Assert(kHandle_time[i] > 0);
-    // Assert(kExit_time[i] > 0);
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-    rtt_time[i] = after_sending - start_ticks;
-    Assert(rtt_time[i] > 0);
+int16_t get_avg(int16_t a[NUM_MSG]) {
+  int32_t acc = 0;
+  for (int i = 0; i < NUM_MSG; i++) {
+    acc += a[i];
   }
-  int16_t worst_time, worst_index, total_time;
-  int16_t average_time, variance;
-#if CONTEXT_SWITCH_BENCHMARK
-  int16_t kEntryAvg, kEntryWorst, kEntryVariance;
-  int16_t kHandleAvg, kHandleWorst, kHandleVariance;
-  int16_t kExitAvg, kExitWorst, kExitVariance;
-  kEntryAvg = 0;
-  kEntryWorst = 0;
-  kEntryVariance = 0;
-  kHandleAvg = 0;
-  kHandleWorst = 0;
-  kHandleVariance = 0;
-  kExitAvg = 0;
-  kExitWorst = 0;
-  kExitVariance = 0;
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-  average_time = 0;
-  worst_time = 0;
-  worst_index = 0;
-  variance = 0;
-  total_time = get_clockticks() - total_start;
-  for (int i = 0; i < NUM_MSG_PER_SIZE; i++) {
-    if (rtt_time[i] > worst_time) {
-      bwprintf("Worst rtt: %d\n\r", rtt_time[i]);
-      worst_time = rtt_time[i];
-      worst_index = i;
-#if CONTEXT_SWITCH_BENCHMARK
-      if (kEntry_time[i] > kEntryWorst)
-        kEntryWorst = kEntry_time[i];
-      if (kHandle_time[i] > kHandleWorst)
-        kHandleWorst = kHandle_time[i];
-      if (kExit_time[i] > kExitWorst)
-        kExitWorst = kExit_time[i];
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-    }
-    average_time += rtt_time[i];
-#if CONTEXT_SWITCH_BENCHMARK
-    kEntryAvg += kEntry_time[i];
-    kHandleAvg += kHandle_time[i];
-    kExitAvg += kExit_time[i];
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-    Assert(average_time > 0);
-  }
-  average_time /= NUM_MSG_PER_SIZE;
-#if CONTEXT_SWITCH_BENCHMARK
-  kEntryAvg /= NUM_MSG_PER_SIZE;
-  kHandleAvg /= NUM_MSG_PER_SIZE;
-  kExitAvg /= NUM_MSG_PER_SIZE;
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-  for (int i = 0; i < NUM_MSG_PER_SIZE; i++) {
-    int32_t this_run = (average_time - rtt_time[i]) * (average_time - rtt_time[i]);
-#if CONTEXT_SWITCH_BENCHMARK
-    int32_t kEntry_run = (kEntryAvg - kEntry_time[i]) * (kEntryAvg - kEntry_time[i]);
-    int32_t kHandle_run = (kHandleAvg - kHandle_time[i]) * (kHandleAvg - kHandle_time[i]);
-    int32_t kExit_run = (kExitAvg - kExit_time[i]) * (kExitAvg - kExit_time[i]);
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-    if (this_run < 0) {// sometimes happens, although it really shouldn't, by the laws of multiplication.
-      this_run *= -1;
-      bwprintf("%d, %d\n\r", average_time, rtt_time[i]);
-    }
-    if (rtt_time[i] == 0) {
-      bwprintf("rtt ==0 for index %d\n\r", i);
-    }
-    //bwprintf("variance: %d, this run: %d, this rtt: %d, index: %d\n\r", (int16_t)variance, (int16_t)this_run, (int16_t)rtt_time[i], i);
-    // Assert(this_run > 0);
-    variance += this_run;
-#if CONTEXT_SWITCH_BENCHMARK
-    kEntryVariance += kEntry_run;
-    kHandleVariance += kHandle_run;
-    kExitVariance += kExit_run;
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-    // Assert((variance > 0));
-  }
-  variance /= (NUM_MSG_PER_SIZE - 1.0);
-#if CONTEXT_SWITCH_BENCHMARK
-  kEntryVariance /= (NUM_MSG_PER_SIZE - 1.0);
-  kHandleVariance /= (NUM_MSG_PER_SIZE - 1.0);
-  kExitVariance /= (NUM_MSG_PER_SIZE - 1.0);
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-  bwprintf("%d bytes message RTT (ticks): Avg: %d, Worst: %d (index %d), Variance: %d. Total ticks for %d messages: %d\n\r",
-           msg_size, (int16_t)average_time, worst_time, worst_index, (int16_t)variance, NUM_MSG_PER_SIZE, total_time);
-#if CONTEXT_SWITCH_BENCHMARK
-  bwprintf("kEntry avg: %d, worst: %d, variance: %d\n\r", kEntryAvg, kEntryWorst, kEntryVariance);
-  bwprintf("kHandle avg: %d, worst: %d, variance: %d\n\r", kHandleAvg, kHandleWorst, kHandleVariance);
-  bwprintf("kExit avg: %d, worst: %d, variance: %d\n\r", kExitAvg, kExitWorst, kExitVariance);
-#endif /* CONTEXT_SWITCH_BENCHMARK */
+  return acc / NUM_MSG;
 }
 
+int16_t get_worst(int16_t a[NUM_MSG]) {
+  int16_t worst = 0;
+  for (int i = 0; i < NUM_MSG; i++) {
+    if (worst < a[i]) worst = a[i];
+  }
+  return worst;
+}
+
+int16_t get_worst_index(int16_t a[NUM_MSG]) {
+  int16_t worst = 0;
+  int16_t worst_index = 0;
+  for (int i = 0; i < NUM_MSG; i++) {
+    if (worst < a[i]) {
+      worst = a[i];
+      worst_index = i;
+    }
+  }
+  return worst_index;
+}
+
+int16_t get_variance(int16_t a[NUM_MSG]) {
+  int32_t acc = 0;
+  int16_t avg = get_avg(a);
+  for (int i = 0; i < NUM_MSG; i++) {
+    acc += (a[i] - avg) * (a[i] - avg);
+  }
+  return acc / (NUM_MSG - 1.0);
+}
+
+struct measurement {
+  int16_t data[NUM_MSG];
+  char name[32];
+  int16_t avg, worst, worst_index, var;
+};
+
+/*void zip(void *arg1, void *arg2, void *res, int16_t size, (void)(void, void, void)()fn) {
+  
+  }*/
+
+/**
+ * Applies a subtract operation to every element the first two arguments and saves the result in the third.
+ * @param arg1 First argument.
+ * @param arg2 Second argument.
+ * @param res Result (equivalent to \forall arg1[i], arg2[i], res[i] = arg1[i] - arg2[i])
+ */
+void zip_subtract(int16_t arg1[NUM_MSG], int16_t arg2[NUM_MSG], int16_t res[NUM_MSG]) {
+  for (int16_t i = 0; i < NUM_MSG; i++) {
+    res[i] = arg1[i] - arg2[i];
+  }
+}
+
+void process_measurement(struct measurement* m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG]);
+void process_measurement(struct measurement* m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG]) {
+  zip_subtract(data1, data2, m->data);
+  m->avg = get_avg(m->data);
+  m->worst = get_worst(m->data);
+  m->worst_index = get_worst_index(m->data);
+  m->var = get_variance(m->data);
+}
+
+#define NUM_TIMEPOINTS (int)11
+volatile int16_t *loc_kEntry_sys_send = (int16_t*)0x01a0000;
+/*
+  volatile int16_t *loc_before_receive = (int16_t*)0x01a0004;
+  volatile int16_t *loc_kEntry_sys_receive = (int16_t*)0x01a0008;
+  volatile int16_t *loc_kExit_sys_receive = (int16_t*)0x01a000C;
+  volatile int16_t *loc_after_receive = (int16_t*)0x01a0010;
+  volatile int16_t *loc_kEntry_sys_reply= (int16_t*)0x01a0014;
+  volatile int16_t *loc_kExit_sys_send = (int16_t*)0x01a0018;
+  volatile int16_t *loc_before_copy = (int16_t*)0x01a001C;
+  volatile int16_t *loc_after_copy = (int16_t*)0x01a0020;
+  volatile int16_t *loc_before_schedule = (int16_t*)0x01a0024;
+  volatile int16_t *loc_after_schedule = (int16_t*)0x01a0028; // TODO put this in lib/benchmark_locations.c
+*/
+
+void print_measurement_array(struct measurement *mms) {
+  for (int i = 0; i < NUM_TIMEPOINTS - 2; i++) {
+    bwprintf("%savg, %sworst, %svar, ", mms[i].name, mms[i].name, mms[i].name);
+  }
+  bwprintf("%sAvg, %sWorst, %sVar\n\r", mms[NUM_TIMEPOINTS - 2].name, mms[NUM_TIMEPOINTS - 2].name, mms[NUM_TIMEPOINTS - 2].name);
+  for (int i = 0; i < NUM_TIMEPOINTS - 2; i++) {
+    bwprintf("%d, %d, %d, ", mms[i].avg, mms[i].worst, mms[i].var);
+  }
+  bwprintf("%d, %d, %d\n\r", mms[NUM_TIMEPOINTS - 2].avg, mms[NUM_TIMEPOINTS - 2].worst, mms[NUM_TIMEPOINTS - 2].var);
+}
+
+enum benchmark_timepoints {
+  BEFORE_SEND,
+  AFTER_SEND,
+  BEFORE_COPY,
+  AFTER_COPY,
+  BEFORE_SCHEDULE,
+  AFTER_SCHEDULE,
+  KENTRY_SYS_SEND,
+  BEFORE_RECEIVE,
+  KENTRY_SYS_RECEIVE,
+  KEXIT_SYS_RECEIVE,
+  AFTER_RECEIVE,
+  KENTRY_SYS_REPLY,
+  KEXIT_SYS_SEND
+};  
+
+void run_benchmark(int msg_size, bool send_first) {
+  int reply_tid;
+  if (send_first) {
+    reply_tid = Create(6, &benchmark_reply); // Send before Reply: Yes
+    bwprintf("Send first (%d bytes): \n\r", msg_size);
+  } else {
+    reply_tid = Create(8, &benchmark_reply); // Send before Reply: No
+    bwprintf("Receive first (%d bytes): \n\r", msg_size);
+  }
+  int16_t stats[NUM_TIMEPOINTS + 2][NUM_MSG];
+  struct measurement mms[NUM_TIMEPOINTS - 1];
+  char msg[64];
+  for (int i = 0; i < NUM_MSG; i++) {
+    stats[BEFORE_SEND][i] = (int16_t)get_clockticks();
+    Send(reply_tid, msg, msg_size, msg, 64);
+    stats[BEFORE_SEND][i] = (int16_t)get_clockticks();
+    for (int j = 0; j < NUM_TIMEPOINTS; j++) {
+      int offset = (j >= NUM_TIMEPOINTS - 4) ? 2 + (j % (NUM_TIMEPOINTS - 4)) : 6 + j;
+      stats[offset][i] = (int16_t)*(loc_kEntry_sys_send + 4 * j);
+    }
+  }
+  memcpy(mms[0].name, "RTT", 4);
+  process_measurement(&mms[0], stats[BEFORE_SEND], stats[AFTER_SEND]);
+  memcpy(mms[1].name, "copy", 5);
+  process_measurement(&mms[1], stats[BEFORE_COPY], stats[AFTER_COPY]);
+  memcpy(mms[2].name, "schedule", 9);
+  process_measurement(&mms[2], stats[BEFORE_SCHEDULE], stats[AFTER_SCHEDULE]);
+  memcpy(mms[3].name, "sendEntry", 10);
+  process_measurement(&mms[3], stats[BEFORE_SEND], stats[KENTRY_SYS_SEND]);
+  memcpy(mms[4].name, "receiveEntry", 13);
+  process_measurement(&mms[4], stats[BEFORE_RECEIVE], stats[KENTRY_SYS_RECEIVE]);
+  if (send_first) {
+    memcpy(mms[5].name, "handleReceive", 14);
+    process_measurement(&mms[5], stats[KENTRY_SYS_RECEIVE], stats[KEXIT_SYS_RECEIVE]);
+  } else {
+    memcpy(mms[5].name, "handleSend", 11);
+    process_measurement(&mms[5], stats[KENTRY_SYS_SEND], stats[KEXIT_SYS_RECEIVE]);
+  }
+  memcpy(mms[6].name, "receiveExit", 12);
+  process_measurement(&mms[6], stats[KEXIT_SYS_RECEIVE], stats[AFTER_RECEIVE]);
+  memcpy(mms[7].name, "replyEntry", 11);
+  process_measurement(&mms[7], stats[AFTER_RECEIVE], stats[KENTRY_SYS_REPLY]);
+  memcpy(mms[8].name, "handleReply", 12);
+  process_measurement(&mms[8], stats[KENTRY_SYS_REPLY], stats[KEXIT_SYS_SEND]);
+  memcpy(mms[9].name, "sendExit", 9);
+  process_measurement(&mms[9], stats[KEXIT_SYS_SEND], stats[AFTER_SEND]);
+  /*
+  process_measurement(&mms[0], before_send, after_send, "RTT");
+  process_measurement(&sendEntry, before_send, kEntry_sys_send, "sendEntry");
+  process_measurement(&receiveEntry, before_receive, kEntry_sys_receive, "receiveEntry");
+  process_measurement(&handleReceive, kEntry_sys_receive, kExit_sys_receive, "handleReceive"); // TODO mask if receiver first
+  process_measurement(&handleSend, kEntry_sys_send, kExit_sys_receive, "handleSend");
+  process_measurement(&receiveExit, kExit_sys_receive, after_receive, "receiveExit"); // TODO mask sender if sender first
+  process_measurement(&replyEntry, after_receive, kEntry_sys_reply, "replyEntry");
+  process_measurement(&handleReply, kEntry_sys_reply, kExit_sys_send, "handleReply");
+  process_measurement(&sendExit, kExit_sys_send, after_send, "sendExit");
+  process_measurement(&copy, before_copy, after_copy, "copy");
+  */
+  print_measurement_array(mms);
+}
+/*
+void run_benchmark_receiver_first(int msg_size) {
+  int reply_tid = Create(8, &benchmark_reply); // Send before Reply: Yes
+  bwprintf("Receive first: \n\r"); // TODO format for .csv
+
+  int16_t before_send[NUM_MSG], after_send[NUM_MSG], kEntry_sys_send[NUM_MSG], before_receive[NUM_MSG], kEntry_sys_receive[NUM_MSG], kExit_sys_receive[NUM_MSG], after_receive[NUM_MSG], kEntry_sys_reply[NUM_MSG], kExit_sys_send[NUM_MSG], before_copy[NUM_MSG], after_copy[NUM_MSG], before_schedule[NUM_MSG], after_schedule[NUM_MSG];
+  struct measurement rtt, sendEntry, receiveEntry, handleSend, receiveExit, replyEntry, handleReply, sendExit, copy, schedule;
+  char msg[64];
+  volatile int16_t *loc_kEntry_sys_send = (int16_t*)0x01a0000;
+  int16_t stats[NUM_TIMEPOINTS][NUM_MSG];
+  stats[0] = kEntry_sys_send;
+  stats[1] = before_receive;
+  stats[2] = kEntry_sys_receive;
+  stats[3] = kExit_sys_receive;
+  stats[4] = 
+    after_receive, kEntry_sys_reply, kExit_sys_send, before_copy, after_copy, before_schedule, after_schedule
+  };
+  for (int i = 0; i < NUM_MSG; i++) {
+    before_send[i] = (int16_t)get_clockticks();
+    Send(reply_tid, msg, msg_size, msg, 64);
+    after_send[i] = (int16_t)get_clockticks();
+    for (int j = 0; j < NUM_TIMEPOINTS; j++) {
+      stats[j][i] = (int16_t)*(loc_kEntry_sys_send + 4 * j);
+    }
+  }
+  struct measurement mms[NUM_TIMEPOINTS - 1] = {
+    rtt, sendEntry, receiveEntry, receiveExit, handleSend, replyEntry, handleReply, sendExit, copy, schedule
+  };
+  process_measurement(&rtt, before_send, after_send, "RTT");
+  process_measurement(&sendEntry, before_send, kEntry_sys_send, "sendEntry");
+  process_measurement(&receiveEntry, before_receive, kEntry_sys_receive, "receiveEntry");
+  //process_measurement(&handleReceive, kEntry_sys_receive, kExit_sys_receive, "handleReceive");
+  process_measurement(&receiveExit, kExit_sys_receive, after_receive, "receiveExit");
+  process_measurement(&handleSend, kEntry_sys_send, kExit_sys_receive, "handleSend");
+  process_measurement(&replyEntry, after_receive, kEntry_sys_reply, "replyEntry");
+  process_measurement(&handleReply, kEntry_sys_reply, kExit_sys_send, "handleReply");
+  process_measurement(&sendExit, kExit_sys_send, after_send, "sendExit");
+  process_measurement(&copy, before_copy, after_copy, "copy");
+  process_measurement(&schedule, before_schedule, after_schedule, "schedule");
+  print_measurement_array(&mms);
+}
+*/
+
 void run_benchmarks_for_msgsize(int msg_size) {
-  int reply_task_receive_first = Create(8, &benchmark_reply); // Send before Reply: No
-  bwprintf("Receive first: \n\r");
-  run_benchmark(msg_size, reply_task_receive_first);
-  int reply_task_send_first = Create(6, &benchmark_reply); // Send before Reply: Yes
-  bwprintf("Send first: \n\r");
-  run_benchmark(msg_size, reply_task_send_first);
+  run_benchmark(msg_size, false);
+  run_benchmark(msg_size, true);
 }
 
 void message_benchmark() {
