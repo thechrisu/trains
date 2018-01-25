@@ -33,7 +33,6 @@ endif
 
 ifeq ($(CI), true)
 QEMU=qemu-system-arm
-OPTIMIZATION=-O2
 endif
 
 ifeq (true,$(TEST_RUNNER))
