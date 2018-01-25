@@ -15,14 +15,13 @@ builddirversatilepb =build/versatilepb
 builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
-TOOLPATH = $(current_dir)gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
 .PRECIOUS: $(builddir)/main.s
 
-XCC	= arm-none-eabi-gcc
-AS	= arm-none-eabi-as
-LD	= arm-none-eabi-ld
-OBJCOPY = arm-none-eabi-objcopy
+XCC	= arm-elf-gcc
+AS	= arm-elf-as
+LD	= arm-elf-ld
+OBJCOPY = arm-elf-objcopy
 
 # Detect if in Windows Subsystem for Linux
 ifeq (,$(wildcard /proc/version))
