@@ -6,7 +6,7 @@
 #define TRAINS_FAKE_NAMESERVER_FUNCTIONS_H
 
 #include "stdlib.h"
-#include "../../../include/common/codes.h"
+#include "../../../lib/project/codes.h"
 
 extern int ns_tid;
 

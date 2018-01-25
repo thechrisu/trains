@@ -8,8 +8,8 @@
 
 #include <stdio.h>
 #include <boost/integer.hpp>
-#include "../../include/kernel/glue/myio.h"
-#include "../../src/buffer.h"
-#include "../../src/a0terminal.h"
+#include "../../include/myio.h"
+#include "../../lib/project/buffer.h"
+#include "../../usr/a0/a0terminal.h"
 
 #endif //TRAINS_TEST_BUFFER_H

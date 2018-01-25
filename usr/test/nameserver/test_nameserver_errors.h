@@ -5,11 +5,10 @@
 #ifndef TRAINS_TEST_NAMESERVER_H
 #define TRAINS_TEST_NAMESERVER_H
 
-#include "myio.h"
-#include "../../../include/common/codes.h"
-
 #include "fake_nameserver_functions.h"
+#include "myio.h"
 #include "../../nameserver.h"
+#include "../../../lib/project/codes.h"
 
 void test_nameserver_errors();
 

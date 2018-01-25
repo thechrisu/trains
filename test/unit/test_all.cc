@@ -1,6 +1,8 @@
 #include <gtest/gtest.h>
 #include "test_all.h"
 
+using namespace std;
+
 int oe_in_sensor = false;
 extern task_descriptor *current_task;
 

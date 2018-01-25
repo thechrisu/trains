@@ -1,12 +1,12 @@
-#include "../test-resources/assert.h"
-#include "../src/a0terminal.h"
-#include "../src/buffer.h"
-#include "../src/a0trackstate.h"
+#include "a0/a0terminal.h"
+#include "a0/a0trackstate.h"
+#include "track/track_node.h"
+#include "track/track_data.h"
 
-#include "../src/track/track_node.h"
-#include "../src/track/track_data.h"
-#include "../include/kernel/glue/myio.h"
-#include "../include/kernel/glue/mytimer.h"
+#include "assert.h"
+#include "buffer.h"
+#include "myio.h"
+#include "mytimer.h"
 
 #define sensorBufSize 10
 #define cmdSz 10
