@@ -20,12 +20,12 @@ void send(task_descriptor *sender, task_descriptor *receiver) {
     case TASK_ZOMBIE:
       sender->tf->r0 = -2;
       break;
-    case TASK_RECEIVE_BLOCKED:
+    case TASK_SEND_BLOCKED:
       transmit_message(sender, receiver);
       register_task(receiver);
       break;
     default:
-      task_set_state(sender, TASK_SEND_BLOCKED);
+      task_set_state(sender, TASK_RECEIVE_BLOCKED);
       send_queue_enqueue(receiver->send_queue, sender);
       break;
   }
@@ -33,7 +33,7 @@ void send(task_descriptor *sender, task_descriptor *receiver) {
 
 void receive(task_descriptor *receiver) {
   if(likely(send_queue_is_empty(receiver->send_queue))) {
-    task_set_state(receiver, TASK_RECEIVE_BLOCKED);
+    task_set_state(receiver, TASK_SEND_BLOCKED);
   } else {
     task_descriptor *sender = send_queue_dequeue(receiver->send_queue);
     transmit_message(sender, receiver);

@@ -19,7 +19,7 @@ TEST(MessagePassingTest, send_blocks_a_task_if_receiver_isnt_zombie_or_receive_b
   int sender_tid;
   receiver.tf->r1 = (register_t)&sender_tid;
   send(&sender, &receiver);
-  ASSERT_EQ(sender.state, TASK_SEND_BLOCKED);
+  ASSERT_EQ(sender.state, TASK_RECEIVE_BLOCKED);
 }
 
 TEST(MessagePassingTest, send_sets_the_return_value_to_negative_two_if_recipient_is_zombie) {
@@ -56,7 +56,7 @@ TEST(MessagePassingTest, on_receiver_task_blocked_actually_copies_buf) {
   receiver.tf->r1 = (register_t)&sender_tid;
   receiver.tf->r2 = (register_t)receive_buf;
   receiver.tf->r3 = elems_to_copy;
-  task_set_state(&receiver, TASK_RECEIVE_BLOCKED);
+  task_set_state(&receiver, TASK_SEND_BLOCKED);
 
   send(&sender, &receiver);
   ASSERT_EQ(receiver.tf->r0, elems_to_copy);
@@ -87,7 +87,7 @@ TEST(MessagePassingTest, on_receiver_task_blocked_if_sender_message_too_long_rec
   receiver.tf->r1 = (register_t)&sender_tid;
   receiver.tf->r2 = (register_t)receive_buf;
   receiver.tf->r3 = 8;
-  task_set_state(&receiver, TASK_RECEIVE_BLOCKED);
+  task_set_state(&receiver, TASK_SEND_BLOCKED);
 
   send(&sender, &receiver);
   ASSERT_EQ(receiver.tf->r0, -1);
@@ -116,7 +116,7 @@ TEST(MessagePassingTest, on_receiver_task_blocked_states_set_correctly) {
   receiver.tf->r1 = (register_t)&sender_tid;
   receiver.tf->r2 = (register_t)send_buf;
   receiver.tf->r3 = 10;
-  task_set_state(&receiver, TASK_RECEIVE_BLOCKED);
+  task_set_state(&receiver, TASK_SEND_BLOCKED);
 
   send(&sender, &receiver);
   ASSERT_EQ(sender.state, TASK_REPLY_BLOCKED);
