@@ -1,12 +1,10 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-06.
-//
-
 #include "test_buffer.h"
 #include <gtest/gtest.h>
 #include <vector>
 
 #define BUF_SIZE 10
+
+using namespace std;
 
 #ifndef ALLTESTS
 int oe_in_sensor = false;
