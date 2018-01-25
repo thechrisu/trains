@@ -119,13 +119,18 @@ struct measurement {
  * @param res Result (equivalent to \forall arg1[i], arg2[i], res[i] = arg2[i] - arg1[i])
  */
 void zip_subtract(int16_t arg1[NUM_MSG], int16_t arg2[NUM_MSG], int16_t res[NUM_MSG]) {
+  bool got_pos = false;
   for (int16_t i = 0; i < NUM_MSG; i++) {
     res[i] = arg2[i] - arg1[i];
+    got_pos |= res[i] > 0;
+    if (got_pos && res[i] < 0)
+      Assert(res[i] >= 0);
   }
 }
 
 void process_measurement(struct measurement* m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG]);
 void process_measurement(struct measurement* m, int16_t data1[NUM_MSG], int16_t data2[NUM_MSG]) {
+  bwprintf("%s\n\r", m->name);
   zip_subtract(data1, data2, m->data);
   m->avg = get_avg(m->data);
   m->worst = get_worst(m->data);
@@ -194,6 +199,9 @@ void run_benchmark(int msg_size, bool send_first) {
     for (int j = 0; j < NUM_TIMEPOINTS; j++) {
       int offset = (j >= NUM_TIMEPOINTS - 4) ? 2 + (j % (NUM_TIMEPOINTS - 4)) : 6 + j;
       stats[offset][i] = (int16_t)*(loc_kEntry_sys_send + 4 * j);
+      if (i == 0) {
+        bwprintf("i: %d, j: %d, offset: %d\n\r", i, j, offset);
+      }
       if (stats[offset][i] < 0) {
         bwprintf("%d, %d\n\r");
         Assert(stats[offset][i] < 0);
@@ -205,7 +213,7 @@ void run_benchmark(int msg_size, bool send_first) {
   memcpy(mms[1].name, "copy", 5);
   process_measurement(&mms[1], stats[BEFORE_COPY], stats[AFTER_COPY]);
   memcpy(mms[2].name, "schedule", 9);
-  process_measurement(&mms[2], stats[BEFORE_SCHEDULE], stats[AFTER_SCHEDULE]);
+  process_measurement(&mms[2], stats[AFTER_SCHEDULE], stats[BEFORE_SCHEDULE]);
   memcpy(mms[3].name, "sendEntry", 10);
   process_measurement(&mms[3], stats[BEFORE_SEND], stats[KENTRY_SYS_SEND]);
   memcpy(mms[4].name, "receiveEntry", 13);
