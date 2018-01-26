@@ -16,7 +16,7 @@
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 
 /**
- * To be called when a task called Send(). If the receiver is TASK_RECEIVE_BLOCKED, will
+ * To be called when a task called Send(). If the receiver is TASK_SEND_BLOCKED, will
  * copy the message to be sent to the address space of the receiver, unblock the receiver (and register it with the scheduler),
  * and set the sender to TASK_REPLY_BLOCKED.
  * Otherwise (if the receiver is RUNNABLE)
@@ -28,7 +28,7 @@ void send(task_descriptor *sender, task_descriptor *receiver);
 
 /**
  * If there is nobody on the receiver's send queue, put the receiver into the state
- * TASK_RECEIVE_BLOCKED. Otherwise, dequeue the first task on the send queue, put it
+ * TASK_SEND_BLOCKED. Otherwise, dequeue the first task on the send queue, put it
  * into the state TASK_REPLY_BLOCKED, and transfer the message from the sender to
  * the receiver.
  * @param receiver called Receive().
