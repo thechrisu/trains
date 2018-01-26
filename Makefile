@@ -24,7 +24,8 @@ LD	= arm-elf-ld
 OBJCOPY = arm-elf-objcopy
 
 # Detect if in Windows Subsystem for Linux
-ifeq (,$(wildcard /proc/version))
+UNAME = $(shell uname)
+ifeq ($(UNAME), Linux)
 QEMU = qemu-system-arm
 else
 QEMU = qemu-system-arm.exe
