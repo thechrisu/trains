@@ -1,0 +1,17 @@
+Group	Message length	Caches	Send before Reply	Optimization	Time
+'); DROP TABLE trains; --       4 bytes	off	yes	off	1792
+'); DROP TABLE trains; --	64 bytes	off	yes	off	2270
+'); DROP TABLE trains; --	4 bytes	on	yes	off	130
+'); DROP TABLE trains; --	64 bytes	on	yes	off	162
+'); DROP TABLE trains; --	4 bytes	off	no	off	1732
+'); DROP TABLE trains; --	64 bytes	off	no	off	2208
+'); DROP TABLE trains; --	4 bytes	on	no	off	126
+'); DROP TABLE trains; --	64 bytes	on	no	off	158
+'); DROP TABLE trains; --	4 bytes	off	yes	on	856
+'); DROP TABLE trains; --	64 bytes	off	yes	on	1000
+'); DROP TABLE trains; --	4 bytes	on	yes	on	54
+'); DROP TABLE trains; --	64 bytes	on	yes	on	62
+'); DROP TABLE trains; --	4 bytes	off	no	on	832
+'); DROP TABLE trains; --	64 bytes	off	no	on	972
+'); DROP TABLE trains; --	4 bytes	on	no	on	52
+'); DROP TABLE trains; --	64 bytes	on	no	on	60

@@ -1,12 +1,17 @@
 # Trains
 ## Supported Make targets
 - `make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
+- `make e2etest` Builds for the Versatile/PB platform but with the test runner as the first user task.
 - `make qemu` Does `make versatilepb` and starts the QEMU GUI.
 - `make qemuconsole` Does `make versatilepb` and starts QEMU with terminal output showing in the console.
+- `make qemutesting` Does `make e2etest` and starts QEMU with the test runner as the first user task and with terminal output showing in the gui.
+- `make qemutestingconsole` Does `make e2etest` and starts QEMU with the test runner as the first user task and with terminal output showing in the console.
+- `make qemutcprun` Does `make e2etest` and starts QEMU with terminal output sent over port 9991.
 - `make arm` Compile the kernel with the train lab configuration on your machine.
 - `make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
 - `make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab. Run `TEST_RUNNER=true make upload` to build with the test runner as the first user task.
 - `make test` Runs all Googletest unit tests.
+- `make ci` Builds the docs, runs `make arm` and `make versatilepb`, and runs all the tests. Used by Travis CI.
 - `make` Does the same as `make upload`.
 
 ## Environment variables
@@ -26,7 +31,7 @@ To compile to ARM outside of the student environment, you need to
 ## Assignment progress
 Kernel
 - [X] "Scheduler"
-- [ ] "Message passing"
+- [X] "Message passing"
 - [ ] "Interrupts + clock server"
 - [ ] "Interrupt-driven IO + a0 + loose ends"
 

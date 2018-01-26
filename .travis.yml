@@ -14,7 +14,10 @@ cache:
    - /home/travis/build/culshoefer/trains/test/googletest/build
 
 before_install:
-  - sudo apt-get install qemu gcc-arm-none-eabi libboost-all-dev doxygen
+  - wget http://www.doc.ironwoodlabs.com/gnuarm/gnuarm-distribution/web/www.gnuarm.com/bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2
+  - tar -xjf bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 -C ~
+  - PATH=~/gnuarm-4.0.2/bin:$PATH
+  - sudo apt-get install qemu libboost-all-dev doxygen
   - git submodule update --init --recursive
   - mkdir test/build
   - cd test/googletest
@@ -26,7 +29,7 @@ env:
   -GTEST=/home/travis/build/culshoefer/trains/test/googletest/gtest/include
   -LIBGTEST=/home/travis/build/culshoefer/trains/test/googletest/build/googlemock/gtest/libgtest.a
   -BOOST=/usr/local/include/boost
-  -armlibs=/usr/lib/gcc/arm-none-eabi/4.8.2
+  -armlibs=~/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 
 script:
   - which doxygen

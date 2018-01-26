@@ -3,15 +3,15 @@
 #endif
 
 #include "crash.h"
-#include "k1.h"
-#include "test/test_runner.h"
 #include "interrupt.h"
-#include "stdlib.h"
+#include "k2.h"
 #include "myio.h"
-#include "./src/syscall/syscall.h"
-#include "./src/multitasking/schedule.h"
-#include "./src/multitasking/send_queue.h"
-#include "./src/multitasking/task.h"
+#include "schedule.h"
+#include "send_queue.h"
+#include "lib/standard/stdlib.h"
+#include "syscall.h"
+#include "task.h"
+#include "test_runner.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
@@ -33,7 +33,12 @@ void kmain() {
   send_queues = send_queues_on_stack;
 
   next_task_id = 1;
+
+
+#pragma GCC diagnostic ignored "-Wformat-zero-length"
   bwprintf("");
+#pragma GCC diagnostic warning "-Wformat-zero-length"
+
 #ifndef VERSATILEPB
   uint32_t *undefined_handler = (uint32_t*)0x24;
   uint32_t *swi_handler = (uint32_t *)0x28;
@@ -53,7 +58,7 @@ void kmain() {
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(5, &k1_first_user_task);
+  syscall_create(10, &k2_first_user_task);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
@@ -86,17 +91,16 @@ int main() {
 
   /* Calls to syscall_panic branch to this label. */
   __asm__(
-    ".text\n\t"
     ".global panic_exit\n\t"
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
 #if VERSATILEPB
-   __asm__(
-	"MOV r0, #0x18\n\t"
-	"MOV r1, #0x20000\n\t"
-	"ADD r1, r1, #0x026\n\t"
-    "SVC 0x00123456\n\t"
+  __asm__(
+    "MOV r0, #0x18\n\t"
+    "MOV r1, #0x20000\n\t"
+    "ADD r1, r1, #0x026\n\t"
+    "SWI 0x00123456\n\t"
   ); // Allows us to quit QEMU cleanly
 #else
   return 0;
