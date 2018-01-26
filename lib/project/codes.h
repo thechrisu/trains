@@ -149,14 +149,21 @@ int RegisterAs(char *name);
  */
 int WhoIs(char *name);
 
-#define SYS_EXIT      0 // When you change this, also change it in ../src/trap.s
-#define SYS_PASS      1
-#define SYS_CREATE    2
-#define SYS_MYTID     3
-#define SYS_PARENTTID 4
-#define SYS_PANIC     5
-#define SYS_SEND      6
-#define SYS_RECEIVE   7
-#define SYS_REPLY     8
+/**
+ * Enables/Disables the caches as a syscall.
+ * @param enable Whether to enable/disable the cache. 
+ */
+void EnableCaches(bool enable);
+
+#define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
+#define SYS_PASS            1
+#define SYS_CREATE          2
+#define SYS_MYTID           3
+#define SYS_PARENTTID       4
+#define SYS_PANIC           5
+#define SYS_SEND            6
+#define SYS_RECEIVE         7
+#define SYS_REPLY           8
+#define SYS_CACHE_ENABLE    9
 
 #endif /* CODES_H */

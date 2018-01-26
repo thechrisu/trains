@@ -92,3 +92,34 @@ void syscall_reply() {
   }
   reply(&(all_tasks[sender_tid]), current_task);
 }
+
+void syscall_cache_enable() {
+  bool enable = current_task->tf->r1;
+#if TESTING
+  (void)enable;
+#else //  0x3FFF9006
+  if (enable) {
+    __asm__(
+	    "MRC p15, 0, r0, c1, c0, 0\n\t"
+	    "MOV r1, #0x1000\n\t"
+	    "ADD r1, r1, #0x06\n\t"
+	    "ORR r0, r0, r1\n\t"
+	    "MOV r1, #0x3F000000\n\t"
+	    "ADD r1, r1, #0xFF0000\n\t"
+	    "ADD r1, r1, #0x8000\n\t"
+	    "BIC r0, r0, r1\n\t"
+	    "MCR p15, 0, r0, c1, c0, 0\n\t");
+  }
+  /* TODO disbale the cache
+     else {
+    __asm__(
+	    "MRC p15, 0, r0, c1, c0, 0\n\t"
+	    "MOV r1, #0x3F000000\n\t"
+	    "ADD r1, r1, #0xFF0000\n\t"
+	    "ADD r1, r1, #0x9000\n\t"
+	    "ADD r1, r1, #0x05\n\t"
+	    "BIC r0, r0, r1\n\t"
+	    "MCR p15, 0, r0, c1, c0, 0\n\t"); 
+	    } */
+#endif /* TESTING */  
+}

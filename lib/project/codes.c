@@ -181,4 +181,9 @@ int WhoIs(char *c) {
   return send_message_to_nameserver(c, 'W');
 }
 
+void EnableCaches(bool enable) {
+  register_t args[] = {(register_t)enable};
+  software_interrupt(SYS_CACHE_ENABLE, 1, args);
+}
+
 #endif /* TESTING */

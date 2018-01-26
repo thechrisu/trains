@@ -7,6 +7,10 @@
 
 #include "stdlib.h"
 
+#if CONTEXT_SWITCH_BENCHMARK
+#include "benchmark.h"
+#endif /* CONTEXT_SWITCH_BENCHMARK */
+
 typedef struct {
   register_t r0;
   register_t r1;

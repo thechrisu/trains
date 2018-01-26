@@ -44,6 +44,28 @@ void print_tf(trapframe *tf) {
 }
 
 trapframe *handle_interrupt(trapframe *tf) {
+#if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
+  volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
+  volatile int16_t *loc_kEntry_sys_reply = LOC_KENTRY_SYS_REPLY;
+  volatile int16_t *is_receive = IS_RECEIVE;
+  switch (tf->r0) {
+  case SYS_SEND:
+    *loc_kEntry_sys_send = get_clockticks();
+    // bwprintf("(%d) kEntry Send\n\r", *loc_kEntry_sys_send);
+    break;
+  case SYS_RECEIVE:
+    *is_receive = true;
+    *loc_kEntry_sys_receive = get_clockticks();
+    // bwprintf("(%d) kEntry Receive\n\r", *loc_kEntry_sys_receive);
+    break;
+  case SYS_REPLY:
+    *is_receive = false;
+    *loc_kEntry_sys_reply = get_clockticks();
+    // bwprintf("(%d) kEntry Reply\n\r", *loc_kEntry_sys_reply);
+    break;
+  }
+#endif /* CONTEXT_SWITCH_BENCHMARK */
   current_task->tf = tf;
 
   switch (tf->r0) {
@@ -75,6 +97,9 @@ trapframe *handle_interrupt(trapframe *tf) {
       break;
     case SYS_REPLY:
       syscall_reply();
+      break;
+    case SYS_CACHE_ENABLE:
+      syscall_cache_enable();
       break;
     default:
       tf->r0 = 0xABADC0DE;
