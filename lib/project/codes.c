@@ -78,7 +78,7 @@ void __Assert(bool value, const char * caller_name, const char *file_name, int l
   }
 }
 
-int Send(int tid, char *msg, int msglen, char *reply, int rplen) {
+int Send(int tid, void *msg, int msglen, void *reply, int rplen) {
   register_t args[] = {
     (register_t)tid,
     (register_t)msg,
@@ -89,7 +89,7 @@ int Send(int tid, char *msg, int msglen, char *reply, int rplen) {
   return software_interrupt(SYS_SEND, 5, args);
 }
 
-int Receive(int *tid, char *msg, int msglen) {
+int Receive(int *tid, void *msg, int msglen) {
   register_t args[] = {
     (register_t)tid,
     (register_t)msg,
@@ -98,7 +98,7 @@ int Receive(int *tid, char *msg, int msglen) {
   return software_interrupt(SYS_RECEIVE, 3, args);
 }
 
-int Reply(int tid, char *reply, int rplen) {
+int Reply(int tid, void *reply, int rplen) {
   register_t args[] = {
     (register_t)tid,
     (register_t)reply,
