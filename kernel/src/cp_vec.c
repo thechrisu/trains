@@ -12,7 +12,7 @@ void cp_vectors() {
   cp_vectors_called = true;
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  bwprintf("VECTORS ");
+  logprintf("VECTORS ");
 #endif /* CONTEXT_SWITCH_DEBUG */
   extern uint32_t vec_start;
   extern uint32_t vec_end;
@@ -22,12 +22,12 @@ void cp_vectors() {
   while (src < &vec_end) {
     *dst++ = (*src + 0x4000);
 #ifdef CONTEXT_SWITCH_DEBUG
-    bwputr(TERMINAL, *src);
+    logputr(*src);
 #endif /* CONTEXT_SWITCH_DEBUG */
     src++;
   }
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  putc(TERMINAL, '\n');
+  logputc('\n');
 #endif /* CONTEXT_SWITCH_DEBUG */
 }

@@ -14,11 +14,11 @@ int syscall_create(int priority, void (*code)()) {
   }
   task_descriptor *ret = &(all_tasks[next_task_id]);
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Got task descriptor memory\n\r");
+  logprintf("Got task descriptor memory\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   task_init(ret, priority, code, current_task);
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Set up task in syscall_create\n\r");
+  logprintf("Set up task in syscall_create\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   int register_result = register_task(ret);
   if (register_result) {
@@ -64,7 +64,7 @@ void syscall_panic() {
 
 void syscall_send() {
 #if MESSAGE_PASSING_DEBUG
-  bwprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
+  logprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t receiver_tid = (register_t)current_task->tf->r1;
   if (receiver_tid < 0 || receiver_tid >= next_task_id) {
@@ -76,14 +76,14 @@ void syscall_send() {
 
 void syscall_receive() {
 #if MESSAGE_PASSING_DEBUG
-  bwprintf("syscall_receive: recipient %d\n\r", current_task->tid);
+  logprintf("syscall_receive: recipient %d\n\r", current_task->tid);
 #endif
   receive(current_task);
 }
 
 void syscall_reply() {
 #if MESSAGE_PASSING_DEBUG
-  bwprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
+  logprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t sender_tid = (register_t)current_task->tf->r1;
   if (sender_tid < 0 || sender_tid >= next_task_id) {
