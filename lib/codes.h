@@ -70,7 +70,7 @@ void Panic()__attribute((noreturn));
  *
  * @param expr The expression to check for truthiness.
  */
-#define Assert(expr) __Assert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
+#define Assert(expr) __Assert((bool)(expr), #expr, __FUNCTION__, __FILE__, __LINE__)
 
 /**
  * If value is false, prints information about where the assertion failed, then exits
@@ -83,7 +83,7 @@ void Panic()__attribute((noreturn));
  * @param file_name   The name of the file in which __Assert was called.
  * @param line_num    The line number in the file at which __Assert was called.
  */
-void __Assert(bool value, const char * caller_name, const char *file_name, int line_num);
+void __Assert(bool value, const char *expression, const char *caller_name, const char *file_name, int line_num);
 
 /**
  * Sends a message to a specific task and blocks until a reply is received.
@@ -151,7 +151,7 @@ int WhoIs(char *name);
 
 /**
  * Enables/Disables the caches as a syscall.
- * @param enable Whether to enable/disable the cache. 
+ * @param enable Whether to enable/disable the cache.
  */
 void EnableCaches(bool enable);
 
