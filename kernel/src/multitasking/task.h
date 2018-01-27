@@ -17,7 +17,7 @@
 
 #include "kassert.h"
 #include "interrupt.h"
-#include "../../../lib/standard/stdlib.h"
+#include "stdlib.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 

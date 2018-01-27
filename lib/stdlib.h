@@ -19,7 +19,7 @@
  * @param s String.
  * @return Length of string.
  */
-int strlen(char *s);
+int tstrlen(char *s);
 
 /**
  * Compares two strings.
@@ -27,10 +27,10 @@ int strlen(char *s);
  * @param source      Another string to compare.
  * @return 1 if they're equal, 0 if not.
  */
-int strcmp(char *destination, char *source);
-int strncmp(const char *destination, const char *source, int max_length);
+int tstrcmp(char *destination, char *source);
+int tstrncmp(const char *destination, const char *source, int max_length);
 
-#endif
+#endif /* TESTING */
 
 #define true 1
 #define false 0
@@ -38,12 +38,14 @@ int strncmp(const char *destination, const char *source, int max_length);
 #if HOSTCONFIG
 #else
 
+void tmemcpy(void *dst, void *src, unsigned int n);
+void *tmemset(void *s, int c, unsigned int n);
+
 #ifdef TESTING
 #include <boost/integer.hpp>
 #include <cstring>
-#define my_memset(dst, src, n) printf("%p, %p, %d", dst, src, n)
-#define my_memcpy(s, c, n) printf("%p, %d, %u", s, c, n)
 #else
+void memcpy(void *dst, void *src, unsigned int n);
 
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -57,10 +59,8 @@ typedef signed long long int64_t;
 
 typedef int32_t register_t;
 
-void memcpy(void *dst, void *src, unsigned int n);
-void *memset(void *s, int c, unsigned int n);
 
-#endif
-#endif
+#endif /* TESTING */
+#endif /* HOSTCONFIG */
 
 #endif /* TRAINS_STDLIB_H */

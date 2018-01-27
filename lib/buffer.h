@@ -5,7 +5,7 @@
 #ifndef TRAINS_BUFFER_H
 #define TRAINS_BUFFER_H
 
-#include "../standard/stdlib.h"
+#include "stdlib.h"
 
 struct char_buffer {
   char *data;
