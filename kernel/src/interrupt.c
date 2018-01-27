@@ -45,7 +45,7 @@ void print_tf(trapframe *tf) {
 #endif /* TESTING */
 }
 
-trapframe *handle_interrupt(trapframe *tf, bool is_irq) {
+trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
   volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
@@ -70,7 +70,7 @@ trapframe *handle_interrupt(trapframe *tf, bool is_irq) {
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   current_task->tf = tf;
 
-  if (is_irq) {
+  if (pic_status > 0) {
     // Clear interrupt
     *(uint32_t *)0x101E300C = 1;
     ticks += 1;
