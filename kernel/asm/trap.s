@@ -1,5 +1,3 @@
-PIC: .word 0x10140000
-
 .text
 .global enter_kernel
 .type	enter_kernel, %function
@@ -29,7 +27,7 @@ enter_kernel: /* called on an interrupt */
   MOV r0, sp
 
 /* Check if we got here from a hardware interrupt. */
-  LDR r1, PIC
+  LDR r1, =0x10140000
   LDR r1, [r1]
 
   CMP r1, #0
