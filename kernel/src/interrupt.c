@@ -12,6 +12,8 @@ extern int syscall_mytid();
 extern int syscall_myparenttid();
 #endif /* TESTING */
 
+int ticks;
+
 void print_tf(trapframe *tf) {
 #ifndef TESTING
   bwputr(TERMINAL, tf->r0);
@@ -72,7 +74,11 @@ trapframe *handle_interrupt(trapframe *tf, bool is_irq) {
     // Clear interrupt
     *(uint32_t *)0x101E300C = 1;
 
-    bwprintf("irq\n\r");
+    ticks += 1;
+    if (ticks % 100 == 0) {
+      bwprintf("Ticks: %d\n\r", ticks);
+    }
+
     return tf;
   }
 

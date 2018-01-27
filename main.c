@@ -24,14 +24,19 @@ extern int next_task_id;
 unsigned int main_fp;
 unsigned int main_sp;
 
+extern int ticks;
+
 void kmain() {
   setup_io();
+
+  // Initialize tick count
+  ticks = 0;
 
   // Setup PIC
   *(uint32_t *)0x10140010 = 0x20;
 
   // Setup tick timer
-  *(uint32_t *)0x101E3000 = 1000000;
+  *(uint32_t *)0x101E3000 = 10000;
   *(uint32_t *)0x101E3008 |= (0x80 | 0x40 | 0x20 | 0x02);
 
   task_descriptor all_tasks_on_stack[MAX_TASKS];
