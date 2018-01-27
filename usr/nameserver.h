@@ -6,7 +6,7 @@
 #define TRAINS_NAMESERVER_H
 
 #include "stdlib.h"
-#include "../lib/project/codes.h"
+#include "codes.h"
 
 
 #define NAMESERVER_MSG_LENGTH 32

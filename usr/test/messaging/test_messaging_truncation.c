@@ -9,7 +9,7 @@ void truncation_receiver() {
   length = Receive(&sender_tid, msg, 5);
   bwprintf("Message length: %d\n\r", length);
 
-  length = Reply(sender_tid, reply, strlen(reply) + 1);
+  length = Reply(sender_tid, reply, tstrlen(reply) + 1);
   bwprintf("Reply status (receiver): %d\n\r", length);
 }
 
@@ -22,6 +22,6 @@ void test_messaging_truncation() {
   receiver_tid = Create(4, &truncation_receiver);
   bwprintf("Created task %d\n\r", receiver_tid);
 
-  length = Send(receiver_tid, msg, strlen(msg) + 1, reply, 5);
+  length = Send(receiver_tid, msg, tstrlen(msg) + 1, reply, 5);
   bwprintf("Reply length (sender): %d\n\r", length);
 }

@@ -13,11 +13,11 @@ void sequence_child() {
     bwprintf("Received message from parent: %s\n\r", received_msg);
     Assert(length > 0);
 
-    length = Reply(parent_tid, sent_reply, strlen(sent_reply) + 1);
+    length = Reply(parent_tid, sent_reply, tstrlen(sent_reply) + 1);
     bwprintf("Sent reply to parent: %s\n\r", sent_reply);
     Assert(length == 0);
 
-    length = Send(parent_tid, sent_msg, strlen(sent_msg) + 1, received_reply, 64);
+    length = Send(parent_tid, sent_msg, tstrlen(sent_msg) + 1, received_reply, 64);
     bwprintf("Received reply from parent: %s\n\r", received_reply);
     Assert(length > 0);
   }
@@ -35,7 +35,7 @@ void test_messaging_sequence() {
   bwprintf("Created task %d\n\r", child_tid);
 
   for (int i = 0; i < 4; i += 1) {
-    length = Send(child_tid, sent_msg, strlen(sent_msg) + 1, received_reply, 64);
+    length = Send(child_tid, sent_msg, tstrlen(sent_msg) + 1, received_reply, 64);
     bwprintf("Received reply from child: %s\n\r", received_reply);
     Assert(length > 0);
 
@@ -43,7 +43,7 @@ void test_messaging_sequence() {
     bwprintf("Received message from child: %s\n\r", received_msg);
     Assert(length > 0);
 
-    length = Reply(child_tid, sent_reply, strlen(sent_reply) + 1);
+    length = Reply(child_tid, sent_reply, tstrlen(sent_reply) + 1);
     bwprintf("Sent reply to child: %s\n\r", sent_reply);
     Assert(length == 0);
   }

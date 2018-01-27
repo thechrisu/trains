@@ -5,7 +5,7 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
-#include "stdlib.h"
+#include "tstdlib.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"

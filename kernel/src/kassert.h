@@ -7,9 +7,9 @@
 
 #include "attributes.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
-#define kassert(expr) __kassert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
+#define kassert(expr) __kassert((bool)(expr), #expr, __FUNCTION__, __FILE__, __LINE__)
 
 /**
  * If value is false, prints information about where the assertion failed, then exits
@@ -34,6 +34,6 @@
  * @param file_name   The name of the file in which kassert was called.
  * @param line_num    The line number in the file at which kassert was called.
  */
-void __kassert(bool value, const char * caller_name, const char *file_name, int line_num);
+void __kassert(bool value, const char *expression, const char *caller_name, const char *file_name, int line_num);
 
 #endif /* KASSERT_H */

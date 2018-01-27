@@ -7,7 +7,7 @@ void fifo_sender() {
   msg[0] = 'A' + MyTid() - 3;
   msg[1] = '\0';
 
-  Assert(Send(parent_tid, msg, strlen(msg) + 1, (char *)0, 0) == 0);
+  Assert(Send(parent_tid, msg, tstrlen(msg) + 1, (char *)0, 0) == 0);
 }
 
 void test_messaging_fifo_send() {

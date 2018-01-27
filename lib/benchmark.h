@@ -7,7 +7,7 @@
 
 #include "assert.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 #define NUM_TIMEPOINTS (int)11
 #define NUM_MSG 2
