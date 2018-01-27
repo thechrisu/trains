@@ -66,10 +66,12 @@ void kmain() {
   uint32_t *swi_handler = (uint32_t *)0x28;
   uint32_t *prefetch_handler = (uint32_t*)0x2C;
   uint32_t *data_handler = (uint32_t*)0x30;
+  uint32_t *irq_handler = (uint32_t*)0x38;
   *undefined_handler = (uint32_t)(&handle_undefined_abort);
   *swi_handler = (uint32_t)(&enter_kernel);
   *prefetch_handler = (uint32_t)(&handle_prefetch_abort);
   *data_handler = (uint32_t)(&handle_data_abort);
+  *irq_handler = (uint32_t)(&enter_kernel);
 #endif /* VERSATILEPB */
 
   setup_scheduler();
