@@ -39,7 +39,7 @@ void kmain() {
 
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
-  bwprintf("");
+  logprintf("");
 #pragma GCC diagnostic warning "-Wformat-zero-length"
 
 #ifndef VERSATILEPB
@@ -55,7 +55,7 @@ void kmain() {
 
   setup_scheduler();
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Set up scheduler\n\r");
+  logprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
 
 #if E2ETESTING
@@ -65,12 +65,12 @@ void kmain() {
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Set up tasks\n\r");
+  logprintf("Set up tasks\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   while(schedule());
 
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Return from schedule\n\r");
+  logprintf("Return from schedule\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
 }
 

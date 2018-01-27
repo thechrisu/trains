@@ -700,15 +700,8 @@ void logprintf(char *fmt, ...) {
   va_end(va);
 }
 
-int bwputr(int channel, unsigned int reg) {
-  switch (channel) {
-    case TERMINAL:
-      return putr(bwterminalputc, reg);
-    case TRAIN:
-      return putr(bwtrainputc, reg);
-    default:
-      return -1;
-  }
+int logputr(unsigned int reg) {
+  return putr(logputc, reg);
 }
 
 void dump_logs() {
