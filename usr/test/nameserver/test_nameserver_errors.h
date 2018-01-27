@@ -8,7 +8,7 @@
 #include "fake_nameserver_functions.h"
 #include "myio.h"
 #include "../../nameserver.h"
-#include "../../../lib/project/codes.h"
+#include "codes.h"
 
 void test_nameserver_errors();
 

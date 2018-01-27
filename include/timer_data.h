@@ -5,11 +5,7 @@
 #ifndef TRAINS_TIMER_DATA_H
 #define TRAINS_TIMER_DATA_H
 
-#include "stdlib.h"
-
-#ifdef TESTING
-#include <stdint.h>
-#endif
+#include "tstdlib.h"
 
 struct my_time {
   uint32_t min;

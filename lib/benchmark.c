@@ -51,7 +51,7 @@ void process_measurement(struct measurement *m, int16_t data1[NUM_MSG], int16_t 
   m->worst = get_worst(m->data);
   m->worst_index = get_worst_index(m->data);
   m->var = get_variance(m->data);
-  memcpy(m->name, name, 32);
+  tmemcpy(m->name, name, 32);
 }
 
 void print_measurement_array(struct measurement *mms) {

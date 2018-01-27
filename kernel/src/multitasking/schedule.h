@@ -6,11 +6,10 @@
 #ifndef TRAINS_SCHEDULE_H
 #define TRAINS_SCHEDULE_H
 
-#include "../../../lib/project/attributes.h"
+#include "attributes.h"
 #include "scheduler.h"
-#include "stdlib.h"
 #include "task.h"
-
+#include "tstdlib.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"

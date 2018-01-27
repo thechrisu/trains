@@ -1,9 +1,9 @@
-.PHONY: test_all.out test_buffer.out test_ready_queue.out test_scheduler.out test_messaging.out test_task.out alltests
+.PHONY: test_all.out test_buffer.out test_ready_queue.out test_scheduler.out test_messaging.out test_task.out test_stdlib.out alltests
 
 .PRECIOUS: test_buffer.out test_all.out
 
-FLAGS = -DTESTING --std=c++1y -pthread -I../include -I../kernel/src -I../lib/project -I../kernel/src/multitasking -I../kernel/src/syscall -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
-SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib/project -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c')
+FLAGS = -DTESTING --std=c++1y -pthread -I../include -I../kernel/src -I../lib -I../kernel/src/multitasking -I../kernel/src/syscall -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
+SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c')
 SRC_SCHEDULER = ../kernel/src/multitasking/scheduler.c ../kernel/src/multitasking/ready_queue.c
 SRC_TASK = $(SRC)
 
@@ -16,12 +16,14 @@ all:
 	make test_scheduler.out
 	make test_task.out
 	make test_messaging.out
+	make test_stdlib.out
 	make test_all.out
 	./unit/test_all.out
 	./unit/test_buffer.out
 	./unit/test_ready_queue.out
 	./unit/test_scheduler.out
 	./unit/test_messaging.out
+	./unit/test_stdlib.out
 	./unit/test_task.out
 
 alltests: test_all.out
@@ -48,6 +50,9 @@ test_messaging.out: unit/test_messaging.cc $(SRC)
 
 test_task.out: unit/test_task.cc $(SRC_TASK)
 	g++ -o unit/$@ $< $(SRC_TASK) $(FLAGS)
+
+test_stdlib.out: unit/test_stdlib.cc $(SRC)
+	g++ -o unit/$@ $< $(SRC) $(FLAGS)
 
 clean:
 	rm -f *.out unit/*.out

@@ -140,14 +140,14 @@ int nameserver_panic(char *c, char msg_type) {
  */
 int send_message_to_nameserver(char *c, char msg_type) {
   char reply;
-  char msg[strlen(c) + 2];
+  char msg[tstrlen(c) + 2];
   msg[0] = msg_type;
-  memcpy(msg + 1, c, strlen(c) + 1);
+  tmemcpy(msg + 1, c, tstrlen(c) + 1);
 
   register_t args[] = {
     NAMESERVER_TASK_ID,
     (register_t)msg,
-    (register_t)(strlen(c) + 2),
+    (register_t)(tstrlen(c) + 2),
     (register_t)&reply,
     1
   };

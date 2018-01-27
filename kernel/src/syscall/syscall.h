@@ -9,7 +9,7 @@
 #include "messaging.h"
 #include "task.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 extern void enter_main();
 

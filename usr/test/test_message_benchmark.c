@@ -56,7 +56,7 @@ void benchmark_reply() {
   char msglen = 64;
   volatile int16_t *loc_before_receive = LOC_BEFORE_RECEIVE;
   volatile int16_t *loc_after_receive = LOC_AFTER_RECEIVE;
-  for (int i = 0; i < NUM_MSG; i++) {
+    for (int i = 0; i < NUM_MSG; i++) {
     *loc_before_receive = (int16_t) get_clockticks();
     // bwprintf("(%d) Before receive\n\r", *loc_before_receive);
     int bytes_received = Receive(&tid, msg, msglen);

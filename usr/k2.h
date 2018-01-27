@@ -5,7 +5,7 @@
 #ifndef K2_FIRST_USER_TASK_H
 #define K2_FIRST_USER_TASK_H
 
-#include "../lib/project/codes.h"
+#include "codes.h"
 #include "myio.h"
 #include "stdlib.h"
 #include "nameserver.h"

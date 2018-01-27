@@ -8,7 +8,7 @@
 #include "myio.h"
 #include "schedule.h"
 #include "send_queue.h"
-#include "lib/standard/stdlib.h"
+#include "stdlib.h"
 #include "syscall.h"
 #include "task.h"
 #include "test_runner.h"
