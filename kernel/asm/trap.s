@@ -99,6 +99,28 @@ sys_exit:
 .global handle_undefined_abort
 .type handle_undefined_abort, %function
 handle_undefined_abort:
+  MSR cpsr_c, #0xDF
+  SUB sp, sp, #72
+  STR r0, [sp, #0]
+  STR r1, [sp, #4]
+  STR r2, [sp, #8]
+  STR r3, [sp, #12]
+  STR r4, [sp, #16]
+  STR r5, [sp, #20]
+  STR r6, [sp, #24]
+  STR r7, [sp, #28]
+  STR r8, [sp, #32]
+  STR r9, [sp, #36]
+  STR r10, [sp, #40]
+  STR r11, [sp, #44]
+  STR r12, [sp, #48]
+  STR r13, [sp, #52]
+  STR r14, [sp, #56]
+
+/* Set argument for handle_interrupt to user stack pointer. */
+  MOV r2, sp
+
+  MSR cpsr_c, #0xDB
   MOV r13, #0x01f00000
   MOV r0, #0
   MOV r1, r14
@@ -108,6 +130,28 @@ handle_undefined_abort:
 .global handle_prefetch_abort
 .type handle_prefetch_abort, %function
 handle_prefetch_abort:
+  MSR cpsr_c, #0xDF
+  SUB sp, sp, #72
+  STR r0, [sp, #0]
+  STR r1, [sp, #4]
+  STR r2, [sp, #8]
+  STR r3, [sp, #12]
+  STR r4, [sp, #16]
+  STR r5, [sp, #20]
+  STR r6, [sp, #24]
+  STR r7, [sp, #28]
+  STR r8, [sp, #32]
+  STR r9, [sp, #36]
+  STR r10, [sp, #40]
+  STR r11, [sp, #44]
+  STR r12, [sp, #48]
+  STR r13, [sp, #52]
+  STR r14, [sp, #56]
+
+/* Set argument for handle_interrupt to user stack pointer. */
+  MOV r2, sp
+
+  MSR cpsr_c, #0xD7
   MOV r13, #0x01f00000
   MOV r0, #1
   MOV r1, r14
@@ -117,6 +161,28 @@ handle_prefetch_abort:
 .global handle_data_abort
 .type handle_data_abort, %function
 handle_data_abort:
+  MSR cpsr_c, #0xDF
+  SUB sp, sp, #72
+  STR r0, [sp, #0]
+  STR r1, [sp, #4]
+  STR r2, [sp, #8]
+  STR r3, [sp, #12]
+  STR r4, [sp, #16]
+  STR r5, [sp, #20]
+  STR r6, [sp, #24]
+  STR r7, [sp, #28]
+  STR r8, [sp, #32]
+  STR r9, [sp, #36]
+  STR r10, [sp, #40]
+  STR r11, [sp, #44]
+  STR r12, [sp, #48]
+  STR r13, [sp, #52]
+  STR r14, [sp, #56]
+
+/* Set argument for handle_interrupt to user stack pointer. */
+  MOV r2, sp
+  MSR cpsr_c, #0xD7
+
   MOV r13, #0x01f00000
   MOV r0, #2
   MOV r1, r14

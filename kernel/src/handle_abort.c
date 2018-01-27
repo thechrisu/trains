@@ -48,8 +48,9 @@ void print_proc_mode(arm_proc_mode mode) {
   bwprintf("Processor mode: %s\n\r", proc_mode);
 }
 
-void handle_abort(abort_mode abort_type, unsigned int culprit_instruction) {
+void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapframe *tf) {
 #ifndef TESTING
+  print_tf(tf);
   dump_logs();
   // Reset log index so that we don't dump any logs in main.c
   log_index = 0;

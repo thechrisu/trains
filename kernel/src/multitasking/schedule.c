@@ -26,12 +26,6 @@ bool schedule() {
   *loc_after_schedule = get_clockticks();
   // logprintf("(%d) After schedule\n\r", *loc_after_schedule);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-#if TIMERINTERRUPT_DEBUG
-  logprintf("Next tid: %d\n\r", next->tid);
-  print_tf(next->tf);
-  kassert((next->tf->sp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->sp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK));
-  kassert((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK) || (next->tf->fp == 0xF433000B + (next->tid << 4)));
-#endif /* TIMERINTERRUPT_DEBUG */
   task_activate(next);
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_before_schedule = LOC_BEFORE_SCHEDULE;

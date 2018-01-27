@@ -3,9 +3,9 @@ default: upload;
 
 OPTIMIZATION = -O0
 #-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
-DEBUGFLAGS=
+DEBUGFLAGS=-DTRAPFRAME_DEBUG -DTIMERINTERRUPT_DEBUG -DCONTEXT_SWITCH_DEBUG
 
-#-DTRAPFRAME_DEBUG -DTIMERINTERRUPT_DEBUG
+#
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 builddir = $(current_dir)build/arm
