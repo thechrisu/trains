@@ -28,6 +28,6 @@ void cp_vectors() {
   }
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  putc(TERMINAL, '\n');
+  logputc('\n');
 #endif /* CONTEXT_SWITCH_DEBUG */
 }
