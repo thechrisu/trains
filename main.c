@@ -112,7 +112,6 @@ int main() {
     "mov %1, sp\n\t"
   : "=r" (main_fp), "=r" (main_sp));
 
-
   // Check that interrupts are disabled and we're in kernel mode.
   register_t psr;
   __asm__("MRS %0, cpsr" : "=r" (psr));
@@ -134,6 +133,12 @@ int main() {
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
 #ifndef VERSATILEPB
+  // Disable VIC
+  *(uint32_t *)0x800B0010 = 0x0;
+
+  // Clear interrupt in timer
+  *(uint32_t *)0x8081000C = 1;
+
   // Disable timer
   *(uint32_t *)0x80810008 &= ~0x80;
 #endif
