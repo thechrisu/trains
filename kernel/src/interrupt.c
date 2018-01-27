@@ -73,12 +73,7 @@ trapframe *handle_interrupt(trapframe *tf, bool is_irq) {
   if (is_irq) {
     // Clear interrupt
     *(uint32_t *)0x101E300C = 1;
-
     ticks += 1;
-    if (ticks % 100 == 0) {
-      bwprintf("Ticks: %d\n\r", ticks);
-    }
-
     return tf;
   }
 

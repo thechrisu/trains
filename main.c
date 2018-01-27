@@ -101,6 +101,8 @@ int main() {
   /* kmain() contains actual program functionality. */
   kmain();
 
+  bwprintf("Ticks: %d\n\r", ticks);
+
   /* Calls to syscall_panic branch to this label. */
   __asm__(
     ".global panic_exit\n\t"
