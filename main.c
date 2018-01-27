@@ -116,7 +116,7 @@ int main() {
   kmain();
 
 #ifndef E2ETESTING
-  bwprintf("Ticks: %d\n\r", ticks);
+  logprintf("Ticks: %d\n\r", ticks);
 #endif
 
   dump_logs();
