@@ -32,12 +32,22 @@ void kmain() {
   // Initialize tick count
   ticks = 0;
 
+#if VERSATILEPB
   // Setup PIC
   *(uint32_t *)0x10140010 = 0x20;
 
   // Setup tick timer
   *(uint32_t *)0x101E3000 = 10000;
   *(uint32_t *)0x101E3008 |= (0x80 | 0x40 | 0x20 | 0x02);
+#else
+  // Setup VIC
+  *(uint32_t *)0x800B0010 = 0x10;
+
+  // Setup tick timer
+  *(uint32_t *)0x80810000 = 20;
+  *(uint32_t *)0x80810008 |= (0x80 | 0x40);
+  *(uint32_t *)0x80810008 &= ~0x8;
+#endif
 
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;

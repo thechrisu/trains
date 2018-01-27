@@ -60,7 +60,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
-ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g
+ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
 # -mapcs-32: always create a complete stack frame
 
 

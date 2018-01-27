@@ -27,7 +27,12 @@ enter_kernel: /* called on an interrupt */
   MOV r0, sp
 
 /* Check if we got here from a hardware interrupt. */
+.ifdef VERSATILEPB
   LDR r1, =0x10140000
+.else
+  LDR r1, =0x800B0000
+.endif
+
   LDR r1, [r1]
 
   CMP r1, #0
