@@ -41,6 +41,8 @@ void tmemcpy(void *dst, void *src, unsigned int n);
 void *tmemset(void *s, int c, unsigned int n);
 
 #ifdef TESTING
+#include <cstdlib>
+#include <stdint.h>
 #include <cstring>
 #else
 void memcpy(void *dst, void *src, unsigned int n);
