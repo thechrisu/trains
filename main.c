@@ -24,8 +24,14 @@ extern int next_task_id;
 unsigned int main_fp;
 unsigned int main_sp;
 
+char log_buffer[LOG_BUFFER_SIZE];
+uint32_t log_index;
+
 void kmain() {
   setup_io();
+
+  log_index = 0;
+
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
 

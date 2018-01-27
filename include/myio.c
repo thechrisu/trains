@@ -7,6 +7,9 @@
 
 #include "myio.h"
 
+extern char *log_buffer;
+extern uint32_t log_index;
+
 char_buffer train_input_buf, train_output_buf,
     terminal_input_buf, terminal_output_buf;
 
@@ -394,6 +397,29 @@ int putc(int channel, char c) {
   return 0;
 }
 
+int terminalputc(char c) {
+  return sendbyte_buffered(TERMINAL, c);
+}
+
+int bwterminalputc(char c) {
+  return putc(TERMINAL, c);
+}
+
+int trainputc(char c) {
+  return sendbyte_buffered(TRAIN, c);
+}
+
+int bwtrainputc(char c) {
+  return putc(TRAIN, c);
+}
+
+int logputc(char c) {
+  if (log_index < LOG_BUFFER_SIZE) {
+    log_buffer[log_index++] = c;
+  }
+  return 0;
+}
+
 char c2x(char ch) {
   if ((ch <= 9)) {
     return '0' + ch;
@@ -402,77 +428,32 @@ char c2x(char ch) {
   }
 }
 
-int putx(int channel, char c) {
+int putx(int (*put)(char), char c) {
   char chh, chl;
 
   chh = c2x(c / 16);
   chl = c2x(c % 16);
-  sendbyte_buffered(channel, chh);
-  return sendbyte_buffered(channel, chl);
-  // putc(channel, chh);
-  // return putc(channel, chl);
+  put(chh);
+  return put(chl);
 }
 
-int bwputx(int channel, char c) {
-  char chh, chl;
-
-  chh = c2x(c / 16);
-  chl = c2x(c % 16);
-  putc(channel, chh);
-  return putc(channel, chl);
-}
-
-int putr(int channel, unsigned int reg) {
+int putr(int (*put)(char), unsigned int reg) {
   int byte;
   char *ch = (char *) &reg;
 
   for (byte = 3; byte >= 0; byte--) {
-    putx(channel, ch[byte]);
+    putx(put, ch[byte]);
   }
-  return sendbyte_buffered(channel, ' ');
-  //return putc(channel, ' ');
+  return put(' ');
 }
 
-int bwputr(int channel, unsigned int reg) {
-  int byte;
-  char *ch = (char *) &reg;
-
-  for (byte = 3; byte >= 0; byte--) {
-    bwputx(channel, ch[byte]);
-  }
-  return putc(channel, ' ');
-}
-
-int putstr(int channel, char *str) {
-  while (*str) {
-    if (sendbyte_buffered(channel, *str) < 0) {
-      // if (putc(channel, *str) < 0) {
-      return -1;
-    } else {
-      str++;
-    }
-  }
-  return 0;
-}
-
-void putw(int channel, int n, char fc, char *bf) {
+void putw(int (*put)(char), int n, char fc, char *bf) {
   char ch;
   char *p = bf;
 
   while (*p++ && n > 0) n--;
-  while (n-- > 0) sendbyte_buffered(channel, fc);
-  while ((ch = *bf++)) sendbyte_buffered(channel, ch);
-  // while (n-- > 0) putc(channel, fc);
-  // while ((ch = *bf++)) putc(channel, ch);
-}
-
-void bwputw(int channel, int n, char fc, char *bf) {
-  char ch;
-  char *p = bf;
-
-  while (*p++ && n > 0) n--;
-  while (n-- > 0) putc(channel, fc);
-  while ((ch = *bf++)) putc(channel, ch);
+  while (n-- > 0) put(fc);
+  while ((ch = *bf++)) put(ch);
 }
 
 uint16_t last_err = 0;
@@ -638,15 +619,14 @@ void i2a(int num, char *bf) {
   ui2a(num, 10, bf);
 }
 
-void format(int channel, char *fmt, va_list va) {
+void format(int (*put)(char), char *fmt, va_list va) {
   char bf[12];
   char ch, lz;
   int w;
 
   while ((ch = *(fmt++))) {
     if (ch != '%')
-      sendbyte_buffered(channel, ch);
-      // putc(channel, ch);
+      put(ch);
     else {
       lz = 0;
       w = 0;
@@ -671,83 +651,25 @@ void format(int channel, char *fmt, va_list va) {
       switch (ch) {
         case 0:return;
         case 'c':
-          sendbyte_buffered(channel, va_arg(va, char));
-          // putc(channel, va_arg(va, char));
+          put(va_arg(va, char));
           break;
         case 's':
-          putw(channel, w, 0, va_arg(va, char *));
+          putw(put, w, 0, va_arg(va, char *));
           break;
         case 'u':
           ui2a(va_arg(va, unsigned int), 10, bf);
-          putw(channel, w, lz, bf);
+          putw(put, w, lz, bf);
           break;
         case 'd':
           i2a(va_arg(va, int), bf);
-          putw(channel, w, lz, bf);
+          putw(put, w, lz, bf);
           break;
         case 'x':
           ui2a(va_arg(va, unsigned int), 16, bf);
-          putw(channel, w, lz, bf);
+          putw(put, w, lz, bf);
           break;
         case '%':
-          sendbyte_buffered(channel, ch);
-          // putc(channel, ch);
-          break;
-      }
-    }
-  }
-}
-void bwformat(int channel, char *fmt, va_list va) {
-  char bf[12];
-  char ch, lz;
-  int w;
-
-  while ((ch = *(fmt++))) {
-    if (ch != '%')
-      putc(channel, ch);
-    else {
-      lz = 0;
-      w = 0;
-      ch = *(fmt++);
-      switch (ch) {
-        case '0':
-          lz = 1;
-          ch = *(fmt++);
-          break;
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          ch = a2i(ch, &fmt, 10, &w);
-          break;
-      }
-      switch (ch) {
-        case 0:return;
-        case 'c':
-          putc(channel, va_arg(va, char));
-          break;
-        case 's':
-          bwputw(channel, w, 0, va_arg(va, char *));
-          break;
-        case 'u':
-          ui2a(va_arg(va, unsigned int), 10, bf);
-          bwputw(channel, w, lz, bf);
-          break;
-        case 'd':
-          i2a(va_arg(va, int), bf);
-          bwputw(channel, w, lz, bf);
-          break;
-        case 'x':
-          ui2a(va_arg(va, unsigned int), 16, bf);
-          bwputw(channel, w, lz, bf);
-          break;
-        case '%':
-          putc(channel, ch);
+          put(ch);
           break;
       }
     }
@@ -758,7 +680,7 @@ void printf(char *fmt, ...) {
   va_list va;
 
   va_start(va, fmt);
-  format(TERMINAL, fmt, va);
+  format(terminalputc, fmt, va);
   va_end(va);
 }
 
@@ -766,6 +688,25 @@ void bwprintf(char *fmt, ...) {
   va_list va;
 
   va_start(va, fmt);
-  bwformat(TERMINAL, fmt, va);
+  format(bwterminalputc, fmt, va);
   va_end(va);
+}
+
+void logprintf(char *fmt, ...) {
+  va_list va;
+
+  va_start(va, fmt);
+  format(logputc, fmt, va);
+  va_end(va);
+}
+
+int bwputr(int channel, unsigned int reg) {
+  switch (channel) {
+    case TERMINAL:
+      return putr(bwterminalputc, reg);
+    case TRAIN:
+      return putr(bwtrainputc, reg);
+    default:
+      return -1;
+  }
 }

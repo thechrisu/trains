@@ -10,6 +10,8 @@
 #include "buffer.h"
 #include "assert.h"
 
+#define LOG_BUFFER_SIZE 1<<20
+
 extern int oe_in_sensor;
 
 #if TESTING
@@ -64,6 +66,7 @@ int getc(int channel);
 int bwgetc(int channel);
 void printf(char *format, ...) __attribute((format(printf, 1, 0)));
 void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
+void logprintf(char *format, ...) __attribute((format(printf, 1, 0)));
 
 
 
