@@ -133,6 +133,11 @@ int main() {
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
+#ifndef VERSATILEPB
+  // Disable timer
+  *(uint32_t *)0x80810008 &= ~0x80;
+#endif
+
 #if VERSATILEPB
   __asm__(
     "MOV r0, #0x18\n\t"
