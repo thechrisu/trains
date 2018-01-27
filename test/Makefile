@@ -1,4 +1,4 @@
-.PHONY: test_all.out test_buffer.out test_ready_queue.out test_scheduler.out test_messaging.out test_task.out alltests
+.PHONY: test_all.out test_buffer.out test_ready_queue.out test_scheduler.out test_messaging.out test_task.out test_stdlib.out alltests
 
 .PRECIOUS: test_buffer.out test_all.out
 
@@ -16,12 +16,14 @@ all:
 	make test_scheduler.out
 	make test_task.out
 	make test_messaging.out
+	make test_stdlib.out
 	make test_all.out
 	./unit/test_all.out
 	./unit/test_buffer.out
 	./unit/test_ready_queue.out
 	./unit/test_scheduler.out
 	./unit/test_messaging.out
+	./unit/test_stdlib.out
 	./unit/test_task.out
 
 alltests: test_all.out
@@ -48,6 +50,9 @@ test_messaging.out: unit/test_messaging.cc $(SRC)
 
 test_task.out: unit/test_task.cc $(SRC_TASK)
 	g++ -o unit/$@ $< $(SRC_TASK) $(FLAGS)
+
+test_stdlib.out: unit/test_stdlib.cc $(SRC)
+	g++ -o unit/$@ $< $(SRC) $(FLAGS)
 
 clean:
 	rm -f *.out unit/*.out

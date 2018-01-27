@@ -9,11 +9,6 @@
 
 // #define NULL 0
 
-#ifdef TESTING
-#else
-
-#define bool _Bool
-
 /**
  * Counts the number of character up to and NOT including the \0. Expects \0 to be there.
  * @param s String.
@@ -30,6 +25,10 @@ int tstrlen(char *s);
 int tstrcmp(char *destination, char *source);
 int tstrncmp(const char *destination, const char *source, int max_length);
 
+#ifdef TESTING
+#else
+
+#define bool _Bool
 #endif /* TESTING */
 
 #define true 1
