@@ -101,7 +101,9 @@ int main() {
   /* kmain() contains actual program functionality. */
   kmain();
 
+#ifndef E2ETESTING
   bwprintf("Ticks: %d\n\r", ticks);
+#endif
 
   /* Calls to syscall_panic branch to this label. */
   __asm__(
