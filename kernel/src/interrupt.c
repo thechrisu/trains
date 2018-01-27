@@ -16,32 +16,32 @@ int ticks;
 
 void print_tf(trapframe *tf) {
 #ifndef TESTING
-  bwputr(TERMINAL, tf->r0);
-  bwputr(TERMINAL, tf->r1);
-  bwputr(TERMINAL, tf->r2);
-  bwputr(TERMINAL, tf->r3);
-  putc(TERMINAL, '\n');
-  putc(TERMINAL, '\r');
-  bwputr(TERMINAL, tf->r4);
-  bwputr(TERMINAL, tf->r5);
-  bwputr(TERMINAL, tf->r6);
-  bwputr(TERMINAL, tf->r7);
-  putc(TERMINAL, '\n');
-  putc(TERMINAL, '\r');
-  bwputr(TERMINAL, tf->r8);
-  bwputr(TERMINAL, tf->r9);
-  bwputr(TERMINAL, tf->r10);
-  bwputr(TERMINAL, tf->fp);
-  putc(TERMINAL, '\n');
-  putc(TERMINAL, '\r');
-  bwputr(TERMINAL, tf->ip);
-  bwputr(TERMINAL, tf->sp);
-  bwputr(TERMINAL, tf->lr);
-  bwputr(TERMINAL, tf->pc);
-  bwputr(TERMINAL, tf->k_lr);
-  bwputr(TERMINAL, tf->psr);
-  putc(TERMINAL, '\n');
-  putc(TERMINAL, '\r');
+  logputr(tf->r0);
+  logputr(tf->r1);
+  logputr(tf->r2);
+  logputr(tf->r3);
+  logputc('\n');
+  logputc('\r');
+  logputr(tf->r4);
+  logputr(tf->r5);
+  logputr(tf->r6);
+  logputr(tf->r7);
+  logputc('\n');
+  logputc('\r');
+  logputr(tf->r8);
+  logputr(tf->r9);
+  logputr(tf->r10);
+  logputr(tf->fp);
+  logputc('\n');
+  logputc('\r');
+  logputr(tf->ip);
+  logputr(tf->sp);
+  logputr(tf->lr);
+  logputr(tf->pc);
+  logputr(tf->k_lr);
+  logputr(tf->psr);
+  logputc('\n');
+  logputc('\r');
 #endif /* TESTING */
 }
 
@@ -54,17 +54,17 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   switch (tf->r0) {
   case SYS_SEND:
     *loc_kEntry_sys_send = get_clockticks();
-    // bwprintf("(%d) kEntry Send\n\r", *loc_kEntry_sys_send);
+    // logprintf("(%d) kEntry Send\n\r", *loc_kEntry_sys_send);
     break;
   case SYS_RECEIVE:
     *is_receive = true;
     *loc_kEntry_sys_receive = get_clockticks();
-    // bwprintf("(%d) kEntry Receive\n\r", *loc_kEntry_sys_receive);
+    // logprintf("(%d) kEntry Receive\n\r", *loc_kEntry_sys_receive);
     break;
   case SYS_REPLY:
     *is_receive = false;
     *loc_kEntry_sys_reply = get_clockticks();
-    // bwprintf("(%d) kEntry Reply\n\r", *loc_kEntry_sys_reply);
+    // logprintf("(%d) kEntry Reply\n\r", *loc_kEntry_sys_reply);
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */
@@ -119,7 +119,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       tf->r0 = 0xABADC0DE;
   }
 #if TRAPFRAME_DEBUG
-  bwprintf("End of handle_interrupt\n\r");
+  logprintf("End of handle_interrupt\n\r");
   print_tf(tf);
 #endif /* TRAPFRAME_DEBUG */
   return tf;
