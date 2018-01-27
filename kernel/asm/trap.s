@@ -3,7 +3,7 @@
 .type	enter_kernel, %function
 enter_kernel: /* called on an interrupt */
 /* Enter system mode. */
-  MSR cpsr_c, #0x9F
+  MSR cpsr_c, #0xDF
 
 /* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, sp, #72
@@ -27,7 +27,7 @@ enter_kernel: /* called on an interrupt */
   MOV r0, sp
 
 /* Enter kernel mode. */
-  MSR cpsr_c, #0x93
+  MSR cpsr_c, #0xD3
 
 /* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
@@ -64,7 +64,7 @@ enter_kernel: /* called on an interrupt */
 .type	enter_kernel_irq, %function
 enter_kernel_irq: /* called on an interrupt */
 /* Enter system mode. */
-  MSR cpsr_c, #0x9F
+  MSR cpsr_c, #0xDF
 
 /* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, sp, #72
@@ -88,7 +88,7 @@ enter_kernel_irq: /* called on an interrupt */
   MOV r0, sp
 
 /* Enter IRQ mode. */
-  MSR cpsr_c, #0x92
+  MSR cpsr_c, #0xD2
 
 /* Put the IRQ link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
@@ -98,7 +98,7 @@ enter_kernel_irq: /* called on an interrupt */
   STR r4, [r0, #68]
 
 /* Enter kernel mode. */
-  MSR cpsr_c, #0x93
+  MSR cpsr_c, #0xD3
 
 /* Tell handle_interrupt that we're calling it because of a hardware interrupt. */
   MOV r1, #0x1
