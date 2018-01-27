@@ -10,7 +10,12 @@
 #include "buffer.h"
 #include "assert.h"
 
+#define LOG_BUFFER_SIZE 1<<20
+
 extern int oe_in_sensor;
+
+extern char log_buffer[LOG_BUFFER_SIZE];
+extern uint32_t log_index;
 
 #if TESTING
 #else
@@ -52,7 +57,6 @@ void empty_buf(int channel, bool out);
 int setfifo(int channel, int state);
 int setspeed(int channel, int speed);
 int putc(int channel, char c);
-int bwputr(int channel, unsigned int reg);
 int canputc(int channel);
 /**
  *
@@ -64,6 +68,10 @@ int getc(int channel);
 int bwgetc(int channel);
 void printf(char *format, ...) __attribute((format(printf, 1, 0)));
 void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
+void logprintf(char *format, ...) __attribute((format(printf, 1, 0)));
+int logputc(char c);
+int logputr(unsigned int reg);
+void dump_logs();
 
 
 

@@ -6,11 +6,11 @@ task_descriptor **send_queues;
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Enter task_init, location of task in memory %x\n\r", task);
+  logprintf("Enter task_init, location of task in memory %x\n\r", task);
 #endif /* CONTEXT_SWITCH_DEBUG */
   task->tid = next_task_id;
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Was able to access task struct\n\r");
+  logprintf("Was able to access task struct\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   next_task_id++;
   task->priority = priority;
@@ -27,7 +27,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf = (trapframe *)malloc(sizeof(trapframe)); // :(
 #endif /* TESTING */
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("task_init: Location of tf: %x\n\r", task->tf);
+  logprintf("task_init: Location of tf: %x\n\r", task->tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
   task->tf->r0 = 0xF4330000 + (task->tid << 4);
   task->tf->r1 = 0xF4330001 + (task->tid << 4);
@@ -56,13 +56,13 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf->psr = 0x10;
 
 #if SCHEDULE_DEBUG
-  bwprintf("task_main: %x\n\r", (register_t)task_main);
+  logprintf("task_main: %x\n\r", (register_t)task_main);
 #endif /* SCHEDULE_DEBUG */
 }
 
 void task_activate(task_descriptor *task) {
 #if TRAPFRAME_DEBUG
-  bwprintf("Start of task_activate\n\r");
+  logprintf("Start of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
   task->state = TASK_ACTIVE;
@@ -75,13 +75,13 @@ void task_activate(task_descriptor *task) {
   if (task->tid == *tid_send) {
     volatile int16_t *loc_kExit_sys_send = LOC_KEXIT_SYS_SEND;
     *loc_kExit_sys_send = get_clockticks();
-    // bwprintf("(%d) kExit Send\n\r", *loc_kExit_sys_send);
+    // logprintf("(%d) kExit Send\n\r", *loc_kExit_sys_send);
   }
   if (task->tid == *tid_receive_reply) {
     if (is_receive) {
     volatile int16_t *loc_kExit_sys_receive = LOC_KEXIT_SYS_RECEIVE;
       *loc_kExit_sys_receive = get_clockticks();
-      // bwprintf("(%d) kExit Receive\n\r", *loc_kExit_sys_receive);
+      // logprintf("(%d) kExit Receive\n\r", *loc_kExit_sys_receive);
     }
   }
   kassert(!(task->tid == *tid_receive_reply && task->tid == *tid_send));
@@ -89,7 +89,7 @@ void task_activate(task_descriptor *task) {
   leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG
-  bwprintf("End of task_activate\n\r");
+  logprintf("End of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
 }

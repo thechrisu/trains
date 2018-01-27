@@ -4,7 +4,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_before_copy = LOC_BEFORE_COPY;
   *loc_before_copy = get_clockticks();
-  // bwprintf("(%d) Before copy\n\r", *loc_before_copy);
+  // logprintf("(%d) Before copy\n\r", *loc_before_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   
   bool sender_msg_too_big = src->tf->r3 > dst->tf->r3;
@@ -22,7 +22,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_after_copy = LOC_AFTER_COPY;
   *loc_after_copy = get_clockticks();
-  // bwprintf("(%d) After copy\n\r", *loc_after_copy);
+  // logprintf("(%d) After copy\n\r", *loc_after_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 }
 
