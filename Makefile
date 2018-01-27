@@ -16,7 +16,7 @@ builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s
+.SECONDARY:
 
 XCC	= arm-elf-gcc
 AS	= arm-elf-as

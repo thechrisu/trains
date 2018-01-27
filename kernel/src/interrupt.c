@@ -70,6 +70,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   current_task->tf = tf;
 
+  kassert((tf->psr & 0xFF) == 0x10);
+
   if (pic_status > 0) {
 #if VERSATILEPB
     // Clear interrupt

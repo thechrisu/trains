@@ -112,6 +112,11 @@ int main() {
     "mov %1, sp\n\t"
   : "=r" (main_fp), "=r" (main_sp));
 
+  // Check that interrupts are disabled and we're in kernel mode.
+  register_t psr;
+  __asm__("MRS %0, cpsr" : "=r" (psr));
+  kassert((psr & 0xFF) == 0xD3);
+
   /* kmain() contains actual program functionality. */
   kmain();
 
@@ -126,6 +131,17 @@ int main() {
     ".global panic_exit\n\t"
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
+
+#ifndef VERSATILEPB
+  // Disable VIC
+  *(uint32_t *)0x800B0010 = 0x0;
+
+  // Clear interrupt in timer
+  *(uint32_t *)0x8081000C = 1;
+
+  // Disable timer
+  *(uint32_t *)0x80810008 &= ~0x80;
+#endif
 
 #if VERSATILEPB
   __asm__(
