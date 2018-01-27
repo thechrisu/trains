@@ -55,6 +55,7 @@ void process_measurement(struct measurement *m, int16_t data1[NUM_MSG], int16_t 
 }
 
 void print_measurement_array(struct measurement *mms) {
+#ifndef TESTING
   for (int i = 0; i < NUM_TIMEPOINTS - 2; i++) {
     logprintf("%savg, %sworst, %svar, ", mms[i].name, mms[i].name, mms[i].name);
   }
@@ -66,4 +67,7 @@ void print_measurement_array(struct measurement *mms) {
     logprintf("%d, %d, %d, ", mms[i].avg, mms[i].worst, mms[i].var);
   }
   logprintf("%d, %d, %d\n\r", mms[NUM_TIMEPOINTS - 2].avg, mms[NUM_TIMEPOINTS - 2].worst, mms[NUM_TIMEPOINTS - 2].var);
+#else
+  (void)mms;
+#endif /* TESTING */
 }

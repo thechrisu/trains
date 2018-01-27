@@ -45,15 +45,17 @@ void print_proc_mode(arm_proc_mode mode) {
       proc_mode = "System";
       break;
   }
+#ifndef TESTING
   logprintf("Processor mode: %s\n\r", proc_mode);
+#endif /* TESTING */
 }
 
 void handle_abort(abort_mode abort_type, unsigned int culprit_instruction) {
+#ifndef TESTING
   dump_logs();
   // Reset log index so that we don't dump any logs in main.c
   log_index = 0;
 
-#ifndef TESTING
   unsigned int cpsr_val; // TODO change to register_t
   __asm__ volatile("MRS %0, cpsr\n\t" : "=r"(cpsr_val));
   int pc_offset = 0;
