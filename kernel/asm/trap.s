@@ -90,6 +90,9 @@ enter_kernel_irq: /* called on an interrupt */
 /* Enter IRQ mode. */
   MSR cpsr_c, #0xD2
 
+/* Subtract 4 from the IRQ link register so that we don't skip a user task instruction. */
+  SUB r14, r14, #4
+
 /* Put the IRQ link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
 
