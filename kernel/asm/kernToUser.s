@@ -35,7 +35,7 @@ leave_kernel:
 /*
   Go into system mode.
 */
-  MSR cpsr_c, #0x1F
+  MSR cpsr_c, #0x9F
 
 /*
   Load address to trapframe into stack pointer. This address
@@ -65,7 +65,7 @@ leave_kernel:
 /*
   Back to kernel mode.
 */
-  MSR cpsr_c, #0x13
+  MSR cpsr_c, #0x93
 
 /*
   Go back to user mode (MOVS updates the PSR). Branch to instruction after SWI,

@@ -26,6 +26,14 @@ unsigned int main_sp;
 
 void kmain() {
   setup_io();
+
+  // Setup PIC
+  *(uint32_t *)0x10140010 = 0x20;
+
+  // Setup tick timer
+  *(uint32_t *)0x101E3000 = 1000000;
+  *(uint32_t *)0x101E3008 |= (0x80 | 0x40 | 0x20 | 0x02);
+
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
 
@@ -33,7 +41,6 @@ void kmain() {
   send_queues = send_queues_on_stack;
 
   next_task_id = 1;
-
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   bwprintf("");
