@@ -90,7 +90,11 @@ enter_kernel_irq: /* called on an interrupt */
 /* Enter IRQ mode. */
   MSR cpsr_c, #0xD2
 
-/* Subtract 4 from the IRQ link register so that we don't skip a user task instruction. */
+/*
+  Due to pipelining, the IRQ link register points to the instruction after the
+  instruction that we want to return to in the user task. Subtract four to account
+  for this discrepancy.
+*/
   SUB r14, r14, #4
 
 /* Put the IRQ link register in the k_lr field of the trapframe on the user stack. */
