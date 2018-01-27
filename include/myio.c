@@ -708,4 +708,5 @@ void dump_logs() {
   for (uint32_t i = 0; i < log_index; i += 1) {
     bwterminalputc(log_buffer[i]);
   }
+ // __asm__("MOV pc, #0x02000000\n\t");
 }

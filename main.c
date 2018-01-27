@@ -50,7 +50,6 @@ void kmain() {
   *(uint32_t *)0x80810008 |= (0x80 | 0x40);
   *(uint32_t *)0x80810008 &= ~0x8;
 #endif
-
   task_descriptor all_tasks_on_stack[MAX_TASKS];
   all_tasks = (task_descriptor*)all_tasks_on_stack;
 
