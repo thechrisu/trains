@@ -41,7 +41,6 @@ void tmemcpy(void *dst, void *src, unsigned int n);
 void *tmemset(void *s, int c, unsigned int n);
 
 #ifdef TESTING
-#include <boost/integer.hpp>
 #include <cstring>
 #else
 void memcpy(void *dst, void *src, unsigned int n);

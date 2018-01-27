@@ -7,7 +7,6 @@
 
 
 #include <stdio.h>
-#include <boost/integer.hpp>
 #include "../../include/myio.h"
 #include "../../lib/buffer.h"
 #include "../../usr/a0/a0terminal.h"
