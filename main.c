@@ -24,9 +24,6 @@ extern int next_task_id;
 unsigned int main_fp;
 unsigned int main_sp;
 
-char log_buffer[LOG_BUFFER_SIZE];
-uint32_t log_index;
-
 void kmain() {
   setup_io();
 
@@ -94,6 +91,8 @@ int main() {
 
   /* kmain() contains actual program functionality. */
   kmain();
+
+  dump_logs();
 
   /* Calls to syscall_panic branch to this label. */
   __asm__(

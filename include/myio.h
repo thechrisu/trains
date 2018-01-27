@@ -14,6 +14,9 @@
 
 extern int oe_in_sensor;
 
+extern char log_buffer[LOG_BUFFER_SIZE];
+extern uint32_t log_index;
+
 #if TESTING
 #else
 typedef char *va_list;
@@ -67,6 +70,7 @@ int bwgetc(int channel);
 void printf(char *format, ...) __attribute((format(printf, 1, 0)));
 void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
 void logprintf(char *format, ...) __attribute((format(printf, 1, 0)));
+void dump_logs();
 
 
 

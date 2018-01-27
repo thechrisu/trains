@@ -7,8 +7,8 @@
 
 #include "myio.h"
 
-extern char *log_buffer;
-extern uint32_t log_index;
+char log_buffer[LOG_BUFFER_SIZE];
+uint32_t log_index;
 
 char_buffer train_input_buf, train_output_buf,
     terminal_input_buf, terminal_output_buf;
@@ -708,5 +708,11 @@ int bwputr(int channel, unsigned int reg) {
       return putr(bwtrainputc, reg);
     default:
       return -1;
+  }
+}
+
+void dump_logs() {
+  for (uint32_t i = 0; i < log_index; i += 1) {
+    bwterminalputc(log_buffer[i]);
   }
 }
