@@ -7,7 +7,7 @@
 
 #include "attributes.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 #define kassert(expr) __kassert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
 

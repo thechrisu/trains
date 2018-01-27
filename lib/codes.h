@@ -7,7 +7,7 @@
 #define CODES_H
 
 #include "attributes.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 #ifdef E2ETESTING
 #include "../../usr/test/nameserver/fake_nameserver_functions.h"

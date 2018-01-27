@@ -1,4 +1,4 @@
-#include "stdlib.h"
+#include "tstdlib.h"
 
 void tmemcpy(void *dst, void *src, unsigned int n) { // (char *) only used to suppress warning
   // assert(dst != src && ((src < dst && (char *) src + n < (char *) dst) || ((char *) dst + n < (char *) src)));
