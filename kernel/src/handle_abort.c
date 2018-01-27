@@ -45,9 +45,7 @@ void print_proc_mode(arm_proc_mode mode) {
       proc_mode = "System";
       break;
   }
-#ifndef TESTING
-  logprintf("Processor mode: %s\n\r", proc_mode);
-#endif /* TESTING */
+  bwprintf("Processor mode: %s\n\r", proc_mode);
 }
 
 void handle_abort(abort_mode abort_type, unsigned int culprit_instruction) {
@@ -74,10 +72,10 @@ void handle_abort(abort_mode abort_type, unsigned int culprit_instruction) {
       abort_type_str = "Data abort";
       break;
   }
-  logprintf("\033[94m\033[5mReceived abort\033[25m\033[39m type: %s\n\r", abort_type_str);
+  bwprintf("\033[94m\033[5mReceived abort\033[25m\033[39m type: %s\n\r", abort_type_str);
   print_proc_mode((arm_proc_mode)(cpsr_val & PROC_MODE_MASK));
-  logprintf("CPSR: 0x%x\n\r", cpsr_val);
-  logprintf("Offending address: 0x%x\n\r", culprit_instruction + pc_offset);
+  bwprintf("CPSR: 0x%x\n\r", cpsr_val);
+  bwprintf("Offending address: 0x%x\n\r", culprit_instruction + pc_offset);
   syscall_panic();
 #endif /* TESTING */
 }
