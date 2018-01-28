@@ -2,6 +2,8 @@
 #define SPAM_H
 
 #include "myio.h"
+#include "codes.h"
+#include "nameserver.h"
 
 void spam();
 
