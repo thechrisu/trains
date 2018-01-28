@@ -49,12 +49,12 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #if TIMERINTERRUPT_DEBUG
   logprintf("Interrupt of tid: %d\n\r", current_task->tid);
   print_tf(tf);
+#endif /* TIMERINTERRUPT_DEBUG */
   kassert((tf->sp > STACK_TOP - (current_task->tid + 2) * BYTES_PER_TASK)
     && (tf->sp <= STACK_TOP - (1 + current_task->tid) * BYTES_PER_TASK));
   kassert((tf->fp > STACK_TOP - (current_task->tid + 2) * BYTES_PER_TASK)
     && (tf->fp <= STACK_TOP - (1 + current_task->tid) * BYTES_PER_TASK)
       || (tf->fp == 0xF433000B + (current_task->tid << 4)));
-#endif /* TIMERINTERRUPT_DEBUG */
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
   volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
