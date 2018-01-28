@@ -705,6 +705,7 @@ int logputr(unsigned int reg) {
 }
 
 void dump_logs() {
+  bwprintf("DUMPING LOGS=======================\n\r");
   for (uint32_t i = 0; i < log_index; i += 1) {
     bwterminalputc(log_buffer[i]);
   }
