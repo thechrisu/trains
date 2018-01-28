@@ -50,10 +50,10 @@ void print_proc_mode(arm_proc_mode mode) {
 
 void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapframe *tf) {
 #ifndef TESTING
-  dump_logs();
   print_tf(tf);
   logprintf("Abort task id: %d\n\r", current_task->tid);
-  dump_logs();// Reset log index so that we don't dump any logs in main.c
+  dump_logs();
+  // Reset log index so that we don't dump any logs in main.c
   log_index = 0;
 
   unsigned int cpsr_val; // TODO change to register_t

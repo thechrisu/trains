@@ -1,7 +1,7 @@
 .PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs
 default: upload;
 
-OPTIMIZATION = -O2
+OPTIMIZATION = -O0
 #-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK
 DEBUGFLAGS=
 

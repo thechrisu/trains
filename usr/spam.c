@@ -8,9 +8,7 @@ void spam_client() {
 
   for (int i = 0; i < 1000; i += 1) {
     Send(tid, message, 4, reply, 4);
-    //if (my_tid == 5) {
-      bwprintf("Task %d on loop %d got %s\n\r", my_tid, i, reply);
-      // }
+    bwprintf("Task %d on loop %d got %s\n\r", my_tid, i, reply);
   }
 }
 
