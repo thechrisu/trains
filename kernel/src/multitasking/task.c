@@ -65,6 +65,9 @@ void task_activate(task_descriptor *task) {
   logprintf("Start of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
+  kassert((task->tf->sp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->sp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK));
+  kassert((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK) || (task->tf->fp == 0xF433000B + (task->tid << 4)));
+  kassert((task->tf->r7 & 0xFFFF0000) != 0xF433 || ((0xFFF0 & task->tf->r7) >> 4) == task->tid);
   task->state = TASK_ACTIVE;
   current_task = task;
 #ifndef TESTING
@@ -92,6 +95,7 @@ void task_activate(task_descriptor *task) {
   logprintf("End of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
+  kassert(task == current_task);
 }
 
 void task_set_state(task_descriptor *task, task_state state) {
