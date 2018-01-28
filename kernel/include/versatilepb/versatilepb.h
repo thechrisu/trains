@@ -7,11 +7,9 @@
 
 // clock base 0x101E2000
 #define TIMER1_BASE         0x101E2000
-#define TIMER2_BASE         0x101E3000
 #define LDR_OFFSET          0x00000000
 #define VAL_OFFSET          0x00000004
 #define CTRL_OFFSET         0x00000008
-#define CLR_OFFSET          0x0000000C
 #define TIMER_SIZE          0x00000002 // 0: 16 bit (default), 1: 32 bit
 #define ENABLE_INTERRUPT    0x00000020 // 1: isEnabled (default: 1)
 #define MODE_MASK           0x00000040 // 0: free-running (default), 1: periodic
@@ -49,10 +47,6 @@
 #define FEN_MASK            0x10
 #define STP2_MASK           0x08
 #define PEN_MASK            0x01
-
-#define VIC_BASE            0x10140000
-#define VIC_ENABLE_OFFSET   0x10
-#define VIC_TIMER2_MASK     0x20
 
 #endif //TRAINS_VERSATILEPB_H
 

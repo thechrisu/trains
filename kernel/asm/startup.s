@@ -11,7 +11,7 @@ vec_start:
   B handle_prefetch_abort /* Prefetch Abort */
   B handle_data_abort /* Data Abort */
   B . /* reserved */
-  B enter_kernel /* IRQ */
+  B . /* IRQ */
   B . /* FIQ */
 
 vec_end:

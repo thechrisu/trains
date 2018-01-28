@@ -2,10 +2,9 @@
 default: upload;
 
 OPTIMIZATION = -O0
-#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
-DEBUGFLAGS=-DTRAPFRAME_DEBUG -DTIMERINTERRUPT_DEBUG -DCONTEXT_SWITCH_DEBUG
+#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK
+DEBUGFLAGS=
 
-#
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 builddir = $(current_dir)build/arm
@@ -61,7 +60,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
-ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
+ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g
 # -mapcs-32: always create a complete stack frame
 
 
