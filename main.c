@@ -4,7 +4,7 @@
 
 #include "crash.h"
 #include "interrupt.h"
-#include "k2.h"
+#include "spam.h"
 #include "myio.h"
 #include "schedule.h"
 #include "send_queue.h"
@@ -75,7 +75,7 @@ void kmain() {
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(10, &k2_first_user_task);
+  syscall_create(10, &spam);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
