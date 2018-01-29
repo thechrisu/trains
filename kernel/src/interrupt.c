@@ -46,6 +46,8 @@ void print_tf(trapframe *tf) {
 }
 
 trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
+  kassert(tf->sp != 0);
+  kassert(tf->fp != 0);
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
   volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
@@ -69,7 +71,18 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   current_task->tf = tf;
-
+  if ((*((uint32_t*)tf->k_lr-1) & 0x0F000000) != 0x0F000000 && (!((tf->fp & 0xFFFF0000) == 0xF4330000) && ((*((uint32_t*)tf->fp-5)) & 0xF4330000) == 0xF4330000)) {
+    logprintf("IH: (CTX %d)\n\r", num_ctx_sw);
+    if (pic_status > 0) {
+      logprintf("PIC: %d\n\r", pic_status);
+    }
+    print_tf(tf);
+  }
+#ifndef TESTING
+  register_t cpsr_val;
+  __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
+#endif /* TESTING */
+  kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
 
   if (pic_status > 0) {
@@ -116,8 +129,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       tf->r0 = 0xABADC0DE;
   }
 #if TRAPFRAME_DEBUG
-  logprintf("End of handle_interrupt\n\r");
-  print_tf(tf);
+  //logprintf("End of handle_interrupt\n\r");
+  //print_tf(tf);
 #endif /* TRAPFRAME_DEBUG */
   return tf;
 }

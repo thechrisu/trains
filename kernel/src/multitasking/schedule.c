@@ -2,8 +2,8 @@
 #include "myio.h"
 #include "schedule.h"
 
-scheduler kscheduler;
-ready_queue scheduler_queues[MAX_PRIORITY + 1];
+static scheduler kscheduler;
+static ready_queue scheduler_queues[MAX_PRIORITY + 1];
 task_descriptor *current_task;
 
 void setup_scheduler() {

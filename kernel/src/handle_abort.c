@@ -50,7 +50,9 @@ void print_proc_mode(arm_proc_mode mode) {
 
 void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapframe *tf) {
 #ifndef TESTING
+  logprintf("\n\r\n\r\n\r");
   print_tf(tf);
+  logprintf("Num ctx sw: %d\n\r", num_ctx_sw);
   logprintf("Abort task id: %d\n\r", current_task->tid);
   dump_logs();
   // Reset log index so that we don't dump any logs in main.c

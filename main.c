@@ -42,12 +42,6 @@ void kmain() {
   *(uint32_t *)0x80810008 |= (0x80 | 0x40);
   *(uint32_t *)0x80810008 &= ~0x8;
 
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
-
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = send_queues_on_stack;
-
   next_task_id = 1;
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"

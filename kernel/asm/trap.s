@@ -119,9 +119,6 @@ handle_prefetch_abort:
   STR r12, [sp, #48]
   STR r13, [sp, #52]
   STR r14, [sp, #56]
-  LDR r14, =0x12345678
-  STR r14, [sp, #60]
-  STR r14, [sp, #64]
   MOV r2, sp                    
   MSR cpsr_c, #0xD7
   MOV r13, #0x01f00000
@@ -150,9 +147,6 @@ handle_data_abort:
   STR r12, [sp, #48]
   STR r13, [sp, #52]
   STR r14, [sp, #56]
-  LDR r14, =0x12345678
-  STR r14, [sp, #60]
-  STR r14, [sp, #64]
   MOV r2, sp
   MSR cpsr_c, #0xD7
   MOV r13, #0x01f00000
