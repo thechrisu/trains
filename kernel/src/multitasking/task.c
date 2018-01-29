@@ -89,6 +89,14 @@ void task_activate(task_descriptor *task) {
   }
   kassert(!(task->tid == *tid_receive_reply && task->tid == *tid_send));
 #endif /* CONTEXT_SWITCH_BENCHMARK */
+  if (task->tf->sp != (int)task->tf) {
+    logprintf("current_task: %d\n\r", current_task->tid);
+    logprintf("task in leave_kernel: %d\n\r", task->tid);
+    logprintf("address of trapframe: %x\n\r", (int)task->tf);
+    logprintf("sp: %x\n\r", task->tf->sp);
+    print_tf(task->tf);
+  }
+
   leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG
