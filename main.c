@@ -24,19 +24,28 @@ extern int next_task_id;
 unsigned int main_fp;
 unsigned int main_sp;
 
+extern int ticks;
+extern int num_ctx_sw;
+
 void kmain() {
   setup_io();
 
   log_index = 0;
 
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
+  // Initialize tick count
+  ticks = 0;
 
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = send_queues_on_stack;
+  num_ctx_sw = 0;
+
+  // Setup VIC
+  *(uint32_t *)0x800B0010 = 0x10;
+
+  // Setup tick timer
+  *(uint32_t *)0x80810000 = 20;
+  *(uint32_t *)0x80810008 |= (0x80 | 0x40);
+  *(uint32_t *)0x80810008 &= ~0x8;
 
   next_task_id = 1;
-
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");
@@ -47,10 +56,12 @@ void kmain() {
   uint32_t *swi_handler = (uint32_t *)0x28;
   uint32_t *prefetch_handler = (uint32_t*)0x2C;
   uint32_t *data_handler = (uint32_t*)0x30;
+  uint32_t *irq_handler = (uint32_t*)0x38;
   *undefined_handler = (uint32_t)(&handle_undefined_abort);
   *swi_handler = (uint32_t)(&enter_kernel);
   *prefetch_handler = (uint32_t)(&handle_prefetch_abort);
   *data_handler = (uint32_t)(&handle_data_abort);
+  *irq_handler = (uint32_t)(&enter_kernel);
 #endif /* VERSATILEPB */
 
   setup_scheduler();
@@ -89,8 +100,23 @@ int main() {
     "mov %1, sp\n\t"
   : "=r" (main_fp), "=r" (main_sp));
 
+  __asm__(
+    "msr cpsr_c, #0xD2\n\t"   // Enter IRQ mode
+    "mov sp, #0xDA000000\n\t" // Put magic value in sp_irq
+    "msr cpsr_c, #0xD3\n\t"   // Go back to kernel mode
+  );
+
+  // Check that interrupts are disabled and we're in kernel mode.
+  register_t psr;
+  __asm__("MRS %0, cpsr" : "=r" (psr));
+  kassert((psr & 0xFF) == 0xD3);
+
   /* kmain() contains actual program functionality. */
   kmain();
+
+#ifndef E2ETESTING
+  logprintf("Ticks: %d\n\r", ticks);
+#endif
 
   dump_logs();
 
@@ -99,6 +125,19 @@ int main() {
     ".global panic_exit\n\t"
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
+
+  // Disable VIC
+  *(uint32_t *)0x800B0010 = 0x0;
+
+  // Clear interrupt in timer
+  *(uint32_t *)0x8081000C = 1;
+
+  // Disable timer
+  *(uint32_t *)0x80810008 &= ~0x80;
+
+#if TIMERINTERRUPT_DEBUG
+  bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
+#endif /* TIMERINTERRUPT_DEBUG */
 
 #if VERSATILEPB
   __asm__(

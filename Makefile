@@ -16,7 +16,7 @@ builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s
+.SECONDARY:
 
 XCC	= arm-elf-gcc
 AS	= arm-elf-as
@@ -248,7 +248,7 @@ clean:
 upload:
 	make clean
 	make trainslab
-	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
+	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/m
 
 qemu:
 	make versatilepb

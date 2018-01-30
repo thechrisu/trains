@@ -16,7 +16,7 @@ int syscall_create(int priority, void (*code)()) {
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Got task descriptor memory\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
-  task_init(ret, priority, code, current_task);
+  task_init(ret, priority, code, get_current_task());
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Set up task in syscall_create\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
@@ -29,27 +29,27 @@ int syscall_create(int priority, void (*code)()) {
 }
 
 int syscall_mytid() {
-  if (current_task == NULL_TASK_DESCRIPTOR) {
+  if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -1;
   } else {
-    return task_get_tid(current_task);
+    return task_get_tid(get_current_task());
   }
 }
 
 int syscall_myparent_tid() {
-  if (current_task == NULL_TASK_DESCRIPTOR) {
+  if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -2;
   } else {
-    return task_get_parent_tid(current_task);
+    return task_get_parent_tid(get_current_task());
   }
 }
 
 void syscall_pass() {
-  register_task(current_task);
+  register_task(get_current_task());
 }
 
 void syscall_exit() {
-  task_retire(current_task, 0);
+  task_retire(get_current_task(), 0);
 }
 
 void syscall_panic() {
@@ -63,6 +63,7 @@ void syscall_panic() {
 }
 
 void syscall_send() {
+  task_descriptor *current_task = get_current_task();
 #if MESSAGE_PASSING_DEBUG
   logprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
@@ -75,6 +76,7 @@ void syscall_send() {
 }
 
 void syscall_receive() {
+  task_descriptor *current_task = get_current_task();
 #if MESSAGE_PASSING_DEBUG
   logprintf("syscall_receive: recipient %d\n\r", current_task->tid);
 #endif
@@ -82,6 +84,7 @@ void syscall_receive() {
 }
 
 void syscall_reply() {
+  task_descriptor *current_task = get_current_task();
 #if MESSAGE_PASSING_DEBUG
   logprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
@@ -94,6 +97,7 @@ void syscall_reply() {
 }
 
 void syscall_cache_enable() {
+  task_descriptor *current_task = get_current_task();
   bool enable = current_task->tf->r1;
 #if TESTING
   (void)enable;
