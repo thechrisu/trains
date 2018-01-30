@@ -25,6 +25,7 @@ unsigned int main_fp;
 unsigned int main_sp;
 
 extern int ticks;
+extern int num_ctx_sw;
 
 void kmain() {
   setup_io();
@@ -33,6 +34,8 @@ void kmain() {
 
   // Initialize tick count
   ticks = 0;
+
+  num_ctx_sw = 0;
 
   // Setup VIC
   *(uint32_t *)0x800B0010 = 0x10;
@@ -125,6 +128,8 @@ int main() {
 
   // Disable timer
   *(uint32_t *)0x80810008 &= ~0x80;
+
+  bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
 
 #if VERSATILEPB
   __asm__(

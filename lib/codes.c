@@ -29,6 +29,10 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   if (argc > 3) arg4 = argv[3];
   if (argc > 4) arg5 = argv[4];
 
+  long good_vars[3];
+  for (int i = 0; i < 3; i++) {
+    good_vars[i] = 0x73AD0D3;
+  }
   __asm__ volatile (
     "swi 0\n\t"
     "mov %0, r0"

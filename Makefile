@@ -130,7 +130,7 @@ $(builddir)/%.o: $(builddir)/%.s
 	@mkdir -p $(dir $@)
 	$(AS) $(ASFLAGS) $< -o $@
 
-$(builddir)/main.elf: $(OBJECTS)
+$(builddir)/m.elf: $(OBJECTS)
 	$(LD) $(LDFLAGSarm) -o $@ $(OBJECTS) -lgcc
 
 $(builddir)/main.bin: $(builddir)/main.elf
@@ -248,7 +248,7 @@ clean:
 upload:
 	make clean
 	make trainslab
-	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
+	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/m
 
 qemu:
 	make versatilepb

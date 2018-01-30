@@ -75,7 +75,6 @@ void task_activate(task_descriptor *task) {
   //logprintf("%x, %d, %x\n\r", task->tf->fp, task->tid, task->tf->sp);
   //kassert ((task->tf->fp & 0xF4330000) >= 0xF4320000 || ((*((uint32_t*)task->tf->fp-20)) & 0xF4330000) < 0xF4320000);
   task->state = TASK_ACTIVE;
-  current_task = task;
 #ifndef TESTING
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *tid_send = TID_SEND;
@@ -96,7 +95,7 @@ void task_activate(task_descriptor *task) {
   kassert(!(task->tid == *tid_receive_reply && task->tid == *tid_send));
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   if (task->tf->sp != (int)task->tf) {
-    logprintf("current_task: %d\n\r", current_task->tid);
+    // logprintf("current_task: %d\n\r", current_task->tid);
     logprintf("task in leave_kernel: %d\n\r", task->tid);
     logprintf("address of trapframe: %x\n\r", (int)task->tf);
     print_tf(task->tf);
@@ -114,7 +113,7 @@ void task_activate(task_descriptor *task) {
   logprintf("End of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
-  kassert(task == current_task);
+  kassert(task == get_current_task());
 }
 
 void task_set_state(task_descriptor *task, task_state state) {

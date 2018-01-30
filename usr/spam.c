@@ -25,6 +25,14 @@ void spam_server() {
   }
 }
 
+void useless_fct(int i) {
+  if (i < 3) {
+    useless_fct(i + 1);
+  } else {
+    Pass();
+  }
+}
+
 void spam() {
   Create(5, &nameserver_main);
   Create(5, &spam_server);

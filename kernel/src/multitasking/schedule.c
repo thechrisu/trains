@@ -4,10 +4,14 @@
 
 static scheduler kscheduler;
 static ready_queue scheduler_queues[MAX_PRIORITY + 1];
-task_descriptor *current_task;
+static task_descriptor *current_task;
 
 void setup_scheduler() {
   scheduler_init(&kscheduler, MAX_PRIORITY, scheduler_queues);
+}
+
+task_descriptor *get_current_task() {
+  return current_task;
 }
 
 bool schedule() {
@@ -29,6 +33,7 @@ bool schedule() {
   kassert((next->tf->sp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->sp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK));
   kassert((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK) || (next->tf->fp == 0xF433000B + (next->tid << 4)));
   kassert((next->tf->r7 & 0xFFFF0000) != 0xF433 || ((0xFFF0 & next->tf->r7) >> 4) == next->tid);
+  current_task = next;
   task_activate(next);
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_before_schedule = LOC_BEFORE_SCHEDULE;
