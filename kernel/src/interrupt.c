@@ -77,7 +77,9 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-  kassert(tf->sp == (int)tf);
+#ifndef TESTING
+  kassert(tf->sp == (register_t)tf);
+#endif /* TESTING */
   current_task->tf = tf;
 #if TIMERINTERRUPT_DEBUG
   if (current_task->tid == 3) {
@@ -105,7 +107,6 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
-#endif /* TESTING */
 
   if (pic_status > 0) {
     // Clear interrupt
@@ -113,6 +114,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     ticks += 1;
     return tf;
   }
+#endif /* TESTING */
 
   switch (tf->r0) {
     case SYS_EXIT:

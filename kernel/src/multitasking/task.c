@@ -112,7 +112,10 @@ void task_activate(task_descriptor *task) {
   logprintf("End of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
+
+#ifndef TESTING
   kassert(task == get_current_task());
+#endif /* TESTING */
 }
 
 void task_set_state(task_descriptor *task, task_state state) {
