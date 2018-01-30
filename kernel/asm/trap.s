@@ -67,7 +67,11 @@ is_irq:
   MOV r0, sp
 
 /* Set second argument to PIC status. */
+.ifdef VERSATILEPB
+  LDR r1, =0x10140000
+.else
   LDR r1, =0x800B0000
+.endif
   LDR r1, [r1]
 
 /* Enter IRQ mode. */

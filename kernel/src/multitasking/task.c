@@ -72,7 +72,6 @@ void task_activate(task_descriptor *task) {
   kassert((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK) || (task->tf->fp == 0xF433000B + (task->tid << 4)));
 #if TIMERINTERRUPT_DEBUG
   kassert((task->tf->r7 & 0xFFFF0000) != 0xF4330000 || ((0xFFF0 & task->tf->r7) >> 4) == task->tid);
-  kassert ((task->tf->fp & 0xF4330000) >= 0xF4320000 || ((*((uint32_t*)task->tf->fp-20)) & 0xF4330000) < 0xF4320000);
   print_tf(task->tf);
   logprintf("%x, %d, %x\n\r", task->tf->fp, task->tid, task->tf->sp);
 #endif /* TIMERINTERRUPT_DEBUG */
@@ -98,6 +97,7 @@ void task_activate(task_descriptor *task) {
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 #if TIMERINTERRUPT_DEBUG
   if (task->tf->sp != (int)task->tf) {
+    task_descriptor *current_task = get_current_task();
     logprintf("current_task: %d\n\r", current_task->tid);
     logprintf("task in leave_kernel: %d\n\r", task->tid);
     logprintf("address of trapframe: %x\n\r", (int)task->tf);
