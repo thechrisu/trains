@@ -100,6 +100,12 @@ int main() {
     "mov %1, sp\n\t"
   : "=r" (main_fp), "=r" (main_sp));
 
+  __asm__(
+    "msr cpsr_c, #0xD2\n\t"   // Enter IRQ mode
+    "mov sp, #0xDA000000\n\t" // Put magic value in sp_irq
+    "msr cpsr_c, #0xD3\n\t"   // Go back to kernel mode
+  );
+
   // Check that interrupts are disabled and we're in kernel mode.
   register_t psr;
   __asm__("MRS %0, cpsr" : "=r" (psr));
