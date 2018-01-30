@@ -42,16 +42,25 @@ enter_kernel: /* called on an interrupt */
 */
   SUB r14, r14, #4
 
+/* Put the IRQ link register in the k_lr field of the trapframe on the user stack. */
+  STR r14, [r0, #64]
+
+/*
+  Put a magic value in lr_irq so that later we can assert we don't read it out.
+  Add 0x4 to it because, if it's read out later, it will be decreased by 4.
+*/
+  LDR lr, =0xA1B2C3D8
+
   B is_irq
 
 /* Enter kernel mode. */
 is_swi:
   MSR cpsr_c, #0xD3
 
-is_irq:
-
-/* Put the kernel/IRQ link register in the k_lr field of the trapframe on the user stack. */
+/* Put the kernel link register in the k_lr field of the trapframe on the user stack. */
   STR r14, [r0, #64]
+
+is_irq:
 
 /* Put the saved program status register in the psr field. */
   MRS r4, spsr

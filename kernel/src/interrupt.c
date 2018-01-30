@@ -50,6 +50,8 @@ static volatile int num_foobar_stacks = 0;
 static register_t prev_fp[MAX_TASKS];
 
 trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
+  kassert(tf->k_lr != 0xA1B2C3D4);
+
   volatile task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
   kassert(tf->fp != 0);
@@ -77,7 +79,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   kassert(tf->sp == (int)tf);
   current_task->tf = tf;
-  if (current_task->tid == 3) {
+  if (current_task->tid == 3 && false) {
     if ((tf->fp & 0xFFFF0000) != 0xF4330000) { // && (tf->k_lr < (uint32_t)&software_interrupt || tf->k_lr > (uint32_t)(&software_interrupt) + 1000)) {
       bool found_junk = false;
       for (register_t* i = tf->fp - 4; i >= tf->sp + 72 && !found_junk; i--) {
