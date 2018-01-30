@@ -40,14 +40,11 @@ void kmain() {
   // Setup PIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
 
+  interrupt_timer_setup();
+
   // Setup tick timer
 #if VERSATILEPB
-  *(uint32_t *)(TIMER2_BASE + LDR_OFFSET) = 10000;
-  *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK | ENABLE_INTERRUPT | TIMER_SIZE);
 #else
-  *(uint32_t *)(TIMER1_BASE + LDR_OFFSET) = 20;
-  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK);
-  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~(CLKSEL_MASK);
 #endif /* VERSATILEPB */
 
   next_task_id = 1;
@@ -134,19 +131,7 @@ int main() {
   // Disable VIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
 
-#if VERSATILEPB
-  // Clear interrupt in timer
-  *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
-
-  // Disable timer
-  *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
-#else
-  // Clear interrupt in timer
-  *(uint32_t *)(TIMER1_BASE + CLR_OFFSET) = 1;
-
-  // Disable timer
-  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
-#endif /* VERSATILEPB */
+  interrupt_timer_teardown();
 
 #if TIMERINTERRUPT_DEBUG
   bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);

@@ -111,3 +111,18 @@ void get_time_struct(my_time *sto, uint32_t *timestamp) {
   sto->sec = (adjusted_time / 1000) % 60;
   sto->dsec = (adjusted_time / 100) % 10;
 }
+
+void interrupt_timer_setup() {
+  *(uint32_t *)(TIMER1_BASE + LDR_OFFSET) = 20;
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK);
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~(CLKSEL_MASK);
+}
+
+void interrupt_timer_teardown() {
+  interrupt_timer_clear();
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
+}
+
+void interrupt_timer_clear() {
+  *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
+}

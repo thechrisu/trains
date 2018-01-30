@@ -109,8 +109,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert((tf->psr & 0xFF) == 0x10);
 
   if (pic_status > 0) {
-    // Clear interrupt
-    *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
+    interrupt_timer_clear();
     ticks += 1;
     return tf;
   }
