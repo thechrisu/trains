@@ -2,16 +2,12 @@
 #include "myio.h"
 #include "schedule.h"
 
-static scheduler kscheduler;
-static ready_queue scheduler_queues[MAX_PRIORITY + 1];
-static task_descriptor *current_task;
+scheduler kscheduler;
+ready_queue scheduler_queues[MAX_PRIORITY + 1];
+task_descriptor *current_task;
 
 void setup_scheduler() {
   scheduler_init(&kscheduler, MAX_PRIORITY, scheduler_queues);
-}
-
-task_descriptor *get_current_task() {
-  return current_task;
 }
 
 bool schedule() {
@@ -30,10 +26,6 @@ bool schedule() {
   *loc_after_schedule = get_clockticks();
   // logprintf("(%d) After schedule\n\r", *loc_after_schedule);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-  kassert((next->tf->sp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->sp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK));
-  kassert((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK) || (next->tf->fp == 0xF433000B + (next->tid << 4)));
-  kassert((next->tf->r7 & 0xFFFF0000) != 0xF433 || ((0xFFF0 & next->tf->r7) >> 4) == next->tid);
-  current_task = next;
   task_activate(next);
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_before_schedule = LOC_BEFORE_SCHEDULE;
@@ -41,10 +33,6 @@ bool schedule() {
   // logprintf("(%d) Before schedule\n\r", *loc_before_schedule);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   if (likely(next->state == TASK_RUNNABLE || next->state == TASK_ACTIVE)) {
-    kassert((next->tf->sp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->sp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK));
-    kassert((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK) || (next->tf->fp == 0xF433000B + (next->tid << 4)));
-    kassert((next->tf->r7 & 0xFFFF0000) != 0xF433 || ((0xFFF0 & next->tf->r7) >> 4) == next->tid);
-    kassert(next == current_task);
     task_set_state(current_task, TASK_RUNNABLE);
     scheduler_register(&kscheduler, next);
   }

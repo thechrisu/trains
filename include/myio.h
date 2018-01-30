@@ -10,7 +10,7 @@
 #include "buffer.h"
 #include "assert.h"
 
-#define LOG_BUFFER_SIZE 1<<22
+#define LOG_BUFFER_SIZE 1<<20
 
 extern int oe_in_sensor;
 

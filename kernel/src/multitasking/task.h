@@ -58,9 +58,9 @@ struct td {
 typedef struct td task_descriptor;
 
 extern tid_t next_task_id;
-extern task_descriptor all_tasks[MAX_TASKS];
-extern task_descriptor *send_queues[MAX_TASKS];
-extern int num_ctx_sw;
+extern task_descriptor *current_task;
+extern task_descriptor *all_tasks;
+extern task_descriptor **send_queues;
 
 /**
  * Initializes the task structure.

@@ -23,11 +23,6 @@
 void setup_scheduler();
 
 /**
- * Get a pointer to the task currently running.
- */
-task_descriptor *get_current_task();
-
-/**
  * Gets the next task to be run from the scheduler, runs it.
  * If task has exited, don't schedule it again.
  * @returns Whether or not there is still a running task.
