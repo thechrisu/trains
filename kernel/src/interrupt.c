@@ -11,6 +11,7 @@ extern void syscall_pass();
 extern int syscall_mytid();
 extern int syscall_myparenttid();
 #endif /* TESTING */
+extern int software_interrupt(register_t code, register_t argc, register_t *argv);
 
 int ticks;
 
@@ -74,31 +75,25 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-  kassert(tf->sp == tf);
+  kassert(tf->sp == (int)tf);
   current_task->tf = tf;
-  if (tf->fp != prev_fp[current_task->tid] && pic_status > 0) {
-    if ((tf->fp & 0xFFFF0000) != 0xF4330000) {
+  if (current_task->tid == 3) {
+    if ((tf->fp & 0xFFFF0000) != 0xF4330000) { // && (tf->k_lr < (uint32_t)&software_interrupt || tf->k_lr > (uint32_t)(&software_interrupt) + 1000)) {
       bool found_junk = false;
       for (register_t* i = tf->fp - 4; i >= tf->sp + 72 && !found_junk; i--) {
         found_junk |= (*i & 0xFFFF0000) == 0xF4330000;
       }
       if (found_junk) {
-        logprintf("Old fp: %x, New fp: %x, Sp: %x, tid: %d, ctx: %d, PIC: %d, TF: %x\n\r", prev_fp[current_task->tid], tf->fp, tf->sp + 72, current_task->tid, num_ctx_sw, pic_status, tf);
-        //print_tf(tf);
+        logprintf("Old fp: %x, New fp: %x, Sp: %x, tid: %d, ctx: %d, PIC: %d, TF: %x, klr: %x\n\r", prev_fp[current_task->tid], tf->fp, tf->sp + 72, current_task->tid, num_ctx_sw, pic_status, tf, tf->k_lr);
+        print_tf(tf);
         for (register_t* i = tf->fp - 4; i >= tf->sp + 72; i--) {
           logprintf("%x ", *i);
         }
         logprintf("\n\r");
+        logprintf("\n\r");
       }
     }
     prev_fp[current_task->tid] = tf->fp;
-  }
-  if ((*((uint32_t*)tf->k_lr-1) & 0x0F000000) != 0x0F000000 && (!((tf->fp & 0xFFFF0000) == 0xF4330000) && ((*((uint32_t*)tf->fp-5)) & 0xF4330000) == 0xF4330000)) {
-    logprintf("IH: (CTX %d, FU Stacks: %d)\n\r", num_ctx_sw, ++num_foobar_stacks);
-    if (pic_status > 0) {
-      logprintf("PIC: %d\n\r", pic_status);
-    }
-    print_tf(tf);
   }
 #ifndef TESTING
   register_t cpsr_val;

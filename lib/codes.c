@@ -20,7 +20,6 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   register register_t arg4 __asm__ ("r4");
   register register_t arg5 __asm__ ("r5");
   register register_t arg6 __asm__ ("r6");
-  int result;
 
   arg0 = code;
   if (argc > 0) arg1 = argv[0];
@@ -28,15 +27,11 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   if (argc > 2) arg3 = argv[2];
   if (argc > 3) arg4 = argv[3];
   if (argc > 4) arg5 = argv[4];
+  if (argc > 5) arg6 = argv[5];
 
-  long good_vars[3];
-  for (int i = 0; i < 3; i++) {
-    good_vars[i] = 0x73AD0D3;
-  }
   __asm__ volatile (
     "swi 0\n\t"
-    "mov %0, r0"
-    : "=r" (result)
+    : "=r" (arg0)
     : "r" (arg0), "r" (arg1), "r" (arg2), "r" (arg3), "r" (arg4), "r" (arg5), "r" (arg6)
   );
 
@@ -44,7 +39,7 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   logprintf("End of software_interrupt\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  return result;
+  return arg0;
 }
 
 void Exit() {

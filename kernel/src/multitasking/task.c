@@ -101,11 +101,6 @@ void task_activate(task_descriptor *task) {
     print_tf(task->tf);
   }
   num_ctx_sw += 1;
-  if ((*((uint32_t*)task->tf->k_lr-1) & 0x0F000000) != 0x0F000000 && (!((task->tf->fp & 0xFFFF0000) == 0xF4330000) && ((*((uint32_t*)task->tf->fp-5)) & 0xF4330000) == 0xF4330000) && task->tf->fp - task->tf->sp >= 5) {
-    logprintf("CTX_SW: %d\n\r", num_ctx_sw);
-    print_tf(task->tf);
-    //logprintf("[fp-20;fp]: %x, %x, %x, %x, %x, %x\n\r", (*((uint32_t*)task->tf->fp-20)), (*((uint32_t*)task->tf->fp-16)), (*((uint32_t*)task->tf->fp-12)), (uint32_t)task->tf->fp);
-  }
 
   leave_kernel(task->tf->r0, task->tf);
 #endif
