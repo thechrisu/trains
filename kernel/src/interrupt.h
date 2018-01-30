@@ -32,6 +32,9 @@ typedef struct {
   register_t psr;
 } trapframe;
 
+register_t event_masks[MAX_EVENT_ID] = {
+  0x00000020
+};
 
 #define NULL_TRAPFRAME (trapframe *)0
 

@@ -4,6 +4,7 @@
 #include "myio.h"
 #include "multitasking/messaging.h"
 #include "syscall/syscall.h"
+#include "events.h"
 
 #if TESTING
 extern void syscall_exit();
@@ -108,13 +109,27 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #endif /* TESTING */
 
   if (pic_status > 0) {
+    // Clear interrupt
+    int highest_prio_event = -1;
+    for (int i = 0; i < MAX_EVENT_ID; i++) {
+      if (pic_status & event_masks[i]) {
+        highest_prio_event = i;
+        break;
+      }
+    }
+    int event_data = -2;
+    switch (highest_prio_event) {
+      case TIMER_INTERRUPT:
+        event_data = 0;
 #if VERSATILEPB
-    // Clear interrupt
-    *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
+        *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
 #else
-    // Clear interrupt
-    *(uint32_t *)0x8081000C = 1;
+        // Clear interrupt
+        *(uint32_t *)0x8081000C = 1;
 #endif /* VERSATILEPB */
+        break;
+    }
+    event_handle(highest_prio_event, event_data);
     ticks += 1;
     return tf;
   }
