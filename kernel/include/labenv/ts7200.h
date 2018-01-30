@@ -29,7 +29,7 @@
 
 #define LDR_OFFSET          0x00000000    // 16/32 bits, RW
 #define VAL_OFFSET          0x00000004    // 16/32 bits, RO
-#define CRTL_OFFSET         0x00000008    // 3 bits, RW
+#define CTRL_OFFSET         0x00000008    // 3 bits, RW
 #define ENABLE_MASK         0x00000080
 #define MODE_MASK           0x00000040
 #define CLKSEL_MASK         0x00000008
@@ -107,3 +107,8 @@
 
 // start bit - data bits(8, LSB first) - parity bit - stop bits
 #define FIFO_DEPTH 16
+
+// VIC constants
+#define VIC_BASE            0x800B0000
+#define VIC_ENABLE_OFFSET   0x10
+#define VIC_TIMER_MASK      0x10

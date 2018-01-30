@@ -108,13 +108,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #endif /* TESTING */
 
   if (pic_status > 0) {
-#if VERSATILEPB
     // Clear interrupt
     *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
-#else
-    // Clear interrupt
-    *(uint32_t *)0x8081000C = 1;
-#endif /* VERSATILEPB */
     ticks += 1;
     return tf;
   }

@@ -36,21 +36,18 @@ void kmain() {
   ticks = 0;
 
   num_ctx_sw = 0;
-#if VERSATILEPB
+
   // Setup PIC
-  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER2_MASK;
+  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
 
   // Setup tick timer
+#if VERSATILEPB
   *(uint32_t *)(TIMER2_BASE + LDR_OFFSET) = 10000;
   *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK | ENABLE_INTERRUPT | TIMER_SIZE);
 #else
-  // Setup VIC
-  *(uint32_t *)0x800B0010 = 0x10;
-
-  // Setup tick timer
-  *(uint32_t *)0x80810000 = 20;
-  *(uint32_t *)0x80810008 |= (0x80 | 0x40);
-  *(uint32_t *)0x80810008 &= ~0x8;
+  *(uint32_t *)(TIMER1_BASE + LDR_OFFSET) = 20;
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK);
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~(CLKSEL_MASK);
 #endif /* VERSATILEPB */
 
   next_task_id = 1;
@@ -134,24 +131,21 @@ int main() {
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
-#if VERSATILEPB
   // Disable VIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
 
+#if VERSATILEPB
   // Clear interrupt in timer
   *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
 
   // Disable timer
   *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
 #else
-  // Disable VIC
-  *(uint32_t *)0x800B0010 = 0x0;
-
   // Clear interrupt in timer
-  *(uint32_t *)0x8081000C = 1;
+  *(uint32_t *)(TIMER1_BASE + CLR_OFFSET) = 1;
 
   // Disable timer
-  *(uint32_t *)0x80810008 &= ~0x80;
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
 #endif /* VERSATILEPB */
 
 #if TIMERINTERRUPT_DEBUG
