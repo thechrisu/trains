@@ -93,7 +93,7 @@ OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 x64stdlib:
 	mkdir -p build
 	mkdir -p $(builddirx64)
-	make $(builddirx64)/main
+	$(MAKE) $(builddirx64)/main
 
 $(builddirx64)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -116,7 +116,7 @@ $(builddirx64)/main: $(OBJECTSx64)
 arm:
 	mkdir -p build
 	mkdir -p $(builddir)
-	make $(builddir)/main.bin -j2
+	$(MAKE) $(builddir)/main.bin
 
 $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -140,7 +140,7 @@ $(builddir)/main.bin: $(builddir)/main.elf
 trainslab:
 	mkdir -p build
 	mkdir -p $(builddirlab)
-	make $(builddirlab)/main.bin -j2
+	$(MAKE) $(builddirlab)/main.bin
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -168,13 +168,13 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	cd test && make alltests
+	cd test && $(MAKE) alltests
 	cd ..
 
 versatilepb:
 	mkdir -p build
 	mkdir -p $(builddirversatilepb)
-	make $(builddirversatilepb)/main.bin -j2
+	$(MAKE) $(builddirversatilepb)/main.bin
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -198,7 +198,7 @@ $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 e2etest:
 	mkdir -p build
 	mkdir -p $(builddirtesting)
-	make $(builddirtesting)/main.bin -j2
+	$(MAKE) $(builddirtesting)/main.bin
 
 $(builddirtesting)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -218,36 +218,25 @@ $(builddirtesting)/main.elf: $(OBJECTSversatilepb_e2e)
 $(builddirtesting)/main.bin: $(builddirtesting)/main.elf
 	$(OBJCOPY) -O binary $(builddirtesting)/main.elf $(builddirtesting)/main.bin
 
-all:
-	set -e
-	make docs -j2
-	make arm -j2
-	make versatilepb -j2
-	make e2etest -j2
-	make test -j2
+all: docs arm versatilepb e2etest test
 
-ci:
+ci: docs arm versatilepb e2etest
 	set -e
-	make docs -j2
-	make arm -j2
-	make versatilepb -j2
-	make e2etest -j2
-	set +e
-	cd test && make all -j2
+	cd test && $(MAKE) all
 	cd ..
 	set -e
-	make test -j2
+	$(MAKE) test
 
 clean:
 	rm -f *.s *.a *.o \
 	  $(builddir)/main.map $(builddir)/main.elf $(builddir)/*.o
 	rm -rf build/*
 	find . -name ".#*" -print0 | xargs -0 rm -rf
-	cd test && make clean && cd ..
+	cd test && $(MAKE) clean && cd ..
 
 upload:
-	make clean
-	make trainslab
+	$(MAKE) clean
+	$(MAKE) trainslab
 	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/m
 
 qemu:

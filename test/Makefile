@@ -10,14 +10,10 @@ SRC_TASK = $(SRC)
 SRC_TEST = $(shell find unit -name '*.cc')
 
 all:
-	make clean
-	make test_buffer.out
-	make test_ready_queue.out
-	make test_scheduler.out
-	make test_task.out
-	make test_messaging.out
-	make test_stdlib.out
-	make test_all.out
+	$(MAKE) clean
+	$(MAKE) all1
+all1: test_buffer.out test_ready_queue.out test_scheduler.out test_task.out test_messaging.out \
+			test_stdlib.out test_all.out
 	./unit/test_all.out
 	./unit/test_buffer.out
 	./unit/test_ready_queue.out
@@ -27,7 +23,7 @@ all:
 	./unit/test_task.out
 
 alltests: test_all.out
-	make test
+	$(MAKE) test
 
 test:
 	./unit/test_all.out
