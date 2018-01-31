@@ -57,7 +57,8 @@ struct td {
 
 typedef struct td task_descriptor;
 
-extern int num_ctx_sw, next_task_id;
+extern int num_ctx_sw;
+extern tid_t next_task_id;
 
 
 task_descriptor *get_next_raw_td();
