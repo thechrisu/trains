@@ -1,9 +1,19 @@
 #include "task.h"
 
+extern task_descriptor *get_current_task();
+
 tid_t next_task_id = 1;
-task_descriptor all_tasks[MAX_TASKS];
-task_descriptor *send_queues[MAX_TASKS];
+static task_descriptor all_tasks[MAX_TASKS];
+static task_descriptor *send_queues[MAX_TASKS];
 int num_ctx_sw = 0;
+
+task_descriptor *get_next_raw_td() {
+  return &(all_tasks[next_task_id]);
+}
+
+task_descriptor *get_task_with_tid(tid_t tid) {
+  return &(all_tasks[tid]);
+}
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
@@ -24,7 +34,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
-#if TIMERINTTERUPT_DEBUG
+#if TIMERINTERRUPT_DEBUG
   logprintf("Task tf(%d): %x\n\r", task->tid, task->tf);
 #endif /* TIMERINTERRUPT_DEBUG */
 #else
@@ -69,7 +79,7 @@ void task_activate(task_descriptor *task) {
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
   kassert((task->tf->sp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->sp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK));
-  kassert((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK) || (task->tf->fp == 0xF433000B + (task->tid << 4)));
+  kassert(((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK)) || (task->tf->fp == (register_t)0xF433000B + (task->tid << 4)));
 #if TIMERINTERRUPT_DEBUG
   kassert((task->tf->r7 & 0xFFFF0000) != 0xF4330000 || ((0xFFF0 & task->tf->r7) >> 4) == task->tid);
   print_tf(task->tf);

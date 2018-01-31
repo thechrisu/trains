@@ -12,13 +12,13 @@ int syscall_create(int priority, void (*code)()) {
   if (priority < 0 || priority > MAX_PRIORITY) {
     return -1;
   }
-  task_descriptor *ret = &(all_tasks[next_task_id]);
+  task_descriptor *ret = get_next_raw_td();
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Got task descriptor memory\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   task_init(ret, priority, code, get_current_task());
 #if CONTEXT_SWITCH_DEBUG
-  logprintf("Set up task in syscall_create\n\r");
+  logprintf("Set up task in syscall_create, tf: %x\n\r", ret->tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
   int register_result = register_task(ret);
   if (register_result) {
@@ -72,7 +72,7 @@ void syscall_send() {
     current_task->tf->r0 = -2;
     return;
   }
-  send(current_task, &(all_tasks[receiver_tid]));
+  send(current_task, (task_descriptor *)get_task_with_tid(receiver_tid));
 }
 
 void syscall_receive() {
@@ -93,7 +93,7 @@ void syscall_reply() {
     current_task->tf->r0 = -2;
     return;
   }
-  reply(&(all_tasks[sender_tid]), current_task);
+  reply(get_task_with_tid(sender_tid), current_task);
 }
 
 void syscall_cache_enable() {

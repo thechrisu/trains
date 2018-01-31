@@ -696,7 +696,7 @@ void logprintf(char *fmt, ...) {
   va_list va;
 
   va_start(va, fmt);
-  format(logputc, fmt, va);
+  format(bwterminalputc, fmt, va);
   va_end(va);
 }
 
