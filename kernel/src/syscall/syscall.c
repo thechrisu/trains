@@ -96,6 +96,10 @@ void syscall_reply() {
   reply(&(all_tasks[sender_tid]), current_task);
 }
 
+int syscall_awaitevent(int event_id) {
+  return event_register(event_id, get_current_task());
+}
+
 void syscall_cache_enable() {
   task_descriptor *current_task = get_current_task();
   bool enable = current_task->tf->r1;
