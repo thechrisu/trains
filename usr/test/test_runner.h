@@ -13,6 +13,7 @@
 #include "nameserver/test_nameserver_wrapper_errors.h"
 #include "nameserver/test_nameserver_too_many.h"
 #include "nameserver/test_nameserver_happypath.h"
+#include "awaitevent/test_timer_interrupt.h"
 #include "./test_undefined_handler.h"
 #include "./test_message_benchmark.h"
 #include "myio.h"

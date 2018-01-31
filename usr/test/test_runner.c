@@ -72,6 +72,8 @@ void test_runner() {
       exec_prog(5, &test_undefined_handler);
     } else if (tstrcmp(buf, "message_benchmark")) {
       exec_prog(7, &message_benchmark);
+    } else if (tstrcmp(buf, "test_timer_interrupt")) {
+      exec_prog(5, &test_timer_interrupt);
     } else if (!tstrcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
