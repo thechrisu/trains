@@ -40,12 +40,8 @@ void kmain() {
   // Setup PIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
 
-  interrupt_timer_setup();
-
   // Setup tick timer
-#if VERSATILEPB
-#else
-#endif /* VERSATILEPB */
+  interrupt_timer_setup();
 
   next_task_id = 1;
 

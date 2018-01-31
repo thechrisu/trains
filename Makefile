@@ -38,6 +38,14 @@ ifeq (true,$(TEST_RUNNER))
 TEST_RUNNER_FLAG = -DE2ETESTING
 endif
 
+E2ELDFILE=versatilepb_e2e.ld
+
+ifeq (true,$(TIMER_INTERRUPTS))
+builddirtesting=build/testingtmr
+TIMER_INTERRUPTS_FLAG = -DTIMER_INTERRUPTS
+E2ELDFILE=versatilepb_e2e_tmr.ld
+endif
+
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
@@ -53,7 +61,7 @@ CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
-CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
+CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS) $(TIMER_INTERRUPTS_FLAG)
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
@@ -69,8 +77,10 @@ LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
 	-L$(armlibs) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
-LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T versatilepb_e2e.ld \
+
+LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+
 LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin

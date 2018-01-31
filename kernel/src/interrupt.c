@@ -179,7 +179,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       break;
     case SYS_AWAIT_EVENT:
       tf->r0 = syscall_awaitevent(tf->r1);
-#ifdef E2ETESTING
+#if E2ETESTING && !TIMER_INTERRUPTS
       if (tf->r1 == TIMER_INTERRUPT) { // Simulate instant timer interrupt return.
         event_handle(TIMER_INTERRUPT, 0);
       }
