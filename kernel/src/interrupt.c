@@ -47,11 +47,12 @@ void print_tf(trapframe *tf) {
 #endif /* TESTING */
 }
 
-static volatile int num_foobar_stacks = 0;
+#if TIMERINTERRUPT_DEBUG
 static register_t prev_fp[MAX_TASKS];
+#endif /* TIMERINTERRUPT_DEBUG */
 
 trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
-  kassert(tf->k_lr != 0xA1B2C3D4);
+  kassert(tf->k_lr != (register_t)0xA1B2C3D4);
 
   volatile task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
