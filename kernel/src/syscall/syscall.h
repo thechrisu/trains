@@ -5,6 +5,7 @@
 #ifndef TRAINS_SYSCALL_H
 #define TRAINS_SYSCALL_H
 
+#include "events.h"
 #include "schedule.h"
 #include "messaging.h"
 #include "task.h"
@@ -70,6 +71,14 @@ void syscall_receive();
  * Replies to a message from another task. Arguments passed in the current task's trapframe.
  */
 void syscall_reply();
+
+/**
+ * Registers the current task for the given event.
+ * Returns immediately to user if parameters are off.
+ * In case we get an event, make sure to call
+ * <code>event_handle()</code> in <code>handle_interrupt()</code>
+ */
+int syscall_awaitevent(int event_id);
 
 /**
  * Enables/Disables the caches on a user's request.

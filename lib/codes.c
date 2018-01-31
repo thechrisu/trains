@@ -191,4 +191,9 @@ void EnableCaches(bool enable) {
   software_interrupt(SYS_CACHE_ENABLE, 1, args);
 }
 
+int AwaitEvent(int event_id) {
+  register_t args[] = {(register_t)event_id};
+  software_interrupt(SYS_AWAIT_EVENT, 1, args);
+}
+
 #endif /* TESTING */

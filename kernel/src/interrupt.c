@@ -1,10 +1,11 @@
 #include "codes.h"
 #include "crash.h"
+#include "event_data.h"
+#include "events.h"
 #include "interrupt.h"
 #include "myio.h"
 #include "multitasking/messaging.h"
 #include "syscall/syscall.h"
-#include "events.h"
 
 #if TESTING
 extern void syscall_exit();
@@ -15,6 +16,13 @@ extern int syscall_myparenttid();
 extern int software_interrupt(register_t code, register_t argc, register_t *argv);
 
 int ticks;
+
+static volatile int num_foobar_stacks = 0;
+static register_t prev_fp[MAX_TASKS];
+
+register_t event_masks[MAX_EVENT_ID + 1] = {
+  0x00000020
+};
 
 void print_tf(trapframe *tf) {
 #ifndef TESTING
@@ -46,9 +54,6 @@ void print_tf(trapframe *tf) {
   logputc('\r');
 #endif /* TESTING */
 }
-
-static volatile int num_foobar_stacks = 0;
-static register_t prev_fp[MAX_TASKS];
 
 trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert(tf->k_lr != 0xA1B2C3D4);
@@ -167,6 +172,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     case SYS_CACHE_ENABLE:
       syscall_cache_enable();
       break;
+    case SYS_AWAIT_EVENT:
+      tf->r0 = syscall_awaitevent(tf->r0);
     default:
       tf->r0 = 0xABADC0DE;
   }

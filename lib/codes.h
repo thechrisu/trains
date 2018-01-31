@@ -155,6 +155,16 @@ int WhoIs(char *name);
  */
 void EnableCaches(bool enable);
 
+/**
+ * Waits and blocks for a certain event.
+ * @param event_id A valid event id, see <code>event_data.h</code>.
+ * @return >-1     Data
+ *         -1      Invalid event id
+ *         -2      Corrupt data
+ *         -3      Another task already registered for this event.
+ */
+int AwaitEvent(int event_id);
+
 #define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS            1
 #define SYS_CREATE          2
@@ -165,5 +175,6 @@ void EnableCaches(bool enable);
 #define SYS_RECEIVE         7
 #define SYS_REPLY           8
 #define SYS_CACHE_ENABLE    9
+#define SYS_AWAIT_EVENT     10
 
 #endif /* CODES_H */

@@ -36,7 +36,8 @@ typedef enum task_state {
   TASK_ZOMBIE,
   TASK_RECEIVE_BLOCKED, // State sender task is in after calling Send(), before anything else happened (esp. before Receive() was called).
   TASK_SEND_BLOCKED, // State receiver task is in after calling Receive() without a message ready.
-  TASK_REPLY_BLOCKED // State sender is in after Receive() has been called, but Reply() has not.
+  TASK_REPLY_BLOCKED, // State sender is in after Receive() has been called, but Reply() has not.
+  TASK_EVENT_BLOCKED // State task is in after calling <code>AwaitEvent()</code>
 } task_state;
 
 typedef int16_t tid_t;
