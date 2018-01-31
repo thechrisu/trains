@@ -6,6 +6,7 @@
 #include "interrupt.h"
 #include "k2.h"
 #include "myio.h"
+#include "mytimer.h"
 #include "schedule.h"
 #include "send_queue.h"
 #include "stdlib.h"

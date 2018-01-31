@@ -124,5 +124,5 @@ void interrupt_timer_teardown() {
 }
 
 void interrupt_timer_clear() {
-  *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
+  *(uint32_t *)(TIMER1_BASE + CLR_OFFSET) = 1;
 }

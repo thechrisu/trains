@@ -2,6 +2,7 @@
 #include "crash.h"
 #include "interrupt.h"
 #include "myio.h"
+#include "mytimer.h"
 #include "multitasking/messaging.h"
 #include "syscall/syscall.h"
 
