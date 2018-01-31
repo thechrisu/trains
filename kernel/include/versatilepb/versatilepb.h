@@ -52,7 +52,7 @@
 
 #define VIC_BASE            0x10140000
 #define VIC_ENABLE_OFFSET   0x10
-#define VIC_TIMER2_MASK     0x20
+#define VIC_TIMER_MASK      0x20
 
 #endif //TRAINS_VERSATILEPB_H
 

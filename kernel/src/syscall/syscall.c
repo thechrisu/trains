@@ -1,8 +1,5 @@
 #include "syscall.h"
 
-extern unsigned int main_fp;
-extern unsigned int main_sp;
-
 int syscall_create(int priority, void (*code)()) {
   if (next_task_id >= MAX_TASKS) {
     return -2;
@@ -12,13 +9,13 @@ int syscall_create(int priority, void (*code)()) {
   if (priority < 0 || priority > MAX_PRIORITY) {
     return -1;
   }
-  task_descriptor *ret = &(all_tasks[next_task_id]);
+  task_descriptor *ret = get_next_raw_td();
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Got task descriptor memory\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   task_init(ret, priority, code, get_current_task());
 #if CONTEXT_SWITCH_DEBUG
-  logprintf("Set up task in syscall_create\n\r");
+  logprintf("Set up task in syscall_create, tf: %x\n\r", ret->tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
   int register_result = register_task(ret);
   if (register_result) {
@@ -54,11 +51,7 @@ void syscall_exit() {
 
 void syscall_panic() {
 #ifndef TESTING
-  __asm__(
-    "mov fp, %0\n\t"
-    "mov sp, %1\n\t"
-    "b panic_exit"
-  : : "r" (main_fp), "r" (main_sp));
+  __asm__("b panic_exit");
 #endif /* TESTING */
 }
 
@@ -72,7 +65,7 @@ void syscall_send() {
     current_task->tf->r0 = -2;
     return;
   }
-  send(current_task, &(all_tasks[receiver_tid]));
+  send(current_task, (task_descriptor *)get_task_with_tid(receiver_tid));
 }
 
 void syscall_receive() {
@@ -93,7 +86,7 @@ void syscall_reply() {
     current_task->tf->r0 = -2;
     return;
   }
-  reply(&(all_tasks[sender_tid]), current_task);
+  reply(get_task_with_tid(sender_tid), current_task);
 }
 
 int syscall_awaitevent(int event_id) {

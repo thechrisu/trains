@@ -4,6 +4,7 @@
 #include "events.h"
 #include "interrupt.h"
 #include "myio.h"
+#include "mytimer.h"
 #include "multitasking/messaging.h"
 #include "syscall/syscall.h"
 
@@ -18,7 +19,10 @@ extern int software_interrupt(register_t code, register_t argc, register_t *argv
 int ticks;
 
 static volatile int num_foobar_stacks = 0;
+
+#if TIMERINTERRUPT_DEBUG
 static register_t prev_fp[MAX_TASKS];
+#endif /* TIMERINTERRUPT_DEBUG */
 
 register_t event_masks[MAX_EVENT_ID + 1] = {
   0x00000020
@@ -56,7 +60,7 @@ void print_tf(trapframe *tf) {
 }
 
 trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
-  kassert(tf->k_lr != 0xA1B2C3D4);
+  kassert(tf->k_lr != (register_t)0xA1B2C3D4);
 
   volatile task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
@@ -83,7 +87,9 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     break;
   }
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-  kassert(tf->sp == (int)tf);
+#ifndef TESTING
+  kassert(tf->sp == (register_t)tf);
+#endif /* TESTING */
   current_task->tf = tf;
 #if TIMERINTERRUPT_DEBUG
   if (current_task->tid == 3) {
@@ -111,7 +117,6 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
-#endif /* TESTING */
 
   if (pic_status > 0) {
     // Clear interrupt
@@ -126,18 +131,18 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     switch (highest_prio_event) {
       case TIMER_INTERRUPT:
         event_data = 0;
-#if VERSATILEPB
-        *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
-#else
-        // Clear interrupt
-        *(uint32_t *)0x8081000C = 1;
-#endif /* VERSATILEPB */
+        interrupt_timer_clear();
+        ticks += 1;
         break;
+      default:
+        break; // I <3 GCC
     }
-    event_handle(highest_prio_event, event_data);
-    ticks += 1;
+    if (highest_prio_event != -1) {
+      event_handle(highest_prio_event, event_data);
+    }
     return tf;
   }
+#endif /* TESTING */
 
   switch (tf->r0) {
     case SYS_EXIT:

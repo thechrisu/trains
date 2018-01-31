@@ -328,6 +328,8 @@ int canputc(int channel) {
       flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
 #endif
       break;
+    default:
+      return -1;
   }
   if (TRAIN == channel) {
     return !(*flags & (TXFF_MASK | TXBUSY_MASK) && (*flags & CTS_MASK));

@@ -53,3 +53,17 @@ void get_time_struct(my_time *sto, uint32_t *timestamp) {
   sto->sec = (adjusted_time / 1000) % 60;
   sto->dsec = (adjusted_time / 100) % 10;
 }
+
+void interrupt_timer_setup() {
+  *(uint32_t *)(TIMER2_BASE + LDR_OFFSET) = 10000;
+  *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK | ENABLE_INTERRUPT | TIMER_SIZE);
+}
+
+void interrupt_timer_teardown() {
+  interrupt_timer_clear();
+  *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
+}
+
+void interrupt_timer_clear() {
+  *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
+}

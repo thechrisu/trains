@@ -44,6 +44,9 @@ void print_proc_mode(arm_proc_mode mode) {
     case SYS_MODE:
       proc_mode = "System";
       break;
+    default:
+      proc_mode = "Unknown";
+      break;
   }
   bwprintf("Processor mode: %s\n\r", proc_mode);
 }
@@ -75,6 +78,10 @@ void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapf
     case DATA_ABORT:
       pc_offset = -8;
       abort_type_str = "Data abort";
+      break;
+    default:
+      pc_offset = 0;
+      abort_type_str = "Unknown abort type";
       break;
   }
   bwprintf("\033[94m\033[5mReceived abort\033[25m\033[39m type: %s\n\r", abort_type_str);

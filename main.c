@@ -6,6 +6,7 @@
 #include "interrupt.h"
 #include "k2.h"
 #include "myio.h"
+#include "mytimer.h"
 #include "schedule.h"
 #include "send_queue.h"
 #include "stdlib.h"
@@ -21,8 +22,7 @@ extern void handle_undefined_abort();
 #endif /* VERSATILEPB */
 extern int next_task_id;
 
-unsigned int main_fp;
-unsigned int main_sp;
+trapframe main_tf;
 
 extern int ticks;
 extern int num_ctx_sw;
@@ -36,21 +36,15 @@ void kmain() {
   ticks = 0;
 
   num_ctx_sw = 0;
-#if VERSATILEPB
+
   // Setup PIC
-  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER2_MASK;
+  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
+
+  interrupt_timer_setup();
 
   // Setup tick timer
-  *(uint32_t *)(TIMER2_BASE + LDR_OFFSET) = 10000;
-  *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK | ENABLE_INTERRUPT | TIMER_SIZE);
+#if VERSATILEPB
 #else
-  // Setup VIC
-  *(uint32_t *)0x800B0010 = 0x10;
-
-  // Setup tick timer
-  *(uint32_t *)0x80810000 = 20;
-  *(uint32_t *)0x80810008 |= (0x80 | 0x40);
-  *(uint32_t *)0x80810008 &= ~0x8;
 #endif /* VERSATILEPB */
 
   next_task_id = 1;
@@ -104,9 +98,22 @@ void kmain() {
  */
 int main() {
   __asm__( /* CALLS TO KASSERT ABOVE THIS LINE MAY CAUSE BUGS */
-    "mov %0, fp\n\t"
-    "mov %1, sp\n\t"
-  : "=r" (main_fp), "=r" (main_sp));
+    "STR r0, [%0, #0]\n\t"
+    "STR r1, [%0, #4]\n\t"
+    "STR r2, [%0, #8]\n\t"
+    "STR r3, [%0, #12]\n\t"
+    "STR r4, [%0, #16]\n\t"
+    "STR r5, [%0, #20]\n\t"
+    "STR r6, [%0, #24]\n\t"
+    "STR r7, [%0, #28]\n\t"
+    "STR r8, [%0, #32]\n\t"
+    "STR r9, [%0, #36]\n\t"
+    "STR r10, [%0, #40]\n\t"
+    "STR r11, [%0, #44]\n\t"
+    "STR r12, [%0, #48]\n\t"
+    "STR r13, [%0, #52]\n\t"
+    "STR r14, [%0, #56]\n\t"
+  : : "r" (&main_tf));
 
   __asm__(
     "msr cpsr_c, #0xD2\n\t"   // Enter IRQ mode
@@ -134,25 +141,28 @@ int main() {
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
 
-#if VERSATILEPB
+  __asm__(
+    "LDR r0, [%0, #0]\n\t"
+    "LDR r1, [%0, #4]\n\t"
+    "LDR r2, [%0, #8]\n\t"
+    "LDR r3, [%0, #12]\n\t"
+    "LDR r4, [%0, #16]\n\t"
+    "LDR r5, [%0, #20]\n\t"
+    "LDR r6, [%0, #24]\n\t"
+    "LDR r7, [%0, #28]\n\t"
+    "LDR r8, [%0, #32]\n\t"
+    "LDR r9, [%0, #36]\n\t"
+    "LDR r10, [%0, #40]\n\t"
+    "LDR r11, [%0, #44]\n\t"
+    "LDR r12, [%0, #48]\n\t"
+    "LDR r13, [%0, #52]\n\t"
+    "LDR r14, [%0, #56]\n\t"
+  : : "r" (&main_tf));
+
   // Disable VIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
 
-  // Clear interrupt in timer
-  *(uint32_t *)(TIMER2_BASE + CLR_OFFSET) = 1;
-
-  // Disable timer
-  *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) &= ~ENABLE_MASK;
-#else
-  // Disable VIC
-  *(uint32_t *)0x800B0010 = 0x0;
-
-  // Clear interrupt in timer
-  *(uint32_t *)0x8081000C = 1;
-
-  // Disable timer
-  *(uint32_t *)0x80810008 &= ~0x80;
-#endif /* VERSATILEPB */
+  interrupt_timer_teardown();
 
 #if TIMERINTERRUPT_DEBUG
   bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);

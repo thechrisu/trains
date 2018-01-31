@@ -31,7 +31,12 @@ bool schedule() {
   // logprintf("(%d) After schedule\n\r", *loc_after_schedule);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   kassert((next->tf->sp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->sp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK));
-  kassert((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK) || (next->tf->fp == 0xF433000B + (next->tid << 4)));
+  /*if (!(((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK)) || (next->tf->fp == (register_t)0xF433000B + (next->tid << 4)))) {
+    bwprintf("fp: %x > %x, fp: %x <= %x, should be %x\n\r", next->tf->fp, STACK_TOP - (next->tid + 2) * BYTES_PER_TASK, next->tf->fp, STACK_TOP - (1 + next->tid) * BYTES_PER_TASK, (register_t)0xF433000B + (next->tid << 4));
+  print_tf(next->tf);
+}
+kassert(((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK)) || (next->tf->fp == (register_t)0xF433000B + (next->tid << 4)));*/
+
   kassert((next->tf->r7 & 0xFFFF0000) != 0xF433 || ((0xFFF0 & next->tf->r7) >> 4) == next->tid);
   current_task = next;
   task_activate(next);
@@ -42,7 +47,7 @@ bool schedule() {
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   if (likely(next->state == TASK_RUNNABLE || next->state == TASK_ACTIVE)) {
     kassert((next->tf->sp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->sp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK));
-    kassert((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK) || (next->tf->fp == 0xF433000B + (next->tid << 4)));
+    //kassert(((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next->tf->fp <= STACK_TOP - (1 + next->tid) * BYTES_PER_TASK)) || (next->tf->fp == (register_t)0xF433000B + (next->tid << 4)));
     kassert((next->tf->r7 & 0xFFFF0000) != 0xF433 || ((0xFFF0 & next->tf->r7) >> 4) == next->tid);
     kassert(next == current_task);
     task_set_state(current_task, TASK_RUNNABLE);

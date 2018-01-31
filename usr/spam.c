@@ -6,7 +6,7 @@ void spam_client() {
   char message[] = "ABC";
   char reply[4];
 
-  for (int i = 0; i < 50000; i += 1) {
+  for (int i = 0; i < 1000; i += 1) {
     Send(tid, message, 4, reply, 4);
     bwprintf("Task %d on loop %d got %s\n\r", my_tid, i, reply);
   }
@@ -36,7 +36,7 @@ void useless_fct(int i) {
 void spam() {
   Create(5, &nameserver_main);
   Create(5, &spam_server);
-  for (int i = 0; i < 40; i += 1) {
+  for (int i = 0; i < 20; i += 1) {
     Create(4, &spam_client);
   }
 }
