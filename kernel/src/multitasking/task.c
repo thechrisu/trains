@@ -1,8 +1,19 @@
 #include "task.h"
 
+extern task_descriptor *get_current_task();
+
 tid_t next_task_id = 1;
-task_descriptor *all_tasks;
-task_descriptor **send_queues;
+static task_descriptor all_tasks[MAX_TASKS];
+static task_descriptor *send_queues[MAX_TASKS];
+int num_ctx_sw = 0;
+
+task_descriptor *get_next_raw_td() {
+  return &(all_tasks[next_task_id]);
+}
+
+task_descriptor *get_task_with_tid(tid_t tid) {
+  return &(all_tasks[tid]);
+}
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
@@ -23,6 +34,9 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
+#if TIMERINTERRUPT_DEBUG
+  logprintf("Task tf(%d): %x\n\r", task->tid, task->tf);
+#endif /* TIMERINTERRUPT_DEBUG */
 #else
   task->tf = (trapframe *)malloc(sizeof(trapframe)); // :(
 #endif /* TESTING */
@@ -42,7 +56,6 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->tf->r10 = 0xF433000A + (task->tid << 4);
   task->tf->fp = 0xF433000B + (task->tid << 4);
   task->tf->ip = 0xF433000C + (task->tid << 4);
-  task->tf->sp = (register_t)task->tf;
 #ifdef TESTING
   // Need uint64_t here, otherwise the compiler generate 'cast from pointer to smaller type' errors when compiling tests
   task->tf->lr = (register_t)(task_main); // When generating tests, we can't include the ARM asm file
@@ -65,8 +78,14 @@ void task_activate(task_descriptor *task) {
   logprintf("Start of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
+  kassert((task->tf->sp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->sp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK));
+  //kassert(((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK)) || (task->tf->fp == (register_t)0xF433000B + (task->tid << 4)));
+#if TIMERINTERRUPT_DEBUG
+  kassert((task->tf->r7 & 0xFFFF0000) != 0xF4330000 || ((0xFFF0 & task->tf->r7) >> 4) == task->tid);
+  print_tf(task->tf);
+  logprintf("%x, %d, %x\n\r", task->tf->fp, task->tid, task->tf->sp);
+#endif /* TIMERINTERRUPT_DEBUG */
   task->state = TASK_ACTIVE;
-  current_task = task;
 #ifndef TESTING
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *tid_send = TID_SEND;
@@ -86,12 +105,27 @@ void task_activate(task_descriptor *task) {
   }
   kassert(!(task->tid == *tid_receive_reply && task->tid == *tid_send));
 #endif /* CONTEXT_SWITCH_BENCHMARK */
+#if TIMERINTERRUPT_DEBUG
+  if (task->tf->sp != (int)task->tf) {
+    task_descriptor *current_task = get_current_task();
+    logprintf("current_task: %d\n\r", current_task->tid);
+    logprintf("task in leave_kernel: %d\n\r", task->tid);
+    logprintf("address of trapframe: %x\n\r", (int)task->tf);
+    print_tf(task->tf);
+  }
+  num_ctx_sw += 1;
+#endif /* TIMERINTERRUPT_DEBUG */
+
   leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG
   logprintf("End of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
+
+#ifndef TESTING
+  kassert(task == get_current_task());
+#endif /* TESTING */
 }
 
 void task_set_state(task_descriptor *task, task_state state) {

@@ -11,8 +11,6 @@ int oe_in_sensor = false;
 TEST(MessagePassingTest, send_blocks_a_task_if_receiver_isnt_zombie_or_receive_blocked) {
   setup_scheduler();
   task_descriptor sender, receiver;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   task_init(&sender, 1, nullptr, nullptr);
   task_init(&receiver, 1, nullptr, nullptr);
 
@@ -25,8 +23,6 @@ TEST(MessagePassingTest, send_blocks_a_task_if_receiver_isnt_zombie_or_receive_b
 TEST(MessagePassingTest, send_sets_the_return_value_to_negative_two_if_recipient_is_zombie) {
   setup_scheduler();
   task_descriptor sender, receiver;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   task_init(&sender, 1, nullptr, nullptr);
   task_init(&receiver, 1, nullptr, nullptr);
   task_set_state(&receiver, TASK_ZOMBIE);
@@ -36,10 +32,6 @@ TEST(MessagePassingTest, send_sets_the_return_value_to_negative_two_if_recipient
 }
 
 TEST(MessagePassingTest, on_receiver_task_blocked_actually_copies_buf) {
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   setup_scheduler();
 
   task_descriptor sender, receiver;
@@ -68,10 +60,6 @@ TEST(MessagePassingTest, on_receiver_task_blocked_actually_copies_buf) {
 }
 
 TEST(MessagePassingTest, on_receiver_task_blocked_if_sender_message_too_long_receive_will_see_that_message_is_truncated) {
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   setup_scheduler();
 
   task_descriptor sender, receiver;
@@ -98,10 +86,6 @@ TEST(MessagePassingTest, on_receiver_task_blocked_if_sender_message_too_long_rec
 }
 
 TEST(MessagePassingTest, on_receiver_task_blocked_states_set_correctly) {
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   setup_scheduler();
 
   task_descriptor sender, receiver;
@@ -124,10 +108,6 @@ TEST(MessagePassingTest, on_receiver_task_blocked_states_set_correctly) {
 }
 
 TEST(MessagePassingTest, test_send_receive_reply_happypath_sender_first) {
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   setup_scheduler();
 
   task_descriptor sender, receiver;
@@ -174,10 +154,6 @@ TEST(MessagePassingTest, test_send_receive_reply_happypath_sender_first) {
 }
 
 TEST(MessagePassingTest, test_send_receive_reply_happypath_receiver_first) {
-  task_descriptor all_tasks_on_stack[MAX_TASKS];
-  all_tasks = (task_descriptor*)all_tasks_on_stack;
-  send_queue send_queues_on_stack[MAX_TASKS];
-  send_queues = (send_queue*)send_queues_on_stack;
   setup_scheduler();
 
   task_descriptor sender, receiver;

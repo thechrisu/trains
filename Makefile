@@ -2,7 +2,7 @@
 default: upload;
 
 OPTIMIZATION = -O0
-#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK
+#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
 DEBUGFLAGS=
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
@@ -16,7 +16,7 @@ builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s
+.SECONDARY:
 
 XCC	= arm-elf-gcc
 AS	= arm-elf-as
@@ -60,7 +60,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
-ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g
+ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
 # -mapcs-32: always create a complete stack frame
 
 
@@ -248,7 +248,7 @@ clean:
 upload:
 	make clean
 	make trainslab
-	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
+	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/m
 
 qemu:
 	make versatilepb

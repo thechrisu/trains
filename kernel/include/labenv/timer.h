@@ -14,4 +14,8 @@ uint32_t get_time();
 uint32_t get_clockticks();
 void get_time_struct(my_time *sto, uint32_t *timestamp);
 
+void interrupt_timer_setup();
+void interrupt_timer_teardown();
+void interrupt_timer_clear();
+
 #endif //TRAINS_LAB_TIMER_H
