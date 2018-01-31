@@ -22,8 +22,7 @@ extern void handle_undefined_abort();
 #endif /* VERSATILEPB */
 extern int next_task_id;
 
-unsigned int main_fp;
-unsigned int main_sp;
+trapframe main_tf;
 
 extern int ticks;
 extern int num_ctx_sw;
@@ -99,9 +98,22 @@ void kmain() {
  */
 int main() {
   __asm__( /* CALLS TO KASSERT ABOVE THIS LINE MAY CAUSE BUGS */
-    "mov %0, fp\n\t"
-    "mov %1, sp\n\t"
-  : "=r" (main_fp), "=r" (main_sp));
+    "STR r0, [%0, #0]\n\t"
+    "STR r1, [%0, #4]\n\t"
+    "STR r2, [%0, #8]\n\t"
+    "STR r3, [%0, #12]\n\t"
+    "STR r4, [%0, #16]\n\t"
+    "STR r5, [%0, #20]\n\t"
+    "STR r6, [%0, #24]\n\t"
+    "STR r7, [%0, #28]\n\t"
+    "STR r8, [%0, #32]\n\t"
+    "STR r9, [%0, #36]\n\t"
+    "STR r10, [%0, #40]\n\t"
+    "STR r11, [%0, #44]\n\t"
+    "STR r12, [%0, #48]\n\t"
+    "STR r13, [%0, #52]\n\t"
+    "STR r14, [%0, #56]\n\t"
+  : : "r" (&main_tf));
 
   __asm__(
     "msr cpsr_c, #0xD2\n\t"   // Enter IRQ mode
@@ -128,6 +140,24 @@ int main() {
     ".global panic_exit\n\t"
     "panic_exit:\n\t"
   ); /* CALLS TO KASSERT BELOW THIS LINE MAY CAUSE BUGS */
+
+  __asm__(
+    "LDR r0, [%0, #0]\n\t"
+    "LDR r1, [%0, #4]\n\t"
+    "LDR r2, [%0, #8]\n\t"
+    "LDR r3, [%0, #12]\n\t"
+    "LDR r4, [%0, #16]\n\t"
+    "LDR r5, [%0, #20]\n\t"
+    "LDR r6, [%0, #24]\n\t"
+    "LDR r7, [%0, #28]\n\t"
+    "LDR r8, [%0, #32]\n\t"
+    "LDR r9, [%0, #36]\n\t"
+    "LDR r10, [%0, #40]\n\t"
+    "LDR r11, [%0, #44]\n\t"
+    "LDR r12, [%0, #48]\n\t"
+    "LDR r13, [%0, #52]\n\t"
+    "LDR r14, [%0, #56]\n\t"
+  : : "r" (&main_tf));
 
   // Disable VIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;

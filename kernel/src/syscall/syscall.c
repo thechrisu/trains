@@ -1,8 +1,5 @@
 #include "syscall.h"
 
-extern unsigned int main_fp;
-extern unsigned int main_sp;
-
 int syscall_create(int priority, void (*code)()) {
   if (next_task_id >= MAX_TASKS) {
     return -2;
@@ -54,11 +51,7 @@ void syscall_exit() {
 
 void syscall_panic() {
 #ifndef TESTING
-  __asm__(
-    "mov fp, %0\n\t"
-    "mov sp, %1\n\t"
-    "b panic_exit"
-  : : "r" (main_fp), "r" (main_sp));
+  __asm__("b panic_exit");
 #endif /* TESTING */
 }
 
