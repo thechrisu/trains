@@ -23,5 +23,6 @@ void event_handle(int event_id, int event_data) {
     kassert(t->tf->r0 == 0xBADDA7A);
     t->tf->r0 = event_data; // TODO do something with corrupt data?
     task_set_state(t, TASK_RUNNABLE);
+    registered_tasks[event_id] = NULL_TASK_DESCRIPTOR;
   }
 }
