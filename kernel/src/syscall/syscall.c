@@ -1,8 +1,5 @@
 #include "syscall.h"
 
-extern unsigned int main_fp;
-extern unsigned int main_sp;
-
 int syscall_create(int priority, void (*code)()) {
   if (next_task_id >= MAX_TASKS) {
     return -2;
@@ -12,13 +9,13 @@ int syscall_create(int priority, void (*code)()) {
   if (priority < 0 || priority > MAX_PRIORITY) {
     return -1;
   }
-  task_descriptor *ret = &(all_tasks[next_task_id]);
+  task_descriptor *ret = get_next_raw_td();
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Got task descriptor memory\n\r");
+  logprintf("Got task descriptor memory\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
-  task_init(ret, priority, code, current_task);
+  task_init(ret, priority, code, get_current_task());
 #if CONTEXT_SWITCH_DEBUG
-  bwprintf("Set up task in syscall_create\n\r");
+  logprintf("Set up task in syscall_create, tf: %x\n\r", ret->tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
   int register_result = register_task(ret);
   if (register_result) {
@@ -29,71 +26,71 @@ int syscall_create(int priority, void (*code)()) {
 }
 
 int syscall_mytid() {
-  if (current_task == NULL_TASK_DESCRIPTOR) {
+  if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -1;
   } else {
-    return task_get_tid(current_task);
+    return task_get_tid(get_current_task());
   }
 }
 
 int syscall_myparent_tid() {
-  if (current_task == NULL_TASK_DESCRIPTOR) {
+  if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -2;
   } else {
-    return task_get_parent_tid(current_task);
+    return task_get_parent_tid(get_current_task());
   }
 }
 
 void syscall_pass() {
-  register_task(current_task);
+  register_task(get_current_task());
 }
 
 void syscall_exit() {
-  task_retire(current_task, 0);
+  task_retire(get_current_task(), 0);
 }
 
 void syscall_panic() {
 #ifndef TESTING
-  __asm__(
-    "mov fp, %0\n\t"
-    "mov sp, %1\n\t"
-    "b panic_exit"
-  : : "r" (main_fp), "r" (main_sp));
+  __asm__("b panic_exit");
 #endif /* TESTING */
 }
 
 void syscall_send() {
+  task_descriptor *current_task = get_current_task();
 #if MESSAGE_PASSING_DEBUG
-  bwprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
+  logprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t receiver_tid = (register_t)current_task->tf->r1;
   if (receiver_tid < 0 || receiver_tid >= next_task_id) {
     current_task->tf->r0 = -2;
     return;
   }
-  send(current_task, &(all_tasks[receiver_tid]));
+  send(current_task, (task_descriptor *)get_task_with_tid(receiver_tid));
 }
 
 void syscall_receive() {
+  task_descriptor *current_task = get_current_task();
 #if MESSAGE_PASSING_DEBUG
-  bwprintf("syscall_receive: recipient %d\n\r", current_task->tid);
+  logprintf("syscall_receive: recipient %d\n\r", current_task->tid);
 #endif
   receive(current_task);
 }
 
 void syscall_reply() {
+  task_descriptor *current_task = get_current_task();
 #if MESSAGE_PASSING_DEBUG
-  bwprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
+  logprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t sender_tid = (register_t)current_task->tf->r1;
   if (sender_tid < 0 || sender_tid >= next_task_id) {
     current_task->tf->r0 = -2;
     return;
   }
-  reply(&(all_tasks[sender_tid]), current_task);
+  reply(get_task_with_tid(sender_tid), current_task);
 }
 
 void syscall_cache_enable() {
+  task_descriptor *current_task = get_current_task();
   bool enable = current_task->tf->r1;
 #if TESTING
   (void)enable;

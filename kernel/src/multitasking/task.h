@@ -17,7 +17,7 @@
 
 #include "kassert.h"
 #include "interrupt.h"
-#include "../../../lib/standard/stdlib.h"
+#include "tstdlib.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 
@@ -57,12 +57,14 @@ struct td {
 
 typedef struct td task_descriptor;
 
+extern int num_ctx_sw;
 extern tid_t next_task_id;
-extern task_descriptor *current_task;
-extern task_descriptor *all_tasks;
-extern task_descriptor **send_queues;
 
-/**
+
+task_descriptor *get_next_raw_td();
+task_descriptor *get_task_with_tid(tid_t tid);
+
+  /**
  * Initializes the task structure.
  * Assigns a tid to the task, sets up the tasks trapframe (includes setting up its stack)
  * @param task       Task to be initialized.

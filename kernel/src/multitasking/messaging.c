@@ -4,16 +4,16 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_before_copy = LOC_BEFORE_COPY;
   *loc_before_copy = get_clockticks();
-  // bwprintf("(%d) Before copy\n\r", *loc_before_copy);
+  // logprintf("(%d) Before copy\n\r", *loc_before_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
   
   bool sender_msg_too_big = src->tf->r3 > dst->tf->r3;
   if (sender_msg_too_big) { // Truncated
     dst->tf->r0 = -1;
-    memcpy((char *)dst->tf->r2, (char *)src->tf->r2, dst->tf->r3);
+    tmemcpy((char *)dst->tf->r2, (char *)src->tf->r2, dst->tf->r3);
   } else {
     dst->tf->r0 = src->tf->r3;
-    memcpy((char *)dst->tf->r2, (char *)src->tf->r2, src->tf->r3);
+    tmemcpy((char *)dst->tf->r2, (char *)src->tf->r2, src->tf->r3);
   }
   task_set_state(src, TASK_REPLY_BLOCKED);
   task_set_state(dst, TASK_RUNNABLE);
@@ -22,7 +22,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_after_copy = LOC_AFTER_COPY;
   *loc_after_copy = get_clockticks();
-  // bwprintf("(%d) After copy\n\r", *loc_after_copy);
+  // logprintf("(%d) After copy\n\r", *loc_after_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 }
 
@@ -61,11 +61,11 @@ void reply(task_descriptor *called_send, task_descriptor *called_reply) {
     if (called_send->tf->r5 < called_reply->tf->r3) { // is truncated?
       called_send->tf->r0 = -1;
       called_reply->tf->r0 = -1;
-      memcpy((char *)called_send->tf->r4, (char *)called_reply->tf->r2, called_send->tf->r5);
+      tmemcpy((char *)called_send->tf->r4, (char *)called_reply->tf->r2, called_send->tf->r5);
     } else {
       called_send->tf->r0 = called_reply->tf->r3;
       called_reply->tf->r0 = 0;
-      memcpy((char *)called_send->tf->r4, (char *)called_reply->tf->r2, called_reply->tf->r3);
+      tmemcpy((char *)called_send->tf->r4, (char *)called_reply->tf->r2, called_reply->tf->r3);
     }
     task_set_state(called_send, TASK_RUNNABLE);
     register_task(called_send);

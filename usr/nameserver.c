@@ -2,7 +2,7 @@
 
 int get_index_of_name(char *name, char names[TOTAL_NUM_NAMES][NAMESERVER_MSG_LENGTH], int next_name) {
   for (int i = 0; i < next_name; i++) {
-    if (strncmp(names[i], name, NAMESERVER_MSG_LENGTH - 1) == 0) {
+    if (tstrncmp(names[i], name, NAMESERVER_MSG_LENGTH - 1) == 0) {
       return i;
     }
   }
@@ -34,7 +34,7 @@ void nameserver_main() {
             int index = get_index_of_name(incoming_msg_buffer + 1, names, next_name);
             if (index == -1) {
               task_ids[next_name] = sender_tid;
-              memcpy(names[next_name], incoming_msg_buffer + 1, ret - 1);
+              tmemcpy(names[next_name], incoming_msg_buffer + 1, ret - 1);
               next_name++;
             } else {
               task_ids[index] = sender_tid;

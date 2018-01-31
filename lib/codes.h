@@ -7,7 +7,7 @@
 #define CODES_H
 
 #include "attributes.h"
-#include "../standard/stdlib.h"
+#include "tstdlib.h"
 
 #ifdef E2ETESTING
 #include "../../usr/test/nameserver/fake_nameserver_functions.h"
@@ -70,7 +70,7 @@ void Panic()__attribute((noreturn));
  *
  * @param expr The expression to check for truthiness.
  */
-#define Assert(expr) __Assert((bool)(expr), __FUNCTION__, __FILE__, __LINE__)
+#define Assert(expr) __Assert((bool)(expr), #expr, __FUNCTION__, __FILE__, __LINE__)
 
 /**
  * If value is false, prints information about where the assertion failed, then exits
@@ -83,33 +83,33 @@ void Panic()__attribute((noreturn));
  * @param file_name   The name of the file in which __Assert was called.
  * @param line_num    The line number in the file at which __Assert was called.
  */
-void __Assert(bool value, const char * caller_name, const char *file_name, int line_num);
+void __Assert(bool value, const char *expression, const char *caller_name, const char *file_name, int line_num);
 
 /**
  * Sends a message to a specific task and blocks until a reply is received.
  *
  * @param   tid    The task ID of the process to which to send the message.
- * @param   msg    A buffer containing the message to send.
+ * @param   msg    A buffer/struct containing the message to send.
  * @param   msglen The length of the message to send.
- * @param   reply  A buffer in which to place the reply.
+ * @param   reply  A buffer/struct in which to place the reply.
  * @param   rplen  The length of the reply buffer.
  * @returns The length of the reply, if the reply was successful and wasn't truncated.
  *          -1 if the reply was truncated.
  *          -2 if the task ID is invalid or a zombie.
  */
-int Send(int tid, char *msg, int msglen, char *reply, int rplen);
+int Send(int tid, void *msg, int msglen, void *reply, int rplen);
 
 /**
  * Blocks until a message has been received, then stores the message and the task ID
  * of the sender.
  *
  * @param   tid    A place to store the task ID of the sender.
- * @param   msg    A buffer in which to place the received message.
+ * @param   msg    A buffer/struct in which to place the received message.
  * @param   msglen The length of the receive buffer.
  * @returns The length of the message, if it wasn't truncated.
  *          -1 if the message was truncated.
  */
-int Receive(int *tid, char *msg, int msglen);
+int Receive(int *tid, void *msg, int msglen);
 
 /**
  * Reply to a message.
@@ -122,7 +122,7 @@ int Receive(int *tid, char *msg, int msglen);
  *         -2 if the task ID was invalid or a zombie.
  *         -3 if the target task isn't waiting for a reply.
  */
-int Reply(int tid, char *reply, int rplen);
+int Reply(int tid, void *reply, int rplen);
 
 /**
  * Register the calling task with the nameserver under the given name.
@@ -151,7 +151,7 @@ int WhoIs(char *name);
 
 /**
  * Enables/Disables the caches as a syscall.
- * @param enable Whether to enable/disable the cache. 
+ * @param enable Whether to enable/disable the cache.
  */
 void EnableCaches(bool enable);
 

@@ -8,8 +8,8 @@
 #include "attributes.h"
 #include "schedule.h"
 #include "send_queue.h"
-#include "stdlib.h"
 #include "task.h"
+#include "tstdlib.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"

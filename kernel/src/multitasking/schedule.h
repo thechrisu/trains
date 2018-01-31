@@ -6,11 +6,10 @@
 #ifndef TRAINS_SCHEDULE_H
 #define TRAINS_SCHEDULE_H
 
-#include "../../../lib/project/attributes.h"
+#include "attributes.h"
 #include "scheduler.h"
-#include "stdlib.h"
 #include "task.h"
-
+#include "tstdlib.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"
@@ -22,6 +21,11 @@
  * Sets up a scheduler to be run with MAX_PRIORITY
  */
 void setup_scheduler();
+
+/**
+ * Get a pointer to the task currently running.
+ */
+task_descriptor *get_current_task();
 
 /**
  * Gets the next task to be run from the scheduler, runs it.

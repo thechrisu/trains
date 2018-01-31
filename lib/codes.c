@@ -20,7 +20,6 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   register register_t arg4 __asm__ ("r4");
   register register_t arg5 __asm__ ("r5");
   register register_t arg6 __asm__ ("r6");
-  int result;
 
   arg0 = code;
   if (argc > 0) arg1 = argv[0];
@@ -28,19 +27,19 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   if (argc > 2) arg3 = argv[2];
   if (argc > 3) arg4 = argv[3];
   if (argc > 4) arg5 = argv[4];
+  if (argc > 5) arg6 = argv[5];
 
   __asm__ volatile (
     "swi 0\n\t"
-    "mov %0, r0"
-    : "=r" (result)
+    : "=r" (arg0)
     : "r" (arg0), "r" (arg1), "r" (arg2), "r" (arg3), "r" (arg4), "r" (arg5), "r" (arg6)
   );
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  bwprintf("End of software_interrupt\n\r");
+  logprintf("End of software_interrupt\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  return result;
+  return arg0;
 }
 
 void Exit() {
@@ -70,15 +69,18 @@ void Panic() {
   while(1); // To fool gcc into thinking this function does not return.
 }
 
-void __Assert(bool value, const char * caller_name, const char *file_name, int line_num) {
+void __Assert(bool value, const char *expression, const char *caller_name, const char *file_name, int line_num) {
   if (unlikely(!value)) {
-    bwprintf("\033[31mAssertion failed! \"%s\" at %s:%d\033[39m\n", caller_name, file_name, line_num);
+    dump_logs();
+    log_index = 0;
+
+    bwprintf("\033[31mAssertion failed! \"%s\" in function \"%s\" at %s:%d\033[39m\n", expression, caller_name, file_name, line_num);
     /* Call software_interrupt1 instead of Panic to allow inlining. */
     software_interrupt(SYS_PANIC, 0, NULL_ARGS);
   }
 }
 
-int Send(int tid, char *msg, int msglen, char *reply, int rplen) {
+int Send(int tid, void *msg, int msglen, void *reply, int rplen) {
   register_t args[] = {
     (register_t)tid,
     (register_t)msg,
@@ -89,7 +91,7 @@ int Send(int tid, char *msg, int msglen, char *reply, int rplen) {
   return software_interrupt(SYS_SEND, 5, args);
 }
 
-int Receive(int *tid, char *msg, int msglen) {
+int Receive(int *tid, void *msg, int msglen) {
   register_t args[] = {
     (register_t)tid,
     (register_t)msg,
@@ -98,7 +100,7 @@ int Receive(int *tid, char *msg, int msglen) {
   return software_interrupt(SYS_RECEIVE, 3, args);
 }
 
-int Reply(int tid, char *reply, int rplen) {
+int Reply(int tid, void *reply, int rplen) {
   register_t args[] = {
     (register_t)tid,
     (register_t)reply,
@@ -120,6 +122,9 @@ int Reply(int tid, char *reply, int rplen) {
  * @returns Should never return because it panics. Returns 0xDABBDADD if it does.
  */
 int nameserver_panic(char *c, char msg_type) {
+  dump_logs();
+  log_index = 0;
+
   bwprintf("Got 'W' from the nameserver. c = %s, msg_type = %d\n\r", c, msg_type);
   software_interrupt(SYS_PANIC, 0, NULL_ARGS);
   return 0xDABBDADD; // Should never reach
@@ -134,14 +139,14 @@ int nameserver_panic(char *c, char msg_type) {
  */
 int send_message_to_nameserver(char *c, char msg_type) {
   char reply;
-  char msg[strlen(c) + 2];
+  char msg[tstrlen(c) + 2];
   msg[0] = msg_type;
-  memcpy(msg + 1, c, strlen(c) + 1);
+  tmemcpy(msg + 1, c, tstrlen(c) + 1);
 
   register_t args[] = {
     NAMESERVER_TASK_ID,
     (register_t)msg,
-    (register_t)(strlen(c) + 2),
+    (register_t)(tstrlen(c) + 2),
     (register_t)&reply,
     1
   };

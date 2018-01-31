@@ -6,7 +6,7 @@ char trains_reverse[81];
 void init_track(struct track_state *global_track) {
   track_node *track = global_track->track;
   char *turnouts = global_track->turnouts;
-  memset(track, 0, (int)(TRACK_MAX*sizeof(track_node)));
+  tmemset(track, 0, (int)(TRACK_MAX*sizeof(track_node)));
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;
   track[0].num = 0;

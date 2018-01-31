@@ -2,7 +2,7 @@
 default: upload;
 
 OPTIMIZATION = -O0
-#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG
+#-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
 DEBUGFLAGS=
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
@@ -16,7 +16,7 @@ builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-.PRECIOUS: $(builddir)/main.s
+.SECONDARY:
 
 XCC	= arm-elf-gcc
 AS	= arm-elf-as
@@ -24,7 +24,7 @@ LD	= arm-elf-ld
 OBJCOPY = arm-elf-objcopy
 
 # Detect if in Windows Subsystem for Linux
-ifeq (,$(wildcard /proc/version))
+ifeq ($(shell cat /proc/version | grep Microsoft || echo Linux),Linux)
 QEMU = qemu-system-arm
 else
 QEMU = qemu-system-arm.exe
@@ -49,7 +49,7 @@ QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0
 
 #
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-             -Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib/project -Ilib/standard -Iinclude/ -fno-builtin -DCONTEXT_SWITCH_BENCHMARK
+							-Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib -Iinclude/ -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -60,7 +60,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
-ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g
+ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
 # -mapcs-32: always create a complete stack frame
 
 
@@ -248,7 +248,7 @@ clean:
 upload:
 	make clean
 	make trainslab
-	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/
+	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/m
 
 qemu:
 	make versatilepb
