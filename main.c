@@ -4,7 +4,7 @@
 
 #include "crash.h"
 #include "interrupt.h"
-#include "k2.h"
+#include "k3.h"
 #include "myio.h"
 #include "mytimer.h"
 #include "schedule.h"
@@ -70,7 +70,7 @@ void kmain() {
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(10, &k2_first_user_task);
+  syscall_create(10, &k3_first_user_task);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG

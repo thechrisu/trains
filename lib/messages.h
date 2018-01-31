@@ -19,7 +19,7 @@ typedef struct {
     int reply_time_ticks;
     int message_delay_ticks;
     int message_delay_until_ticks;
-  }
+  };
 } message;
 
 #endif /* MESSAGE_H */
