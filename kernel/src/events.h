@@ -8,6 +8,8 @@
 #include "event_data.h"
 #include "task.h"
 
+extern register_t event_masks[MAX_EVENT_ID + 1];
+
 /**
  * Just makes sure no task is registered.
  */
