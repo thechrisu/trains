@@ -1,7 +1,7 @@
 #include "k3.h"
 
 void k3_first_user_task() {
-  Create(5, &nameserver_main);
+  Create(7, &nameserver_main);
   Create(2, &idle_task);
 
   message send;

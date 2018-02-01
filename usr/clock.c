@@ -5,16 +5,17 @@
   Created by the clock server, so sends its messages to its parent.
 */
 void clock_notifier() {
-  RegisterAs("ClockNotifier");
+  Assert(RegisterAs("ClockNotifier") == 0);
 
   int server_tid = WhoIs("ClockServer");
+  Assert(server_tid > 0);
 
   message msg;
   msg.type = MESSAGE_CLOCK_NOTIFIER;
 
   while (true) {
-    AwaitEvent(TIMER_INTERRUPT);
-    Send(server_tid, &msg, sizeof(msg), EMPTY_MESSAGE, 0);
+    Assert(AwaitEvent(TIMER_INTERRUPT) == 0);
+    Assert(Send(server_tid, &msg, sizeof(msg), EMPTY_MESSAGE, 0) >= 0);
   }
 }
 
@@ -27,20 +28,22 @@ void clock_server() {
 
   clock_wait_queue_init(&queue);
 
+  Assert(RegisterAs("ClockServer") == 0);
+
   Create(6, &clock_notifier);
 
   while (true) {
-    Receive(&sender_tid, &received, sizeof(received));
+    Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
     switch (received.type) {
       case MESSAGE_CLOCK_NOTIFIER:
-        Reply(sender_tid, EMPTY_MESSAGE, 0);
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         ticks += 1;
 
         head = clock_wait_queue_peek(&queue);
         while (head != NULL_CLOCK_WAIT && head->ticks <= ticks) {
           Assert(clock_wait_queue_dequeue(&queue, &cw) != -1);
-          Reply(cw.tid, EMPTY_MESSAGE, 0);
+          Assert(Reply(cw.tid, EMPTY_MESSAGE, 0) >= 0);
           head = clock_wait_queue_peek(&queue);
         }
 
@@ -48,7 +51,7 @@ void clock_server() {
       case MESSAGE_TIME:
         reply.type = REPLY_TIME;
         reply.msg.message_delay_ticks = ticks;
-        Reply(sender_tid, &reply, sizeof(reply));
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) >= 0);
         break;
       case MESSAGE_DELAY:
         cw.tid = sender_tid;
