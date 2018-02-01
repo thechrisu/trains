@@ -41,4 +41,10 @@ register_t event_register(int event_id, task_descriptor *task);
  */
 void event_handle(int event_id, int event_data);
 
+/**
+ * Deregisters a task from the event it's waiting on, if any.
+ * @param td The task descriptor to deregister.
+ */
+void event_deregister(task_descriptor *td);
+
 #endif /* EVENTS_H */
