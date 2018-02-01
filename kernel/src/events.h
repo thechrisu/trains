@@ -7,16 +7,16 @@
 
 #include "event_data.h"
 #include "mytimer.h"
+#include "schedule.h"
 #include "task.h"
 
-extern register_t event_masks[MAX_EVENT_ID + 1];
+#if VERSATILEPB
+#include "../include/versatilepb/versatilepb.h"
+#else
+#include "../include/labenv/ts7200.h"
+#endif /* VERSATILEPB */
 
-/*
-for (int i = 0; i <= MAX_EVENT_ID; i++) {
-  if (pic_status & (event_masks[i])) {
-    handle_event(i);
-  }
-}*/
+extern register_t event_masks[MAX_EVENT_ID + 1];
 
 /**
  * Just makes sure no task is registered.

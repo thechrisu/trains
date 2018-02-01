@@ -42,4 +42,11 @@ bool schedule();
  */
 int register_task(task_descriptor *task);
 
+/**
+ * Removes a task from the ready queue upon which it finds itself.
+ * @param task The task to be ripped from its ready queue like a baby from a cradle.
+ * @return A nebulous value. TODO do better.
+ */
+int deregister_task(task_descriptor *task);
+
 #endif /* TRAINS_SCHEDULE_H */

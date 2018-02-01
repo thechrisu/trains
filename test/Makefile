@@ -27,8 +27,8 @@ alltests: test_all.out
 	$(MAKE) test
 
 test:
-	#	./unit/test_all.out
-	python3 -m unittest discover -s e2e/ -p 'test_interrupts.py' -v
+	./unit/test_all.out
+	python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
 
 test_all.out: $(SRC) $(SRC_TEST)
 	g++ -o unit/$@ $(SRC) $(SRC_TEST) $(FLAGS) -DALLTESTS
