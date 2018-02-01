@@ -124,6 +124,7 @@ def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False):
             s.close()
             return None
         else:
+            print(junk)
             prog_name = '%s\r' % prog
             s.sendall(bytes(prog_name, 'ascii'))
             s.sendall(bytes(te_data, 'ascii'))
@@ -133,6 +134,8 @@ def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False):
             s.sendall(bytes('q\r', 'ascii'))
             read_socket(s, 1000)
             kill_qemu(qemu_handle)
+            print('get to read from QEMU!')
+            print(prog_output)
             s.close()
             return prog_output
     except(ConnectionAbortedError, ConnectionError) as e:

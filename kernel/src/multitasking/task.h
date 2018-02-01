@@ -29,6 +29,7 @@
 
 extern void sys_exit();
 extern trapframe *leave_kernel(int ret_code, trapframe *tf);
+extern int tasks_event_blocked;
 
 typedef enum task_state {
   TASK_ACTIVE,

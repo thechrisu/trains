@@ -6,9 +6,10 @@
 #define EVENTS_H
 
 #include "event_data.h"
+#include "mytimer.h"
 #include "task.h"
 
-register_t event_masks[MAX_EVENT_ID + 1];
+extern register_t event_masks[MAX_EVENT_ID + 1];
 
 /*
 for (int i = 0; i <= MAX_EVENT_ID; i++) {

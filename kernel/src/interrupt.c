@@ -113,11 +113,13 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
-
+  //bwprintf("TESTWOO: %x\n\r", pic_status);
   if (pic_status > 0) {
+    //bwprintf("PIC STATUS: %x\n\r", pic_status);
     // Clear interrupt
     int highest_prio_event = -1;
     for (int i = 0; i <= MAX_EVENT_ID; i++) {
+      //bwprintf("pic_status: %x, event mask: %x\n\r", pic_status, event_masks[i]);
       if (pic_status & event_masks[i]) {
         highest_prio_event = i;
         break;
@@ -133,6 +135,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       default:
         break; // I <3 GCC
     }
+    //bwprintf("H: %d\n\r", highest_prio_event);
     if (highest_prio_event != -1) {
       event_handle(highest_prio_event, event_data);
     }
@@ -180,6 +183,9 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         event_handle(TIMER_INTERRUPT, 0);
       }
 #endif /* E2ETESTING */
+      break;
+    case SYS_KILL:
+      tf->r0 = syscall_kill(tf->r1);
       break;
     default:
       tf->r0 = 0xABADC0DE;

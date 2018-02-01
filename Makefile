@@ -1,9 +1,9 @@
-.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun
 default: upload;
 
 OPTIMIZATION = -O0
 #-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
-DEBUGFLAGS=
+DEBUGFLAGS=-DSCHEDULE_DEBUG
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
@@ -69,6 +69,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
 ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
+
 # -mapcs-32: always create a complete stack frame
 
 
@@ -158,11 +159,11 @@ $(builddirlab)/%.s: %.c
 
 $(builddirlab)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
+	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/%.o: $(builddirlab)/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
+	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
 	$(LABPATH)ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc

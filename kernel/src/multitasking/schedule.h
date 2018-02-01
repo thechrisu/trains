@@ -7,6 +7,7 @@
 #define TRAINS_SCHEDULE_H
 
 #include "attributes.h"
+#include "events.h"
 #include "scheduler.h"
 #include "task.h"
 #include "tstdlib.h"

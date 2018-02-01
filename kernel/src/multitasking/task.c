@@ -6,12 +6,16 @@ tid_t next_task_id = 1;
 static task_descriptor all_tasks[MAX_TASKS];
 static task_descriptor *send_queues[MAX_TASKS];
 int num_ctx_sw = 0;
+int tasks_event_blocked = 0;
 
 task_descriptor *get_next_raw_td() {
   return &(all_tasks[next_task_id]);
 }
 
 task_descriptor *get_task_with_tid(tid_t tid) {
+  if (tid >= MAX_TASKS && tid < 0) {
+    return NULL_TASK_DESCRIPTOR;
+  }
   return &(all_tasks[tid]);
 }
 
@@ -129,6 +133,13 @@ void task_activate(task_descriptor *task) {
 }
 
 void task_set_state(task_descriptor *task, task_state state) {
+  kassert(task->state != TASK_EVENT_BLOCKED || task->state != state);
+  if (task->state == TASK_EVENT_BLOCKED && (state == TASK_RUNNABLE || state == TASK_ZOMBIE)) {
+    tasks_event_blocked -= 1;
+  } else if (state == TASK_EVENT_BLOCKED) {
+    tasks_event_blocked += 1;
+  }
+  kassert(tasks_event_blocked >= 0 && tasks_event_blocked <= MAX_TASKS);
   task->state = state;
 }
 

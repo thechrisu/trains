@@ -12,6 +12,7 @@
 #define HAS_ONE_ELEMENT(T) CONCAT(T, _has_one_element)
 #define ENQUEUE(T)         CONCAT(T, _enqueue)
 #define DEQUEUE(T)         CONCAT(T, _dequeue)
+#define REMOVE(T)          CONCAT(T, _remove)
 
 #include "multitasking/task.h"
 
@@ -74,4 +75,17 @@ task_descriptor *DEQUEUE(QUEUE_TYPE)(QUEUE_TYPE *q) {
     *q = new_head;
   }
   return head;
+}
+
+void REMOVE(QUEUE_TYPE)(QUEUE_TYPE *q, task_descriptor *td) {
+  if (!IS_EMPTY(QUEUE_TYPE)(q)) {
+    if (HAS_ONE_ELEMENT(QUEUE_TYPE)(q)) {
+      *q = (QUEUE_TYPE)0;
+    } else {
+      task_descriptor *prev = QUEUE_PREV(td);
+      task_descriptor *next = QUEUE_NEXT(td);
+      QUEUE_PREV(next) = prev;
+      QUEUE_NEXT(prev) = next;
+    }
+  }
 }

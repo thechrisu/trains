@@ -165,6 +165,14 @@ void EnableCaches(bool enable);
  */
 int AwaitEvent(int event_id);
 
+/**
+ * @param  tid    tid of the task to kill.
+ * @return 0      Killed it.
+ *         -1     No task with this tid.
+ *         -2     Trying to commit suicide. Use <code>Exit()</code> instead.
+ */
+int Kill(int tid);
+
 #define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS            1
 #define SYS_CREATE          2
@@ -176,5 +184,6 @@ int AwaitEvent(int event_id);
 #define SYS_REPLY           8
 #define SYS_CACHE_ENABLE    9
 #define SYS_AWAIT_EVENT     10
+#define SYS_KILL            11
 
 #endif /* CODES_H */
