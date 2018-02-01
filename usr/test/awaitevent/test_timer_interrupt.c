@@ -8,5 +8,8 @@ void test_timer_interrupt() {
   for (int i = 0; i < 5; i++) {
     bwprintf("TimerInterrupt return code: %d\n\r", AwaitEvent(TIMER_INTERRUPT));
   }
-  Assert(Kill(WhoIs("Idle")) == 0);
+
+  int idle_tid = WhoIs("Idle");
+  Assert(idle_tid > 0);
+  Assert(Kill(idle_tid) == 0);
 }
