@@ -13,7 +13,7 @@ task_descriptor *get_next_raw_td() {
 }
 
 task_descriptor *get_task_with_tid(tid_t tid) {
-  if (tid >= MAX_TASKS && tid < 0) {
+  if (tid >= MAX_TASKS || tid < 0) {
     return NULL_TASK_DESCRIPTOR;
   }
   return &(all_tasks[tid]);
