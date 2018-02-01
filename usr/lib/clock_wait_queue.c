@@ -6,7 +6,7 @@ void clock_wait_copy(clock_wait *from, clock_wait *to) {
 }
 
 #define QUEUE_TYPE           clock_wait_queue
-#define QUEUE_SIZE           64
+#define QUEUE_SIZE           CLOCK_WAIT_QUEUE_SIZE
 #define ELEMENT_TYPE         clock_wait
 #define ELEMENT_COPY         clock_wait_copy
 #define ELEMENT_VALUE(q)     (q->ticks)

@@ -15,13 +15,19 @@ typedef struct {
 
 #define NULL_CLOCK_WAIT (clock_wait *)0
 
+#if TESTING
+#define CLOCK_WAIT_QUEUE_SIZE 8
+#else
+#define CLOCK_WAIT_QUEUE_SIZE 64
+#endif /* TESTING */
+
 /**
  * A clock wait queue maintains a list of tasks that are waiting for a certain time
  * to arrive.
  */
 typedef struct {
   uint32_t size;
-  clock_wait elts[64];
+  clock_wait elts[CLOCK_WAIT_QUEUE_SIZE];
 } clock_wait_queue;
 
 /**

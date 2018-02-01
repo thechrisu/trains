@@ -6,6 +6,7 @@
 #define PRIORITY_QUEUE_H
 
 #include "tstdlib.h"
+#include "myio.h"
 
 #define CONCAT(a, b) a ## b
 
@@ -51,7 +52,7 @@ void HEAPIFY(QUEUE_TYPE)(QUEUE_TYPE *q) {
       smallest = right;
     }
 
-    if (smallest == 0) {
+    if (smallest == index) {
       break;
     } else {
       SWAP(QUEUE_TYPE)(q, index, smallest);
@@ -71,7 +72,7 @@ int ENQUEUE(QUEUE_TYPE)(QUEUE_TYPE *q, ELEMENT_TYPE *e) {
   uint32_t index = q->size - 1;
   uint32_t parent_index = PARENT(index);
 
-  while (ELEMENT_VALUE(AT(q, index)) < ELEMENT_VALUE(AT(q, parent_index))) {
+  while (IN_BOUNDS(q, index) && IN_BOUNDS(q, parent_index) && ELEMENT_VALUE(AT(q, index)) < ELEMENT_VALUE(AT(q, parent_index))) {
     SWAP(QUEUE_TYPE)(q, index, parent_index);
     index = parent_index;
     parent_index = PARENT(index);
