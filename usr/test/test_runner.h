@@ -16,6 +16,7 @@
 #include "awaitevent/test_timer_interrupt.h"
 #include "./test_undefined_handler.h"
 #include "./test_message_benchmark.h"
+#include "clock/test_clock.h"
 #include "myio.h"
 #include "stdlib.h"
 

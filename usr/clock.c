@@ -22,7 +22,7 @@ void clock_notifier() {
 void clock_server() {
   int sender_tid;
   message received, reply;
-  uint32_t ticks = 0, delay_until_ticks;
+  int32_t ticks = 0, delay_until_ticks;
   clock_wait cw, *head;
   clock_wait_queue queue;
 
@@ -50,14 +50,14 @@ void clock_server() {
         break;
       case MESSAGE_TIME:
         reply.type = REPLY_TIME;
-        reply.msg.message_delay_ticks = ticks;
+        reply.msg.reply_time_ticks = ticks;
         Assert(Reply(sender_tid, &reply, sizeof(reply)) >= 0);
         break;
       case MESSAGE_DELAY:
         delay_until_ticks = ticks + received.msg.message_delay_ticks;
         if (delay_until_ticks <= ticks) {
           reply.type = REPLY_CLOCK_SERVER_ERROR;
-          Reply(cw.tid, &reply, sizeof(reply));
+          Reply(sender_tid, &reply, sizeof(reply));
         } else {
           cw.tid = sender_tid;
           cw.ticks = delay_until_ticks;
@@ -68,7 +68,7 @@ void clock_server() {
         delay_until_ticks = received.msg.message_delay_until_ticks;
         if (delay_until_ticks <= ticks) {
           reply.type = REPLY_CLOCK_SERVER_ERROR;
-          Reply(cw.tid, &reply, sizeof(reply));
+          Reply(sender_tid, &reply, sizeof(reply));
         } else {
           cw.tid = sender_tid;
           cw.ticks = delay_until_ticks;
