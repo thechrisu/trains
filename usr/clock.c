@@ -5,7 +5,9 @@
   Created by the clock server, so sends its messages to its parent.
 */
 void clock_notifier() {
-  int server_tid = MyParentTid();
+  RegisterAs("ClockNotifier");
+
+  int server_tid = WhoIs("ClockServer");
 
   message msg;
   msg.type = MESSAGE_CLOCK_NOTIFIER;
