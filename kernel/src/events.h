@@ -9,6 +9,11 @@
 #include "task.h"
 
 /**
+ * Just makes sure no task is registered.
+ */
+void setup_events();
+
+/**
  * Registers a task for a given event id.
  * Puts the task in state TASK_EVENT_BLOCKED.
  * @param event_id Event id to be handled, comes from user.

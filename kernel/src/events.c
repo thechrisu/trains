@@ -1,6 +1,20 @@
 #include "events.h"
 
-static task_descriptor *registered_tasks[MAX_EVENT_ID];
+static task_descriptor *registered_tasks[MAX_EVENT_ID + 1];
+
+register_t event_masks[MAX_EVENT_ID + 1] = {
+#if VERSATILEPB
+  0x00000040
+#else
+  0x00000010
+#endif /* VERSATILEPB */
+};
+
+void setup_events() {
+  for (int i = 0; i <= MAX_EVENT_ID; i++) {
+    registered_tasks[i] = NULL_TASK_DESCRIPTOR;
+  }
+}
 
 register_t event_register(int event_id, task_descriptor *task) {
   kassert(task != NULL_TASK_DESCRIPTOR);
