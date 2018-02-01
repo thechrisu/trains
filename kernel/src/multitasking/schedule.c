@@ -60,6 +60,7 @@ kassert(((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next-
 }
 
 int register_task(task_descriptor *task) {
+  kassert(task->state != TASK_ZOMBIE);
   return scheduler_register(&kscheduler, task);
 }
 

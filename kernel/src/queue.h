@@ -86,6 +86,8 @@ void REMOVE(QUEUE_TYPE)(QUEUE_TYPE *q, task_descriptor *td) {
       task_descriptor *next = QUEUE_NEXT(td);
       QUEUE_PREV(next) = prev;
       QUEUE_NEXT(prev) = next;
+      if (*q == td)
+        *q = next;
     }
   }
 }
