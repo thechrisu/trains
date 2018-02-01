@@ -26,7 +26,7 @@ register_t event_register(int event_id, task_descriptor *task) {
     return -3;
   }
   registered_tasks[event_id] = task;
-  task->blocked_on = event_id;
+  task->blocked_on = (enum event_id)event_id;
   task_set_state(task, TASK_EVENT_BLOCKED);
   return 0xBADDA7A;
 }
