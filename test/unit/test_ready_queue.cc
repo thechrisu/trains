@@ -181,10 +181,16 @@ TEST(ReadyQueueTest, remove_middle_if_five_tasks) {
   }
 
   ready_queue_remove(&rq, &(td[2]));
+  ASSERT_EQ(td[0].next, &(td[1]));
+  ASSERT_EQ(td[0].prev, &(td[4]));
   ASSERT_EQ(td[1].next, &(td[3]));
+  ASSERT_EQ(td[1].prev, &(td[0]));
+  ASSERT_EQ(td[2].next, &(td[3]));
   ASSERT_EQ(td[1].prev, &(td[0]));
   ASSERT_EQ(td[3].next, &(td[4]));
   ASSERT_EQ(td[3].prev, &(td[1]));
+  ASSERT_EQ(td[4].next, &(td[0]));
+  ASSERT_EQ(td[4].prev, &(td[3]));
   ASSERT_EQ(ready_queue_length(&rq), 4);
 }
 
