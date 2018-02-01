@@ -49,8 +49,10 @@ void kmain() {
   // Setup PIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
 
+#if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
   interrupt_timer_setup();
+#endif /* E2ETESTING && TIMER_INTERRUPTS */
 
   next_task_id = 1;
 
@@ -169,7 +171,9 @@ int main() {
   // Disable VIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
 
+#if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
+#endif /* E2ETESTING && TIMER_INTERRUPTS */
 
 #if TIMERINTERRUPT_DEBUG
   bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
