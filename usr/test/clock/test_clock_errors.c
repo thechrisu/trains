@@ -3,8 +3,6 @@
 void clock_errors() {
   bwprintf("Creating nameserver\n\r");
   ns_tid = Create(7, &nameserver_main);
-  bwprintf("Creating idle task\n\r");
-  Create(2, &idle_task);
 
   message send, reply;
 
@@ -36,7 +34,6 @@ void clock_errors() {
   Send(clock_server_tid, &send, sizeof(send), &reply, sizeof(reply));
   bwprintf("Response type on delay to time in past/present: %d\n\r", reply.type);
 
-  Kill(ns_tid);
-  Kill(WhoIs("ClockNotifier"));
-  Kill(WhoIs("Idle"));
+  Assert(Kill(WhoIs("ClockNotifier")) == 0);
+  Assert(Kill(ns_tid) == 0);
 }
