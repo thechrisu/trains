@@ -103,6 +103,7 @@ int syscall_kill(int tid) {
     return -1;
   }
   task_set_state(to_kill, TASK_ZOMBIE);
+  deregister_task(to_kill);
   return 0;
 }
 

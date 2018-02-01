@@ -62,3 +62,7 @@ kassert(((next->tf->fp > STACK_TOP - (next->tid + 2) * BYTES_PER_TASK) && (next-
 int register_task(task_descriptor *task) {
   return scheduler_register(&kscheduler, task);
 }
+
+int deregister_task(task_descriptor *task) {
+  return scheduler_deregister(&kscheduler, task);
+}
