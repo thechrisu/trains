@@ -3,7 +3,7 @@ from qemu_tcp_wrapper import qemu_oneshot_test
 
 TIMEOUT = 10  # in seconds
 
-exp_mypriority = 'Task should have priority 20, and is 20'
+exp_mypriority = 'Task should have priority MAX_PRIORITY(64), and is 64'
 
 class TestMyPriority(unittest.TestCase):
     def test_mypriority_happypath(self):

@@ -164,6 +164,7 @@ void EnableCaches(bool enable);
  */
 int MyPriority();
 
+#define MAX_PRIORITY 64
 
 #define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS            1

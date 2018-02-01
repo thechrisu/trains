@@ -5,6 +5,7 @@
 #ifndef TRAINS_SYSCALL_H
 #define TRAINS_SYSCALL_H
 
+#include "codes.h"
 #include "schedule.h"
 #include "messaging.h"
 #include "task.h"
