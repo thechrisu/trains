@@ -3,6 +3,7 @@
 #endif
 
 #include "crash.h"
+#include "events.h"
 #include "interrupt.h"
 #include "k2.h"
 #include "myio.h"
@@ -48,6 +49,8 @@ void kmain() {
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");
 #pragma GCC diagnostic warning "-Wformat-zero-length"
+
+  setup_events();
 
 #ifndef VERSATILEPB
   uint32_t *undefined_handler = (uint32_t*)0x24;

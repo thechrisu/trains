@@ -24,10 +24,6 @@ static volatile int num_foobar_stacks = 0;
 static register_t prev_fp[MAX_TASKS];
 #endif /* TIMERINTERRUPT_DEBUG */
 
-register_t event_masks[MAX_EVENT_ID + 1] = {
-  0x00000020
-};
-
 void print_tf(trapframe *tf) {
 #ifndef TESTING
   logputr(tf->r0);
@@ -121,7 +117,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   if (pic_status > 0) {
     // Clear interrupt
     int highest_prio_event = -1;
-    for (int i = 0; i < MAX_EVENT_ID; i++) {
+    for (int i = 0; i <= MAX_EVENT_ID; i++) {
       if (pic_status & event_masks[i]) {
         highest_prio_event = i;
         break;

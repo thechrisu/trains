@@ -8,6 +8,8 @@
 #include "event_data.h"
 #include "task.h"
 
+register_t event_masks[MAX_EVENT_ID + 1];
+
 /*
 for (int i = 0; i <= MAX_EVENT_ID; i++) {
   if (pic_status & (event_masks[i])) {
@@ -15,6 +17,10 @@ for (int i = 0; i <= MAX_EVENT_ID; i++) {
   }
 }*/
 
+/**
+ * Just makes sure no task is registered.
+ */
+void setup_events();
 
 /**
  * Registers a task for a given event id.
