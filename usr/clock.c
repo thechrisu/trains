@@ -6,6 +6,7 @@
 */
 void clock_notifier() {
   Assert(RegisterAs("ClockNotifier") == 0);
+  Assert(WhoIs("ClockNotifier") == MyTid());
 
   int server_tid = WhoIs("ClockServer");
   Assert(server_tid > 0);
@@ -17,6 +18,8 @@ void clock_notifier() {
     Assert(AwaitEvent(TIMER_INTERRUPT) == 0);
     Assert(Send(server_tid, &msg, sizeof(msg), EMPTY_MESSAGE, 0) >= 0);
   }
+  Assert("ACCIDENTALLY KILLED CLOCK NOTIFIER\n\r" == "");
+  Assert(0);
 }
 
 void clock_server() {
@@ -29,6 +32,7 @@ void clock_server() {
   clock_wait_queue_init(&queue);
 
   Assert(RegisterAs("ClockServer") == 0);
+  Assert(WhoIs("ClockServer") == MyTid());
 
   Create(6, &clock_notifier);
 
