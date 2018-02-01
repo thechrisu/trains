@@ -3,7 +3,7 @@
 .PRECIOUS: test_buffer.out test_all.out
 
 FLAGS = -DTESTING --std=c++1y -pthread -I../include -I../kernel/src -I../lib -I../kernel/src/multitasking -I../kernel/src/syscall -I../usr/lib -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
-SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c')
+SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c') $(shell find ../usr/lib -name '*.c')
 SRC_SCHEDULER = ../kernel/src/multitasking/scheduler.c ../kernel/src/multitasking/ready_queue.c
 SRC_TASK = $(SRC)
 SRC_CLOCK_WAIT_QUEUE = ../usr/lib/clock_wait_queue.c
