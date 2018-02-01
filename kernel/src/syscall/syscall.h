@@ -81,6 +81,11 @@ void syscall_reply();
 int syscall_awaitevent(int event_id);
 
 /**
+ * Kills a task. No questions asked.
+ */
+int syscall_kill(int tid);
+
+/**
  * Enables/Disables the caches on a user's request.
  * NOTE: Currently we don't disable the caches. Sorry.
  */

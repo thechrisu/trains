@@ -7,6 +7,7 @@
 #define TRAINS_SCHEDULE_H
 
 #include "attributes.h"
+#include "events.h"
 #include "scheduler.h"
 #include "task.h"
 #include "tstdlib.h"
@@ -40,5 +41,12 @@ bool schedule();
  * @return 0 if everything is ok, <0 if an error occurred.
  */
 int register_task(task_descriptor *task);
+
+/**
+ * Removes a task from the ready queue upon which it finds itself.
+ * @param task The task to be ripped from its ready queue like a baby from a cradle.
+ * @return A nebulous value. TODO do better.
+ */
+int deregister_task(task_descriptor *task);
 
 #endif /* TRAINS_SCHEDULE_H */

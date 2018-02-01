@@ -6,7 +6,15 @@
 #define EVENTS_H
 
 #include "event_data.h"
+#include "mytimer.h"
+#include "schedule.h"
 #include "task.h"
+
+#if VERSATILEPB
+#include "../include/versatilepb/versatilepb.h"
+#else
+#include "../include/labenv/ts7200.h"
+#endif /* VERSATILEPB */
 
 extern register_t event_masks[MAX_EVENT_ID + 1];
 

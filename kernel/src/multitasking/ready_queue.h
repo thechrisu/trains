@@ -51,4 +51,11 @@ void ready_queue_enqueue(ready_queue *rq, task_descriptor *td);
  */
 task_descriptor *ready_queue_dequeue(ready_queue *rq);
 
+/**
+ * Removes the task from the middle of the given queue.
+ * @param rq A ready queue.
+ * @param td The task descriptor to be removed.
+ */
+void ready_queue_remove(ready_queue *rq, task_descriptor *td);
+
 #endif /* READY_QUEUE_H */

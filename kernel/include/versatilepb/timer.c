@@ -55,7 +55,7 @@ void get_time_struct(my_time *sto, uint32_t *timestamp) {
 }
 
 void interrupt_timer_setup() {
-  *(uint32_t *)(TIMER2_BASE + LDR_OFFSET) = 10000;
+  *(uint32_t *)(TIMER2_BASE + LDR_OFFSET) = 1000;
   *(uint32_t *)(TIMER2_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK | ENABLE_INTERRUPT | TIMER_SIZE);
 }
 

@@ -93,6 +93,20 @@ int syscall_awaitevent(int event_id) {
   return event_register(event_id, get_current_task());
 }
 
+int syscall_kill(int tid) {
+  task_descriptor *current_task = get_current_task();
+  if (tid == current_task->tid) {
+    return -2;
+  }
+  task_descriptor *to_kill = get_task_with_tid(tid);
+  if (to_kill == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  }
+  task_set_state(to_kill, TASK_ZOMBIE);
+  deregister_task(to_kill);
+  return 0;
+}
+
 void syscall_cache_enable() {
   task_descriptor *current_task = get_current_task();
   bool enable = current_task->tf->r1;

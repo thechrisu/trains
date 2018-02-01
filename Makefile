@@ -1,4 +1,4 @@
-.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun
 default: upload;
 
 OPTIMIZATION = -O0
@@ -69,6 +69,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
 ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
+
 # -mapcs-32: always create a complete stack frame
 
 
@@ -158,11 +159,11 @@ $(builddirlab)/%.s: %.c
 
 $(builddirlab)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
+	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/%.o: $(builddirlab)/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
+	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
 	$(LABPATH)ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc

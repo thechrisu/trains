@@ -27,8 +27,6 @@ void test_runner() {
     bwprintf("\n\r");
 
     buf[i] = '\0';
-
-    
     if (tstrcmp(buf, "a0")) {
       exec_prog(2, &a0_main);
     } else if (tstrcmp(buf, "k1")) {
