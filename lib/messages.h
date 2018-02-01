@@ -11,6 +11,7 @@ enum message_type {
   REPLY_TIME,
   MESSAGE_DELAY,
   MESSAGE_DELAY_UNTIL,
+  REPLY_CLOCK_SERVER_ERROR,
 };
 
 typedef struct {

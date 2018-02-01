@@ -22,7 +22,7 @@ void clock_notifier() {
 void clock_server() {
   int sender_tid;
   message received, reply;
-  uint32_t ticks = 0;
+  uint32_t ticks = 0, delay_until_ticks;
   clock_wait cw, *head;
   clock_wait_queue queue;
 
@@ -54,14 +54,26 @@ void clock_server() {
         Assert(Reply(sender_tid, &reply, sizeof(reply)) >= 0);
         break;
       case MESSAGE_DELAY:
-        cw.tid = sender_tid;
-        cw.ticks = ticks + received.msg.message_delay_ticks;
-        Assert(clock_wait_queue_enqueue(&queue, &cw) != -1);
+        delay_until_ticks = ticks + received.msg.message_delay_ticks;
+        if (delay_until_ticks <= ticks) {
+          reply.type = REPLY_CLOCK_SERVER_ERROR;
+          Reply(cw.tid, &reply, sizeof(reply));
+        } else {
+          cw.tid = sender_tid;
+          cw.ticks = delay_until_ticks;
+          Assert(clock_wait_queue_enqueue(&queue, &cw) != -1);
+        }
         break;
       case MESSAGE_DELAY_UNTIL:
-        cw.tid = sender_tid;
-        cw.ticks = received.msg.message_delay_until_ticks;
-        Assert(clock_wait_queue_enqueue(&queue, &cw) != -1);
+        delay_until_ticks = received.msg.message_delay_until_ticks;
+        if (delay_until_ticks <= ticks) {
+          reply.type = REPLY_CLOCK_SERVER_ERROR;
+          Reply(cw.tid, &reply, sizeof(reply));
+        } else {
+          cw.tid = sender_tid;
+          cw.ticks = delay_until_ticks;
+          Assert(clock_wait_queue_enqueue(&queue, &cw) != -1);
+        }
         break;
       default:
         Panic();
