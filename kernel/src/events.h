@@ -8,14 +8,6 @@
 #include "event_data.h"
 #include "task.h"
 
-/*
-for (int i = 0; i <= MAX_EVENT_ID; i++) {
-  if (pic_status & (event_masks[i])) {
-    handle_event(i);
-  }
-}*/
-
-
 /**
  * Registers a task for a given event id.
  * Puts the task in state TASK_EVENT_BLOCKED.
