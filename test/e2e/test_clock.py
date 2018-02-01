@@ -3,11 +3,19 @@ from qemu_tcp_wrapper import qemu_oneshot_test
 
 TIMEOUT = 10
 
-expected_clock_errors_output = []
+expected_clock_errors_output = [
+    'Creating nameserver',
+    'Creating clock server',
+    'Getting time',
+    'Ticks at start: 0',
+    'Response type on negative delay: 5',
+    'Response type on zero delay: 5',
+    'Response type on delay to time in past/present: 5'
+]
 
 def test(self, test_name, expected_lines):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT, timer_interrupts_on = True)
-    real_lines = real_output.split('\n\r')
+    real_lines = list(filter(lambda x: x != '', real_output.split('\n\r')))
     self.assertEqual(expected_lines, real_lines)
 
 
