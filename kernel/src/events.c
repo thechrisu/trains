@@ -34,7 +34,6 @@ void event_handle(int event_id, int event_data) {
   kassert(event_id >= 0 && event_id <= MAX_EVENT_ID);
   if (event_has_task(event_id)) {
     task_descriptor *t = registered_tasks[event_id];
-    bwprintf("event handle: %d, %d\n\r", event_id, event_data);
     kassert(t->state == TASK_EVENT_BLOCKED);
     kassert(t->tf->r0 == 0xBADDA7A);
     t->tf->r0 = event_data; // TODO do something with corrupt data?

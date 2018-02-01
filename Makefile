@@ -3,7 +3,7 @@ default: upload;
 
 OPTIMIZATION = -O0
 #-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
-DEBUGFLAGS=-DSCHEDULE_DEBUG
+DEBUGFLAGS=
 
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))

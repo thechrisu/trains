@@ -196,7 +196,6 @@ void EnableCaches(bool enable) {
 int AwaitEvent(int event_id) {
   register_t args[] = {(register_t)event_id};
   int ret = software_interrupt(SYS_AWAIT_EVENT, 1, args);
-  bwprintf("Ret wrapper: %d\n\r", ret);
   return ret;
 }
 
