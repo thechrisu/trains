@@ -236,13 +236,13 @@ void k2_rps_client() {
  */
 void k2_first_user_task() {
 #ifdef E2ETESTING
-  ns_tid = Create(5, &nameserver_main);
+  ns_tid = Create(MyPriority() - 1, &nameserver_main);
 #else
-  Create(5, &nameserver_main);
+  Create(MyPriority() - 1, &nameserver_main);
 #endif
-  Create(5, &k2_rps_server);
+  Create(MyPriority() - 1, &k2_rps_server);
 
   for (int i = 0; i < 4; i += 1) {
-    Create(3, &k2_rps_client);
+    Create(MyPriority() - 3, &k2_rps_client);
   }
 }
