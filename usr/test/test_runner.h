@@ -15,6 +15,7 @@
 #include "nameserver/test_nameserver_happypath.h"
 #include "./test_undefined_handler.h"
 #include "./test_message_benchmark.h"
+#include "./test_mypriority.h"
 #include "myio.h"
 #include "stdlib.h"
 

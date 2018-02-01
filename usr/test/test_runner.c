@@ -28,7 +28,7 @@ void test_runner() {
 
     buf[i] = '\0';
 
-    
+
     if (tstrcmp(buf, "a0")) {
       exec_prog(2, &a0_main);
     } else if (tstrcmp(buf, "k1")) {
@@ -72,6 +72,8 @@ void test_runner() {
       exec_prog(5, &test_undefined_handler);
     } else if (tstrcmp(buf, "message_benchmark")) {
       exec_prog(7, &message_benchmark);
+    } else if (tstrcmp(buf, "test_mypriority")) {
+      exec_prog(5, &test_mypriority);
     } else if (!tstrcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
