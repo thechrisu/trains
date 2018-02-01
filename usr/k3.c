@@ -8,6 +8,6 @@ void k3_first_user_task() {
 
   for (int i = 0; i < 10; i += 1) {
     send.msg.message_delay_until_ticks = 1000 * i;
-    Send(clock_server_tid, send, sizeof(send), EMPTY_MESSAGE, 0);
+    Send(clock_server_tid, &send, sizeof(send), EMPTY_MESSAGE, 0);
   }
 }

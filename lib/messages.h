@@ -15,11 +15,11 @@ enum message_type {
 
 typedef struct {
   int type;
-  union msg {
+  union {
     int reply_time_ticks;
     int message_delay_ticks;
     int message_delay_until_ticks;
-  };
+  } msg;
 } message;
 
 #endif /* MESSAGE_H */

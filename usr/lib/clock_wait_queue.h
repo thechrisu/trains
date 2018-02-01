@@ -1,6 +1,8 @@
 #ifndef CLOCK_WAIT_QUEUE_H
 #define CLOCK_WAIT_QUEUE_H
 
+#include "tstdlib.h"
+
 /**
  * A clock_wait is a record of the fact that the task with the given ID is waiting
  * until the number of ticks since the creation of the clock server has reached the

@@ -9,6 +9,7 @@
 
 #define CONCAT(a, b) a ## b
 
+#define INIT(T)            CONCAT(T, _init)
 #define SWAP(T)            CONCAT(T, _swap)
 #define HEAPIFY(T)         CONCAT(T, _heapify)
 #define ENQUEUE(T)         CONCAT(T, _enqueue)
@@ -19,7 +20,7 @@
 #define LEFT_CHILD(i)      (2 * i + 1)
 #define RIGHT_CHILD(i)     (2 * i + 2)
 #define PARENT(i)          ((i - 1) / 2)
-#define IN_BOUNDS(q, i)    (i >= 0 && i < q->size)
+#define IN_BOUNDS(q, i)    (i < q->size)
 
 #endif /* PRIORITY_QUEUE_H */
 
@@ -67,25 +68,29 @@ int ENQUEUE(QUEUE_TYPE)(QUEUE_TYPE *q, ELEMENT_TYPE *e) {
   ELEMENT_COPY(e, AT(q, q->size));
   q->size += 1;
 
-  index = q->size - 1;
-  parent_index = PARENT(index);
+  uint32_t index = q->size - 1;
+  uint32_t parent_index = PARENT(index);
 
   while (ELEMENT_VALUE(AT(q, index)) < ELEMENT_VALUE(AT(q, parent_index))) {
     SWAP(QUEUE_TYPE)(q, index, parent_index);
     index = parent_index;
     parent_index = PARENT(index);
   }
+
+  return 0;
 }
 
-int *DEQUEUE(QUEUE_TYPE)(QUEUE_TYPE *q, ELEMENT_TYPE *e) {
+int DEQUEUE(QUEUE_TYPE)(QUEUE_TYPE *q, ELEMENT_TYPE *e) {
   if (q->size == 0) {
     return -1;
   }
 
-  SWAP(QUEUE_TYPE)(q, 0, size - 1);
-  ELEMENT_COPY(AT(q, size - 1), e);
+  SWAP(QUEUE_TYPE)(q, 0, q->size - 1);
+  ELEMENT_COPY(AT(q, q->size - 1), e);
   q->size -= 1;
   HEAPIFY(QUEUE_TYPE)(q);
+
+  return 0;
 }
 
 ELEMENT_TYPE *PEEK(QUEUE_TYPE)(QUEUE_TYPE *q) {
