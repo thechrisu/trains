@@ -72,6 +72,14 @@ void syscall_receive();
 void syscall_reply();
 
 /**
+ * Get <code>priority</code> of the currently running task.
+ *
+ * @return >=0: <code>priority</code> of the current task.
+ *          -1: For some reason the current task is invalid.
+ */
+int syscall_mypriority();
+
+/**
  * Enables/Disables the caches on a user's request.
  * NOTE: Currently we don't disable the caches. Sorry.
  */

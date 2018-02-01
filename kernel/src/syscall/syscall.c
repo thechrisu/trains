@@ -89,6 +89,14 @@ void syscall_reply() {
   reply(get_task_with_tid(sender_tid), current_task);
 }
 
+int syscall_mypriority() {
+  if (get_current_task() == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  } else {
+    return task_get_priority(get_current_task());
+  }
+}
+
 void syscall_cache_enable() {
   task_descriptor *current_task = get_current_task();
   bool enable = current_task->tf->r1;
@@ -116,7 +124,7 @@ void syscall_cache_enable() {
 	    "ADD r1, r1, #0x9000\n\t"
 	    "ADD r1, r1, #0x05\n\t"
 	    "BIC r0, r0, r1\n\t"
-	    "MCR p15, 0, r0, c1, c0, 0\n\t"); 
+	    "MCR p15, 0, r0, c1, c0, 0\n\t");
 	    } */
-#endif /* TESTING */  
+#endif /* TESTING */
 }

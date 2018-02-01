@@ -109,6 +109,10 @@ int Reply(int tid, void *reply, int rplen) {
   return software_interrupt(SYS_REPLY, 3, args);
 }
 
+int MyPriority() {
+  return software_interrupt(SYS_MYPRIORITY, 0, NULL_ARGS);
+}
+
 /**
  * Function to call if something goes terribly wrong while sending a message to
  * the nameserver.
