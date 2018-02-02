@@ -1,6 +1,3 @@
-//turn
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
 #include "a0trackstate.h"
 
 enum switch_state {
