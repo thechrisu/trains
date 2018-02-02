@@ -25,7 +25,7 @@ void clock_notifier() {
 void clock_server() {
   int sender_tid;
   message received, reply;
-  int32_t ticks = 0, delay_until_ticks;
+  uint32_t ticks = 0, delay_until_ticks;
   clock_wait cw, *head;
   clock_wait_queue queue;
 

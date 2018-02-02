@@ -6,6 +6,7 @@
 #include "messages.h"
 #include "nameserver.h"
 #include "myio.h"
+#include "mytimer.h"
 #include "tstdlib.h"
 #include "../nameserver/fake_nameserver_functions.h"
 

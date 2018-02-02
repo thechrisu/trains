@@ -74,6 +74,8 @@ void test_runner() {
       exec_prog(5, &test_timer_interrupt);
     } else if (tstrcmp(buf, "clock_errors")) {
       exec_prog(4, &clock_errors);
+    } else if (tstrcmp(buf, "clock_accuracy")) {
+      exec_prog(4, &clock_accuracy);
     } else if (!tstrcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }
