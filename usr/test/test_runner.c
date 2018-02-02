@@ -2,7 +2,6 @@
 
 void exec_prog(int priority, void (*code)()) {
   Create(priority, code);
-  bwprintf("ENDPROG\n\r");
 }
 
 void test_runner() {
@@ -37,7 +36,6 @@ void test_runner() {
       exec_prog(MyPriority() + 10, &k2_first_user_task);
     } else if (tstrcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
-      bwprintf("ENDPROG\n\r");
     } else if (tstrcmp(buf, "messaging_basic")) {
       exec_prog(MyPriority() + 4, &test_messaging_basic);
     } else if (tstrcmp(buf, "messaging_receive_before_send")) {

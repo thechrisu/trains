@@ -60,6 +60,9 @@ def read_socket(sock, limit=None, may_send_cr=False):
         if not d or (not may_send_cr and d.decode('ascii') == '\r'):
             break
         received += d.decode('ascii')
+        if 'Enter a test program (q to exit): \n\r' in received:
+            received = received.split('Enter a test program (q to exit): \n\r')[0]
+            break
         if 'ENDPROG\n\r' in received:
             received = received.split('ENDPROG\n\r')[0]
             break
@@ -104,7 +107,7 @@ def call_qemu_tcp(optimized):
             raise ConnectionAbortedError(lines)
 
 
-def qemu_oneshot_test(prog, te_data, timeout):
+def qemu_oneshot_test(prog, te_data, timeout, will_segfault=False):
     qemu_handle = call_qemu_tcp(False)
     q = Queue()
     # time.sleep(1)
@@ -131,7 +134,12 @@ def qemu_oneshot_test(prog, te_data, timeout):
             if prog_output.startswith(prog + '\n\r'):
                 prog_output = prog_output.split(prog + '\n\r')[1]
             s.sendall(bytes('q\r', 'ascii'))
-            read_socket(s, 1000)
+            if not will_segfault and \
+               (read_socket(s, 1000) is None or read_socket(s, 1000) is None):
+                print(prog_output)
+                kill_qemu(qemu_handle)
+                s.close()
+                raise ValueError
             kill_qemu(qemu_handle)
             s.close()
             return prog_output
