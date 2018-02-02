@@ -144,7 +144,7 @@ void task_set_state(task_descriptor *task, task_state state) {
 }
 
 void task_retire(task_descriptor *task, int16_t exit_code) {
-  task->state = TASK_ZOMBIE;
+  task_set_state(task, TASK_ZOMBIE);
   task->exit_code = exit_code;
   task->tf->r0 = 0x745C0000 + task->tid;
   task->tf->r1 = 0x745C0000 + task->tid;

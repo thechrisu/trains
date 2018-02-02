@@ -20,7 +20,7 @@ bool schedule() {
   //logprintf("Next task: %x\n\r", next);
 #endif /* SCHEDULE_DEBUG */
   if (unlikely(next == NULL_TASK_DESCRIPTOR && tasks_event_blocked == 0)) {
-    bwprintf("Goodbye\n\r");
+    // bwprintf("Goodbye\n\r");
     return false;
   }
 #if SCHEDULE_DEBUG
