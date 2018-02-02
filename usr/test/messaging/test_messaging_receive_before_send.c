@@ -15,7 +15,7 @@ void test_messaging_receive_before_send() {
   char msg[64];
   char reply[] = "Got your message!";
 
-  sender_tid = Create(4, &receive_before_send_sender);
+  sender_tid = Create(MyPriority() - 1, &receive_before_send_sender);
   bwprintf("Created task %d\n\r", sender_tid);
 
   int message_length = Receive(&sender_tid, msg, 64);

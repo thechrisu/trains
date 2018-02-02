@@ -31,7 +31,7 @@ void test_messaging_sequence() {
   char sent_reply[] = "Reply to child";
   char received_reply[64];
 
-  child_tid = Create(4, &sequence_child);
+  child_tid = Create(MyPriority() - 1, &sequence_child);
   bwprintf("Created task %d\n\r", child_tid);
 
   for (int i = 0; i < 4; i += 1) {

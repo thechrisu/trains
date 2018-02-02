@@ -150,6 +150,9 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     case SYS_CACHE_ENABLE:
       syscall_cache_enable();
       break;
+    case SYS_MYPRIORITY:
+      tf->r0 = syscall_mypriority();
+      break;
     default:
       tf->r0 = 0xABADC0DE;
   }

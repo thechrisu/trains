@@ -73,10 +73,10 @@ void run_benchmark(int msg_size, bool send_first) {
   volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
   int reply_tid;
   if (send_first) {
-    reply_tid = Create(6, &benchmark_reply); // Send before Reply: Yes
+    reply_tid = Create(MyPriority() - 1, &benchmark_reply); // Send before Reply: Yes
     // bwprintf("Send first (%d bytes): \n\r", msg_size);
   } else {
-    reply_tid = Create(8, &benchmark_reply); // Send before Reply: No
+    reply_tid = Create(MyPriority() + 1, &benchmark_reply); // Send before Reply: No
     // bwprintf("Receive first (%d bytes): \n\r", msg_size);
   }
   *tid_send = MyTid();

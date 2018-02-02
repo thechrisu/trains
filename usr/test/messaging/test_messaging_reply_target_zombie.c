@@ -8,6 +8,6 @@ void reply_to_zombie_target() {
 }
 
 void test_messaging_reply_target_zombie() {
-  target_tid = Create(4, &reply_to_zombie_target);
+  target_tid = Create(MyPriority() - 1, &reply_to_zombie_target);
   bwprintf("Exiting...\n\r");
 }

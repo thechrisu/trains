@@ -5,6 +5,7 @@
 #ifndef TRAINS_SYSCALL_H
 #define TRAINS_SYSCALL_H
 
+#include "codes.h"
 #include "schedule.h"
 #include "messaging.h"
 #include "task.h"
@@ -70,6 +71,14 @@ void syscall_receive();
  * Replies to a message from another task. Arguments passed in the current task's trapframe.
  */
 void syscall_reply();
+
+/**
+ * Get <code>priority</code> of the currently running task.
+ *
+ * @return >=0: <code>priority</code> of the current task.
+ *          -1: For some reason the current task is invalid.
+ */
+int syscall_mypriority();
 
 /**
  * Enables/Disables the caches on a user's request.
