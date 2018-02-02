@@ -103,7 +103,7 @@ void task_set_state(task_descriptor *task, task_state state);
 void task_retire(task_descriptor *task, int16_t exit_code);
 
 /**
- * Returns the <code>tid</code> of the task passed as argument
+ * Returns the <code>tid</code> of the task passed as argument.
  * @param task Task, no null check is performed.
  * @return tid
  */
@@ -115,5 +115,12 @@ tid_t task_get_tid(task_descriptor *task);
  * @return -1 if current task has no parent, otherwise the parent's <code>tid</code>
  */
 tid_t task_get_parent_tid(task_descriptor *task);
+
+/**
+ * Returns the <code>priority</code> of the task passed as an argument.
+ * @param task Task, no null check is performed.
+ * @return priority
+ */
+int task_get_priority(task_descriptor *task);
 
 #endif /* TRAINS_TASK_H */

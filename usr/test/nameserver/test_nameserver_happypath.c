@@ -9,15 +9,15 @@ void overwriting_task() {
 }
 
 void test_nameserver_happypath() {
-  ns_tid = Create(5, &nameserver_main);
+  ns_tid = Create(MyPriority(), &nameserver_main);
 
   RegisterAs("Task1");
   bwprintf("Basic RegisterAs/WhoIs: Me: %d, Task in question: %d\n\r", MyTid(), WhoIs("Task1"));
 
-  int other_tid = Create(6, &other_task);
+  int other_tid = Create(MyPriority() + 1, &other_task);
   bwprintf("Other task registers: Them: %d, Task registered: %d\n\r", other_tid, WhoIs("Task2"));
 
-  int overwriting_tid = Create(6, &overwriting_task);
+  int overwriting_tid = Create(MyPriority() + 1, &overwriting_task);
   bwprintf("Overwriting task: Them: %d, Task registered: %d\n\r", overwriting_tid, WhoIs("Task2"));
 
   RegisterAs("Task3");

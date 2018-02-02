@@ -1,5 +1,6 @@
 # Trains
 ## Supported Make targets
+- `make docs` Build documentation. Required `doxygen` to be installed.
 - `make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
 - `make e2etest` Builds for the Versatile/PB platform but with the test runner as the first user task.
 - `make qemu` Does `make versatilepb` and starts the QEMU GUI.
