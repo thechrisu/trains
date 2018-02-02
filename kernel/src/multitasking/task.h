@@ -6,8 +6,8 @@
 #define TRAINS_TASK_H
 
 #if CONTEXT_SWITCH_BENCHMARK
-#include "codes.h"
 #include "benchmark.h"
+#include "codes.h"
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 
 #ifdef TESTING
@@ -15,8 +15,9 @@
 #else
 #endif /* TESTING */
 
-#include "kassert.h"
+#include "constants.h"
 #include "interrupt.h"
+#include "kassert.h"
 #include "tstdlib.h"
 #include "../../../lib/event_data.h"
 
