@@ -2,7 +2,7 @@
 
 void clock_accuracy() {
   message send, reply;
-  uint32_t start_time, end_time;
+  uint32_t start_time, elapsed_time;
 
   setup_timer();
 
@@ -15,8 +15,9 @@ void clock_accuracy() {
 
   start_time = get_time();
   Assert(Send(clock_server_tid, &send, sizeof(send), &reply, sizeof(reply)) == 0);
-  end_time = get_time();
-  bwprintf("Actual time for delaying 10 ticks: %d ms\n\r", end_time - start_time);
+  elapsed_time = get_time() - start_time;
+  bwprintf("Actual time for delaying 10 ticks: %d ms\n\r", elapsed_time);
+  Assert(elapsed_time >= 10 * (10 - 1) && elapsed_time <= 10 * (10 + 1));
 
   Assert(Kill(WhoIs("Idle")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
