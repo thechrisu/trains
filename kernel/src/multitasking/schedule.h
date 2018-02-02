@@ -7,6 +7,7 @@
 #define TRAINS_SCHEDULE_H
 
 #include "attributes.h"
+#include "codes.h"
 #include "events.h"
 #include "scheduler.h"
 #include "task.h"
@@ -15,8 +16,6 @@
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-
-#define MAX_PRIORITY 64
 
 /**
  * Sets up a scheduler to be run with MAX_PRIORITY

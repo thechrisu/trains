@@ -19,7 +19,7 @@ void test_messaging_basic() {
   char msg[] = "Sending a message!";
   char reply[64];
 
-  receiver_tid = Create(4, &basic_receiver);
+  receiver_tid = Create(MyPriority() - 1, &basic_receiver);
   bwprintf("Created task %d\n\r", receiver_tid);
 
   int reply_length = Send(receiver_tid, msg, tstrlen(msg) + 1, reply, 64);

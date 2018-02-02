@@ -48,7 +48,7 @@ int Create(int priority, void (*code)());
 int MyTid();
 
 /**
- * Returns the task id of the currently running task.
+ * Returns the task id of the parent of the currently running task.
  *
  * @return Task id of the parent of the current task. (>0)
  *         If the current task has no parent, return -1.
@@ -173,6 +173,17 @@ int AwaitEvent(int event_id);
  */
 int Kill(int tid);
 
+/**
+ * Returns the priority of the currently running task.
+ *
+ * @return Priority of the the current task. (>=0)
+ *         (If for some reason the current task has been destroyed,
+ *          which can only happen if the kernel is buggy, return -1)
+ */
+int MyPriority();
+
+#define MAX_PRIORITY 64
+
 #define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS            1
 #define SYS_CREATE          2
@@ -185,5 +196,6 @@ int Kill(int tid);
 #define SYS_CACHE_ENABLE    9
 #define SYS_AWAIT_EVENT     10
 #define SYS_KILL            11
+#define SYS_MYPRIORITY      12
 
 #endif /* CODES_H */

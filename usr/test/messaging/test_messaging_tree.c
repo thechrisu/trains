@@ -17,7 +17,7 @@ void internal_node() {
   char msg[5];
 
   for (int i = 0; i < 4; i += 1) {
-    Create(7, &leaf);
+    Create(MyPriority() + 2, &leaf);
     Receive(&tid, msg + i, 1);
     Reply(tid, (char *)0, 0);
   }
@@ -34,7 +34,7 @@ void test_messaging_tree() {
   char msg[9];
 
   for (int i = 0; i < 2; i += 1) {
-    Create(6, &internal_node);
+    Create(MyPriority() + 1, &internal_node);
     Receive(&tid, msg + 4 * i, 4);
     Reply(tid, (char *)0, 0);
   }
