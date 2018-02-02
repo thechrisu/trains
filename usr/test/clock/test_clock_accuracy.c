@@ -2,6 +2,18 @@
 
 int clock_server_tid;
 
+void assert_within_n_ticks(uint32_t milliseconds, uint32_t ticks, int n) {
+  Assert(milliseconds >= 10 * (ticks - n) && milliseconds <= 10 * (ticks + n));
+}
+
+uint32_t time() {
+  message send, reply;
+  send.type = MESSAGE_TIME;
+  Assert(Send(clock_server_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_TIME);
+  return reply.msg.reply_time_ticks;
+}
+
 void time_delay(uint32_t ticks) {
   message send;
   uint32_t start_time, elapsed_time;
@@ -17,7 +29,7 @@ void time_delay(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying %d tick%s: %d ms\n\r", ticks, s, elapsed_time);
-  Assert(elapsed_time >= 10 * (ticks - 1) && elapsed_time <= 10 * (ticks + 1));
+  assert_within_n_ticks(elapsed_time, ticks, 1);
 }
 
 void time_delay_until(uint32_t ticks) {
@@ -28,8 +40,7 @@ void time_delay_until(uint32_t ticks) {
 
   send.type = MESSAGE_TIME;
 
-  Assert(Send(clock_server_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-  ticks_at_start = reply.msg.reply_time_ticks;
+  ticks_at_start = time();
 
   send.type = MESSAGE_DELAY_UNTIL;
   send.msg.message_delay_ticks = ticks_at_start + ticks;
@@ -41,15 +52,20 @@ void time_delay_until(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying until %d tick%s from then: %d ms\n\r", ticks, s, elapsed_time);
-  Assert(elapsed_time >= 10 * (ticks - 1) && elapsed_time <= 10 * (ticks + 1));
+  assert_within_n_ticks(elapsed_time, ticks, 1);
 }
 
 void clock_accuracy() {
+  uint32_t start_time, start_milliseconds, elapsed_time, elapsed_milliseconds;
+
   setup_timer();
 
   ns_tid = Create(7, &nameserver_main);
   clock_server_tid = Create(5, &clock_server);
   Create(2, &idle_task);
+
+  start_time = time();
+  start_milliseconds = get_time();
 
   time_delay(1);
   time_delay(10);
@@ -57,6 +73,12 @@ void clock_accuracy() {
   time_delay_until(1);
   time_delay_until(10);
   time_delay_until(50);
+
+  elapsed_time = time() - start_time;
+  elapsed_milliseconds = get_time() - elapsed_time;
+
+  bwprintf("Entire task took %d ticks (actual time %d milliseconds)\n\r", elapsed_time, elapsed_milliseconds);
+  assert_within_n_ticks(elapsed_milliseconds, elapsed_time, 2);
 
   Assert(Kill(WhoIs("Idle")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
