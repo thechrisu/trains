@@ -55,8 +55,9 @@ int PUT_SAFE(BUFFER_TYPE)(BUFFER_TYPE *b, ELEMENT_TYPE e) {
 }
 
 void PUT_REPLACE(BUFFER_TYPE)(BUFFER_TYPE *b, ELEMENT_TYPE e) {
-  if (IS_FULL(BUFFER_TYPE)(b))
+  if (IS_FULL(BUFFER_TYPE)(b)) {
     REMOVE(BUFFER_TYPE)(b);
+  }
   PUT(BUFFER_TYPE)(b, e);
 }
 
@@ -82,7 +83,7 @@ BUFFER_SIZE_TYPE LENGTH(BUFFER_TYPE)(BUFFER_TYPE *b) {
 }
 
 bool IS_FULL(BUFFER_TYPE)(BUFFER_TYPE *b) {
-  return b->elems < b->size;
+  return b->elems >= b->size;
 }
 
 bool IS_EMPTY(BUFFER_TYPE)(BUFFER_TYPE *b) {
