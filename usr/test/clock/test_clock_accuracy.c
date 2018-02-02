@@ -17,7 +17,7 @@ void time_delay(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying %d tick%s: %d ms\n\r", ticks, s, elapsed_time);
-  Assert(elapsed_time >= 10 * (ticks - 1) && elapsed_time <= 10 * (ticks + 1));
+  Assert(elapsed_time >= 10 * (ticks - 1) && elapsed_time <= 10 * ticks);
 }
 
 void clock_accuracy() {
@@ -27,7 +27,9 @@ void clock_accuracy() {
   clock_server_tid = Create(5, &clock_server);
   Create(2, &idle_task);
 
+  time_delay(1);
   time_delay(10);
+  time_delay(50);
 
   Assert(Kill(WhoIs("Idle")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
