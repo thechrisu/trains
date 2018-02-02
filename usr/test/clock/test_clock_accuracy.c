@@ -60,8 +60,8 @@ void clock_accuracy() {
 
   setup_timer();
 
-  ns_tid = Create(7, &nameserver_main);
-  clock_server_tid = Create(5, &clock_server);
+  ns_tid = Create(MyPriority() + 3, &nameserver_main);
+  clock_server_tid = Create(MyPriority() + 1, &clock_server);
   Create(2, &idle_task);
 
   start_time = time();

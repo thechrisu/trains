@@ -2,12 +2,12 @@
 
 void clock_errors() {
   bwprintf("Creating nameserver\n\r");
-  ns_tid = Create(7, &nameserver_main);
+  ns_tid = Create(MyPriority() + 3, &nameserver_main);
 
   message send, reply;
 
   bwprintf("Creating clock server\n\r");
-  int clock_server_tid = Create(5, &clock_server);
+  int clock_server_tid = Create(MyPriority() + 1, &clock_server);
 
   bwprintf("Getting time\n\r");
   send.type = MESSAGE_TIME;
