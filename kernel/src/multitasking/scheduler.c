@@ -31,4 +31,5 @@ task_descriptor *scheduler_next_task(scheduler *s) {
 
 int scheduler_deregister(scheduler *s, task_descriptor *td) {
   ready_queue_remove(&(s->queues[td->priority]), td);
+  return 0;
 }

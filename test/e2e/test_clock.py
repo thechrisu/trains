@@ -23,6 +23,9 @@ class TestMessaging(unittest.TestCase):
     def test_clock_errors(self):
         test(self, 'clock_errors', expected_clock_errors_output)
 
+    def test_clock_accuracy(self):
+        qemu_oneshot_test('clock_errors', '', TIMEOUT, timer_interrupts_on = True)
+
 
 if __name__ == "__main__":
     unittest.main()

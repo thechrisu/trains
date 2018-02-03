@@ -34,9 +34,9 @@ void useless_fct(int i) {
 }
 
 void spam() {
-  Create(5, &nameserver_main);
-  Create(5, &spam_server);
+  Create(MyPriority() - 1, &nameserver_main);
+  Create(MyPriority() - 1, &spam_server);
   for (int i = 0; i < 20; i += 1) {
-    Create(4, &spam_client);
+    Create(MyPriority() - 2, &spam_client);
   }
 }

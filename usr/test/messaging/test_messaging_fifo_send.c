@@ -15,7 +15,7 @@ void test_messaging_fifo_send() {
   char msg[2];
 
   for (int i = 0; i < 4; i += 1) {
-    Create(4, &fifo_sender);
+    Create(MyPriority() - 1, &fifo_sender);
   }
 
   for (int i = 0; i < 4; i += 1) {

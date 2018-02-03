@@ -2,7 +2,7 @@
 
 
 void test_nameserver_errors() {
-  ns_tid = Create(5, &nameserver_main);
+  ns_tid = Create(MyPriority(), &nameserver_main);
 
   char send_buf[NAMESERVER_MSG_LENGTH];
   char reply_buf;

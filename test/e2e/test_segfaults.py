@@ -18,7 +18,7 @@ expected_undefined_output = [
 
 class TestSegfaultTypes(unittest.TestCase):
     def test_undefined(self):
-        terminal_output = qemu_oneshot_test('test_undefined_handler', '', TIMEOUT)
+        terminal_output = qemu_oneshot_test('test_undefined_handler', '', TIMEOUT, will_segfault=True)
         lines = list(filter(lambda x: x != '', terminal_output.split('\n\r')))
         self.assertEqual(len(lines), len(expected_undefined_output))
         for i, line in enumerate(lines):

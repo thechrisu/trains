@@ -67,9 +67,6 @@ is_irq:
   MOV r0, sp
 
   /* Set second argument to PIC status. */
-#.global VERSATILEPB
-#.set VERSATILEPB, 1
-
   .ifdef VERSATILEPB
   LDR r1, =0x10140000
   .else

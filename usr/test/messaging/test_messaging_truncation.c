@@ -19,7 +19,7 @@ void test_messaging_truncation() {
   char msg[] = "Sending a message!";
   char reply[5];
 
-  receiver_tid = Create(4, &truncation_receiver);
+  receiver_tid = Create(MyPriority() - 1, &truncation_receiver);
   bwprintf("Created task %d\n\r", receiver_tid);
 
   length = Send(receiver_tid, msg, tstrlen(msg) + 1, reply, 5);

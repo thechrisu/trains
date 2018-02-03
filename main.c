@@ -182,6 +182,10 @@ int main() {
 #endif /* TIMERINTERRUPT_DEBUG */
 
 #if VERSATILEPB
+#if E2ETESTING
+  bwprintf("ENDPROG\n\r");
+#endif /* E2ETESTING */
+
   __asm__(
     "MOV r0, #0x18\n\t"
     "MOV r1, #0x20000\n\t"

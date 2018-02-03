@@ -55,6 +55,10 @@ void print_tf(trapframe *tf) {
 #endif /* TESTING */
 }
 
+#if TIMERINTERRUPT_DEBUG
+static register_t prev_fp[MAX_TASKS];
+#endif /* TIMERINTERRUPT_DEBUG */
+
 trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert(tf->k_lr != (register_t)0xA1B2C3D4);
 
@@ -115,7 +119,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
-  //bwprintf("TESTWOO: %x\n\r", pic_status);
+
   if (pic_status > 0) {
     //bwprintf("PIC STATUS: %x\n\r", pic_status);
     // Clear interrupt
@@ -179,6 +183,9 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       break;
     case SYS_CACHE_ENABLE:
       syscall_cache_enable();
+      break;
+    case SYS_MYPRIORITY:
+      tf->r0 = syscall_mypriority();
       break;
     case SYS_AWAIT_EVENT:
       tf->r0 = syscall_awaitevent(tf->r1);

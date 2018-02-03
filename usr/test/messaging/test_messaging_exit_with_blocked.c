@@ -22,7 +22,7 @@ void test_messaging_exit_with_blocked() {
 
   // reply_blocked will be blocked forever waiting for a Reply call
   int tid;
-  int reply_blocked_tid = Create(6, &reply_blocked);
+  int reply_blocked_tid = Create(MyPriority() + 1, &reply_blocked);
   Receive(&tid, (char *)0, 0);
   Assert(tid == reply_blocked_tid);
 
@@ -32,5 +32,5 @@ void test_messaging_exit_with_blocked() {
     had a lower priority than its parent, it would call Send after its parent had exited,
     causing it not to block.
   */
-  Create(6, &receive_blocked);
+  Create(MyPriority() + 1, &receive_blocked);
 }
