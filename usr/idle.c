@@ -1,7 +1,7 @@
 #include "idle.h"
 
 void idle_task() {
-  RegisterAs("Idle");
+  Assert(RegisterAs("Idle") == 0);
   while(1);
   Assert(0);
 }

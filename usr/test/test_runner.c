@@ -74,6 +74,10 @@ void test_runner() {
       exec_prog(MyPriority() + 4, &test_mypriority);
     } else if (tstrcmp(buf, "test_timer_interrupt")) {
       exec_prog(MyPriority() + 4, &test_timer_interrupt);
+    } else if (tstrcmp(buf, "clock_errors")) {
+      exec_prog(MyPriority() + 3, &clock_errors);
+    } else if (tstrcmp(buf, "clock_accuracy")) {
+      exec_prog(MyPriority() + 3, &clock_accuracy);
     } else if (!tstrcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

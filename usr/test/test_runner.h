@@ -17,6 +17,7 @@
 #include "./test_undefined_handler.h"
 #include "./test_message_benchmark.h"
 #include "./test_mypriority.h"
+#include "clock/test_clock.h"
 #include "myio.h"
 #include "stdlib.h"
 

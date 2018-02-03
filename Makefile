@@ -35,7 +35,7 @@ QEMU=qemu-system-arm
 endif
 
 ifeq (true,$(TEST_RUNNER))
-TEST_RUNNER_FLAG = -DE2ETESTING
+TEST_RUNNER_FLAG = -DE2ETESTING -DTIMER_INTERRUPTS
 endif
 
 E2ELDFILE=versatilepb_e2e.ld

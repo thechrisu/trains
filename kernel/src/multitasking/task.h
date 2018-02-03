@@ -18,6 +18,7 @@
 #include "kassert.h"
 #include "interrupt.h"
 #include "tstdlib.h"
+#include "../../../lib/event_data.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 
@@ -55,6 +56,7 @@ struct td {
   struct td *prevmsg;
   struct td *nextmsg;
   struct td **send_queue;
+  enum event_id blocked_on;
 };
 
 typedef struct td task_descriptor;

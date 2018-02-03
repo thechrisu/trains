@@ -17,12 +17,12 @@ task_descriptor *get_current_task() {
 bool schedule() {
   task_descriptor *next = scheduler_next_task(&kscheduler);
 #if SCHEDULE_DEBUG
-  //logprintf("Next task: %x\n\r", next);
+  logprintf("Next task: %x\n\r", next);
 #endif /* SCHEDULE_DEBUG */
   if (unlikely(next == NULL_TASK_DESCRIPTOR && tasks_event_blocked == 0)) {
-    // bwprintf("Goodbye\n\r");
     return false;
   }
+  kassert(next != NULL_TASK_DESCRIPTOR);
 #if SCHEDULE_DEBUG
   logprintf("Next task's tid: %d\n\r", next->tid);
   //logprintf("Next task's k_lr: %x\n\r", next->tf->k_lr);

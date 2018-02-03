@@ -26,6 +26,7 @@ register_t event_register(int event_id, task_descriptor *task) {
     return -3;
   }
   registered_tasks[event_id] = task;
+  task->blocked_on = (enum event_id)event_id;
   task_set_state(task, TASK_EVENT_BLOCKED);
   return 0xBADDA7A;
 }
@@ -35,10 +36,23 @@ void event_handle(int event_id, int event_data) {
   if (event_has_task(event_id)) {
     task_descriptor *t = registered_tasks[event_id];
     kassert(t->state == TASK_EVENT_BLOCKED);
+    kassert(t->blocked_on == (enum event_id)event_id);
     kassert(t->tf->r0 == 0xBADDA7A);
     t->tf->r0 = event_data; // TODO do something with corrupt data?
     task_set_state(t, TASK_RUNNABLE);
     registered_tasks[event_id] = NULL_TASK_DESCRIPTOR;
+    t->blocked_on = NOT_BLOCKED;
     register_task(t);
+  }
+}
+
+void event_deregister(task_descriptor *td) {
+  if (td->state == TASK_EVENT_BLOCKED) {
+    kassert(td->blocked_on != NOT_BLOCKED);
+    kassert(registered_tasks[td->blocked_on] == td);
+    registered_tasks[td->blocked_on] = NULL_TASK_DESCRIPTOR;
+    td->blocked_on = NOT_BLOCKED;
+  } else {
+    kassert(td->blocked_on == NOT_BLOCKED);
   }
 }

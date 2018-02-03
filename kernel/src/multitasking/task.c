@@ -13,7 +13,7 @@ task_descriptor *get_next_raw_td() {
 }
 
 task_descriptor *get_task_with_tid(tid_t tid) {
-  if (tid >= MAX_TASKS && tid < 0) {
+  if (tid >= MAX_TASKS || tid < 0) {
     return NULL_TASK_DESCRIPTOR;
   }
   return &(all_tasks[tid]);
@@ -35,6 +35,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->parent = parent;
   send_queues[task->tid] = NULL_TASK_DESCRIPTOR;
   task->send_queue = (task_descriptor **)&(send_queues[task->tid]);
+  task->blocked_on = NOT_BLOCKED;
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
