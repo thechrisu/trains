@@ -73,7 +73,7 @@ void clock_accuracy() {
   time_delay_until(50);
 
   elapsed_time = time() - start_time;
-  elapsed_milliseconds = get_time() - elapsed_time;
+  elapsed_milliseconds = get_time() - start_milliseconds;
 
   bwprintf("Entire task took %d ticks (actual time %d milliseconds)\n\r", elapsed_time, elapsed_milliseconds);
   assert_within_n_ticks(elapsed_milliseconds, elapsed_time, 2);
