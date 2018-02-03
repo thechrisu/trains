@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief K3 user tasks
+ */
 #ifndef K3_H
 #define K3_H
 

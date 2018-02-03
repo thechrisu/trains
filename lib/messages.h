@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Message formats.
+ */
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
