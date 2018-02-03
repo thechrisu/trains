@@ -117,6 +117,83 @@ TEST(ReadyQueueTest, dequeue_dequeues_a_task_from_a_queue_with_five_tasks) {
   ASSERT_EQ(ready_queue_length(&rq), 4);
 }
 
+TEST(ReadyQueueTest, remove_from_empty_queue) {
+  ready_queue rq = NULL_READY_QUEUE;
+
+  task_descriptor td;
+  ready_queue_remove(&rq, &td);
+}
+
+TEST(ReadyQueueTest, remove_if_at_front) {
+  int i;
+  ready_queue rq = NULL_READY_QUEUE;
+
+  task_descriptor td[2];
+  for (i = 0; i < 2; i++) {
+    ready_queue_enqueue(&rq, &(td[i]));
+  }
+
+  ready_queue_remove(&rq, &(td[0]));
+  ASSERT_EQ(td[1].next, &(td[1]));
+  ASSERT_EQ(td[1].prev, &(td[1]));
+  ASSERT_EQ(ready_queue_length(&rq), 1);
+}
+
+TEST(ReadyQueueTest, remove_if_at_back) {
+  int i;
+  ready_queue rq = NULL_READY_QUEUE;
+
+  task_descriptor td[2];
+  for (i = 0; i < 2; i++) {
+    ready_queue_enqueue(&rq, &(td[i]));
+  }
+
+  ready_queue_remove(&rq, &(td[1]));
+  ASSERT_EQ(td[0].next, &(td[0]));
+  ASSERT_EQ(td[0].prev, &(td[0]));
+  ASSERT_EQ(ready_queue_length(&rq), 1);
+}
+
+TEST(ReadyQueueTest, remove_if_in_middle) {
+  int i;
+  ready_queue rq = NULL_READY_QUEUE;
+
+  task_descriptor td[3];
+  for (i = 0; i < 3; i++) {
+    ready_queue_enqueue(&rq, &(td[i]));
+  }
+
+  ready_queue_remove(&rq, &(td[1]));
+  ASSERT_EQ(td[0].next, &(td[2]));
+  ASSERT_EQ(td[0].prev, &(td[2]));
+  ASSERT_EQ(td[2].next, &(td[0]));
+  ASSERT_EQ(td[2].prev, &(td[0]));
+  ASSERT_EQ(ready_queue_length(&rq), 2);
+}
+
+TEST(ReadyQueueTest, remove_middle_if_five_tasks) {
+  int i;
+  ready_queue rq = NULL_READY_QUEUE;
+
+  task_descriptor td[5];
+  for (i = 0; i < 5; i++) {
+    ready_queue_enqueue(&rq, &(td[i]));
+  }
+
+  ready_queue_remove(&rq, &(td[2]));
+  ASSERT_EQ(td[0].next, &(td[1]));
+  ASSERT_EQ(td[0].prev, &(td[4]));
+  ASSERT_EQ(td[1].next, &(td[3]));
+  ASSERT_EQ(td[1].prev, &(td[0]));
+  ASSERT_EQ(td[2].next, &(td[3]));
+  ASSERT_EQ(td[1].prev, &(td[0]));
+  ASSERT_EQ(td[3].next, &(td[4]));
+  ASSERT_EQ(td[3].prev, &(td[1]));
+  ASSERT_EQ(td[4].next, &(td[0]));
+  ASSERT_EQ(td[4].prev, &(td[3]));
+  ASSERT_EQ(ready_queue_length(&rq), 4);
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

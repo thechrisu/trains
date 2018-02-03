@@ -1,5 +1,7 @@
 #include "codes.h"
 #include "crash.h"
+#include "event_data.h"
+#include "events.h"
 #include "interrupt.h"
 #include "myio.h"
 #include "mytimer.h"
@@ -15,6 +17,12 @@ extern int syscall_myparenttid();
 extern int software_interrupt(register_t code, register_t argc, register_t *argv);
 
 int ticks;
+
+static volatile int num_foobar_stacks = 0;
+
+#if TIMERINTERRUPT_DEBUG
+static register_t prev_fp[MAX_TASKS];
+#endif /* TIMERINTERRUPT_DEBUG */
 
 void print_tf(trapframe *tf) {
 #ifndef TESTING
@@ -111,8 +119,30 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert((tf->psr & 0xFF) == 0x10);
 
   if (pic_status > 0) {
-    interrupt_timer_clear();
-    ticks += 1;
+    //bwprintf("PIC STATUS: %x\n\r", pic_status);
+    // Clear interrupt
+    int highest_prio_event = -1;
+    for (int i = 0; i <= MAX_EVENT_ID; i++) {
+      //bwprintf("pic_status: %x, event mask: %x\n\r", pic_status, event_masks[i]);
+      if (pic_status & event_masks[i]) {
+        highest_prio_event = i;
+        break;
+      }
+    }
+    int event_data = -2;
+    switch (highest_prio_event) {
+      case TIMER_INTERRUPT:
+        event_data = 0;
+        interrupt_timer_clear();
+        ticks += 1;
+        break;
+      default:
+        break; // I <3 GCC
+    }
+    //bwprintf("H: %d\n\r", highest_prio_event);
+    if (highest_prio_event != -1) {
+      event_handle(highest_prio_event, event_data);
+    }
     return tf;
   }
 #endif /* TESTING */
@@ -152,6 +182,17 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       break;
     case SYS_MYPRIORITY:
       tf->r0 = syscall_mypriority();
+      break;
+    case SYS_AWAIT_EVENT:
+      tf->r0 = syscall_awaitevent(tf->r1);
+#if E2ETESTING && !TIMER_INTERRUPTS
+      if (tf->r1 == TIMER_INTERRUPT) { // Simulate instant timer interrupt return.
+        event_handle(TIMER_INTERRUPT, 0);
+      }
+#endif /* E2ETESTING */
+      break;
+    case SYS_KILL:
+      tf->r0 = syscall_kill(tf->r1);
       break;
     default:
       tf->r0 = 0xABADC0DE;

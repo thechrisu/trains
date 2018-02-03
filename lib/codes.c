@@ -20,6 +20,7 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   register register_t arg4 __asm__ ("r4");
   register register_t arg5 __asm__ ("r5");
   register register_t arg6 __asm__ ("r6");
+  int ret;
 
   arg0 = code;
   if (argc > 0) arg1 = argv[0];
@@ -34,12 +35,13 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
     : "=r" (arg0)
     : "r" (arg0), "r" (arg1), "r" (arg2), "r" (arg3), "r" (arg4), "r" (arg5), "r" (arg6)
   );
+  ret = arg0;
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  logprintf("End of software_interrupt\n\r");
+  logprintf("End of software_interrupt: %d\n\r", ret);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  return arg0;
+  return ret;
 }
 
 void Exit() {
@@ -193,6 +195,17 @@ int WhoIs(char *c) {
 void EnableCaches(bool enable) {
   register_t args[] = {(register_t)enable};
   software_interrupt(SYS_CACHE_ENABLE, 1, args);
+}
+
+int AwaitEvent(int event_id) {
+  register_t args[] = {(register_t)event_id};
+  int ret = software_interrupt(SYS_AWAIT_EVENT, 1, args);
+  return ret;
+}
+
+int Kill(int tid) {
+  register_t args[] = {(register_t)tid};
+  return software_interrupt(SYS_KILL, 1, args);
 }
 
 #endif /* TESTING */

@@ -50,4 +50,13 @@ int scheduler_register(scheduler *s, task_descriptor *td);
  */
 task_descriptor *scheduler_next_task(scheduler *s);
 
+/**
+ * Removes a task from its ready queue in the scheduler.
+ *
+ * @param   s  A scheduler.
+ * @param   td The task descriptor to remove from its ready queue. Can't be null.
+ * @returns Something. TODO figure this out
+ */
+int scheduler_deregister(scheduler *s, task_descriptor *td);
+
 #endif /* SCHEDULER_H */

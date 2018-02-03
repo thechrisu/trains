@@ -32,7 +32,6 @@ typedef struct {
   register_t psr;
 } trapframe;
 
-
 #define NULL_TRAPFRAME (trapframe *)0
 
 void print_tf(trapframe *tf);

@@ -18,6 +18,7 @@
 #include "kassert.h"
 #include "interrupt.h"
 #include "tstdlib.h"
+#include "../../../lib/event_data.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 
@@ -29,6 +30,7 @@
 
 extern void sys_exit();
 extern trapframe *leave_kernel(int ret_code, trapframe *tf);
+extern int tasks_event_blocked;
 
 typedef enum task_state {
   TASK_ACTIVE,
@@ -36,7 +38,8 @@ typedef enum task_state {
   TASK_ZOMBIE,
   TASK_RECEIVE_BLOCKED, // State sender task is in after calling Send(), before anything else happened (esp. before Receive() was called).
   TASK_SEND_BLOCKED, // State receiver task is in after calling Receive() without a message ready.
-  TASK_REPLY_BLOCKED // State sender is in after Receive() has been called, but Reply() has not.
+  TASK_REPLY_BLOCKED, // State sender is in after Receive() has been called, but Reply() has not.
+  TASK_EVENT_BLOCKED // State task is in after calling <code>AwaitEvent()</code>
 } task_state;
 
 typedef int16_t tid_t;
@@ -53,6 +56,7 @@ struct td {
   struct td *prevmsg;
   struct td *nextmsg;
   struct td **send_queue;
+  enum event_id blocked_on;
 };
 
 typedef struct td task_descriptor;

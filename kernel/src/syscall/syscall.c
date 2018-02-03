@@ -89,6 +89,25 @@ void syscall_reply() {
   reply(get_task_with_tid(sender_tid), current_task);
 }
 
+int syscall_awaitevent(int event_id) {
+  return event_register(event_id, get_current_task());
+}
+
+int syscall_kill(int tid) {
+  task_descriptor *current_task = get_current_task();
+  if (tid == current_task->tid) {
+    return -2;
+  }
+  task_descriptor *to_kill = get_task_with_tid(tid);
+  if (to_kill == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  }
+  deregister_task(to_kill);
+  event_deregister(to_kill);
+  task_retire(to_kill, 0);
+  return 0;
+}
+
 int syscall_mypriority() {
   if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -1;

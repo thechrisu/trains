@@ -156,6 +156,24 @@ int WhoIs(char *name);
 void EnableCaches(bool enable);
 
 /**
+ * Waits and blocks for a certain event.
+ * @param event_id A valid event id, see <code>event_data.h</code>.
+ * @return >-1     Data
+ *         -1      Invalid event id
+ *         -2      Corrupt data
+ *         -3      Another task already registered for this event.
+ */
+int AwaitEvent(int event_id);
+
+/**
+ * @param  tid    tid of the task to kill.
+ * @return 0      Killed it.
+ *         -1     No task with this tid.
+ *         -2     Trying to commit suicide. Use <code>Exit()</code> instead.
+ */
+int Kill(int tid);
+
+/**
  * Returns the priority of the currently running task.
  *
  * @return Priority of the the current task. (>=0)
@@ -176,6 +194,8 @@ int MyPriority();
 #define SYS_RECEIVE         7
 #define SYS_REPLY           8
 #define SYS_CACHE_ENABLE    9
+#define SYS_AWAIT_EVENT     10
+#define SYS_KILL            11
 #define SYS_MYPRIORITY      12
 
 #endif /* CODES_H */

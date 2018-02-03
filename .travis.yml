@@ -39,4 +39,4 @@ script:
   - pwd
   - set -e
   - cd ../..
-  - make ci
+  - make ci -j2

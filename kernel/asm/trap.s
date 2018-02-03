@@ -66,12 +66,12 @@ is_irq:
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
 
-/* Set second argument to PIC status. */
-.ifdef VERSATILEPB
+  /* Set second argument to PIC status. */
+  .ifdef VERSATILEPB
   LDR r1, =0x10140000
-.else
+  .else
   LDR r1, =0x800B0000
-.endif
+  .endif
   LDR r1, [r1]
 
 /* Enter IRQ mode. */
