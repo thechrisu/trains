@@ -222,4 +222,33 @@ int32_t MyProcUsage() {
   return software_interrupt(SYS_MY_PROC_USAGE, 0, NULL_ARGS);
 }
 
+int Time(int tid) {
+  message send, reply;
+  send.type = MESSAGE_TIME;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply)) {
+    return reply.msg.reply_time_ticks;
+  }
+  return -1;
+}
+
+int Delay(int tid, int ticks) {
+  message send, reply;
+  send.type = MESSAGE_DELAY;
+  send.msg.message_delay_ticks = ticks;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
+  }
+  return -1;
+}
+
+int DelayUntil(int tid, int ticks) {
+  message send, reply;
+  send.type = MESSAGE_DELAY_UNTIL;
+  send.msg.message_delay_until_ticks = ticks;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
+  }
+  return -1;
+}
+
 #endif /* TESTING */

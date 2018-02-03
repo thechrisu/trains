@@ -6,6 +6,7 @@
 #define K3_H
 
 #include "clock.h"
+#include "codes.h"
 #include "idle.h"
 #include "nameserver.h"
 #include "messages.h"
