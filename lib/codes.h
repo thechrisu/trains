@@ -183,9 +183,17 @@ int Kill(int tid);
  */
 int MyPriority();
 
-
+/**
+ * Gets a breakdown of the total runtime of all tasks (in clock ticks).
+ *
+ * @param stats Pointer to statistics that will be copied in by reference.
+ */
 void TotalProcUsage(usage_stats* stats);
 
+/**
+ * Gets a breakdown of the runtime of all tasks in the last second.
+ * @param stats Pointer to statistics that will be copied in by reference.
+ */
 void LastSecondsProcUsage(usage_stats* stats);
 
 #define MAX_PRIORITY 64
