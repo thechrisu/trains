@@ -34,8 +34,10 @@ class TestMessaging(unittest.TestCase):
         test(self, 'clock_syscall_errors', expected_clock_syscall_errors_output)
 
     def test_clock_accuracy(self):
-        qemu_oneshot_test('clock_errors', '', TIMEOUT, timer_interrupts_on = True)
+        qemu_oneshot_test('clock_accuracy', '', TIMEOUT, timer_interrupts_on = True)
 
+    def test_clock_syscall_accuracy(self):
+        qemu_oneshot_test('clock_syscall_accuracy', '', TIMEOUT, timer_interrupts_on = True)
 
 if __name__ == "__main__":
     unittest.main()
