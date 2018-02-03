@@ -7,6 +7,7 @@
 #define CODES_H
 
 #include "attributes.h"
+#include "messages.h"
 #include "tstdlib.h"
 
 #ifdef E2ETESTING
@@ -181,6 +182,36 @@ int Kill(int tid);
  *          which can only happen if the kernel is buggy, return -1)
  */
 int MyPriority();
+
+/**
+ * @param   tid The task ID of the clock server.
+ * @returns -1 if tid is invalid and the number of ticks since clock server initialization
+ *          otherwise.
+ */
+int Time(int tid);
+
+/**
+ * Blocks the calling task until the given number of ticks have passed.
+ *
+ * @param   tid   The task ID of the clock server.
+ * @param   ticks The number of ticks for which to block.
+ * @returns -1 if tid is invalid.
+ *          -2 if ticks is zero or negative.
+ *          0 otherwise.
+ */
+int Delay(int tid, int ticks);
+
+/**
+ * Blocks the calling task until the ticks since clock server initialization reaches the
+ * given value.
+ *
+ * @param   tid   The task ID of the clock server.
+ * @param   ticks The number of ticks to wait until
+ * @returns -1 if tid is invalid.
+ *          -2 if ticks is zero or negative.
+ *          0 otherwise.
+ */
+int DelayUntil(int tid, int ticks);
 
 #define MAX_PRIORITY 64
 
