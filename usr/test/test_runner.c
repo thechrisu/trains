@@ -78,6 +78,8 @@ void test_runner() {
       exec_prog(MyPriority() + 3, &clock_errors);
     } else if (tstrcmp(buf, "clock_accuracy")) {
       exec_prog(MyPriority() + 3, &clock_accuracy);
+    } else if (tstrcmp(buf, "clock_syscall_errors")) {
+      exec_prog(MyPriority() + 3, &clock_syscall_errors);
     } else if (!tstrcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

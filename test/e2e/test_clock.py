@@ -13,6 +13,13 @@ expected_clock_errors_output = [
     'Response type on delay to time in past/present: 5'
 ]
 
+expected_clock_syscall_errors_output = [
+    'Error code on negative delay: -2',
+    'Error code on zero delay: -2',
+    'Error code on delay to time in past/present: -2',
+    'Error code on bad task ID: -1',
+]
+
 def test(self, test_name, expected_lines):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT, timer_interrupts_on = True)
     real_lines = list(filter(lambda x: x != '', real_output.split('\n\r')))
@@ -22,6 +29,9 @@ def test(self, test_name, expected_lines):
 class TestMessaging(unittest.TestCase):
     def test_clock_errors(self):
         test(self, 'clock_errors', expected_clock_errors_output)
+
+    def test_clock_syscall_errors(self):
+        test(self, 'clock_syscall_errors', expected_clock_syscall_errors_output)
 
     def test_clock_accuracy(self):
         qemu_oneshot_test('clock_errors', '', TIMEOUT, timer_interrupts_on = True)

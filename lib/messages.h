@@ -1,7 +1,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "clock.h"
+#include "tstdlib.h"
 
 #define EMPTY_MESSAGE (void *)0
 

@@ -221,17 +221,17 @@ int Delay(int tid, int ticks) {
   message send, reply;
   send.type = MESSAGE_DELAY;
   send.msg.message_delay_ticks = ticks;
-  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) == 0) {
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
     return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
   }
   return -1;
 }
 
-int Wait(int tid, int ticks) {
+int DelayUntil(int tid, int ticks) {
   message send, reply;
   send.type = MESSAGE_DELAY_UNTIL;
   send.msg.message_delay_until_ticks = ticks;
-  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) == 0) {
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
     return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
   }
   return -1;

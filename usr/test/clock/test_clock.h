@@ -2,6 +2,7 @@
 #define TEST_CLOCK_H
 
 #include "clock.h"
+#include "codes.h"
 #include "idle.h"
 #include "messages.h"
 #include "nameserver.h"
