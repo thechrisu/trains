@@ -12,5 +12,6 @@
 
 void clock_errors();
 void clock_accuracy();
+void clock_syscall_errors();
 
 #endif /* TEST_CLOCK_H */
