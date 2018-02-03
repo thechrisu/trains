@@ -61,6 +61,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   volatile task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
   kassert(tf->fp != 0);
+  end_interval(current_task->tid);
+  start_interval();
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
   volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
@@ -125,11 +127,13 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         break;
       }
     }
+    void setup_kusage_stats();
     int event_data = -2;
     switch (highest_prio_event) {
       case TIMER_INTERRUPT:
         event_data = 0;
         interrupt_timer_clear();
+        maybe_empty_last_secs_buffer();
         ticks += 1;
         break;
       default:
@@ -187,6 +191,12 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     case SYS_KILL:
       tf->r0 = syscall_kill(tf->r1);
       break;
+    case SYS_TOTAL_PROC_USAGE:
+      syscall_total_proc_usage((usage_stats*)tf->r1);
+      break; // TODO
+    case SYS_LAST_SECS_PROC_USAGE:
+      syscall_last_secs_proc_usage((usage_stats*)tf->r1);
+      break; // TODO
     default:
       tf->r0 = 0xABADC0DE;
   }

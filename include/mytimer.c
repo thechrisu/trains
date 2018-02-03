@@ -15,6 +15,11 @@ uint32_t get_time() {
 uint32_t get_cached_time() {
   return get_time();
 }
+
+uint32_t get_clockticks() {
+  return get_time();
+}
+
 #else // trainslab config
 
 #endif

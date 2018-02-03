@@ -204,4 +204,15 @@ int Kill(int tid) {
   return software_interrupt(SYS_KILL, 1, args);
 }
 
+void TotalProcUsage(usage_stats* stats) {
+  register_t args[] = {(register_t)stats};
+  return software_interrupt(SYS_KILL, 1, args);
+}
+
+void LastSecondsProcUsage(usage_stats* stats) {
+  register_t args[] = {(register_t)stats};
+  return software_interrupt(SYS_LAST_SECS_PROC_USAGE, 1, args);
+}
+
+
 #endif /* TESTING */

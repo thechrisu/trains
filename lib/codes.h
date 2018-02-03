@@ -8,6 +8,7 @@
 
 #include "attributes.h"
 #include "tstdlib.h"
+#include "usage_stats.h"
 
 #ifdef E2ETESTING
 #include "../../usr/test/nameserver/fake_nameserver_functions.h"
@@ -173,17 +174,23 @@ int AwaitEvent(int event_id);
  */
 int Kill(int tid);
 
-#define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
-#define SYS_PASS            1
-#define SYS_CREATE          2
-#define SYS_MYTID           3
-#define SYS_PARENTTID       4
-#define SYS_PANIC           5
-#define SYS_SEND            6
-#define SYS_RECEIVE         7
-#define SYS_REPLY           8
-#define SYS_CACHE_ENABLE    9
-#define SYS_AWAIT_EVENT     10
-#define SYS_KILL            11
+void TotalProcUsage(usage_stats* stats);
+
+void LastSecondsProcUsage(usage_stats* stats);
+
+#define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
+#define SYS_PASS                   1
+#define SYS_CREATE                 2
+#define SYS_MYTID                  3
+#define SYS_PARENTTID              4
+#define SYS_PANIC                  5
+#define SYS_SEND                   6
+#define SYS_RECEIVE                7
+#define SYS_REPLY                  8
+#define SYS_CACHE_ENABLE           9
+#define SYS_AWAIT_EVENT            10
+#define SYS_KILL                   11
+#define SYS_TOTAL_PROC_USAGE       13
+#define SYS_LAST_SECS_PROC_USAGE   14
 
 #endif /* CODES_H */

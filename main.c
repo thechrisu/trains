@@ -80,6 +80,8 @@ void kmain() {
   logprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
 
+  setup_kusage_stats();
+
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
