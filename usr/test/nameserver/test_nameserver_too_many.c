@@ -1,7 +1,7 @@
 #include "test_nameserver_too_many.h"
 
 void test_nameserver_too_many() {
-  ns_tid = Create(5, &nameserver_main);
+  ns_tid = Create(MyPriority(), &nameserver_main);
 
   for(int i = 1; i < TOTAL_NUM_NAMES; i++) {
     char fake[6];

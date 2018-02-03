@@ -10,13 +10,13 @@ void k1_other_user_task() {
 
 int k1_first_user_task() {
   int new_task_id;
-  new_task_id = Create(4, &k1_other_user_task);
+  new_task_id = Create(MyPriority() - 1, &k1_other_user_task);
   bwprintf("Created: %d.\n\r", new_task_id);
-  new_task_id = Create(4, &k1_other_user_task);
+  new_task_id = Create(MyPriority() - 1, &k1_other_user_task);
   bwprintf("Created: %d.\n\r", new_task_id);
-  new_task_id = Create(6, &k1_other_user_task);
+  new_task_id = Create(MyPriority() + 1, &k1_other_user_task);
   bwprintf("Created: %d.\n\r", new_task_id);
-  new_task_id = Create(6, &k1_other_user_task);
+  new_task_id = Create(MyPriority() + 1, &k1_other_user_task);
   bwprintf("Created: %d.\n\r", new_task_id);
 
   bwprintf("FirstUserTask: exiting\n\r");

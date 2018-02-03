@@ -164,3 +164,7 @@ tid_t task_get_parent_tid(task_descriptor *task) {
   }
   return task->parent->tid;
 }
+
+int task_get_priority(task_descriptor *task) {
+  return task->priority;
+}
