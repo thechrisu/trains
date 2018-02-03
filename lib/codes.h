@@ -196,6 +196,12 @@ void TotalProcUsage(usage_stats* stats);
  */
 void LastSecondsProcUsage(usage_stats* stats);
 
+/**
+ * Gets the usage of the current process in the last second as a percentage (0-100).
+ * @return 0-100: % that this process ran in the last second.
+ */
+int32_t MyProcUsage();
+
 #define MAX_PRIORITY 64
 
 #define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
@@ -213,5 +219,6 @@ void LastSecondsProcUsage(usage_stats* stats);
 #define SYS_MYPRIORITY             12
 #define SYS_TOTAL_PROC_USAGE       13
 #define SYS_LAST_SECS_PROC_USAGE   14
+#define SYS_MY_PROC_USAGE          15
 
 #endif /* CODES_H */

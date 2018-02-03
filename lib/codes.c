@@ -218,5 +218,8 @@ void LastSecondsProcUsage(usage_stats* stats) {
   return software_interrupt(SYS_LAST_SECS_PROC_USAGE, 1, args);
 }
 
+int32_t MyProcUsage() {
+  return software_interrupt(SYS_MY_PROC_USAGE, 0, NULL_ARGS);
+}
 
 #endif /* TESTING */

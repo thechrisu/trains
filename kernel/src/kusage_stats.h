@@ -45,4 +45,9 @@ void syscall_total_proc_usage(usage_stats *t_usage);
  */
 void syscall_last_secs_proc_usage(usage_stats *t_usage);
 
+/**
+ * Kernel-level implementation of <code>MyProcUsage()</code> syscall.
+ */
+int32_t syscall_my_proc_usage(int32_t tid);
+
 #endif /* KUSAGE_STATS_H */

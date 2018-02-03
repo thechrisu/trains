@@ -35,6 +35,19 @@ void end_interval(int32_t tid) {
   int32_t_buffer_put_replace(&ls_vals_buffer, i);
 }
 
+int32_t syscall_my_proc_usage(int32_t tid) {
+  int32_t my_runtime_last_second = 0;
+  int32_t total_last_second_time = 0;
+  while (!int32_t_buffer_is_empty(&ls_tids_buffer)) {
+    int32_t buf_val = int32_t_buffer_get(&ls_vals_buffer);
+    if (int32_t_buffer_get(&ls_tids_buffer) == tid) {
+      my_runtime_last_second += buf_val;
+    }
+    total_last_second_time += buf_val;
+  }
+  return (100 * my_runtime_last_second) / total_last_second_time;
+}
+
 void syscall_total_proc_usage(usage_stats *t_usage) {
   for (int i = 0; i < MAX_TASKS; i++) {
     t_usage->ms_run[i] = total_usage.ms_run[i];

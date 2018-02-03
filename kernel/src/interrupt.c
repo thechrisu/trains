@@ -200,10 +200,13 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       break;
     case SYS_TOTAL_PROC_USAGE:
       syscall_total_proc_usage((usage_stats*)tf->r1);
-      break; // TODO
+      break;
     case SYS_LAST_SECS_PROC_USAGE:
       syscall_last_secs_proc_usage((usage_stats*)tf->r1);
-      break; // TODO
+      break;
+    case SYS_MY_PROC_USAGE:
+      tf->r0 = syscall_my_proc_usage(current_task->tid);
+      break;
     default:
       tf->r0 = 0xABADC0DE;
   }
