@@ -15,6 +15,7 @@ void setup_kusage_stats() {
 }
 
 void maybe_empty_last_secs_buffer() {
+  ticks_this_second++;
   if (ticks_this_second >= 100) {
     int32_t_buffer_empty(&ls_tids_buffer);
     int32_t_buffer_empty(&ls_vals_buffer);
