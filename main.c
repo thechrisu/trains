@@ -29,14 +29,6 @@ extern int ticks;
 extern int num_ctx_sw;
 
 void kmain() {
-  /*__asm__(
-          "\n"
-          ".ifdef VERSATILEPB\n\t"
-          "LDR r1, =0x10140000\n"
-          ".else\n\t"
-          "LDR r1, =0x800B0000\n"
-          ".endif\n\t"
-          );*/
   setup_io();
 
   log_index = 0;

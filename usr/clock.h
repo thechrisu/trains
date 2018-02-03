@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Clock server and notifier
+ */
 #ifndef CLOCK_USER_TASKS_H
 #define CLOCK_USER_TASKS_H
 

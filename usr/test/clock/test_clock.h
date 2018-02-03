@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief E2E tests for the clock server and notifier
+ */
 #ifndef TEST_CLOCK_H
 #define TEST_CLOCK_H
 
