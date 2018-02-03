@@ -25,6 +25,7 @@ void maybe_empty_last_secs_buffer() {
 
 void start_interval() {
   last_interval_start = get_clockticks();
+  kassert(last_interval_start > 0);
 }
 
 void end_interval(int32_t tid) {

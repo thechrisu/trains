@@ -14,6 +14,8 @@
 #include "syscall.h"
 #include "task.h"
 #include "test_runner.h"
+#include "usage_stats.h"
+#include "kusage_stats.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
@@ -80,6 +82,7 @@ void kmain() {
   logprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
 
+  setup_timer();
   setup_kusage_stats();
 
 #if E2ETESTING
@@ -175,6 +178,9 @@ int main() {
 
 #if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
+  usage_stats usage;
+  syscall_total_proc_usage(&usage);
+  print_usage(bwprintf, &usage);
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
 
 #if TIMERINTERRUPT_DEBUG

@@ -125,9 +125,11 @@ void run_benchmarks_for_msgsize(int msg_size) {
 
 void message_benchmark() {
   setup_timer();
+  int idle_tid = Create(MyPriority() - 3, &idle_task);
   run_benchmarks_for_msgsize(4);
   run_benchmarks_for_msgsize(64);
   EnableCaches(true);
   run_benchmarks_for_msgsize(4);
   run_benchmarks_for_msgsize(64);
+  Kill(idle_tid);
 }

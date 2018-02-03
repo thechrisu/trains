@@ -3,6 +3,7 @@
 
 #include "benchmark.h"
 #include "codes.h"
+#include "idle.h"
 #include "mytimer.h"
 #include "myio.h"
 #include "stdlib.h"

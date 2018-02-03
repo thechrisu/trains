@@ -9,4 +9,6 @@ typedef struct {
   int max_tid;
 } usage_stats;
 
+void print_usage(void (*print)(char *,...), usage_stats* usage);
+
 #endif /* LUSAGE_STATS_H */
