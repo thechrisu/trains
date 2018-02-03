@@ -17,9 +17,9 @@ enum message_type {
 typedef struct {
   int type;
   union {
-    int reply_time_ticks;
-    int message_delay_ticks;
-    int message_delay_until_ticks;
+    int32_t reply_time_ticks;
+    int32_t message_delay_ticks;
+    int32_t message_delay_until_ticks;
   } msg;
 } message;
 

@@ -10,7 +10,7 @@
  */
 typedef struct {
   int tid;
-  uint32_t ticks;
+  int32_t ticks;
 } clock_wait;
 
 #define NULL_CLOCK_WAIT (clock_wait *)0

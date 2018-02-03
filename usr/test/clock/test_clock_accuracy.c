@@ -33,7 +33,7 @@ void time_delay(uint32_t ticks) {
 }
 
 void time_delay_until(uint32_t ticks) {
-  message send, reply;
+  message send;
   uint32_t start_time, elapsed_time;
   uint32_t ticks_at_start;
   char *s = ticks == 1 ? "" : "s";
