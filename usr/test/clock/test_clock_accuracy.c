@@ -38,17 +38,15 @@ void time_delay_until(uint32_t ticks) {
   uint32_t ticks_at_start;
   char *s = ticks == 1 ? "" : "s";
 
-  send.type = MESSAGE_TIME;
-
-  ticks_at_start = time();
-
-  send.type = MESSAGE_DELAY_UNTIL;
-  send.msg.message_delay_ticks = ticks_at_start + ticks;
-
   bwprintf("Delaying until %d tick%s from now\n\r", ticks, s);
 
   start_time = get_time();
+
+  ticks_at_start = time();
+  send.type = MESSAGE_DELAY_UNTIL;
+  send.msg.message_delay_ticks = ticks_at_start + ticks;
   Assert(Send(clock_server_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying until %d tick%s from then: %d ms\n\r", ticks, s, elapsed_time);
@@ -64,13 +62,13 @@ void clock_accuracy() {
   clock_server_tid = Create(MyPriority() + 1, &clock_server);
   Create(2, &idle_task);
 
-  start_time = time();
   start_milliseconds = get_time();
+  start_time = time();
 
   time_delay(1);
   time_delay(10);
   time_delay(50);
-  time_delay_until(1);
+  time_delay_until(5);
   time_delay_until(10);
   time_delay_until(50);
 
