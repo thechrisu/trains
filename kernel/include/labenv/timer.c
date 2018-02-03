@@ -19,7 +19,7 @@ volatile uint64_t sys_time;
  * @param countdown_val default is 0xFFFF FFFF
  * @param clock_to_use 1: 508kHz clock (recommended!), 0: 2kHz clock
  */
-void set_tc3_timer(uint16_t countdown_val, bool clock_to_use) {
+void set_tc3_timer(uint32_t countdown_val, bool clock_to_use) {
   timer3_countdown = countdown_val;
   timer3_lastval = countdown_val;
   sys_time = 0;
@@ -80,7 +80,7 @@ static uint64_t get_debug_timer_time() {
  */
 void setup_timer() {
   // set_debug_timer(true);
-  set_tc3_timer(0xFFFF, 1);
+  set_tc3_timer(0xFFFFFFFF, 1);
   set_debug_timer(0);
   get_debug_timer_time();
 }
@@ -113,9 +113,8 @@ void get_time_struct(my_time *sto, uint32_t *timestamp) {
 }
 
 void interrupt_timer_setup() {
-  *(uint32_t *)(TIMER1_BASE + LDR_OFFSET) = 20;
-  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK);
-  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) &= ~(CLKSEL_MASK);
+  *(uint32_t *)(TIMER1_BASE + LDR_OFFSET) = 5085;
+  *(uint32_t *)(TIMER1_BASE + CTRL_OFFSET) |= (ENABLE_MASK | MODE_MASK | CLKSEL_MASK);
 }
 
 void interrupt_timer_teardown() {
