@@ -14,17 +14,36 @@ TEST(BufferTest, should_print_correctly) {
   char buf_data[BUF_SIZE];
   char_buffer buf;
   char_buffer_init(&buf, buf_data, BUF_SIZE);
-  init_track(&global_track_state);
-  for (int i = 0; i < 7; i++) {
+  ASSERT_FALSE(char_buffer_is_full(&buf));
+  ASSERT_TRUE(char_buffer_is_empty(&buf));
+  for (int i = 0; i < BUF_SIZE; i++) {
+    ASSERT_EQ(char_buffer_length(&buf), i < BUF_SIZE ? i : BUF_SIZE);
+    ASSERT_FALSE(char_buffer_is_full(&buf));
     char_buffer_put(&buf, i);
   }
-  for (int i = 0; i < 5; i++) {
-    if (char_buffer_is_full(&buf)) {
-        char_buffer_get(&buf);
-    }
-    char_buffer_put(&buf, i + 32);
+  ASSERT_TRUE(char_buffer_is_full(&buf));
+  ASSERT_FALSE(char_buffer_is_empty(&buf));
+  ASSERT_EQ(char_buffer_length(&buf), BUF_SIZE);
+  for (int i = 0; i < BUF_SIZE; i++) {
+    char_buffer_get(&buf);
   }
-  // print_triggered_sensors(&buf);
+  ASSERT_FALSE(char_buffer_is_full(&buf));
+  ASSERT_TRUE(char_buffer_is_empty(&buf));
+}
+
+TEST(BufferTest, put_replace) {
+  char buf_data[BUF_SIZE];
+  char_buffer buf;
+  char_buffer_init(&buf, buf_data, BUF_SIZE);
+  for (int i = 0; i < 2 * BUF_SIZE; i++) {
+    char_buffer_put_replace(&buf, 'A' + i);
+  }
+  ASSERT_TRUE(char_buffer_is_full(&buf));
+  ASSERT_FALSE(char_buffer_is_empty(&buf));
+  ASSERT_EQ(char_buffer_length(&buf), BUF_SIZE);
+  for (int i = 0; i < BUF_SIZE; i++) {
+    ASSERT_EQ(char_buffer_get(&buf), 'A' + i + BUF_SIZE);
+  }
 }
 
 TEST(BufferTest, buffer_should_work_i_am_sorry_i_dont_have_more_detail) {
@@ -43,7 +62,6 @@ TEST(BufferTest, buffer_should_work_i_am_sorry_i_dont_have_more_detail) {
   for (int i = 0; i < 10; i++) {
     bufferGetVec.push_back(char_buffer_get(&buf));
     ASSERT_EQ(buf.out, (i+1 + (j%2) * 10) % 20);
-
   }
   ASSERT_TRUE(std::equal(inDataVec.begin(), inDataVec.end(), bufferGetVec.begin()));
   ASSERT_EQ(buf.in, buf.out);

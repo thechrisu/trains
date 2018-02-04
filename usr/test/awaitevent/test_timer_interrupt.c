@@ -1,8 +1,8 @@
 #include "test_timer_interrupt.h"
 
 void test_timer_interrupt() {
-  ns_tid = Create(6, &nameserver_main);
-  Assert(Create(2, &idle_task) > 0);
+  ns_tid = Create(MyPriority() + 1, &nameserver_main);
+  Assert(Create(MyPriority() - 3, &idle_task) > 0);
   Assert(AwaitEvent(-2) == -1);
   Assert(AwaitEvent(-1) == -1);
   for (int i = 0; i < 5; i++) {

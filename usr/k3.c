@@ -1,6 +1,7 @@
 #include "k3.h"
 
 void k3_first_user_task() {
+  EnableCaches(true);
   Create(7, &nameserver_main);
   Create(2, &idle_task);
   int clock_server_tid = Create(5, &clock_server);
