@@ -39,6 +39,7 @@ void kmain() {
   ticks = 0;
 
   num_ctx_sw = 0;
+  num_syscalls = 0;
 
   // Setup PIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
@@ -178,6 +179,7 @@ int main() {
 
 #if TIMERINTERRUPT_DEBUG
   bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
+  bwprintf("Total number of syscalls: %d\n\r", num_syscalls);
 #endif /* TIMERINTERRUPT_DEBUG */
 
 #if VERSATILEPB

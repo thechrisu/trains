@@ -25,7 +25,7 @@ void time_delay(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying %d tick%s: %d ms\n\r", ticks, s, elapsed_time);
-  assert_within_tick_range(elapsed_time, ticks, 0, 2);
+  assert_within_tick_range(elapsed_time, ticks, 1, 1);
 }
 
 void time_delay_until(uint32_t ticks) {
@@ -46,7 +46,7 @@ void time_delay_until(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying until %d tick%s from then: %d ms\n\r", ticks, s, elapsed_time);
-  assert_within_tick_range(elapsed_time, ticks, 0, 2);
+  assert_within_tick_range(elapsed_time, ticks, 1, 1);
 }
 
 void clock_accuracy() {
