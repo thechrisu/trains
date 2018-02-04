@@ -1,4 +1,4 @@
-.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun md5
 default: upload;
 
 OPTIMIZATION = -O0
@@ -57,7 +57,7 @@ QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0
 
 #
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-							-Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib -Iinclude/ -fno-builtin
+							-Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -268,3 +268,6 @@ qemutcprun: e2etest
 
 docs:
 	doxygen Doxyfile
+
+md5:
+	find . -type f | awk '!/.*build.*/ && !/.*docs.*/ && !/.git\/.*/ && !/.idea\/.*/ && !/\#.*\#/ && !/.*\.pyc/ && !/.*\.out/ && !/.*test\/googletest\/.*/' | sort | xargs md5sum

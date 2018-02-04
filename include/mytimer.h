@@ -20,6 +20,7 @@
 void setup_timer();
 uint32_t get_time();
 uint32_t get_cached_time();
+uint32_t get_clockticks();
 #else // Lab
 #include "../kernel/include/labenv/timer.h"
 #endif /* LAB */

@@ -10,7 +10,7 @@ extern int oe_in_sensor;
 
 #include "a0terminal.h"
 #include "assert.h"
-#include "buffer.h"
+#include "char_buffer.h"
 #include "mytimer.h"
 #include "stdlib.h"
 #include "../track/track_node.h"
