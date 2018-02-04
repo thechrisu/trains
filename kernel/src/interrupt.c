@@ -137,7 +137,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       case TIMER_INTERRUPT:
         event_data = 0;
         interrupt_timer_clear();
-        maybe_empty_last_secs_buffer();
+        // maybe_empty_last_secs_buffer();
         ticks += 1;
         break;
       default:

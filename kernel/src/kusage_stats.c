@@ -7,11 +7,13 @@ int32_t_buffer ls_tids_buffer, ls_vals_buffer;
 int32_t ls_tids[MAX_POSSIBLE_CTX_SW_PER_S], ls_vals[MAX_POSSIBLE_CTX_SW_PER_S];
 int32_t last_interval_start;
 int32_t ticks_this_second;
+int32_t last_called_my_frac;
 
 void setup_kusage_stats() {
   int32_t_buffer_init(&ls_tids_buffer, (int32_t *)ls_tids, MAX_POSSIBLE_CTX_SW_PER_S);
   int32_t_buffer_init(&ls_vals_buffer, (int32_t *)ls_vals, MAX_POSSIBLE_CTX_SW_PER_S);
   ticks_this_second = 0;
+  last_called_my_frac = get_clockticks();
 }
 
 void maybe_empty_last_secs_buffer() {
@@ -37,13 +39,13 @@ void end_interval(int32_t tid) {
 
 int32_t syscall_my_proc_usage(int32_t tid) {
   int32_t my_runtime_last_second = 0;
-  int32_t total_last_second_time = 0;
+  int32_t total_last_second_time = get_clockticks() - last_called_my_frac;
+  last_called_my_frac = get_clockticks();
   while (!int32_t_buffer_is_empty(&ls_tids_buffer)) {
     int32_t buf_val = int32_t_buffer_get(&ls_vals_buffer);
     if (int32_t_buffer_get(&ls_tids_buffer) == tid) {
       my_runtime_last_second += buf_val;
     }
-    total_last_second_time += buf_val;
   }
   return (100 * my_runtime_last_second) / total_last_second_time;
 }
