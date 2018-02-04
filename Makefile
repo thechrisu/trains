@@ -1,4 +1,4 @@
-.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun md5
 default: upload;
 
 OPTIMIZATION = -O0
@@ -268,3 +268,6 @@ qemutcprun: e2etest
 
 docs:
 	doxygen Doxyfile
+
+md5:
+	find . -type f | awk '!/.*build.*/ && !/.*docs.*/ && !/.git\/.*/ && !/.idea\/.*/ && !/\#.*\#/ && !/.*\.pyc/ && !/.*\.out/ && !/.*test\/googletest\/.*/' | sort | xargs md5sum
