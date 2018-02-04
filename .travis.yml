@@ -20,6 +20,7 @@ before_install:
   - sudo apt-get install qemu libboost-all-dev doxygen
   - cd test/googletest
   - wget https://github.com/culshoefer/googletest-prebuilt/blob/master/gtest.tar.gz?raw=true
+  - ls
   - tar -xf gtest.tar.gz gtest
   - rm -rf gtest.tar.gz
 
