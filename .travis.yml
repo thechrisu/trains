@@ -39,5 +39,5 @@ script:
   - pwd
   - set -e
   - cd ../..
-  - make md5sum
+  - make md5
   - make ci -j2
