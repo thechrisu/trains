@@ -34,6 +34,8 @@ void test_runner() {
       exec_prog(MyPriority() + 4, &k1_first_user_task);
     } else if (tstrcmp(buf, "k2")) {
       exec_prog(MyPriority() + 10, &k2_first_user_task);
+    } else if (tstrcmp(buf, "k3")) {
+      exec_prog(MyPriority() + 15, &k3_first_user_task);
     } else if (tstrcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
     } else if (tstrcmp(buf, "messaging_basic")) {

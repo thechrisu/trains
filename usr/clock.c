@@ -34,7 +34,7 @@ void clock_server() {
   Assert(RegisterAs("ClockServer") == 0);
   Assert(WhoIs("ClockServer") == MyTid());
 
-  Create(6, &clock_notifier);
+  Assert(Create(MyPriority() + 1, &clock_notifier) >= 0);
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -45,7 +45,7 @@ void clock_server() {
         ticks += 1;
 
         head = clock_wait_queue_peek(&queue);
-        while (head != NULL_CLOCK_WAIT && head->ticks < ticks) {
+        while (head != NULL_CLOCK_WAIT && head->ticks <= ticks) {
           Assert(clock_wait_queue_dequeue(&queue, &cw) != -1);
           Assert(Reply(cw.tid, EMPTY_MESSAGE, 0) >= 0);
           head = clock_wait_queue_peek(&queue);
@@ -78,7 +78,9 @@ void clock_server() {
         }
         break;
       default:
-        Panic();
+        Assert(0);
     }
   }
+
+  Assert(0);
 }

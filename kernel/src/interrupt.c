@@ -64,7 +64,6 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 
   volatile task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
-  kassert(tf->fp != 0);
   end_interval(current_task->tid);
   start_interval();
 #if CONTEXT_SWITCH_BENCHMARK
