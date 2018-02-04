@@ -78,7 +78,9 @@ void clock_server() {
         }
         break;
       default:
-        Panic();
+        Assert(0);
     }
   }
+
+  Assert(0);
 }
