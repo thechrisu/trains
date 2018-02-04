@@ -179,7 +179,7 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	cd test && $(MAKE) alltests
+	cd test && $(MAKE) alltests && $(MAKE) test
 	cd ..
 
 versatilepb:
@@ -270,4 +270,4 @@ docs:
 	doxygen Doxyfile
 
 md5:
-	find . -type f | awk '!/.*build.*/ && !/.*docs.*/ && !/.git\/.*/ && !/.idea\/.*/ && !/\#.*\#/ && !/.*\.pyc/ && !/.*\.out/ && !/.*test\/googletest\/.*/' | sort | xargs md5sum
+	git ls-files | grep -v 'test/googletest' | xargs md5sum
