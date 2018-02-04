@@ -64,7 +64,6 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 
   volatile task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
-  kassert(tf->fp != 0);
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
   volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
