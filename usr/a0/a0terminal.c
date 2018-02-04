@@ -1,6 +1,3 @@
-//
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
 #include "a0terminal.h"
 
 char track[13][23] = {

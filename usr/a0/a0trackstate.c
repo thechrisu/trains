@@ -1,6 +1,3 @@
-//turn
-// Created by Christoph Ulshöfer on 2018-01-04.
-//
 #include "a0trackstate.h"
 
 enum switch_state {
@@ -28,7 +25,7 @@ void setup_turnouts() {
 }
 int calls_to_turnout_buffer = 0;
 void check_turnout_buffer() {
-  if (char_buffer_get_num_elems(&turnout_buffer) >= 2 && !global_track_state.should_switch_off_solenoid && global_track_state.last_switch_time + 150 < get_time()) {
+  if (char_buffer_length(&turnout_buffer) >= 2 && !global_track_state.should_switch_off_solenoid && global_track_state.last_switch_time + 150 < get_time()) {
     char turnout, pos;
     pos = char_buffer_get(&turnout_buffer);
     turnout = char_buffer_get(&turnout_buffer);

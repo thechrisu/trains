@@ -2,6 +2,7 @@
 #define IDLE_H
 
 #include "codes.h"
+#include "myio.h"
 
 void idle_task();
 

@@ -5,10 +5,10 @@
 #ifndef MY_IO_H
 #define MY_IO_H
 
+#include "assert.h"
+#include "char_buffer.h"
 #include "mytimer.h"
 #include "tstdlib.h"
-#include "buffer.h"
-#include "assert.h"
 
 #define LOG_BUFFER_SIZE 1<<22
 

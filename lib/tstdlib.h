@@ -47,6 +47,7 @@ void *tmemset(void *s, int c, unsigned int n);
 #else
 void memcpy(void *dst, void *src, unsigned int n);
 
+// TODO change this via GCC/Clang macros
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
 typedef unsigned int uint32_t;
