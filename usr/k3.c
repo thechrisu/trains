@@ -45,7 +45,7 @@ void k3_first_user_task() {
   Assert(clock_server_tid > 0);
 
   for (int i = 0; i < 4; i += 1) {
-    Assert(Create(1 + i, &k3_client) > 0);
+    Assert(Create(i + 1, &k3_client) > 0);
   }
 
   // Send parameters to clients.
