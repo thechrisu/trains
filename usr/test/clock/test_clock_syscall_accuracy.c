@@ -13,7 +13,7 @@ void time_syscall_delay(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying %d tick%s: %d ms\n\r", ticks, s, elapsed_time);
-  assert_at_most_n_ticks_greater(elapsed_time, ticks, 2);
+  assert_within_tick_range(elapsed_time, ticks, 0, 2);
 }
 
 void time_syscall_delay_until(uint32_t ticks) {
@@ -32,7 +32,7 @@ void time_syscall_delay_until(uint32_t ticks) {
   elapsed_time = get_time() - start_time;
 
   bwprintf("Actual time for delaying until %d tick%s from then: %d ms\n\r", ticks, s, elapsed_time);
-  assert_at_most_n_ticks_greater(elapsed_time, ticks, 2);
+  assert_within_tick_range(elapsed_time, ticks, 0, 2);
 }
 
 void clock_syscall_accuracy() {
@@ -58,7 +58,7 @@ void clock_syscall_accuracy() {
   elapsed_milliseconds = get_time() - start_milliseconds;
 
   bwprintf("Entire task took %d ticks (actual time %d milliseconds)\n\r", elapsed_time, elapsed_milliseconds);
-  assert_at_most_n_ticks_greater(elapsed_milliseconds, elapsed_time, 3);
+  assert_within_tick_range(elapsed_milliseconds, elapsed_time, 2, 2);
 
   Assert(Kill(WhoIs("Idle")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);

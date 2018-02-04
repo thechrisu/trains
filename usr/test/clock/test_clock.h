@@ -21,9 +21,12 @@
  *
  * @param milliseconds The number of milliseconds to test.
  * @param ticks        The number of ticks to test against.
- * @param n            A number of ticks that the number of milliseconds can be off by.
+ * @param below        The number of ticks by which the number of milliseconds can be less
+ *                     than expected.
+ * @param above        The number of ticks by which the number of milliseconds can be greater
+ *                     than expected.
  */
-void assert_at_most_n_ticks_greater(uint32_t milliseconds, uint32_t ticks, int n);
+void assert_within_tick_range(uint32_t milliseconds, uint32_t ticks, int n);
 
 void clock_errors();
 void clock_accuracy();
