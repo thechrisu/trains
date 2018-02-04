@@ -38,19 +38,20 @@ void k3_first_user_task() {
   int32_t delay_counts[4] = { 20, 9, 6, 3 };
 
   int sender_tid;
+  int my_priority = MyPriority();
 
   message receive, reply;
   reply.type = REPLY_K3_GET_PARAMS;
 
   EnableCaches(true);
 
-  Assert(Create(5, &nameserver_main) > 0);
-  Assert(Create(0, &idle_task) > 0);
-  clock_server_tid = Create(5, &clock_server);
+  Assert(Create(my_priority - 5, &nameserver_main) > 0);
+  Assert(Create(my_priority - 10, &idle_task) > 0);
+  clock_server_tid = Create(my_priority - 5, &clock_server);
   Assert(clock_server_tid > 0);
 
-  for (int i = 0; i < 4; i += 1) {
-    Assert(Create(i + 1, &k3_client) > 0);
+  for (int i = 1; i <= 4; i += 1) {
+    Assert(Create(my_priority - 10 + i, &k3_client) > 0);
   }
 
   // Send parameters to clients.
