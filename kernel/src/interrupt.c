@@ -131,13 +131,11 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         break;
       }
     }
-    void setup_kusage_stats();
     int event_data = -2;
     switch (highest_prio_event) {
       case TIMER_INTERRUPT:
         event_data = 0;
         interrupt_timer_clear();
-        // maybe_empty_last_secs_buffer();
         ticks += 1;
         break;
       default:
