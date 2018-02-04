@@ -19,12 +19,6 @@
 void setup_kusage_stats();
 
 /**
- * If more than 1 second has passed since last tallying up last seconds' performance,
- * Start over tallying up last seconds' performance.
- */
-void maybe_empty_last_secs_buffer();
-
-/**
  * Indicate that a new task runs now.
  */
 void start_interval();

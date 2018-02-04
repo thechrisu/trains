@@ -20,15 +20,6 @@ void setup_kusage_stats() {
   started = false;
 }
 
-void maybe_empty_last_secs_buffer() {
-  ticks_this_second++;
-  if (ticks_this_second >= 100) {
-    int32_t_buffer_empty(&ls_tids_buffer);
-    int32_t_buffer_empty(&ls_vals_buffer);
-    ticks_this_second = 0;
-  }
-}
-
 void start_interval() {
   kassert(!started);
   started = true;
@@ -43,7 +34,7 @@ void end_interval(int32_t tid) {
   uint32_t i = get_clockticks() - last_interval_start;
   total_usage.ms_run[tid] += i;
   usage_last_second.ms_run[tid] += i;
-  kassert(total_usage.ms_run[tid] < get_clockticks());
+  //kassert(total_usage.ms_run[tid] < get_clockticks());
 }
 
 int32_t syscall_my_proc_usage(int32_t tid) {
