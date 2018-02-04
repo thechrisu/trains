@@ -5,6 +5,7 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 
+#include "codes.h"
 #include "tstdlib.h"
 #include "kusage_stats.h"
 #include "usage_stats.h"
@@ -34,7 +35,8 @@ typedef struct {
   register_t psr;
 } trapframe;
 
-extern int num_syscalls[16];
+extern int num_syscalls[NUM_SYSCALL_CODES];
+extern int num_syscalls_total;
 
 #define NULL_TRAPFRAME (trapframe *)0
 
