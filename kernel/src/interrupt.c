@@ -16,7 +16,7 @@ extern int syscall_myparenttid();
 #endif /* TESTING */
 extern int software_interrupt(register_t code, register_t argc, register_t *argv);
 
-int ticks;
+int ticks, num_syscalls;
 
 static volatile int num_foobar_stacks = 0;
 
@@ -92,26 +92,6 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert(tf->sp == (register_t)tf);
 #endif /* TESTING */
   current_task->tf = tf;
-#if TIMERINTERRUPT_DEBUG
-  if (current_task->tid == 3) {
-    if ((tf->fp & 0xFFFF0000) != 0xF4330000) { // && (tf->k_lr < (uint32_t)&software_interrupt || tf->k_lr > (uint32_t)(&software_interrupt) + 1000)) {
-      bool found_junk = false;
-      for (register_t* i = tf->fp - 4; i >= tf->sp + 72 && !found_junk; i--) {
-        found_junk |= (*i & 0xFFFF0000) == 0xF4330000;
-      }
-      if (found_junk) {
-        logprintf("Old fp: %x, New fp: %x, Sp: %x, tid: %d, ctx: %d, PIC: %d, TF: %x, klr: %x\n\r", prev_fp[current_task->tid], tf->fp, tf->sp + 72, current_task->tid, num_ctx_sw, pic_status, tf, tf->k_lr);
-        print_tf(tf);
-        for (register_t* i = tf->fp - 4; i >= tf->sp + 72; i--) {
-          logprintf("%x ", *i);
-        }
-        logprintf("\n\r");
-        logprintf("\n\r");
-      }
-    }
-    prev_fp[current_task->tid] = tf->fp;
-  }
-#endif /* TIMERINTERRUPT_DEBUG */
 
 #ifndef TESTING
   register_t cpsr_val;
@@ -147,7 +127,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     return tf;
   }
 #endif /* TESTING */
-
+  num_syscalls++;
   switch (tf->r0) {
     case SYS_EXIT:
       syscall_exit();

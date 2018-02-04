@@ -87,8 +87,6 @@ void task_activate(task_descriptor *task) {
   //kassert(((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK)) || (task->tf->fp == (register_t)0xF433000B + (task->tid << 4)));
 #if TIMERINTERRUPT_DEBUG
   kassert((task->tf->r7 & 0xFFFF0000) != 0xF4330000 || ((0xFFF0 & task->tf->r7) >> 4) == task->tid);
-  print_tf(task->tf);
-  logprintf("%x, %d, %x\n\r", task->tf->fp, task->tid, task->tf->sp);
 #endif /* TIMERINTERRUPT_DEBUG */
   task->state = TASK_ACTIVE;
 #ifndef TESTING
