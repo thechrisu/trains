@@ -270,4 +270,4 @@ docs:
 	doxygen Doxyfile
 
 md5:
-	find . -type f | awk '!/.*build.*/ && !/.*docs.*/ && !/.git\/.*/ && !/.idea\/.*/ && !/\#.*\#/ && !/.*\.pyc/ && !/.*\.out/' | sort | xargs md5sum
+	find . -type f | awk '!/.*build.*/ && !/.*docs.*/ && !/.git\/.*/ && !/.idea\/.*/ && !/\#.*\#/ && !/.*\.pyc/ && !/.*\.out/ && !/.*test\/googletest\/.*/' | sort | xargs md5sum
