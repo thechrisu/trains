@@ -193,7 +193,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
 #endif /* E2ETESTING */
       break;
     case SYS_KILL:
-      logprint("Killing task %d\n\r", tf->r1);
+      logprintf("Killing task %d\n\r", tf->r1);
       tf->r0 = syscall_kill(tf->r1);
       break;
     case SYS_TOTAL_PROC_USAGE:
