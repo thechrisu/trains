@@ -34,7 +34,7 @@ void clock_server() {
   Assert(RegisterAs("ClockServer") == 0);
   Assert(WhoIs("ClockServer") == MyTid());
 
-  Create(6, &clock_notifier);
+  Assert(Create(MyPriority() + 1, &clock_notifier) >= 0);
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
