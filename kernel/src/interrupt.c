@@ -16,7 +16,7 @@ extern int syscall_myparenttid();
 #endif /* TESTING */
 extern int software_interrupt(register_t code, register_t argc, register_t *argv);
 
-int ticks, num_syscalls;
+int ticks, num_syscalls[16];
 
 static volatile int num_foobar_stacks = 0;
 
@@ -127,7 +127,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     return tf;
   }
 #endif /* TESTING */
-  num_syscalls++;
+  num_syscalls[tf->r0] += 1;
   switch (tf->r0) {
     case SYS_EXIT:
       syscall_exit();

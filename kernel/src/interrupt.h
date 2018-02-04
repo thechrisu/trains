@@ -34,7 +34,7 @@ typedef struct {
   register_t psr;
 } trapframe;
 
-extern int num_syscalls;
+extern int num_syscalls[16];
 
 #define NULL_TRAPFRAME (trapframe *)0
 
