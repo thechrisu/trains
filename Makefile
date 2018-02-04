@@ -179,7 +179,7 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	cd test && $(MAKE) alltests
+	cd test && $(MAKE) alltests && $(MAKE) test
 	cd ..
 
 versatilepb:
