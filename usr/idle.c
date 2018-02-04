@@ -7,7 +7,7 @@ void idle_task() {
 #else
   int c_server_tid = WhoIs("ClockServer");
   Assert(c_server_tid > 0);
-  uint32_t exp = 1 << 19;
+  uint32_t exp = 1 << 22;
   while(1) {
     int loops = 0;
     int32_t last_print = Time(c_server_tid);
@@ -15,12 +15,15 @@ void idle_task() {
       for (uint32_t i = 0; i < exp; i++);
       loops++;
     }
+    if (loops > 10)
+      exp *= loops / 5;
     if (loops > 5)
-      exp *= 1.05;
-    if (loops <= 1)
-      exp /= 1.05;
+      exp *= 1.0 + (loops - 5.0) / 100.0;
+    if (loops <= 3)
+      exp /= 1.5;
     go_to_pos(1, 1);
-    bwprintf("%d%%\n\r", MyProcUsage());
+    int32_t u = MyProcUsage();
+    bwprintf("%d.%d%%\n\r", u / 10, u % 10);
   }
 #endif /* E2ETESTING */
   Assert(0);
