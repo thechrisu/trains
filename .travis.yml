@@ -18,12 +18,10 @@ before_install:
   - tar -xjf bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 -C ~
   - PATH=~/gnuarm-4.0.2/bin:$PATH
   - sudo apt-get install qemu libboost-all-dev doxygen
-  - git submodule update --init --recursive
-  - mkdir test/build
   - cd test/googletest
-  - chmod +x ci/travis.sh
-  - ./ci/travis.sh
-  - mv googletest gtest
+  - wget https://github.com/culshoefer/googletest-prebuilt/blob/master/gtest.tar.gz?raw=true
+  - tar -xf gtest.tar.gz gtest
+  - rm -rf gtest.tar.gz
 
 env:
   -GTEST=/home/travis/build/culshoefer/trains/test/googletest/gtest/include
