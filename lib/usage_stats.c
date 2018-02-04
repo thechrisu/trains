@@ -16,6 +16,6 @@ void print_usage(void (*print)(char *,...), usage_stats* usage) {
     unsigned int scaled = (unsigned int)(0.5 + (1000.0 * usage->ms_run[i] / TIMER_DIVISOR) / total_runtime);
     unsigned int frac = scaled / 10;
     unsigned int decimal = scaled % 10;
-    print("%d: \t%dms \t\t(%d.%d%%)\n\r", i, frac, decimal);
+    print("%d: \t%dms \t\t(%d.%d%%)\n\r", i, (unsigned int)(0.5 + ((usage->ms_run[i]) / TIMER_DIVISOR)), frac, decimal);
   }
 }
