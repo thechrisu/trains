@@ -43,7 +43,7 @@ class TestKernelDemoPrograms(unittest.TestCase):
         self.assertEqual(expected_lines, real_lines)
 
     def test_k3(self):
-        k3_output = qemu_oneshot_test('k3', '', TIMEOUT)
+        k3_output = qemu_oneshot_test('k3', '', TIMEOUT, timer_interrupts_on = True)
         expected_lines = expected_k3_output.split('\n\r')
         real_lines = k3_output.split('\n\r')
         self.assertEqual(expected_lines, real_lines)
