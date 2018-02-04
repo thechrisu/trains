@@ -208,6 +208,20 @@ int Kill(int tid) {
   return software_interrupt(SYS_KILL, 1, args);
 }
 
+void TotalProcUsage(usage_stats* stats) {
+  register_t args[] = {(register_t)stats};
+  software_interrupt(SYS_TOTAL_PROC_USAGE, 1, args);
+}
+
+void LastSecondsProcUsage(usage_stats* stats) {
+  register_t args[] = {(register_t)stats};
+  software_interrupt(SYS_LAST_SECS_PROC_USAGE, 1, args);
+}
+
+int32_t MyProcUsage() {
+  return software_interrupt(SYS_MY_PROC_USAGE, 0, NULL_ARGS);
+}
+
 int Time(int tid) {
   message send, reply;
   send.type = MESSAGE_TIME;

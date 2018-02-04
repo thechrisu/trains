@@ -4,7 +4,7 @@
 #include "track/track_data.h"
 
 #include "assert.h"
-#include "buffer.h"
+#include "char_buffer.h"
 #include "myio.h"
 #include "mytimer.h"
 
@@ -25,7 +25,7 @@ uint64_t last_loop, worst_time, last_train_send, last_train_receive;
 void bootstrap() {
   init_track(&global_track_state);
   char_buffer_init(&recentSensorsBuf, recentlyTriggeredSensors, sensorBufSize);
-  char_buffer_init(&termBuf, cmdPrefix, cmdSz);
+  char_buffer_init(&termBuf, cmdPrefix, cmdSz + 1);
   setup_timer();
   setup_io();
   printf("\033[38;5;255m\033[31m%s", RESET_TEXT);
@@ -188,7 +188,7 @@ void a0_main() {
     if (canreadbyte_buffered(TERMINAL)) {
       char c = readbyte_buffered(TERMINAL);
       if (c == 13) { // newline
-        char_buffer_put_force(&termBuf, '\0');
+        char_buffer_put(&termBuf, '\0');
         shouldStop = interpret_cmd(&termBuf);
         char_buffer_empty(&termBuf);
       } else {

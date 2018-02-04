@@ -6,6 +6,8 @@
 #define INTERRUPT_H
 
 #include "tstdlib.h"
+#include "kusage_stats.h"
+#include "usage_stats.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"
