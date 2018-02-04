@@ -1,7 +1,10 @@
 #include "idle.h"
 
 void idle_task() {
-  RegisterAs("Idle");
+  Assert(RegisterAs("Idle") == 0);
+#if E2ETESTING
+  while(1);
+#else
   int c_server_tid = WhoIs("ClockServer");
   Assert(c_server_tid > 0);
   int32_t exp = 1 << 18;
@@ -16,10 +19,9 @@ void idle_task() {
       exp *= 1.05;
     if (loops <= 1)
       exp /= 1.05;
-#ifndef E2ETESTING
     go_to_pos(1, 1);
     bwprintf("%d%%\n\r", MyProcUsage());
-#endif /* E2ETESTING */
   }
+#endif /* E2ETESTING */
   Assert(0);
 }
