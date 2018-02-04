@@ -110,6 +110,26 @@ TEST(SchedulerTest, next_task_has_fifo_ordering) {
     ASSERT_EQ(scheduler_next_task(&s), &(td[i]));
 }
 
+TEST(SchedulerTest, remove_actually_removes_task_and_maintains_ordering) {
+  scheduler s;
+  ready_queue rq[1];
+  task_descriptor td[5];
+  int i;
+
+  scheduler_init(&s, 0, rq);
+  for (i = 0; i < 5; i += 1) {
+    td[i].priority = 0;
+    scheduler_register(&s, &(td[i]));
+  }
+
+  scheduler_deregister(&s, &(td[2]));
+
+  for (i = 0; i < 5; i += 1) {
+    if (i == 2) continue;
+    ASSERT_EQ(scheduler_next_task(&s), &(td[i]));
+  }
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

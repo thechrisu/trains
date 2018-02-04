@@ -7,7 +7,7 @@
 
 extern struct track_state global_track_state;
 
-#include "buffer.h"
+#include "char_buffer.h"
 #include "myio.h"
 #include "mytimer.h"
 #include "../track/track_data.h"

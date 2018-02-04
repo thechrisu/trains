@@ -3,8 +3,9 @@
 #endif
 
 #include "crash.h"
+#include "events.h"
 #include "interrupt.h"
-#include "k2.h"
+#include "k3.h"
 #include "myio.h"
 #include "mytimer.h"
 #include "schedule.h"
@@ -13,6 +14,8 @@
 #include "syscall.h"
 #include "task.h"
 #include "test_runner.h"
+#include "usage_stats.h"
+#include "kusage_stats.h"
 
 #ifndef VERSATILEPB
 extern void enter_kernel(unsigned int syscall_code);
@@ -40,18 +43,18 @@ void kmain() {
   // Setup PIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
 
-  interrupt_timer_setup();
-
+#if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
-#if VERSATILEPB
-#else
-#endif /* VERSATILEPB */
+  interrupt_timer_setup();
+#endif /* E2ETESTING && TIMER_INTERRUPTS */
 
   next_task_id = 1;
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");
 #pragma GCC diagnostic warning "-Wformat-zero-length"
+
+  setup_events();
 
 #ifndef VERSATILEPB
   uint32_t *undefined_handler = (uint32_t*)0x24;
@@ -71,10 +74,14 @@ void kmain() {
   logprintf("Set up scheduler\n\r");
 #endif /* CONTEXT_SWTICH_DEBUG */
 
+  setup_timer();
+  setup_kusage_stats();
+
+  start_interval();
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else
-  syscall_create(10, &k2_first_user_task);
+  syscall_create(10, &k3_first_user_task);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG
@@ -162,7 +169,12 @@ int main() {
   // Disable VIC
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
 
+#if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
+  usage_stats usage;
+  syscall_total_proc_usage(&usage);
+  print_usage(bwprintf, &usage);
+#endif /* E2ETESTING && TIMER_INTERRUPTS */
 
 #if TIMERINTERRUPT_DEBUG
   bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);

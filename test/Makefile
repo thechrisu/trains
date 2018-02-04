@@ -2,22 +2,20 @@
 
 .PRECIOUS: test_buffer.out test_all.out
 
-FLAGS = -DTESTING --std=c++1y -pthread -I../include -I../kernel/src -I../lib -I../kernel/src/multitasking -I../kernel/src/syscall -I$(GTEST) -I$(BOOST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
-SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c')
+FLAGS = -DTESTING --std=c++1y -pthread -I../include -I../kernel/src -I../lib -I../kernel/src/multitasking -I../kernel/src/syscall -I../usr/lib -I../lib/buffertypes -I$(GTEST) $(LIBGTEST) -Wno-deprecated -Wno-write-strings
+SRC = $(shell find ../kernel/src -name '*.c' -not -name 'cp_vec.c') $(shell find ../lib -name '*.c') $(shell find ../test-resources -name '*.c') $(shell find ../include/mytimer.c) $(shell find ../usr/track -name '*.c') $(shell find ../usr/a0 -name '*.c') $(shell find ../usr/lib -name '*.c')
 SRC_SCHEDULER = ../kernel/src/multitasking/scheduler.c ../kernel/src/multitasking/ready_queue.c
 SRC_TASK = $(SRC)
+SRC_CLOCK_WAIT_QUEUE = ../usr/lib/clock_wait_queue.c
 
 SRC_TEST = $(shell find unit -name '*.cc')
 
 all:
-	make clean
-	make test_buffer.out
-	make test_ready_queue.out
-	make test_scheduler.out
-	make test_task.out
-	make test_messaging.out
-	make test_stdlib.out
-	make test_all.out
+	$(MAKE) clean
+	$(MAKE) all1
+
+all1: test_buffer.out test_ready_queue.out test_scheduler.out test_task.out test_messaging.out \
+			test_stdlib.out test_all.out
 	./unit/test_all.out
 	./unit/test_buffer.out
 	./unit/test_ready_queue.out
@@ -27,10 +25,9 @@ all:
 	./unit/test_task.out
 
 alltests: test_all.out
-	make test
+	./unit/test_all.out
 
 test:
-	./unit/test_all.out
 	python3 -m unittest discover -s e2e/ -p 'test_*.py' -v
 
 test_all.out: $(SRC) $(SRC_TEST)
@@ -41,6 +38,9 @@ test_buffer.out: unit/test_buffer.cc $(SRC)
 
 test_ready_queue.out: unit/test_ready_queue.cc $(SRC_SCHEDULER)
 	g++ -o unit/$@ $< $(SRC_SCHEDULER) $(FLAGS)
+
+test_clock_wait_queue.out: unit/test_clock_wait_queue.cc $(SRC_CLOCK_WAIT_QUEUE)
+	g++ -o unit/$@ $< $(SRC_CLOCK_WAIT_QUEUE) $(FLAGS)
 
 test_scheduler.out: unit/test_scheduler.cc $(SRC_SCHEDULER)
 	g++ -o unit/$@ $< $(SRC_SCHEDULER) $(FLAGS)

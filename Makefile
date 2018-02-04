@@ -1,4 +1,4 @@
-.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs
+.PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun md5
 default: upload;
 
 OPTIMIZATION = -O0
@@ -35,7 +35,15 @@ QEMU=qemu-system-arm
 endif
 
 ifeq (true,$(TEST_RUNNER))
-TEST_RUNNER_FLAG = -DE2ETESTING
+TEST_RUNNER_FLAG = -DE2ETESTING -DTIMER_INTERRUPTS
+endif
+
+E2ELDFILE=versatilepb_e2e.ld
+
+ifeq (true,$(TIMER_INTERRUPTS))
+builddirtesting=build/testingtmr
+TIMER_INTERRUPTS_FLAG = -DTIMER_INTERRUPTS
+E2ELDFILE=versatilepb_e2e_tmr.ld
 endif
 
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
@@ -49,11 +57,11 @@ QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0
 
 #
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-							-Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib -Iinclude/ -fno-builtin
+							-Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
-CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
+CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS) $(TIMER_INTERRUPTS_FLAG)
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
@@ -61,6 +69,7 @@ CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t 
 
 ASFLAGS	= -mcpu=arm920t -mapcs-32
 ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
+
 # -mapcs-32: always create a complete stack frame
 
 
@@ -69,8 +78,10 @@ LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
 	-L$(armlibs) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
-LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T versatilepb_e2e.ld \
+
+LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+
 LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
@@ -93,7 +104,7 @@ OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 x64stdlib:
 	mkdir -p build
 	mkdir -p $(builddirx64)
-	make $(builddirx64)/main
+	$(MAKE) $(builddirx64)/main
 
 $(builddirx64)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -116,7 +127,7 @@ $(builddirx64)/main: $(OBJECTSx64)
 arm:
 	mkdir -p build
 	mkdir -p $(builddir)
-	make $(builddir)/main.bin -j2
+	$(MAKE) $(builddir)/main.bin
 
 $(builddir)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -140,7 +151,7 @@ $(builddir)/main.bin: $(builddir)/main.elf
 trainslab:
 	mkdir -p build
 	mkdir -p $(builddirlab)
-	make $(builddirlab)/main.bin -j2
+	$(MAKE) $(builddirlab)/main.bin
 
 $(builddirlab)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -148,11 +159,11 @@ $(builddirlab)/%.s: %.c
 
 $(builddirlab)/kernel/%.o: kernel/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
+	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/%.o: $(builddirlab)/%.s
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS_ARM_LAB) $< -o $@
+	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
 	$(LABPATH)ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc
@@ -168,13 +179,13 @@ $(builddirlab)/main.bin: $(builddirlab)/main.elf
 #	$(AR) $(ARFLAGS) $@ bwio.o
 
 test:
-	cd test && make alltests
+	cd test && $(MAKE) alltests && $(MAKE) test
 	cd ..
 
 versatilepb:
 	mkdir -p build
 	mkdir -p $(builddirversatilepb)
-	make $(builddirversatilepb)/main.bin -j2
+	$(MAKE) $(builddirversatilepb)/main.bin
 
 $(builddirversatilepb)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -198,7 +209,7 @@ $(builddirversatilepb)/main.bin: $(builddirversatilepb)/main.elf
 e2etest:
 	mkdir -p build
 	mkdir -p $(builddirtesting)
-	make $(builddirtesting)/main.bin -j2
+	$(MAKE) $(builddirtesting)/main.bin
 
 $(builddirtesting)/%.s: %.c
 	@mkdir -p $(dir $@)
@@ -218,36 +229,25 @@ $(builddirtesting)/main.elf: $(OBJECTSversatilepb_e2e)
 $(builddirtesting)/main.bin: $(builddirtesting)/main.elf
 	$(OBJCOPY) -O binary $(builddirtesting)/main.elf $(builddirtesting)/main.bin
 
-all:
-	set -e
-	make docs -j2
-	make arm -j2
-	make versatilepb -j2
-	make e2etest -j2
-	make test -j2
+all: docs arm versatilepb e2etest test
 
-ci:
+ci: docs arm versatilepb e2etest
 	set -e
-	make docs -j2
-	make arm -j2
-	make versatilepb -j2
-	make e2etest -j2
-	set +e
-	cd test && make all -j2
+	cd test && $(MAKE) all
 	cd ..
 	set -e
-	make test -j2
+	$(MAKE) test
 
 clean:
 	rm -f *.s *.a *.o \
 	  $(builddir)/main.map $(builddir)/main.elf $(builddir)/*.o
 	rm -rf build/*
 	find . -name ".#*" -print0 | xargs -0 rm -rf
-	cd test && make clean && cd ..
+	cd test && $(MAKE) clean && cd ..
 
 upload:
-	make clean
-	make trainslab
+	$(MAKE) clean
+	$(MAKE) trainslab
 	cp $(builddirlab)/main.elf /u/cs452/tftp/ARM/$(shell whoami)/m
 
 qemu:
@@ -268,3 +268,6 @@ qemutcprun: e2etest
 
 docs:
 	doxygen Doxyfile
+
+md5:
+	git ls-files | grep -v 'test/googletest' | xargs md5sum

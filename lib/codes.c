@@ -20,6 +20,7 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
   register register_t arg4 __asm__ ("r4");
   register register_t arg5 __asm__ ("r5");
   register register_t arg6 __asm__ ("r6");
+  int ret;
 
   arg0 = code;
   if (argc > 0) arg1 = argv[0];
@@ -34,12 +35,13 @@ inline int software_interrupt(register_t code, register_t argc, register_t *argv
     : "=r" (arg0)
     : "r" (arg0), "r" (arg1), "r" (arg2), "r" (arg3), "r" (arg4), "r" (arg5), "r" (arg6)
   );
+  ret = arg0;
 
 #ifdef CONTEXT_SWITCH_DEBUG
-  logprintf("End of software_interrupt\n\r");
+  logprintf("End of software_interrupt: %d\n\r", ret);
 #endif /* CONTEXT_SWITCH_DEBUG */
 
-  return arg0;
+  return ret;
 }
 
 void Exit() {
@@ -74,7 +76,7 @@ void __Assert(bool value, const char *expression, const char *caller_name, const
     dump_logs();
     log_index = 0;
 
-    bwprintf("\033[31mAssertion failed! \"%s\" in function \"%s\" at %s:%d\033[39m\n", expression, caller_name, file_name, line_num);
+    bwprintf("\033[31mAssertion failed! \"%s\" in function \"%s\" at %s:%d\033[39m\n\r", expression, caller_name, file_name, line_num);
     /* Call software_interrupt1 instead of Panic to allow inlining. */
     software_interrupt(SYS_PANIC, 0, NULL_ARGS);
   }
@@ -193,6 +195,60 @@ int WhoIs(char *c) {
 void EnableCaches(bool enable) {
   register_t args[] = {(register_t)enable};
   software_interrupt(SYS_CACHE_ENABLE, 1, args);
+}
+
+int AwaitEvent(int event_id) {
+  register_t args[] = {(register_t)event_id};
+  int ret = software_interrupt(SYS_AWAIT_EVENT, 1, args);
+  return ret;
+}
+
+int Kill(int tid) {
+  register_t args[] = {(register_t)tid};
+  return software_interrupt(SYS_KILL, 1, args);
+}
+
+void TotalProcUsage(usage_stats* stats) {
+  register_t args[] = {(register_t)stats};
+  software_interrupt(SYS_TOTAL_PROC_USAGE, 1, args);
+}
+
+void LastSecondsProcUsage(usage_stats* stats) {
+  register_t args[] = {(register_t)stats};
+  software_interrupt(SYS_LAST_SECS_PROC_USAGE, 1, args);
+}
+
+int32_t MyProcUsage() {
+  return software_interrupt(SYS_MY_PROC_USAGE, 0, NULL_ARGS);
+}
+
+int Time(int tid) {
+  message send, reply;
+  send.type = MESSAGE_TIME;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply)) {
+    return reply.msg.reply_time_ticks;
+  }
+  return -1;
+}
+
+int Delay(int tid, int ticks) {
+  message send, reply;
+  send.type = MESSAGE_DELAY;
+  send.msg.message_delay_ticks = ticks;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
+  }
+  return -1;
+}
+
+int DelayUntil(int tid, int ticks) {
+  message send, reply;
+  send.type = MESSAGE_DELAY_UNTIL;
+  send.msg.message_delay_until_ticks = ticks;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
+  }
+  return -1;
 }
 
 #endif /* TESTING */

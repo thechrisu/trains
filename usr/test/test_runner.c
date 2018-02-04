@@ -34,6 +34,8 @@ void test_runner() {
       exec_prog(MyPriority() + 4, &k1_first_user_task);
     } else if (tstrcmp(buf, "k2")) {
       exec_prog(MyPriority() + 10, &k2_first_user_task);
+    } else if (tstrcmp(buf, "k3")) {
+      exec_prog(MyPriority() + 15, &k3_first_user_task);
     } else if (tstrcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
     } else if (tstrcmp(buf, "messaging_basic")) {
@@ -72,6 +74,16 @@ void test_runner() {
       exec_prog(MyPriority() + 6, &message_benchmark);
     } else if (tstrcmp(buf, "test_mypriority")) {
       exec_prog(MyPriority() + 4, &test_mypriority);
+    } else if (tstrcmp(buf, "test_timer_interrupt")) {
+      exec_prog(MyPriority() + 4, &test_timer_interrupt);
+    } else if (tstrcmp(buf, "clock_errors")) {
+      exec_prog(MyPriority() + 3, &clock_errors);
+    } else if (tstrcmp(buf, "clock_accuracy")) {
+      exec_prog(MyPriority() + 3, &clock_accuracy);
+    } else if (tstrcmp(buf, "clock_syscall_errors")) {
+      exec_prog(MyPriority() + 3, &clock_syscall_errors);
+    } else if (tstrcmp(buf, "clock_syscall_accuracy")) {
+      exec_prog(MyPriority() + 3, &clock_syscall_accuracy);
     } else if (!tstrcmp(buf, "q")) {
       bwprintf("Unknown test program \"%s\"\n\r", buf);
     }

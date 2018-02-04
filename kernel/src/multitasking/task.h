@@ -6,8 +6,8 @@
 #define TRAINS_TASK_H
 
 #if CONTEXT_SWITCH_BENCHMARK
-#include "codes.h"
 #include "benchmark.h"
+#include "codes.h"
 #endif /* CONTEXT_SWITCH_BENCHMARK */
 
 #ifdef TESTING
@@ -15,9 +15,12 @@
 #else
 #endif /* TESTING */
 
-#include "kassert.h"
+#include "constants.h"
 #include "interrupt.h"
+#include "kassert.h"
+#include "kusage_stats.h"
 #include "tstdlib.h"
+#include "../../../lib/event_data.h"
 
 #define NULL_TASK_DESCRIPTOR (task_descriptor *)0
 
@@ -25,10 +28,9 @@
 #define STACK_BOTTOM    (register_t)0x00000000
 #define BYTES_PER_TASK  (register_t)0x00060000 // 384 K
 
-#define MAX_TASKS       64 // 32MB/384K gives > 80, but 64 is divisible by 2 and I had to pick __some__ number
-
 extern void sys_exit();
 extern trapframe *leave_kernel(int ret_code, trapframe *tf);
+extern int tasks_event_blocked;
 
 typedef enum task_state {
   TASK_ACTIVE,
@@ -36,7 +38,8 @@ typedef enum task_state {
   TASK_ZOMBIE,
   TASK_RECEIVE_BLOCKED, // State sender task is in after calling Send(), before anything else happened (esp. before Receive() was called).
   TASK_SEND_BLOCKED, // State receiver task is in after calling Receive() without a message ready.
-  TASK_REPLY_BLOCKED // State sender is in after Receive() has been called, but Reply() has not.
+  TASK_REPLY_BLOCKED, // State sender is in after Receive() has been called, but Reply() has not.
+  TASK_EVENT_BLOCKED // State task is in after calling <code>AwaitEvent()</code>
 } task_state;
 
 typedef int16_t tid_t;
@@ -53,6 +56,7 @@ struct td {
   struct td *prevmsg;
   struct td *nextmsg;
   struct td **send_queue;
+  enum event_id blocked_on;
 };
 
 typedef struct td task_descriptor;

@@ -15,6 +15,12 @@
 - `make ci` Builds the docs, runs `make arm` and `make versatilepb`, and runs all the tests. Used by Travis CI.
 - `make` Does the same as `make upload`.
 
+## Compiler flags
+Various debugging compiler flags can be passed (See `Makefile`).
+In addition, you can the following environment variables to customize the build:
+- `TEST_RUNNER=true` will run a program that spawns a number of other programs. We use this configuration in our end to end tests to dynamically decide which program to run. If you specify this option for builds, it will also enable timer interrupts.
+- `TIMER_INTERRUPTS=true` will enable timer interrupts. Note that QEMU builds (except those with `-DE2ETESTING`) have timer interrupts turned on by default. The target `e2etest` uses a simulated form of timer interrupts where a task instantly returns from a timer interrupt.
+
 ## Environment variables
 Some targets use environment variables to find their compiler/libraries.
 ### Googletest/Boost
@@ -33,7 +39,7 @@ To compile to ARM outside of the student environment, you need to
 Kernel
 - [X] "Scheduler"
 - [X] "Message passing"
-- [ ] "Interrupts + clock server"
+- [X] "Interrupts + clock server"
 - [ ] "Interrupt-driven IO + a0 + loose ends"
 
 Train Control

@@ -6,12 +6,16 @@ tid_t next_task_id = 1;
 static task_descriptor all_tasks[MAX_TASKS];
 static task_descriptor *send_queues[MAX_TASKS];
 int num_ctx_sw = 0;
+int tasks_event_blocked = 0;
 
 task_descriptor *get_next_raw_td() {
   return &(all_tasks[next_task_id]);
 }
 
 task_descriptor *get_task_with_tid(tid_t tid) {
+  if (tid >= MAX_TASKS || tid < 0) {
+    return NULL_TASK_DESCRIPTOR;
+  }
   return &(all_tasks[tid]);
 }
 
@@ -31,6 +35,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->parent = parent;
   send_queues[task->tid] = NULL_TASK_DESCRIPTOR;
   task->send_queue = (task_descriptor **)&(send_queues[task->tid]);
+  task->blocked_on = NOT_BLOCKED;
 
 #ifndef TESTING
   task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
@@ -115,7 +120,8 @@ void task_activate(task_descriptor *task) {
   }
   num_ctx_sw += 1;
 #endif /* TIMERINTERRUPT_DEBUG */
-
+  end_interval(KERNEL_FAKE_TID);
+  start_interval();
   leave_kernel(task->tf->r0, task->tf);
 #endif
 #if TRAPFRAME_DEBUG
@@ -129,11 +135,18 @@ void task_activate(task_descriptor *task) {
 }
 
 void task_set_state(task_descriptor *task, task_state state) {
+  kassert(task->state != TASK_EVENT_BLOCKED || task->state != state);
+  if (task->state == TASK_EVENT_BLOCKED && (state == TASK_RUNNABLE || state == TASK_ZOMBIE)) {
+    tasks_event_blocked -= 1;
+  } else if (state == TASK_EVENT_BLOCKED) {
+    tasks_event_blocked += 1;
+  }
+  kassert(tasks_event_blocked >= 0 && tasks_event_blocked <= MAX_TASKS);
   task->state = state;
 }
 
 void task_retire(task_descriptor *task, int16_t exit_code) {
-  task->state = TASK_ZOMBIE;
+  task_set_state(task, TASK_ZOMBIE);
   task->exit_code = exit_code;
   task->tf->r0 = 0x745C0000 + task->tid;
   task->tf->r1 = 0x745C0000 + task->tid;

@@ -4,6 +4,7 @@
   .global vec_start
   .global vec_end
 
+
 vec_start:
   B reset_handler /* Reset */
   B handle_undefined_abort /* Undefined */

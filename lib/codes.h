@@ -7,7 +7,9 @@
 #define CODES_H
 
 #include "attributes.h"
+#include "messages.h"
 #include "tstdlib.h"
+#include "usage_stats.h"
 
 #ifdef E2ETESTING
 #include "../../usr/test/nameserver/fake_nameserver_functions.h"
@@ -156,6 +158,24 @@ int WhoIs(char *name);
 void EnableCaches(bool enable);
 
 /**
+ * Waits and blocks for a certain event.
+ * @param event_id A valid event id, see <code>event_data.h</code>.
+ * @return >-1     Data
+ *         -1      Invalid event id
+ *         -2      Corrupt data
+ *         -3      Another task already registered for this event.
+ */
+int AwaitEvent(int event_id);
+
+/**
+ * @param  tid    tid of the task to kill.
+ * @return 0      Killed it.
+ *         -1     No task with this tid.
+ *         -2     Trying to commit suicide. Use <code>Exit()</code> instead.
+ */
+int Kill(int tid);
+
+/**
  * Returns the priority of the currently running task.
  *
  * @return Priority of the the current task. (>=0)
@@ -164,18 +184,72 @@ void EnableCaches(bool enable);
  */
 int MyPriority();
 
+/**
+ * Gets a breakdown of the total runtime of all tasks (in clock ticks).
+ *
+ * @param stats Pointer to statistics that will be copied in by reference.
+ */
+void TotalProcUsage(usage_stats* stats);
+
+/**
+ * Gets a breakdown of the runtime of all tasks in the last second.
+ * @param stats Pointer to statistics that will be copied in by reference.
+ */
+void LastSecondsProcUsage(usage_stats* stats);
+
+/**
+ * Gets the usage of the current process in the last second as a percentage (0-100).
+ * @return 0-100: % that this process ran in the last second.
+ */
+int32_t MyProcUsage();
+
+/**
+ * @param   tid The task ID of the clock server.
+ * @returns -1 if tid is invalid and the number of ticks since clock server initialization
+ *          otherwise.
+ */
+int Time(int tid);
+
+/**
+ * Blocks the calling task until the given number of ticks have passed.
+ *
+ * @param   tid   The task ID of the clock server.
+ * @param   ticks The number of ticks for which to block.
+ * @returns -1 if tid is invalid.
+ *          -2 if ticks is zero or negative.
+ *          0 otherwise.
+ */
+int Delay(int tid, int ticks);
+
+/**
+ * Blocks the calling task until the ticks since clock server initialization reaches the
+ * given value.
+ *
+ * @param   tid   The task ID of the clock server.
+ * @param   ticks The number of ticks to wait until
+ * @returns -1 if tid is invalid.
+ *          -2 if ticks is zero or negative.
+ *          0 otherwise.
+ */
+int DelayUntil(int tid, int ticks);
+
 #define MAX_PRIORITY 64
 
-#define SYS_EXIT            0 // When you change this, also change it in ../src/trap.s
-#define SYS_PASS            1
-#define SYS_CREATE          2
-#define SYS_MYTID           3
-#define SYS_PARENTTID       4
-#define SYS_PANIC           5
-#define SYS_SEND            6
-#define SYS_RECEIVE         7
-#define SYS_REPLY           8
-#define SYS_CACHE_ENABLE    9
-#define SYS_MYPRIORITY      12
+#define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
+#define SYS_PASS                   1
+#define SYS_CREATE                 2
+#define SYS_MYTID                  3
+#define SYS_PARENTTID              4
+#define SYS_PANIC                  5
+#define SYS_SEND                   6
+#define SYS_RECEIVE                7
+#define SYS_REPLY                  8
+#define SYS_CACHE_ENABLE           9
+#define SYS_AWAIT_EVENT            10
+#define SYS_KILL                   11
+#define SYS_MYPRIORITY             12
+#define SYS_TOTAL_PROC_USAGE       13
+#define SYS_LAST_SECS_PROC_USAGE   14
+#define SYS_MY_PROC_USAGE          15
 
 #endif /* CODES_H */

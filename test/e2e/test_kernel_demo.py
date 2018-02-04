@@ -2,6 +2,9 @@ import re
 import unittest
 from qemu_tcp_wrapper import qemu_oneshot_test
 
+def read_snapshot(file_name):
+    return re.sub(r'\r?\n', '\n\r', open('e2e/snapshots/' + file_name, 'r').read())
+
 TIMEOUT = 10
 
 # Note: Task id 1 is the task runner
@@ -19,7 +22,9 @@ expected_k1_output = 'Created: 3.\n\r' \
                      'In other task: MyTid(): 3, MyParentTid(): 2\n\r' \
                      'In other task: MyTid(): 4, MyParentTid(): 2\n\r'
 
-expected_k2_output = re.sub(r'\r?\n', '\n\r', open('e2e/snapshots/k2.txt', 'r').read())
+expected_k2_output = read_snapshot('k2.txt')
+
+expected_k3_output = read_snapshot('k3.txt')
 
 
 class TestKernelDemoPrograms(unittest.TestCase):
@@ -35,6 +40,12 @@ class TestKernelDemoPrograms(unittest.TestCase):
         k2_output = qemu_oneshot_test('k2', '', TIMEOUT)
         expected_lines = expected_k2_output.split('\n\r')
         real_lines = k2_output.split('\n\r')
+        self.assertEqual(expected_lines, real_lines)
+
+    def test_k3(self):
+        k3_output = qemu_oneshot_test('k3', '', TIMEOUT, timer_interrupts_on = True)
+        expected_lines = expected_k3_output.split('\n\r')
+        real_lines = k3_output.split('\n\r')
         self.assertEqual(expected_lines, real_lines)
 
 

@@ -111,7 +111,7 @@ uint16_t getnumreadable_bytes(int channel) {
       assert(0);
       return 0xFFFF;
   }
-  return char_buffer_get_num_elems(buf);
+  return char_buffer_length(buf);
 }
 
 bool canreadbyte_buffered(int channel) {

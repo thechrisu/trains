@@ -7,8 +7,6 @@
 
 
 #include <stdio.h>
-#include "../../include/myio.h"
-#include "../../lib/buffer.h"
-#include "../../usr/a0/a0terminal.h"
+#include "char_buffer.h"
 
-#endif //TRAINS_TEST_BUFFER_H
+#endif /* TRAINS_TEST_BUFFER_H */

@@ -6,6 +6,8 @@
 #define INTERRUPT_H
 
 #include "tstdlib.h"
+#include "kusage_stats.h"
+#include "usage_stats.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"
@@ -31,7 +33,6 @@ typedef struct {
   register_t k_lr;
   register_t psr;
 } trapframe;
-
 
 #define NULL_TRAPFRAME (trapframe *)0
 
