@@ -77,6 +77,7 @@ void kmain() {
   setup_timer();
   setup_kusage_stats();
 
+  start_interval();
 #if E2ETESTING
   syscall_create(1, &test_runner);
 #else

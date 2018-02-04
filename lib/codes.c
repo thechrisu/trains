@@ -210,12 +210,12 @@ int Kill(int tid) {
 
 void TotalProcUsage(usage_stats* stats) {
   register_t args[] = {(register_t)stats};
-  return software_interrupt(SYS_KILL, 1, args);
+  software_interrupt(SYS_TOTAL_PROC_USAGE, 1, args);
 }
 
 void LastSecondsProcUsage(usage_stats* stats) {
   register_t args[] = {(register_t)stats};
-  return software_interrupt(SYS_LAST_SECS_PROC_USAGE, 1, args);
+  software_interrupt(SYS_LAST_SECS_PROC_USAGE, 1, args);
 }
 
 int32_t MyProcUsage() {

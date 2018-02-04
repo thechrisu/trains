@@ -7,7 +7,7 @@ void idle_task() {
 #else
   int c_server_tid = WhoIs("ClockServer");
   Assert(c_server_tid > 0);
-  int32_t exp = 1 << 18;
+  uint32_t exp = 1 << 19;
   while(1) {
     int loops = 0;
     int32_t last_print = Time(c_server_tid);
