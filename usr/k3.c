@@ -17,11 +17,14 @@ void k3_client() {
   for (int i = 1; i <= delay_count; i += 1) {
     Assert(Delay(clock_server_tid, delay) == 0);
     bwprintf(
-      "Tid: %d\tDelay interval: %d\t%d out of %d delays completed\tDelayed %d ticks so far\n\r",
+      "Tid: %d\tDelay interval: %d\t%s%d out of %s%d delays completed\tDelayed %s%d ticks so far\n\r",
       my_tid,
       delay,
+      i < 10 ? " " : "",
       i,
+      delay_count < 10 ? " " : "",
       delay_count,
+      i * delay < 100 ? " " : "",
       i * delay
     );
   }
