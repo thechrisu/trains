@@ -10,23 +10,25 @@ notifications:
   email: false
 
 cache:
+  apt: true
   directories:
-   - /home/travis/build/culshoefer/trains/test/googletest/build
+   - /home/travis/build/culshoefer/trains/test/googletest/
+   - /home/travis/build/culshoefer/trains/gnuarm-4.0.2/
+
 
 before_install:
   - wget http://www.doc.ironwoodlabs.com/gnuarm/gnuarm-distribution/web/www.gnuarm.com/bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2
   - tar -xjf bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 -C ~
   - PATH=~/gnuarm-4.0.2/bin:$PATH
-  - sudo apt-get install qemu libboost-all-dev doxygen
+  - sudo apt-get install qemu doxygen
   - cd test/googletest
   - wget https://github.com/culshoefer/googletest-prebuilt/blob/master/gtest.tar.gz?raw=true
-  - tar -xf gtest.tar.gz gtest
-  - rm -rf gtest.tar.gz
+  - tar -xf gtest.tar.gz?raw=true gtest
+  - rm -rf gtest.tar.gz?raw=true
 
 env:
   -GTEST=/home/travis/build/culshoefer/trains/test/googletest/gtest/include
   -LIBGTEST=/home/travis/build/culshoefer/trains/test/googletest/build/googlemock/gtest/libgtest.a
-  -BOOST=/usr/local/include/boost
   -armlibs=~/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 
 script:
