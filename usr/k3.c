@@ -39,6 +39,8 @@ void k3_first_user_task() {
   message receive, reply;
   reply.type = REPLY_K3_GET_PARAMS;
 
+  EnableCaches(true);
+
   Assert(Create(5, &nameserver_main) > 0);
   Assert(Create(0, &idle_task) > 0);
   clock_server_tid = Create(5, &clock_server);
