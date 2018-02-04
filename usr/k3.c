@@ -45,7 +45,12 @@ void k3_first_user_task() {
 
   EnableCaches(true);
 
+#ifdef E2ETESTING
+  ns_tid = Create(my_priority - 5, &nameserver_main);
+  Assert(ns_tid > 0);
+#else
   Assert(Create(my_priority - 5, &nameserver_main) > 0);
+#endif
   Assert(Create(my_priority - 10, &idle_task) > 0);
   clock_server_tid = Create(my_priority - 5, &clock_server);
   Assert(clock_server_tid > 0);
