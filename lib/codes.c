@@ -76,7 +76,7 @@ void __Assert(bool value, const char *expression, const char *caller_name, const
     dump_logs();
     log_index = 0;
 
-    bwprintf("\033[31mAssertion failed! \"%s\" in function \"%s\" at %s:%d\033[39m\n", expression, caller_name, file_name, line_num);
+    bwprintf("\033[31mAssertion failed! \"%s\" in function \"%s\" at %s:%d\033[39m\n\r", expression, caller_name, file_name, line_num);
     /* Call software_interrupt1 instead of Panic to allow inlining. */
     software_interrupt(SYS_PANIC, 0, NULL_ARGS);
   }
