@@ -8,7 +8,7 @@ expected_undefined_output = [
     '00000000 00000000 00000000 00000000 ',
     '00000000 00000000 00000000 00000000 ',
     '00000000 00000000 00000000 00000000 00000000 00000000 ',
-    'Num ctx sw: 0',
+    'Num ctx sw: 3',
     'Abort task id: 2',
     '\x1b[94m\x1b[5mReceived abort\x1b[25m\x1b[39m type: Undefined',
     'Processor mode: Undefined',
