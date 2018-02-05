@@ -27,7 +27,6 @@ Some targets use environment variables to find their compiler/libraries.
 `make test` requires Googletest and Boost to be installed.
 - `GTEST` should point to the installed header files of Googletest (on our machines `/usr/local/include/gtest`).
 - `LIBGTEST` should point to the Googletest library (on our machines `/usr/local/lib/libgtest.a`).
-- `BOOST` should point to the installed header files of Boost (on our machines `/usr/local/include/boost`).
 
 ### ARM Compilation
 To compile to ARM outside of the student environment, you need to
