@@ -18,6 +18,7 @@
 #include "kusage_stats.h"
 
 #ifndef VERSATILEPB
+#include "kernel/include/labenv/ts7200.h"
 extern void enter_kernel(unsigned int syscall_code);
 extern void handle_data_abort();
 extern void handle_prefetch_abort();
@@ -45,14 +46,28 @@ void kmain() {
   volatile register_t int_mask = VIC_TIMER_MASK;
 #ifdef VERSATILEPB
   int_mask |= VIC_UART1_MASK;
+#else
+  // #define VIC_UART2RXINT_MASK 0x02000000
+  // #define VIC_UART2TXINT_MASK 0x04000000
+  int_mask |= VIC_UART2RXINT_MASK; // | VIC_UART2TXINT_MASK;
 #endif /* VERSATILEPB */
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = int_mask;
+
 #if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
   interrupt_timer_setup();
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
+
+#if VERSATILEPB
   *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
+#else
+  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) |= UARTRXENABLE_MASK; // | UARTTXENABLE_MASK;
+#endif /* VERSATILEPB */
   next_task_id = 1;
+
+#ifdef TIMERINTERRUPT_DEBUG
+  bwprintf("Set up UART interrupts\n\r");
+#endif /* TIMERRINTERUPT_DEBUG */
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");

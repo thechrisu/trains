@@ -117,16 +117,34 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         interrupt_timer_clear();
         ticks += 1;
         break;
-      case TERMINAL_UART_INTERRUPT:
-        if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
-          bwprintf("R");
-          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-          // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
-        } else { // TX
-          bwprintf("T");
-          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
-        }
-        break;
+#if VERSATILEPB
+    case TERMINAL_TX_INTERRUPT: // AFAIK the VIC does not allow us to differentiate :(
+    case TERMINAL_RX_INTERRUPT:
+      if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+        bwprintf("R");
+        *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
+        // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
+      } else { // TX
+        bwprintf("T");
+        *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+      }
+      break;
+#else
+    case TERMINAL_TX_INTERRUPT:
+      bwprintf("T");
+      *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTTXINTR_MASK;
+      break;
+    case TERMINAL_RX_INTERRUPT:
+      if (num_syscalls % 5 == 0)
+        bwprintf("R");
+      int a = (int)*((int *)(UART2_BASE + UART_DATA_OFFSET));
+      // *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTRXINTR_MASK;
+      break;
+    case TRAIN_TX_INTERRUPT:
+      break;
+    case TRAIN_RX_INTERRUPT:
+      break;
+#endif /* VERSATILEPB */
       default:
         break; // I <3 GCC
     }

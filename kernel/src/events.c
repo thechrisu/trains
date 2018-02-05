@@ -9,7 +9,14 @@ void setup_events() {
     registered_tasks[i] = NULL_TASK_DESCRIPTOR;
   }
 #if VERSATILEPB
-  event_masks[TERMINAL_UART_INTERRUPT] = VIC_UART1_MASK;
+  event_masks[TERMINAL_TX_INTERRUPT] = VIC_UART1_MASK;
+  event_masks[TERMINAL_RX_INTERRUPT] = VIC_UART1_MASK;
+#else
+  event_masks[TERMINAL_TX_INTERRUPT] = VIC_UART2TXINT_MASK;
+  event_masks[TERMINAL_RX_INTERRUPT] = VIC_UART2RXINT_MASK;
+  /*  TRAIN_TX_INTERRUPT,
+          TRAIN_RX_INTERRUPT, */
+
 #endif /* VERSATILEPB */
   event_masks[TIMER_INTERRUPT] = VIC_TIMER_MASK;
   tasks_event_blocked = 0;
