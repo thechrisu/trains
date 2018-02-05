@@ -30,6 +30,7 @@
 #define UART_FLAG_OFFSET    0x018
 #define UARTIBRD_OFFSET     0x024 // Integer baud rate register
 #define UART_LCRH_OFFSET    0x02C
+#define UART_CTLR_OFFSET    0x30
 
 #define RXFE_MASK           0x10
 #define TXFF_MASK           0x20
@@ -65,13 +66,17 @@
 #define UARTTXINTR_MASK     0x020
 #define UARTERRORS_MASK     0x780
 
-#define VIC_BASE            0x10140000
-#define VIC_ENABLE_OFFSET   0x10
-#define VIC_TIMER_MASK      0x20
-#define VIC_UART0_MASK      0x1000
-#define VIC_UART1_MASK      0x2000
+#define VIC1_BASE           0x10140000
+#define VIC2_BASE           0x1000C000
+#define VIC1_ENABLE_OFFSET  0x10
+#define VIC2_ENABLE_OFFSET  0x08
+#define VIC1_INTCLR_OFFSET  0x14
+#define VIC2_INTCLR_OFFSET  0xC
+#define VIC1_TIMER_MASK     0x20
+#define VIC1_UART0_MASK     0x1000
+#define VIC1_UART1_MASK     0x2000
 
-#endif //TRAINS_VERSATILEPB_H
+#endif /* TRAINS_VERSATILEPB_H */
 
 
 

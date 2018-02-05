@@ -48,8 +48,15 @@ void setup_io() {
   char_buffer_init(&train_output_buf, train_output_chars, IOBUFFERSZ);
   char_buffer_init(&terminal_input_buf, terminal_input_chars, IOBUFFERSZ);
   char_buffer_init(&terminal_output_buf, terminal_output_chars, IOBUFFERSZ);
-  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
-  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
+#if VERSATILEPB
+  register_t ctlr_flags = UARTRXINTR_MASK | UARTTXINTR_MASK;
+  *(uint32_t *)(UART0_BASE + UART_CTLR_OFFSET) &= ~ctlr_flags;
+  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~ctlr_flags;
+#else
+  register_t ctlr_flags = UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK;
+  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~ctlr_flags;
+  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~ctlr_flags;
+#endif /* VERSATILEPB */
 }
 
 

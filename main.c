@@ -46,7 +46,7 @@ void kmain() {
   num_syscalls_total = 0;
 
   // Setup PIC
-  volatile register_t vic1_int_mask = VIC_TIMER_MASK;
+  volatile register_t vic1_int_mask = VIC1_TIMER_MASK;
 #ifdef VERSATILEPB
   vic1_int_mask |= VIC1_UART1_MASK | VIC1_UART0_MASK;
 #else
@@ -54,7 +54,7 @@ void kmain() {
   // #define VIC_UART2TXINT_MASK 0x04000000
   vic1_int_mask |= VIC1_UART2RXINT_MASK | VIC1_UART2TXINT_MASK;
 #endif /* VERSATILEPB */
-  *(uint32_t *)(VIC1_BASE + VIC_ENABLE_OFFSET) = vic1_int_mask;
+  *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = vic1_int_mask;
   // CRASH();  // *(uint32_t *)(VIC2_BASE + VIC_ENABLE_OFFSET) = vic2_int_mask;
 
 #if !E2ETESTING || TIMER_INTERRUPTS
@@ -63,8 +63,10 @@ void kmain() {
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
 
 #if VERSATILEPB
+#if !E2ETESTING || IOINTERRUPTS
   *(uint32_t *)(UART0_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
   *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
+#endif /* !E2ETESTING || IOINTERRUPTS */
 #else
   *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
   *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
@@ -192,10 +194,12 @@ int main() {
   : : "r" (&main_tf));
 
   // Disable VIC
-  *(uint32_t *)(VIC1_BASE + VIC_ENABLE_OFFSET) = 0x0;
-  *(uint32_t *)(VIC2_BASE + VIC_ENABLE_OFFSET) = 0x0;
-  *(uint32_t *)(VIC1_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
-  *(uint32_t *)(VIC2_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
+  *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = 0x0;
+  *(uint32_t *)(VIC2_BASE + VIC2_ENABLE_OFFSET) = 0x0;
+
+  *(uint32_t *)(VIC1_BASE + VIC1_INTCLR_OFFSET) = 0xFFFFFFFF;
+  *(uint32_t *)(VIC2_BASE + VIC2_INTCLR_OFFSET) = 0xFFFFFFFF;
+
 
 #if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();

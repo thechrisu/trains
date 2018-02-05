@@ -98,8 +98,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
   if ((tf->psr & 0xFF) != 0x10) {
-    *(uint32_t *)(VIC1_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
-    *(uint32_t *)(VIC2_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
+    *(uint32_t *)(VIC1_BASE + VIC1_INTCLR_OFFSET) = 0xFFFFFFFF;
+    *(uint32_t *)(VIC2_BASE + VIC2_INTCLR_OFFSET) = 0xFFFFFFFF;
     kassert((tf->psr & 0xFF) == 0x10);
   }
 
@@ -141,10 +141,11 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       }
       break;
 #else
-    case TERMINAL_RX_INTERRUPT:
+    case TERMINAL_RX_INTERRUPT: {
       int a = (int)*((int *)(UART2_BASE + UART_DATA_OFFSET));
       // *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTRXINTR_MASK;
       break;
+    }
     case TERMINAL_TX_INTERRUPT:
       *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~UARTTXENABLE_MASK;
       *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTTXINTR_MASK;

@@ -125,9 +125,12 @@
 // VIC constants
 #define VIC1_BASE            0x800B0000
 #define VIC2_BASE            0x800C0000
-#define VIC_ENABLE_OFFSET    0x10
-#define VIC_TIMER_MASK       0x10
-#define VIC_INTCLR_OFFSET    0x14
+#define VIC1_ENABLE_OFFSET    0x10
+#define VIC2_ENABLE_OFFSET    0x10
+#define VIC1_INTCLR_OFFSET    0x14
+#define VIC2_INTCLR_OFFSET    0x14
+
+#define VIC1_TIMER_MASK       0x10
 // 1 train, 2 terminal
 #define VIC1_UART1RXINT_MASK 0x00800000
 #define VIC1_UART1TXINT_MASK 0x01000000
