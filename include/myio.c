@@ -380,6 +380,7 @@ int putc(int channel, char c) {
       flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART1_BASE + UART_DATA_OFFSET);
 #else
+      *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) |= UARTTXENABLE_MASK;
       flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART2_BASE + UART_DATA_OFFSET);
 #endif

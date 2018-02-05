@@ -52,6 +52,7 @@ void print_proc_mode(arm_proc_mode mode) {
 }
 
 void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapframe *tf) {
+  *(uint32_t *)(VIC1_BASE + VIC_ENABLE_OFFSET) = 0x0;
   task_descriptor *current_task = get_current_task();
 #ifndef TESTING
   logprintf("\n\r\n\r\n\r");
