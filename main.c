@@ -40,7 +40,10 @@ void kmain() {
   ticks = 0;
 
   num_ctx_sw = 0;
-  num_syscalls = 0;
+  for (int i = 0; i < NUM_SYSCALL_CODES; i += 1) {
+    num_syscalls[i] = 0;
+  }
+  num_syscalls_total = 0;
 
   // Setup PIC
   volatile register_t int_mask = VIC_TIMER_MASK;
@@ -190,15 +193,20 @@ int main() {
 
 #if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
+
+  bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
+  bwprintf("Total number of syscalls: %d\n\r", num_syscalls_total);
+
+  bwprintf("Number of syscalls by code:\n\r");
+  bwprintf("Code\tCount\n\r");
+  for (int i = 0; i < NUM_SYSCALL_CODES; i += 1) {
+    bwprintf("%d\t%d\n\r", i, num_syscalls[i]);
+  }
+
   usage_stats usage;
   syscall_total_proc_usage(&usage);
   print_usage(bwprintf, &usage);
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
-
-#if TIMERINTERRUPT_DEBUG
-  bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
-  bwprintf("Total number of syscalls: %d\n\r", num_syscalls);
-#endif /* TIMERINTERRUPT_DEBUG */
 
 #if VERSATILEPB
 #if E2ETESTING
