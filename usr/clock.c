@@ -47,7 +47,8 @@ void clock_server() {
         head = clock_wait_queue_peek(&queue);
         while (head != NULL_CLOCK_WAIT && head->ticks <= ticks) {
           Assert(clock_wait_queue_dequeue(&queue, &cw) != -1);
-          Assert(Reply(cw.tid, EMPTY_MESSAGE, 0) >= 0);
+          reply.type = REPLY_CLOCK_SERVER_OK;
+          Assert(Reply(cw.tid, &reply, sizeof(reply)) >= 0);
           head = clock_wait_queue_peek(&queue);
         }
 
