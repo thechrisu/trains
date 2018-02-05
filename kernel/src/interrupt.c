@@ -133,10 +133,9 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTTXINTR_MASK;
       break;
     case TERMINAL_RX_INTERRUPT:
-      if (total_num_syscalls % 5 == 0)
+      if (num_syscalls_total % 5 == 0)
         bwprintf("R");
       int a = (int)*((int *)(UART2_BASE + UART_DATA_OFFSET));
-      *a = UARTRXINTR_MASK;
       // *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTRXINTR_MASK;
       break;
     case TRAIN_TX_INTERRUPT:
