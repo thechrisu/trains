@@ -8,9 +8,9 @@ expected_clock_errors_output = [
     'Creating clock server',
     'Getting time',
     'Ticks at start: 0',
-    'Response type on negative delay: 5',
-    'Response type on zero delay: 5',
-    'Response type on delay to time in past/present: 5'
+    'Response type on negative delay: 6',
+    'Response type on zero delay: 6',
+    'Response type on delay to time in past/present: 6'
 ]
 
 expected_clock_syscall_errors_output = [
@@ -26,7 +26,7 @@ def test(self, test_name, expected_lines):
     self.assertEqual(expected_lines, real_lines)
 
 
-class TestMessaging(unittest.TestCase):
+class TestClock(unittest.TestCase):
     def test_clock_errors(self):
         test(self, 'clock_errors', expected_clock_errors_output)
 

@@ -698,7 +698,11 @@ void logprintf(char *fmt, ...) {
   va_list va;
 
   va_start(va, fmt);
+#if BWLOG
   format(bwterminalputc, fmt, va);
+#else
+  format(logputc, fmt, va);
+#endif
   va_end(va);
 }
 

@@ -1,4 +1,4 @@
-# Trains
+# Trains  [![Build Status](https://travis-ci.com/culshoefer/trains.svg?token=zQVzEtnHpKj7VnQb2PQK&branch=master)](https://travis-ci.com/culshoefer/trains)
 ## Supported Make targets
 - `make docs` Build documentation. Required `doxygen` to be installed.
 - `make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
@@ -19,7 +19,8 @@
 Various debugging compiler flags can be passed (See `Makefile`).
 In addition, you can the following environment variables to customize the build:
 - `TEST_RUNNER=true` will run a program that spawns a number of other programs. We use this configuration in our end to end tests to dynamically decide which program to run. If you specify this option for builds, it will also enable timer interrupts.
-- `TIMER_INTERRUPTS=true` will enable timer interrupts. Note that QEMU builds (except those with `-DE2ETESTING`) have timer interrupts turned on by default. The target `e2etest` uses a simulated form of timer interrupts where a task instantly returns from a timer interrupt.
+- `TIMER_INTERRUPTS=true` will enable timer interrupts for build targets with `-DE2ETESTING` (_e.g._ `e2etest`, `qemutesting`, and `qemutestingconsole`). Without this variable, the target `e2etest` uses a simulated form of timer interrupts where a task instantly returns from a timer interrupt.
+- `BWLOG=true` will change calls to `logprintf` to use busy-wait I/O instead of writing to a log. This is useful for debugging infinite loops.
 
 ## Environment variables
 Some targets use environment variables to find their compiler/libraries.
@@ -27,7 +28,6 @@ Some targets use environment variables to find their compiler/libraries.
 `make test` requires Googletest and Boost to be installed.
 - `GTEST` should point to the installed header files of Googletest (on our machines `/usr/local/include/gtest`).
 - `LIBGTEST` should point to the Googletest library (on our machines `/usr/local/lib/libgtest.a`).
-- `BOOST` should point to the installed header files of Boost (on our machines `/usr/local/include/boost`).
 
 ### ARM Compilation
 To compile to ARM outside of the student environment, you need to
