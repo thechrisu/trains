@@ -105,6 +105,20 @@
 #define TX_FIFO_WIDTH 8
 #define RX_FIFO_WIDTH 11
 
+// Values for UART_CTRL_OFFSET
+#define UARTRXENABLE_MASK   0x10
+#define UARTTXENABLE_MASK   0x20
+#define UARTRTENABLE_MASK   0x40
+#define UARTMIENABLE_MASK   0x80
+
+// In UARTIntIDIntClr
+#define UARTMIINTR_MASK     0x01
+#define UARTRXINTR_MASK     0x02
+#define UARTTXINTR_MASK     0x04
+#define UARTRTINTR_MASK     0x08
+
+// TODO #define UARTCTSINTR_MASK
+
 // start bit - data bits(8, LSB first) - parity bit - stop bits
 #define FIFO_DEPTH 16
 
@@ -112,3 +126,8 @@
 #define VIC_BASE            0x800B0000
 #define VIC_ENABLE_OFFSET   0x10
 #define VIC_TIMER_MASK      0x10
+// 1 train, 2 terminal
+#define VIC_UART1RXINT_MASK 0x00800000
+#define VIC_UART1TXINT_MASK 0x01000000
+#define VIC_UART2RXINT_MASK 0x02000000
+#define VIC_UART2TXINT_MASK 0x04000000

@@ -63,7 +63,7 @@
 #define UARTCTSMIC_MASK     0x001 // Note we don't use this in versatilepb
 #define UARTRXINTR_MASK     0x010
 #define UARTTXINTR_MASK     0x020
-#define UARTERRORS_MASK     0x7C0
+#define UARTERRORS_MASK     0x780
 
 #define VIC_BASE            0x10140000
 #define VIC_ENABLE_OFFSET   0x10
