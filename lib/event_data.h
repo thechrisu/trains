@@ -1,7 +1,7 @@
 #ifndef EVENT_DATA_H
 #define EVENT_DATA_H
 
-#define MAX_EVENT_ID 5
+#define MAX_EVENT_ID 4
 
 enum event_id {
   TERMINAL_TX_INTERRUPT,
