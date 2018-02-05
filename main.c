@@ -48,11 +48,11 @@ void kmain() {
   // Setup PIC
   volatile register_t int_mask = VIC_TIMER_MASK;
 #ifdef VERSATILEPB
-  int_mask |= VIC_UART1_MASK;
+  int_mask |= VIC_UART1_MASK | VIC_UART0_MASK;
 #else
   // #define VIC_UART2RXINT_MASK 0x02000000
   // #define VIC_UART2TXINT_MASK 0x04000000
-  int_mask |= VIC_UART2RXINT_MASK; // | VIC_UART2TXINT_MASK;
+  int_mask |= VIC_UART2RXINT_MASK | VIC_UART2TXINT_MASK;
 #endif /* VERSATILEPB */
   *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = int_mask;
 
@@ -62,6 +62,7 @@ void kmain() {
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
 
 #if VERSATILEPB
+  *(uint32_t *)(UART0_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
   *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
 #else
   *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) |= UARTRXENABLE_MASK; // | UARTTXENABLE_MASK;

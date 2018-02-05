@@ -127,6 +127,15 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
       }
       break;
+    case TRAIN_TX_INTERRUPT:
+    case TRAIN_RX_INTERRUPT:
+      if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+        *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
+        // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
+      } else { // TX
+        *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+      }
+      break;
 #else
     case TERMINAL_TX_INTERRUPT:
       bwprintf("T");
