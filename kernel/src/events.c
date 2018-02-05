@@ -8,6 +8,9 @@ void setup_events() {
   for (int i = 0; i <= MAX_EVENT_ID; i++) {
     registered_tasks[i] = NULL_TASK_DESCRIPTOR;
   }
+#if VERSATILEPB
+  event_masks[TERMINAL_UART_INTERRUPT] = VIC_UART1_MASK;
+#endif /* VERSATILEPB */
   event_masks[TIMER_INTERRUPT] = VIC_TIMER_MASK;
   tasks_event_blocked = 0;
 }

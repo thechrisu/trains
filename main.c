@@ -42,13 +42,16 @@ void kmain() {
   num_syscalls = 0;
 
   // Setup PIC
-  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
-
+  volatile register_t int_mask = VIC_TIMER_MASK;
+#ifdef VERSATILEPB
+  int_mask |= VIC_UART1_MASK;
+#endif /* VERSATILEPB */
+  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = int_mask;
 #if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
   interrupt_timer_setup();
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
-
+  *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
   next_task_id = 1;
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"

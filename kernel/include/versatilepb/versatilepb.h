@@ -19,7 +19,10 @@
 #define CLR_OFFSET          0x0000000C
 
 // http://infocenter.arm.com/help/topic/com.arm.doc.ddi0183f/DDI0183.pdf
+// Train
 #define UART0_BASE          0x101f1000
+
+// Terminal
 #define UART1_BASE          0x101f2000
 
 #define UART_DATA_OFFSET    0x0
@@ -50,9 +53,23 @@
 #define STP2_MASK           0x08
 #define PEN_MASK            0x01
 
+#define UARTIMSC_OFFSET     0x038
+#define UARTRIS_OFFSET      0x03C
+#define UARTMIS_OFFSET      0x040 // Read-only
+#define UARTICR_OFFSET      0x044
+
+// For the masked interrupt status register, UARTMIS
+// For clearing interrupts in UARTICR
+#define UARTCTSMIC_MASK     0x001 // Note we don't use this in versatilepb
+#define UARTRXINTR_MASK     0x010
+#define UARTTXINTR_MASK     0x020
+#define UARTERRORS_MASK     0x7C0
+
 #define VIC_BASE            0x10140000
 #define VIC_ENABLE_OFFSET   0x10
 #define VIC_TIMER_MASK      0x20
+#define VIC_UART0_MASK      0x1000
+#define VIC_UART1_MASK      0x2000
 
 #endif //TRAINS_VERSATILEPB_H
 

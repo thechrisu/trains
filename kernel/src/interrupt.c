@@ -100,11 +100,11 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert((tf->psr & 0xFF) == 0x10);
 
   if (pic_status > 0) {
-    //bwprintf("PIC STATUS: %x\n\r", pic_status);
+    // bwprintf("PIC STATUS: %x\n\r", pic_status);
     // Clear interrupt
     int highest_prio_event = -1;
     for (int i = 0; i <= MAX_EVENT_ID; i++) {
-      //bwprintf("pic_status: %x, event mask: %x\n\r", pic_status, event_masks[i]);
+      // bwprintf("pic_status: %x, event mask: %x\n\r", pic_status, event_masks[i]);
       if (pic_status & event_masks[i]) {
         highest_prio_event = i;
         break;
@@ -116,6 +116,16 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         event_data = 0;
         interrupt_timer_clear();
         ticks += 1;
+        break;
+      case TERMINAL_UART_INTERRUPT:
+        if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          bwprintf("R");
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
+          // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
+        } else { // RX
+          bwprintf("T");
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+        }
         break;
       default:
         break; // I <3 GCC

@@ -1,9 +1,10 @@
 #ifndef EVENT_DATA_H
 #define EVENT_DATA_H
 
-#define MAX_EVENT_ID 0
+#define MAX_EVENT_ID 1
 
 enum event_id {
+  TERMINAL_UART_INTERRUPT,
   TIMER_INTERRUPT,
   NOT_BLOCKED = 0xBA5EBA11
 };
