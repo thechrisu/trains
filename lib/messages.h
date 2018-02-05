@@ -7,14 +7,13 @@
 
 #include "tstdlib.h"
 
-#define EMPTY_MESSAGE (void *)0
-
 enum message_type {
   MESSAGE_CLOCK_NOTIFIER,
   MESSAGE_TIME,
   REPLY_TIME,
   MESSAGE_DELAY,
   MESSAGE_DELAY_UNTIL,
+  REPLY_CLOCK_SERVER_OK,
   REPLY_CLOCK_SERVER_ERROR,
   MESSAGE_K3_GET_PARAMS,
   REPLY_K3_GET_PARAMS,
@@ -35,5 +34,7 @@ typedef struct {
     k3_params reply_k3_params;
   } msg;
 } message;
+
+#define EMPTY_MESSAGE (message *)0
 
 #endif /* MESSAGE_H */
