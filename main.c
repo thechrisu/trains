@@ -190,7 +190,10 @@ int main() {
   : : "r" (&main_tf));
 
   // Disable VIC
-  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
+  *(uint32_t *)(VIC1_BASE + VIC_ENABLE_OFFSET) = 0x0;
+  *(uint32_t *)(VIC2_BASE + VIC_ENABLE_OFFSET) = 0x0;
+  *(uint32_t *)(VIC1_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
+  *(uint32_t *)(VIC2_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
 
 #if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
@@ -221,6 +224,8 @@ int main() {
     "SWI 0x00123456\n\t"
   ); // Allows us to quit QEMU cleanly
 #else
+  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
+  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
   return 0;
 #endif /* VERSATILEPB */
 }

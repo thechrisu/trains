@@ -97,7 +97,11 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   register_t cpsr_val;
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
-  kassert((tf->psr & 0xFF) == 0x10);
+  if ((tf->psr & 0xFF) != 0x10) {
+    *(uint32_t *)(VIC1_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
+    *(uint32_t *)(VIC2_BASE + VIC_INTCLR_OFFSET) = 0xFFFFFFFF;
+    kassert((tf->psr & 0xFF) == 0x10);
+  }
 
   if (pic_status > 0) {
     // bwprintf("PIC STATUS: %x\n\r", pic_status);
