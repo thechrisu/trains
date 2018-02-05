@@ -26,7 +26,7 @@ def test(self, test_name, expected_lines):
     self.assertEqual(expected_lines, real_lines)
 
 
-class TestMessaging(unittest.TestCase):
+class TestClock(unittest.TestCase):
     def test_clock_errors(self):
         test(self, 'clock_errors', expected_clock_errors_output)
 
