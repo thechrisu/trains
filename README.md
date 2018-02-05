@@ -1,4 +1,4 @@
-# Trains
+# Trains  [![Build Status](https://travis-ci.com/culshoefer/trains.svg?token=zQVzEtnHpKj7VnQb2PQK&branch=master)](https://travis-ci.com/culshoefer/trains)
 ## Supported Make targets
 - `make docs` Build documentation. Required `doxygen` to be installed.
 - `make versatilepb` Builds for the Versatile/PB platform, which we use for QEMU.
