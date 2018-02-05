@@ -116,8 +116,8 @@ void task_activate(task_descriptor *task) {
     logprintf("address of trapframe: %x\n\r", (int)task->tf);
     print_tf(task->tf);
   }
-  num_ctx_sw += 1;
 #endif /* TIMERINTERRUPT_DEBUG */
+  num_ctx_sw += 1;
   end_interval(KERNEL_FAKE_TID);
   start_interval();
   leave_kernel(task->tf->r0, task->tf);

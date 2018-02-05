@@ -252,4 +252,6 @@ int DelayUntil(int tid, int ticks);
 #define SYS_LAST_SECS_PROC_USAGE   14
 #define SYS_MY_PROC_USAGE          15
 
+#define NUM_SYSCALL_CODES          16 // Update this when adding a new syscall
+
 #endif /* CODES_H */
