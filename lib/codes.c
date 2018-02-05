@@ -236,6 +236,7 @@ int Delay(int tid, int ticks) {
   send.type = MESSAGE_DELAY;
   send.msg.message_delay_ticks = ticks;
   if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    Assert(reply.type == REPLY_CLOCK_SERVER_OK || reply.type == REPLY_CLOCK_SERVER_ERROR);
     return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
   }
   return -1;
@@ -246,6 +247,7 @@ int DelayUntil(int tid, int ticks) {
   send.type = MESSAGE_DELAY_UNTIL;
   send.msg.message_delay_until_ticks = ticks;
   if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    Assert(reply.type == REPLY_CLOCK_SERVER_OK || reply.type == REPLY_CLOCK_SERVER_ERROR);
     return reply.type == REPLY_CLOCK_SERVER_ERROR ? -2 : 0;
   }
   return -1;
