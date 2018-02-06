@@ -39,11 +39,19 @@ void empty_buf(int channel, bool out) {
   }
 }
 
+void nop(int n) {
+  for (int i = 0; i < n; i++);
+}
+
 void setup_io() {
   setspeed(TRAIN, 2400);   // IMPORTANT: ALWAYS CALL SETSPEED BEFORE SETFIFO
+  nop(55);
   setspeed(TERMINAL, 115200); // (SEE CIRRUS MANUAL p350/351 for more info)
+  nop(55);
   setfifo(TRAIN, OFF);
+  nop(55);
   setfifo(TERMINAL, OFF);
+  nop(55);
   char_buffer_init(&train_input_buf, train_input_chars, IOBUFFERSZ);
   char_buffer_init(&train_output_buf, train_output_chars, IOBUFFERSZ);
   char_buffer_init(&terminal_input_buf, terminal_input_chars, IOBUFFERSZ);
@@ -55,7 +63,9 @@ void setup_io() {
 #else
   register_t ctlr_flags = UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK;
   *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~ctlr_flags;
+  nop(55);
   *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~ctlr_flags;
+  nop(55);
 #endif /* VERSATILEPB */
 }
 
