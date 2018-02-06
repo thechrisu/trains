@@ -61,7 +61,6 @@ void clock_accuracy() {
   start_milliseconds = get_time();
   start_time = time();
 
-  Assert(0);
   time_delay(1);
   time_delay(10);
   time_delay(50);
