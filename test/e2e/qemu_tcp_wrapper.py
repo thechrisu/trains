@@ -142,9 +142,6 @@ def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False, will_se
                 raise ValueError
             kill_qemu(qemu_handle)
             s.close()
-            if "Assertion failed!" in prog_output:
-                print(prog_output)
-                raise AssertionError
             return prog_output
     except(ConnectionAbortedError, ConnectionError) as e:
         raise e
