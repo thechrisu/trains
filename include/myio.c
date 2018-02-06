@@ -388,6 +388,7 @@ int putc(int channel, char c) {
       flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART0_BASE + UART_DATA_OFFSET);
 #else
+      *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) |= UARTTXENABLE_MASK;
       flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART1_BASE + UART_DATA_OFFSET);
 #endif
@@ -410,7 +411,12 @@ int putc(int channel, char c) {
 #if VERSATILEPB
     while ((*flags & TXFF_MASK));
 #else
-    while ((*flags & TXFF_MASK) || !(*flags & CTS_MASK));
+    int got_empty = 0;
+    int got_cts = 0;
+    while (!(got_cts && got_empty)) {
+      got_cts |= *flags & CTS_MASK;
+      got_empty |= *flags & TXFE_MASK;
+    }
 #endif
   } else {
     while ((*flags & TXFF_MASK));

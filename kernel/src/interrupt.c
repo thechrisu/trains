@@ -148,12 +148,16 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
     }
     case TERMINAL_TX_INTERRUPT:
       *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~UARTTXENABLE_MASK;
-      *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTTXINTR_MASK;
       break;
     case TRAIN_TX_INTERRUPT:
+      *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~UARTTXENABLE_MASK;
+      logprintf("TrainTx");
       break;
-    case TRAIN_RX_INTERRUPT:
+    case TRAIN_RX_INTERRUPT: {
+      int a = (int)*((int *)(UART1_BASE + UART_DATA_OFFSET));
+      logprintf("TrainRx");
       break;
+    }
 #endif /* VERSATILEPB */
       default:
         break; // I <3 GCC
