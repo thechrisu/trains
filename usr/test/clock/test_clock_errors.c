@@ -36,4 +36,6 @@ void clock_errors() {
 
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
   Assert(Kill(ns_tid) == 0);
+
+  Assert(0);
 }
