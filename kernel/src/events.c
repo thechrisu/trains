@@ -2,27 +2,10 @@
 
 static task_descriptor *registered_tasks[MAX_EVENT_ID + 1];
 
-register_t event_masks[MAX_EVENT_ID + 1];
-
 void setup_events() {
   for (int i = 0; i <= MAX_EVENT_ID; i++) {
     registered_tasks[i] = NULL_TASK_DESCRIPTOR;
   }
-#if VERSATILEPB
-  event_masks[TERMINAL_TX_INTERRUPT] = VIC1_UART1_MASK;
-  event_masks[TERMINAL_RX_INTERRUPT] = VIC1_UART1_MASK;
-  event_masks[TRAIN_TX_INTERRUPT] = VIC1_UART0_MASK;
-  event_masks[TRAIN_RX_INTERRUPT] = VIC1_UART0_MASK;
-#else
-  event_masks[TERMINAL_TX_INTERRUPT] = VIC1_UART2TXINT_MASK;
-  event_masks[TERMINAL_RX_INTERRUPT] = VIC1_UART2RXINT_MASK;
-  event_masks[TRAIN_TX_INTERRUPT] = VIC1_UART1TXINT_MASK;
-  event_masks[TRAIN_RX_INTERRUPT] = VIC1_UART1RXINT_MASK;
-  /*  TRAIN_TX_INTERRUPT,
-          TRAIN_RX_INTERRUPT, */
-
-#endif /* VERSATILEPB */
-  event_masks[TIMER_INTERRUPT] = VIC1_TIMER_MASK;
   tasks_event_blocked = 0;
 }
 
@@ -42,6 +25,10 @@ register_t event_register(int event_id, task_descriptor *task) {
   registered_tasks[event_id] = task;
   task->blocked_on = (enum event_id)event_id;
   task_set_state(task, TASK_EVENT_BLOCKED);
+#if VERSATILEPB && !TIMER_INTERRUPTS
+  if (event_id == TIMER_INTERRUPT) return 0xBADDA7A;
+#endif /* VERSATILEPB && !TIMER_INTERRUPTS */
+  enable_uart_event((enum event_id)event_id);
   return 0xBADDA7A;
 }
 

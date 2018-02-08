@@ -9,6 +9,7 @@
 #include "mytimer.h"
 #include "schedule.h"
 #include "task.h"
+#include "vic.h"
 
 #if VERSATILEPB
 #include "../include/versatilepb/versatilepb.h"

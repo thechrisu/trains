@@ -16,6 +16,7 @@
 #include "test_runner.h"
 #include "usage_stats.h"
 #include "kusage_stats.h"
+#include "vic.h"
 
 #ifndef VERSATILEPB
 #include "kernel/include/labenv/ts7200.h"
@@ -45,34 +46,27 @@ void kmain() {
   }
   num_syscalls_total = 0;
 
-  // Setup PIC
-  volatile register_t vic1_int_mask = VIC1_TIMER_MASK;
+  setup_vic();
+  /*
 #ifdef VERSATILEPB
   vic1_int_mask |= VIC1_UART1_MASK | VIC1_UART0_MASK;
 #else
   // #define VIC_UART2RXINT_MASK 0x02000000
   // #define VIC_UART2TXINT_MASK 0x04000000
   vic1_int_mask |= VIC1_UART2RXINT_MASK | VIC1_UART2TXINT_MASK | VIC1_UART1RXINT_MASK | VIC1_UART1TXINT_MASK;
-#endif /* VERSATILEPB */
+#endif
   *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = vic1_int_mask;
   // CRASH();  // *(uint32_t *)(VIC2_BASE + VIC_ENABLE_OFFSET) = vic2_int_mask;
-
+*/
 #if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
   interrupt_timer_setup();
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
 
-#if VERSATILEPB
 #if !E2ETESTING || IOINTERRUPTS
-  *(uint32_t *)(UART0_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
-  *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK | UARTTXINTR_MASK;
+  setup_iio();
 #endif /* !E2ETESTING || IOINTERRUPTS */
-#else
-  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
-  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
-  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) |= UARTRXENABLE_MASK | UARTTXENABLE_MASK; // | UARTMIINTR_MASK;
-  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) |= UARTRXENABLE_MASK | UARTTXENABLE_MASK; // | UARTMIINTR_MASK;
-#endif /* VERSATILEPB */
+
   next_task_id = 1;
 
   //#ifdef TIMERINTERRUPT_DEBUG
@@ -195,11 +189,10 @@ int main() {
   : : "r" (&main_tf));
 
   // Disable VIC
+  vic_maskall();
   *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = 0x0;
   *(uint32_t *)(VIC2_BASE + VIC2_ENABLE_OFFSET) = 0x0;
 
-  *(uint32_t *)(VIC1_BASE + VIC1_INTCLR_OFFSET) = 0xFFFFFFFF;
-  *(uint32_t *)(VIC2_BASE + VIC2_INTCLR_OFFSET) = 0xFFFFFFFF;
 
 
 #if !E2ETESTING || TIMER_INTERRUPTS
@@ -219,6 +212,8 @@ int main() {
   print_usage(bwprintf, &usage);
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
 
+  desetup_iio();
+
 #if VERSATILEPB
 #if E2ETESTING
   bwprintf("ENDPROG\n\r");
@@ -231,8 +226,6 @@ int main() {
     "SWI 0x00123456\n\t"
   ); // Allows us to quit QEMU cleanly
 #else
-  *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
-  *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~(UARTRTENABLE_MASK | UARTRXENABLE_MASK | UARTMIENABLE_MASK | UARTRTENABLE_MASK);
   return 0;
 #endif /* VERSATILEPB */
 }

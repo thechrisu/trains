@@ -9,6 +9,8 @@
 #include "tstdlib.h"
 #include "kusage_stats.h"
 #include "usage_stats.h"
+#include "iio.h"
+#include "vic.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"

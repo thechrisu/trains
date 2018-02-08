@@ -97,24 +97,13 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   register_t cpsr_val;
   __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
   kassert((cpsr_val & 0x1F) == 0x13);
-  if ((tf->psr & 0xFF) != 0x10) {
-    *(uint32_t *)(VIC1_BASE + VIC1_INTCLR_OFFSET) = 0xFFFFFFFF;
-    *(uint32_t *)(VIC2_BASE + VIC2_INTCLR_OFFSET) = 0xFFFFFFFF;
-    kassert((tf->psr & 0xFF) == 0x10);
-  }
+  kassert((tf->psr & 0xFF) == 0x10);
 
   if (pic_status > 0) {
     // bwprintf("PIC STATUS: %x\n\r", pic_status);
     // Clear interrupt
-    int highest_prio_event = -1;
-    for (int i = 0; i <= MAX_EVENT_ID; i++) {
-      // bwprintf("pic_status: %x, event mask: %x\n\r", pic_status, event_masks[i]);
-      if (pic_status & event_masks[i]) {
-        highest_prio_event = i;
-        break;
-      }
-    }
     int event_data = -2;
+    int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
     switch (highest_prio_event) {
       case TIMER_INTERRUPT:
         event_data = 0;
@@ -122,45 +111,56 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
         ticks += 1;
         break;
 #if VERSATILEPB
-    case TERMINAL_TX_INTERRUPT: // AFAIK the VIC does not allow us to differentiate :(
-    case TERMINAL_RX_INTERRUPT:
-      if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
-        *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-        // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
-      } else { // TX
-        *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
-      }
-      break;
-    case TRAIN_TX_INTERRUPT:
-    case TRAIN_RX_INTERRUPT:
-      if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
-        *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-        // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
-      } else { // TX
-        *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
-      }
-      break;
+      case TERMINAL_TX_INTERRUPT: // AFAIK the VIC does not allow us to differentiate :(
+      case TERMINAL_RX_INTERRUPT:
+        if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
+          // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
+        } else { // TX
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+        }
+        break;
+      case TRAIN_TX_INTERRUPT:
+      case TRAIN_RX_INTERRUPT:
+        if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
+          // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
+        } else { // TX
+          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+        }
+        break;
 #else
-    case TERMINAL_RX_INTERRUPT: {
-      int a = (int)*((int *)(UART2_BASE + UART_DATA_OFFSET));
-      // *(uint32_t *)(UART2_BASE + UART_INTR_OFFSET) = UARTRXINTR_MASK;
-      break;
-    }
-    case TERMINAL_TX_INTERRUPT:
-      *(uint32_t *)(UART2_BASE + UART_CTLR_OFFSET) &= ~UARTTXENABLE_MASK;
-      break;
-    case TRAIN_TX_INTERRUPT:
-      *(uint32_t *)(UART1_BASE + UART_CTLR_OFFSET) &= ~UARTTXENABLE_MASK;
-      logprintf("TrainTx");
-      break;
-    case TRAIN_RX_INTERRUPT: {
-      int a = (int)*((int *)(UART1_BASE + UART_DATA_OFFSET));
-      logprintf("TrainRx");
-      break;
-    }
+      case TERMINAL_TX_INTERRUPT:
+        interrupt_tx_clear(TERMINAL);
+        break;
+      case TERMINAL_RX_INTERRUPT: {
+        interrupt_rx_clear(TERMINAL);
+        break;
+      }
+      case TRAIN_TX_INTERRUPT:
+        interrupt_tx_clear(TRAIN);
+        // TODO wake up train receive notifier, move this to syscall~~
+        if (!try_clear_train_send()) {
+          // still need CTS
+          return tf;
+        }
+        break;
+      case TRAIN_RX_INTERRUPT:
+        interrupt_rx_clear(TRAIN);
+        break;
 #endif /* VERSATILEPB */
-      default:
+      default: {
+#ifndef VERSATILEPB
+        if (get_modem_interrupt_bits()) { // CTS?
+          interrupt_modem_clear();
+          maybe_received_cts();
+          if (try_clear_train_send()) {
+            highest_prio_event = TRAIN_TX_INTERRUPT;
+          }
+        }
+#endif /* VERSATILEPB */
         break; // I <3 GCC
+      }
     }
     //bwprintf("H: %d\n\r", highest_prio_event);
     if (highest_prio_event != -1) {
