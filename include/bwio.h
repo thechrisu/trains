@@ -30,7 +30,6 @@ int putc(int channel, char c);
 int getc(int channel);
 int bwgetc(int channel);
 int putr(int (*put)(char), unsigned int reg);
-void format(int (*put)(char), char *fmt, va_list va);
 
 #if !VERSATILEPB && (HOSTCONFIG || TESTING)
 
@@ -40,12 +39,16 @@ void format(int (*put)(char), char *fmt, va_list va);
 #define sendbyte_buffered(com, val) printf("%d: %c", com, val)
 #define readbyte_buffered(com) ('a' + com)
 #define getnumreadable_bytes(com) com
+#define format(f, fmt, va)
 
 #undef putc
 #define putc(com, val) printf("%d: %c", com, val)
 
 #define empty_buf(com, outin) printf("%d: %c", com, outin + '0')
 #define bwprintf printf
+
+#else
+void format(int (*put)(char), char *fmt, va_list va);
 
 #endif /* VERSATILEPB && (HOSTCONFIG || TESTING) */
 

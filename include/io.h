@@ -1,8 +1,7 @@
 #ifndef IO_H
 #define IO_H
 
-#if TESTING
-#else
+#if !TESTING
 typedef char *va_list;
 
 #define __va_argsiz(t)                                          \

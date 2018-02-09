@@ -401,6 +401,7 @@ void i2a(int num, char *bf) {
   ui2a(num, 10, bf);
 }
 
+#ifndef TESTING
 void format(int (*put)(char), char *fmt, va_list va) {
   char bf[12];
   char ch, lz;
@@ -457,3 +458,4 @@ void format(int (*put)(char), char *fmt, va_list va) {
     }
   }
 }
+#endif /* TESTING */
