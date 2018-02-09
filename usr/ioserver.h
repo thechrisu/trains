@@ -8,6 +8,10 @@
 #include "notifier.h"
 #include "rawio.h"
 
+void train_tx_server();
+void train_rx_server();
+void terminal_tx_server();
+void terminal_rx_server();
 void spawn_ioservers();
 
 #endif /* IOSERVER_H */
