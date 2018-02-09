@@ -233,6 +233,10 @@ int Delay(int tid, int ticks);
  */
 int DelayUntil(int tid, int ticks);
 
+int Putc(int tid, int uart, char ch);
+
+int Getc(int tid, int uart);
+
 #define MAX_PRIORITY 64
 
 #define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
