@@ -1,5 +1,38 @@
 #include "rawio.h"
 
+char raw_get_error(int channel) {
+  volatile int *ERROR_REG;
+#if VERSATILEPB
+  switch (channel) {
+  case TRAIN:
+    ERROR_REG = (int *)UART0_BASE;
+    break;
+  case TERMINAL:
+    ERROR_REG = (int *)UART1_BASE;
+    break;
+  default:
+    return 0;
+  }
+  return (*ERROR_REG & UART_ERR_MASK) >> 8;
+#else
+  switch (channel) {
+  case TRAIN:
+    ERROR_REG = (int *)UART1_BASE;
+    break;
+  case TERMINAL:
+    ERROR_REG = (int *)UART2_BASE;
+    break;
+  default:
+    return 0;
+  }
+  ERROR_REG = (int *)(ERROR_REG + UART_RSR_OFFSET);
+  if (*ERROR_REG) {
+    *ERROR_REG = 0; // RESET
+  }
+  return *ERROR_REG;
+#endif
+}
+
 int rawputc(int channel, char c) {
   volatile int *flags, *data; // just to be safe
   switch (channel) {
@@ -52,7 +85,7 @@ int rawgetc(int channel, char *c) {
   }
   *c = *data & DATA_MASK;
   if (channel == TRAIN) {
-    return get_error(channel) & (OE_MASK | BE_MASK | PE_MASK | FE_MASK);
+    return raw_get_error(channel) & (OE_MASK | BE_MASK | PE_MASK | FE_MASK);
   }
   return 0;
 }

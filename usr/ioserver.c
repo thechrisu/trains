@@ -7,7 +7,7 @@
 
 void generic_tx_server(uint16_t buf_sz, int channel) {
   int sender_tid;
-  message received, reply;
+  message received;
   char buf[buf_sz];
   char_buffer tx_buf;
   char_buffer_init(&tx_buf, buf, buf_sz);
@@ -60,7 +60,7 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
       case MESSAGE_NOTIFIER:
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         char c;
-        Assert(rawgetc(channel));
+        Assert(rawgetc(channel, &c));
         Assert(!char_buffer_is_full(&rx_buf));
         rawgetc(channel, &c); // Maybe assert this later
         char_buffer_put(&rx_buf, c);

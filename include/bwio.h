@@ -29,6 +29,8 @@ void empty_buf(int channel, bool out);
 int putc(int channel, char c);
 int getc(int channel);
 int bwgetc(int channel);
+int putr(int (*put)(char), unsigned int reg);
+void format(int (*put)(char), char *fmt, va_list va);
 
 #if !VERSATILEPB && (HOSTCONFIG || TESTING)
 

@@ -186,7 +186,8 @@ int tryreceivebyte(int channel) {
       dumpbuf(buf);
       return -3;
     }
-    char c = rawgetc(channel);
+    char c;
+    rawgetc(channel, &c);
     char_buffer_put(buf, c);
   }
   return 0;
@@ -274,40 +275,6 @@ void putw(int (*put)(char), int n, char fc, char *bf) {
 uint16_t last_err = 0;
 bool got_err = false;
 
-char get_error(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
-  volatile int *ERROR_REG;
-#if VERSATILEPB
-  switch (channel) {
-    case TRAIN:
-      ERROR_REG = (int *)UART0_BASE;
-      break;
-    case TERMINAL:
-      ERROR_REG = (int *)UART1_BASE;
-      break;
-    default:
-      return 0;
-  }
-  return (*ERROR_REG & UART_ERR_MASK) >> 8;
-#else
-  switch (channel) {
-    case TRAIN:
-      ERROR_REG = (int *)UART1_BASE;
-      break;
-    case TERMINAL:
-      ERROR_REG = (int *)UART2_BASE;
-      break;
-    default:
-      return 0;
-  }
-  ERROR_REG = (int *)(ERROR_REG + UART_RSR_OFFSET);
-  if (*ERROR_REG) {
-    *ERROR_REG = 0; // RESET
-  }
-  return *ERROR_REG;
-#endif
-}
-
 int getc(int channel) {
   volatile int *data;
   volatile unsigned char c;
@@ -331,7 +298,7 @@ int getc(int channel) {
       return -1;
   }
   if (channel == TRAIN) { // TODO make versatilepb compatible
-    char err = get_error(channel);
+    char err = raw_get_error(channel);
     if (err & (OE_MASK | BE_MASK | PE_MASK | FE_MASK)) {
 #if DEBUG
       printf("\033[?25h\033[2;1H\033[K");

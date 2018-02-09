@@ -12,6 +12,7 @@
 void enable_uart_event(enum event_id e);
 int receive_interrupt_clear(int channel);
 void enable_transmit_interrupt(int channel, int enable);
+void enable_uart_interrupt(int channel, register_t enable_mask, int enable);
 int try_clear_train_send();
 void interrupt_modem_clear();
 void interrupt_rx_clear(int channel);
