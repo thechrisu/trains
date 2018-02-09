@@ -240,7 +240,7 @@ void printf(char *fmt, ...) {
   va_list va;
 
   va_start(va, fmt);
-  format(terminalputc, fmt, va);
+  format(bwterminalputc, fmt, va);
   va_end(va);
 }
 
