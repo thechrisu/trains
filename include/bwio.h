@@ -9,6 +9,7 @@
 #include "char_buffer.h"
 #include "io.h"
 #include "mytimer.h"
+#include "rawio.h"
 #include "tstdlib.h"
 
 #define IOBUFFERSZ 20000
@@ -26,13 +27,6 @@ char readbyte_buffered(int channel);
 uint16_t getnumreadable_bytes(int channel);
 void empty_buf(int channel, bool out);
 int putc(int channel, char c);
-int canputc(int channel);
-/**
- *
- * @param channel
- * @return 1 if you can get char, 0 if not, -1 on error
- */
-int cangetc(int channel);
 int getc(int channel);
 int bwgetc(int channel);
 

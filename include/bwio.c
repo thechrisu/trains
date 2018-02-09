@@ -150,7 +150,7 @@ int trysendbyte(int channel) {
     default:
       return -2;
   }
-  while (canputc(channel) && !char_buffer_is_empty(buf)) {
+  while (rawcanputc(channel) && !char_buffer_is_empty(buf)) {
     char c = char_buffer_get(buf);
     putc(channel, c);
   }
@@ -172,75 +172,24 @@ int tryreceivebyte(int channel) {
       return -2;
     }
   }
-  while (cangetc(channel)) {
+  while (rawcangetc(channel)) {
     // putc(TERMINAL, cangetc(TERMINAL) ? 'T' : 'F');
     // putc(TRAIN, cangetc(TERMINAL) ? 'T' : 'F');
     if (char_buffer_is_full(buf)) {
-      putc(TERMINAL, 'Y');
+      putc(TERMINAL, 'Z');
       putc(TERMINAL, '0' + channel);
-      putc(TERMINAL, 'Y');
+      putc(TERMINAL, 'Z');
       putc(TERMINAL, '0' + channel);
-      putc(TERMINAL, 'Y');
+      putc(TERMINAL, 'Z');
       putc(TERMINAL, '0' + channel);
-      putc(TERMINAL, 'Y');
+      putc(TERMINAL, 'Z');
       dumpbuf(buf);
       return -3;
     }
-    char c = getc(channel);
+    char c = rawgetc(channel);
     char_buffer_put(buf, c);
   }
   return 0;
-}
-
-int canputc(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
-  volatile int *flags;
-  switch (channel) {
-    case TRAIN:
-#if VERSATILEPB
-      flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
-#else
-      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
-#endif
-      break;
-    case TERMINAL:
-#if VERSATILEPB
-      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
-#else
-      flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
-#endif
-      break;
-    default:
-      return -1;
-  }
-  if (TRAIN == channel) {
-    return !(*flags & (TXFF_MASK | TXBUSY_MASK) && (*flags & CTS_MASK));
-  }
-  return !(*flags & (TXFF_MASK | TXBUSY_MASK));
-}
-
-int cangetc(int channel) {
-  assert(channel == TRAIN || channel == TERMINAL);
-  volatile int *flags;
-  switch (channel) {
-    case TRAIN:
-#if VERSATILEPB
-      flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
-#else
-      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
-#endif
-      break;
-    case TERMINAL:
-#if VERSATILEPB
-      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
-#else
-      flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
-#endif
-      break;
-    default:
-      return -1;
-  }
-  return *flags & RXFF_MASK;
 }
 
 int putc(int channel, char c) {
