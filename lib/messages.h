@@ -8,7 +8,7 @@
 #include "tstdlib.h"
 
 enum message_type {
-  MESSAGE_CLOCK_NOTIFIER,
+  MESSAGE_NOTIFIER,
   MESSAGE_TIME,
   REPLY_TIME,
   MESSAGE_DELAY,

@@ -1,27 +1,5 @@
 #include "clock.h"
 
-/*
-  Repeatedly waits for a clock event, then sends a message to the clock server.
-  Created by the clock server, so sends its messages to its parent.
-*/
-void clock_notifier() {
-  Assert(RegisterAs("ClockNotifier") == 0);
-  Assert(WhoIs("ClockNotifier") == MyTid());
-
-  int server_tid = WhoIs("ClockServer");
-  Assert(server_tid > 0);
-
-  message msg;
-  msg.type = MESSAGE_CLOCK_NOTIFIER;
-
-  while (true) {
-    Assert(AwaitEvent(TIMER_INTERRUPT) == 0);
-    Assert(Send(server_tid, &msg, sizeof(msg), EMPTY_MESSAGE, 0) >= 0);
-  }
-  Assert("ACCIDENTALLY KILLED CLOCK NOTIFIER\n\r" == "");
-  Assert(0);
-}
-
 void clock_server() {
   int sender_tid;
   message received, reply;
@@ -40,7 +18,7 @@ void clock_server() {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
     switch (received.type) {
-      case MESSAGE_CLOCK_NOTIFIER:
+      case MESSAGE_NOTIFIER:
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         ticks += 1;
 

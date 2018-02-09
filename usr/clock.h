@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "event_data.h"
 #include "messages.h"
+#include "notifier.h"
 #include "lib/clock_wait_queue.h"
 
 /*
