@@ -71,17 +71,21 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       case TERMINAL_TX_INTERRUPT: // AFAIK the VIC does not allow us to differentiate :(
       case TERMINAL_RX_INTERRUPT:
         if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          highest_prio_event = TERMINAL_RX_INTERRUPT;
           *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
         } else { // TX
+          highest_prio_event = TERMINAL_TX_INTERRUPT;
           *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
-          event_data = 0;
         }
+        event_data = 0;
         break;
       case TRAIN_TX_INTERRUPT:
       case TRAIN_RX_INTERRUPT:
         if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          highest_prio_event = TRAIN_RX_INTERRUPT;
           *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
         } else { // TX
+          highest_prio_event = TRAIN_TX_INTERRUPT;
           *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
         }
         break;

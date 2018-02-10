@@ -78,6 +78,8 @@ void test_runner() {
       exec_prog(MyPriority() + 4, &test_timer_interrupt);
     } else if (tstrcmp(buf, "test_tx_terminal")) {
       exec_prog(MyPriority() + 4, &test_tx_terminal);
+    } else if (tstrcmp(buf, "test_rx_terminal")) {
+      exec_prog(MyPriority() + 4, &test_rx_terminal);
     } else if (tstrcmp(buf, "clock_errors")) {
       exec_prog(MyPriority() + 3, &clock_errors);
     } else if (tstrcmp(buf, "clock_accuracy")) {
