@@ -74,6 +74,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
           *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
         } else { // TX
           *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+          event_data = 0;
         }
         break;
       case TRAIN_TX_INTERRUPT:
@@ -87,6 +88,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
 #else
       case TERMINAL_TX_INTERRUPT:
         interrupt_tx_clear(TERMINAL);
+        event_data = 0;
         break;
       case TERMINAL_RX_INTERRUPT: {
         interrupt_rx_clear(TERMINAL);
