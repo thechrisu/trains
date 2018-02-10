@@ -60,6 +60,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
 trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event) {
   int event_data = -2;
   trapframe *tf = current_task->tf;
+#ifndef TESTING
     switch (highest_prio_event) {
       case TIMER_INTERRUPT:
         event_data = 0;
@@ -122,6 +123,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
     if (highest_prio_event != -1) {
       event_handle(highest_prio_event, event_data);
     }
+#endif /* TESTING */
     return tf;
 }
 
