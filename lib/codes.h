@@ -233,8 +233,26 @@ int Delay(int tid, int ticks);
  */
 int DelayUntil(int tid, int ticks);
 
+/**
+ * Outputs a character to the given uart, managed by some server.
+ *
+ * @param tid  The task id of the server managing the output to the UART.
+ * @param uart The UART (TRAIN/TERMINAL).
+ * @param ch   The character to send.
+ * @return -1 if tid is invalid (or send failed).
+ *          0 on success
+ */
 int Putc(int tid, int uart, char ch);
 
+/**
+ * Gets a character from the given uart, managed by some server.
+ *
+ * @param tid  The task id of the server managing the input from the UART.
+ * @param uart The UART (TRAIN/TERMINAL).
+ *
+ * @return -1 On error
+ *          0 on success
+ */
 int Getc(int tid, int uart);
 
 #define MAX_PRIORITY 64
