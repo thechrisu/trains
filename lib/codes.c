@@ -254,7 +254,7 @@ int DelayUntil(int tid, int ticks) {
 }
 
 int Putc(int tid, int uart, char ch) { // confoederatio helvetica?
-  (void)uart;
+  Assert(uart == TRAIN || uart == TERMINAL);
   message send, reply;
   send.type = MESSAGE_PUTC;
   send.msg.putc = ch;
@@ -265,7 +265,7 @@ int Putc(int tid, int uart, char ch) { // confoederatio helvetica?
 }
 
 int Getc(int tid, int uart) {
-  (void)uart;
+  Assert(uart == TRAIN || uart == TERMINAL);
   message send, reply;
   send.type = MESSAGE_GETC;
   if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
