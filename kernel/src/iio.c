@@ -37,7 +37,7 @@ void enable_uart_interrupt(int channel, register_t enable_mask, int enable) {
     reg = (register_t *)UART0_BASE;
     break;
   }
-  reg += UART_CTLR_OFFSET;
+  reg += UARTIMSC_OFFSET >> 2;
 #else
   switch (channel) {
   case TERMINAL:
@@ -47,7 +47,7 @@ void enable_uart_interrupt(int channel, register_t enable_mask, int enable) {
     reg = (register_t *)UART1_BASE;
     break;
   }
-  reg += UART_CTLR_OFFSET;
+  reg += UART_CTLR_OFFSET >> 2;
 #endif /* VERSATILEPB */
   if (enable) {
     *reg |= enable_mask;
