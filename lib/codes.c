@@ -255,10 +255,10 @@ int DelayUntil(int tid, int ticks) {
 
 int Putc(int tid, int uart, char ch) { // confoederatio helvetica?
   Assert(uart == TRAIN || uart == TERMINAL);
-  message send, reply;
+  message send;
   send.type = MESSAGE_PUTC;
   send.msg.putc = ch;
-  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply)) {
+  if (Send(tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0) {
     return 0;
   }
   return -1;

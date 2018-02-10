@@ -11,7 +11,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
   char buf[buf_sz];
   char_buffer tx_buf;
   char_buffer_init(&tx_buf, buf, buf_sz);
-  bool can_put = true;
+  bool can_put = false;
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
@@ -28,13 +28,13 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         break;
       case MESSAGE_PUTC:
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+        char_buffer_put(&tx_buf, received.msg.putc);
         if (can_put) {
           can_put = false;
           Assert(rawcanputc(channel));
+          Assert(!char_buffer_is_empty(&tx_buf));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
-        } else {
-          char_buffer_put(&tx_buf, received.msg.putc);
         }
         break;
       default:
