@@ -16,6 +16,11 @@ void generic_notifier(enum event_id to_wait_on, int server_tid) {
 void train_tx_notifier() {
   Assert(RegisterAs("TrainTxNotifier") == 0);
   Assert(WhoIs("TrainTxNotifier") == MyTid());
+
+  message msg;
+  msg.type = MESSAGE_NOTIFIER;
+  Assert(Send(MyParentTid(), &msg, sizeof(msg), EMPTY_MESSAGE, 0) == 0);
+
   generic_notifier(TRAIN_TX_INTERRUPT, MyParentTid());
 }
 
