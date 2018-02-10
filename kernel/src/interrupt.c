@@ -87,14 +87,16 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
         break;
 #else
       case TERMINAL_TX_INTERRUPT:
-        interrupt_tx_clear(TERMINAL);
         event_data = 0;
+        interrupt_tx_clear(TERMINAL);
         break;
       case TERMINAL_RX_INTERRUPT: {
+        event_data = 0;
         interrupt_rx_clear(TERMINAL);
         break;
       }
       case TRAIN_TX_INTERRUPT:
+        event_data = 0;
         interrupt_tx_clear(TRAIN);
         // TODO wake up train receive notifier, move this to syscall~~
         if (!try_clear_train_send()) {
@@ -103,6 +105,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
         }
         break;
       case TRAIN_RX_INTERRUPT:
+        event_data = 0;
         interrupt_rx_clear(TRAIN);
         break;
 #endif /* VERSATILEPB */
