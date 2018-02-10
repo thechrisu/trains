@@ -66,11 +66,11 @@ QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0
 
 #
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-							-Itest-resources -Iusr -Iusr/test -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin $(BWLOG_FLAG)
-CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv $(IOINTERRUPT_FLAG)
+							-Itest-resources -Iusr -Iusr/test -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG)
+CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
-CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS) $(TIMER_INTERRUPTS_FLAG)
+CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point
