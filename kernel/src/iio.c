@@ -11,7 +11,6 @@ void maybe_received_cts() {
 #endif /* TESTING */
 }
 
-// TODO can wake up notifier
 int try_clear_train_send() {
 #if VERSATILEPB
   return 1; // We don't have CTS in QEMU
@@ -100,17 +99,6 @@ void enable_uart_event(enum event_id e) {
 }
 
 void interrupt_tx_clear(int channel) {
-  /*switch (channel) {
-    case TERMINAL:
-      disable_in_vic(TERMINAL_TX_INTERRUPT);
-      break;
-    case TRAIN:
-      disable_in_vic(TRAIN_TX_INTERRUPT);
-      uart0_txfe_asserted = 1;
-      break;
-    default:
-      kassert(0);
-      }*/
 #ifndef TESTING
 #if VERSATILEPB
   enable_uart_interrupt(channel, UARTTXINTR_MASK, false);
@@ -121,16 +109,6 @@ void interrupt_tx_clear(int channel) {
 }
 
 void interrupt_rx_clear(int channel) {
-  /*switch (channel) {
-    case TERMINAL:
-      disable_in_vic(TERMINAL_RX_INTERRUPT);
-      break;
-    case TRAIN:
-      disable_in_vic(TRAIN_RX_INTERRUPT);
-      break;
-    default:
-      kassert(0);
-      }*/
 #ifndef TESTING
 #if VERSATILEPB
   enable_uart_interrupt(channel, UARTRXINTR_MASK, false);

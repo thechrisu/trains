@@ -113,7 +113,6 @@ void setup_vic() {
   enable_in_vic(TRAIN_RX_INTERRUPT);
   enable_in_vic(TERMINAL_TX_INTERRUPT);
   enable_in_vic(TERMINAL_RX_INTERRUPT);
-  enable_in_vic(TERMINAL_RX_INTERRUPT);
   enable_vic_bit(UART1_BIT); // THE TRAIN, CHOO CHOO
 #endif /* !VERSATILEPB || IOINTERRUPTS || !E2ETESTING */
 #if VERSATILEPB
