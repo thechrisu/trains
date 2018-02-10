@@ -2,6 +2,7 @@
 #define GETCPUTCMIRROR_H
 
 #include "a0codes.h"
+#include "clock.h"
 #include "codes.h"
 #include "idle.h"
 #include "nameserver.h"

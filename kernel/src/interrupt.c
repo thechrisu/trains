@@ -55,55 +55,11 @@ void print_tf(trapframe *tf) {
 #endif /* TESTING */
 }
 
-#if TIMERINTERRUPT_DEBUG
-static register_t prev_fp[MAX_TASKS];
-#endif /* TIMERINTERRUPT_DEBUG */
+trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event);
 
-trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
-  kassert(tf->k_lr != (register_t)0xA1B2C3D4);
-
-  volatile task_descriptor *current_task = get_current_task();
-  kassert(tf->sp != 0);
-  end_interval(current_task->tid);
-  start_interval();
-#if CONTEXT_SWITCH_BENCHMARK
-  volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
-  volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
-  volatile int16_t *loc_kEntry_sys_reply = LOC_KENTRY_SYS_REPLY;
-  volatile int16_t *is_receive = IS_RECEIVE;
-  switch (tf->r0) {
-  case SYS_SEND:
-    *loc_kEntry_sys_send = get_clockticks();
-    // logprintf("(%d) kEntry Send\n\r", *loc_kEntry_sys_send);
-    break;
-  case SYS_RECEIVE:
-    *is_receive = true;
-    *loc_kEntry_sys_receive = get_clockticks();
-    // logprintf("(%d) kEntry Receive\n\r", *loc_kEntry_sys_receive);
-    break;
-  case SYS_REPLY:
-    *is_receive = false;
-    *loc_kEntry_sys_reply = get_clockticks();
-    // logprintf("(%d) kEntry Reply\n\r", *loc_kEntry_sys_reply);
-    break;
-  }
-#endif /* CONTEXT_SWITCH_BENCHMARK */
-#ifndef TESTING
-  kassert(tf->sp == (register_t)tf);
-#endif /* TESTING */
-  current_task->tf = tf;
-
-#ifndef TESTING
-  register_t cpsr_val;
-  __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
-  kassert((cpsr_val & 0x1F) == 0x13);
-  kassert((tf->psr & 0xFF) == 0x10);
-
-  if (pic_status > 0) {
-    // bwprintf("PIC STATUS: %x\n\r", pic_status);
-    // Clear interrupt
-    int event_data = -2;
-    int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
+trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event) {
+  int event_data = -2;
+  trapframe *tf = current_task->tf;
     switch (highest_prio_event) {
       case TIMER_INTERRUPT:
         event_data = 0;
@@ -167,6 +123,61 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
       event_handle(highest_prio_event, event_data);
     }
     return tf;
+}
+
+trapframe *handle_hwi(task_descriptor *current_task, uint32_t pic_status) {
+    // bwprintf("PIC STATUS: %x\n\r", pic_status);
+    // Clear interrupt
+    int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
+    return handle_vic_event(current_task, highest_prio_event);
+}
+
+#if TIMERINTERRUPT_DEBUG
+static register_t prev_fp[MAX_TASKS];
+#endif /* TIMERINTERRUPT_DEBUG */
+
+trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
+  kassert(tf->k_lr != (register_t)0xA1B2C3D4);
+
+  task_descriptor *current_task = get_current_task();
+  kassert(tf->sp != 0);
+  end_interval(current_task->tid);
+  start_interval();
+#if CONTEXT_SWITCH_BENCHMARK
+  volatile int16_t *loc_kEntry_sys_send = LOC_KENTRY_SYS_SEND;
+  volatile int16_t *loc_kEntry_sys_receive = LOC_KENTRY_SYS_RECEIVE;
+  volatile int16_t *loc_kEntry_sys_reply = LOC_KENTRY_SYS_REPLY;
+  volatile int16_t *is_receive = IS_RECEIVE;
+  switch (tf->r0) {
+  case SYS_SEND:
+    *loc_kEntry_sys_send = get_clockticks();
+    // logprintf("(%d) kEntry Send\n\r", *loc_kEntry_sys_send);
+    break;
+  case SYS_RECEIVE:
+    *is_receive = true;
+    *loc_kEntry_sys_receive = get_clockticks();
+    // logprintf("(%d) kEntry Receive\n\r", *loc_kEntry_sys_receive);
+    break;
+  case SYS_REPLY:
+    *is_receive = false;
+    *loc_kEntry_sys_reply = get_clockticks();
+    // logprintf("(%d) kEntry Reply\n\r", *loc_kEntry_sys_reply);
+    break;
+  }
+#endif /* CONTEXT_SWITCH_BENCHMARK */
+#ifndef TESTING
+  kassert(tf->sp == (register_t)tf);
+#endif /* TESTING */
+  current_task->tf = tf;
+
+#ifndef TESTING
+  register_t cpsr_val;
+  __asm__("MRS %0, cpsr\n\t": "=r"(cpsr_val));
+  kassert((cpsr_val & 0x1F) == 0x13);
+  kassert((tf->psr & 0xFF) == 0x10);
+
+  if (pic_status > 0) {
+    return handle_hwi(current_task, pic_status);
   }
 #endif /* TESTING */
   num_syscalls[tf->r0] += 1;

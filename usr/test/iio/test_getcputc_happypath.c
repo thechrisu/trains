@@ -1,7 +1,8 @@
 #include "test_getcputc_happypath.h"
 
 void test_getcputc_mirror() {
-  int ns_tid = Create(MyPriority() + 1, &nameserver_main);
+  ns_tid = Create(MyPriority() + 3, &nameserver_main);
+  int clock_server_tid = Create(MyPriority() + 3, &clock_server);
   Assert(Create(MyPriority() - 3, &idle_task) > 0);
   int sender_tid = Create(MyPriority() + 1, &terminal_tx_server);
   int receiver_tid = Create(MyPriority() + 1, &terminal_rx_server);
@@ -10,11 +11,15 @@ void test_getcputc_mirror() {
   while (true) {
     char c = Getc(receiver_tid, TERMINAL);
     Assert(c >= 0);
-    if (c == 0) break;
-    Putc(sender_tid, TERMINAL, c);
+    if (c == 'q') break;
+    Assert(Putc(sender_tid, TERMINAL, c) == 0);
   }
-  Kill(sender_tid);
-  Kill(receiver_tid);
+  Assert(Kill(sender_tid) == 0);
+  Assert(Kill(receiver_tid) == 0);
+  Assert(Kill(WhoIs("ClockNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalTxNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalRxNotifier")) == 0);
+  Assert(Kill(clock_server_tid) == 0);
   int idle_tid = WhoIs("Idle");
   Assert(idle_tid > 0);
   Assert(Kill(idle_tid) == 0);
@@ -22,20 +27,23 @@ void test_getcputc_mirror() {
 }
 
 void test_get_sensors() {
-  int ns_tid = Create(MyPriority() + 1, &nameserver_main);
+  ns_tid = Create(MyPriority() + 3, &nameserver_main);
+  int clock_server_tid = Create(MyPriority() + 3, &clock_server);
   Assert(Create(MyPriority() - 3, &idle_task) > 0);
   int sender_tid = Create(MyPriority() + 1, &train_tx_server);
   int receiver_tid = Create(MyPriority() + 1, &train_rx_server);
   Assert(sender_tid >= 0);
   Assert(receiver_tid >= 0);
-  Putc(sender_tid, TRAIN, CMD_ALL_SENSORS);
+  Assert(Putc(sender_tid, TRAIN, CMD_ALL_SENSORS) == 0);
   for (int i = 0; i < 10; i++) {
     int c = Getc(receiver_tid, TRAIN);
     Assert(c >= 0);
     bwprintf("Sensor %d: %c", i, c);
   }
-  Kill(WhoIs("TrainTxNotifier"));
-  Kill(WhoIs("TrainRxNotifier"));
+  Assert(Kill(WhoIs("TrainTxNotifier")) == 0);
+  Assert(Kill(WhoIs("TrainRxNotifier")) == 0);
+  Assert(Kill(WhoIs("ClockNotifier")) == 0);
+  Assert(Kill(clock_server_tid) == 0);
   int idle_tid = WhoIs("Idle");
   Assert(idle_tid > 0);
   Assert(Kill(idle_tid) == 0);
@@ -43,7 +51,8 @@ void test_get_sensors() {
 }
 
 void test_go_stop() {
-  int ns_tid = Create(MyPriority() + 1, &nameserver_main);
+  ns_tid = Create(MyPriority() + 3, &nameserver_main);
+  int clock_server_tid = Create(MyPriority() + 3, &clock_server);
   Assert(Create(MyPriority() - 3, &idle_task) > 0);
   int sender_tid = Create(MyPriority() + 1, &train_tx_server);
   int receiver_tid = Create(MyPriority() + 1, &terminal_rx_server);
@@ -55,13 +64,16 @@ void test_go_stop() {
     Assert(c >= 0);
     if (c == 'q') break;
     if (go) {
-      Putc(sender_tid, TRAIN, CMD_GO);
+      Assert(Putc(sender_tid, TRAIN, CMD_GO) == 0);
     } else {
-      Putc(sender_tid, TRAIN, CMD_STOP);
+      Assert(Putc(sender_tid, TRAIN, CMD_STOP) == 0);
     }
     go = (go + 1) % 2;
   }
-  Kill(WhoIs("TrainTxNotifier"));
+  Assert(Kill(WhoIs("TerminalRxNotifier")) == 0);
+  Assert(Kill(WhoIs("TrainTxNotifier")) == 0);
+  Assert(Kill(WhoIs("ClockNotifier")) == 0);
+  Assert(Kill(clock_server_tid) == 0);
   int idle_tid = WhoIs("Idle");
   Assert(idle_tid > 0);
   Assert(Kill(idle_tid) == 0);
