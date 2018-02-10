@@ -5,7 +5,7 @@
 #define TRAIN_TX_BUF_SZ 2000
 #define TRAIN_RX_BUF_SZ 100
 
-void generic_tx_server(uint16_t buf_sz, int channel) {
+void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
   int sender_tid;
   message received;
   char buf[buf_sz];
@@ -17,11 +17,11 @@ void generic_tx_server(uint16_t buf_sz, int channel) {
 
     switch (received.type) {
       case MESSAGE_NOTIFIER:
-        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         if (!char_buffer_is_empty(&tx_buf)) {
           can_put = false;
           Assert(rawcanputc(channel));
-          Assert(rawputc(channel, char_buffer_get(&tx_buf) == 0));
+          Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         } else {
           can_put = true;
         }
@@ -31,7 +31,8 @@ void generic_tx_server(uint16_t buf_sz, int channel) {
         if (can_put) {
           can_put = false;
           Assert(rawcanputc(channel));
-          Assert(rawputc(channel, char_buffer_get(&tx_buf) == 0));
+          Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         } else {
           char_buffer_put(&tx_buf, received.msg.putc);
         }
@@ -57,19 +58,20 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
     switch (received.type) {
-      case MESSAGE_NOTIFIER:
-        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+      case MESSAGE_NOTIFIER: {
         char c;
-        Assert(rawgetc(channel, &c));
+        Assert(rawcangetc(channel));
+        Assert(rawgetc(channel, &c) == 0);
         Assert(!char_buffer_is_full(&rx_buf));
-        rawgetc(channel, &c); // Maybe assert this later
         char_buffer_put(&rx_buf, c);
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         if (!int32_t_buffer_is_empty(&wait_buf)) {
           reply.type = REPLY_GETC;
           reply.msg.getc = char_buffer_get(&rx_buf);
           Assert(Reply(int32_t_buffer_get(&wait_buf), &reply, sizeof(reply)) >= 0);
         }
         break;
+      }
       case MESSAGE_GETC:
         if (!char_buffer_is_empty(&rx_buf)) {
           reply.type = REPLY_GETC;
@@ -89,8 +91,9 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
 void train_tx_server() {
   Assert(RegisterAs("TrainTxServer") == 0);
   Assert(WhoIs("TrainTxServer") == MyTid());
-  Assert(Create(MyPriority() + 1, &train_tx_notifier) >= 0);
-  generic_tx_server(TRAIN_TX_BUF_SZ, TRAIN);
+  int notifier_tid = Create(MyPriority() + 1, &train_tx_notifier);
+  Assert(notifier_tid >= 0);
+  generic_tx_server(TRAIN_TX_BUF_SZ, TRAIN, notifier_tid);
 }
 
 void train_rx_server() {
@@ -103,8 +106,9 @@ void train_rx_server() {
 void terminal_tx_server() {
   Assert(RegisterAs("TerminalTxServer") == 0);
   Assert(WhoIs("TerminalTxServer") == MyTid());
-  Assert(Create(MyPriority() + 1, &terminal_tx_notifier) >= 0);
-  generic_tx_server(TERMINAL_TX_BUF_SZ, TERMINAL);
+  int notifier_tid = Create(MyPriority() + 1, &terminal_tx_notifier);
+  Assert(notifier_tid >= 0);
+  generic_tx_server(TERMINAL_TX_BUF_SZ, TERMINAL, notifier_tid);
 }
 
 void terminal_rx_server() {

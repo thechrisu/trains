@@ -108,10 +108,10 @@ int rawcanputc(int channel) {
 #endif
       break;
     default:
-      return -1;
+      return 0;
   }
   if (TRAIN == channel) {
-    return !(*flags & (TXFF_MASK | TXBUSY_MASK) && (*flags & CTS_MASK));
+    return !(*flags & (TXFF_MASK | TXBUSY_MASK)) && (*flags & CTS_MASK);
   }
   return !(*flags & (TXFF_MASK | TXBUSY_MASK));
 }
@@ -134,7 +134,7 @@ int rawcangetc(int channel) {
 #endif
       break;
     default:
-      return -1;
+      return 0;
   }
   return *flags & RXFF_MASK;
 }
