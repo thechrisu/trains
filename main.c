@@ -47,30 +47,17 @@ void kmain() {
   num_syscalls_total = 0;
 
   setup_vic();
-  /*
-#ifdef VERSATILEPB
-  vic1_int_mask |= VIC1_UART1_MASK | VIC1_UART0_MASK;
-#else
-  // #define VIC_UART2RXINT_MASK 0x02000000
-  // #define VIC_UART2TXINT_MASK 0x04000000
-  vic1_int_mask |= VIC1_UART2RXINT_MASK | VIC1_UART2TXINT_MASK | VIC1_UART1RXINT_MASK | VIC1_UART1TXINT_MASK;
-#endif
-  *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = vic1_int_mask;
-  // CRASH();  // *(uint32_t *)(VIC2_BASE + VIC_ENABLE_OFFSET) = vic2_int_mask;
-*/
+
 #if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
   interrupt_timer_setup();
-#endif /* E2ETESTING && TIMER_INTERRUPTS */
+#endif /* !E2ETESTING || TIMER_INTERRUPTS */
 
 #if !E2ETESTING || IOINTERRUPTS
   setup_iio();
 #endif /* !E2ETESTING || IOINTERRUPTS */
 
   next_task_id = 1;
-
-  //#ifdef TIMERINTERRUPT_DEBUG
-  //#endif /* TIMERRINTERUPT_DEBUG */
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");
@@ -192,7 +179,6 @@ int main() {
   vic_maskall();
   *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = 0x0;
   *(uint32_t *)(VIC2_BASE + VIC2_ENABLE_OFFSET) = 0x0;
-
 
 
 #if !E2ETESTING || TIMER_INTERRUPTS

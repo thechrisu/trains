@@ -72,7 +72,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       case TERMINAL_RX_INTERRUPT:
         if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
           *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-          // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
         } else { // TX
           *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
         }
@@ -81,7 +80,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       case TRAIN_RX_INTERRUPT:
         if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
           *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-          // *(uint32_t *)(UART1_BASE + UARTIMSC_OFFSET) = UARTRXINTR_MASK;
         } else { // TX
           *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
         }
@@ -119,7 +117,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
         break; // I <3 GCC
       }
     }
-    //bwprintf("H: %d\n\r", highest_prio_event);
     if (highest_prio_event != -1) {
       event_handle(highest_prio_event, event_data);
     }
@@ -128,8 +125,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
 }
 
 trapframe *handle_hwi(task_descriptor *current_task, uint32_t pic_status) {
-    // bwprintf("PIC STATUS: %x\n\r", pic_status);
-    // Clear interrupt
     int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
     return handle_vic_event(current_task, highest_prio_event);
 }
