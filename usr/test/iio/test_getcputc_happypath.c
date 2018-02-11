@@ -9,7 +9,7 @@ void test_getcputc_mirror() {
   Assert(sender_tid >= 0);
   Assert(receiver_tid >= 0);
   while (true) {
-    char c = Getc(receiver_tid, TERMINAL);
+    int c = Getc(receiver_tid, TERMINAL);
     Assert(c >= 0);
     if (c == 'q') break;
     Assert(Putc(sender_tid, TERMINAL, c) == 0);
@@ -27,6 +27,7 @@ void test_getcputc_mirror() {
 }
 
 void test_get_sensors() {
+  EnableCaches(true);
   ns_tid = Create(MyPriority() + 3, &nameserver_main);
   int clock_server_tid = Create(MyPriority() + 3, &clock_server);
   Assert(Create(MyPriority() - 3, &idle_task) > 0);
@@ -51,6 +52,7 @@ void test_get_sensors() {
 }
 
 void test_go_stop() {
+  EnableCaches(true);
   ns_tid = Create(MyPriority() + 3, &nameserver_main);
   int clock_server_tid = Create(MyPriority() + 3, &clock_server);
   Assert(Create(MyPriority() - 3, &idle_task) > 0);

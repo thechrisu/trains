@@ -30,7 +30,7 @@ enter_kernel: /* called on an interrupt */
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
 
-/* Set second argument to zero. */
+/* Set second argument to false. */
   MOV r1, #0
 
 /* Enter kernel mode. */
@@ -66,13 +66,8 @@ is_irq:
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
 
-  /* Set second argument to PIC status. */
-  .ifdef VERSATILEPB
-  LDR r1, =0x10140000
-  .else
-  LDR r1, =0x800B0000
-  .endif
-  LDR r1, [r1]
+/* Set second argument to true. */
+  MOV r1, #1
 
 /* Enter IRQ mode. */
   MSR cpsr_c, #0xD2
