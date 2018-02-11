@@ -55,6 +55,11 @@ ifeq (true,$(IOINTERRUPTS))
 IOINTERRUPT_FLAG = -DIOINTERRUPTS
 builddirtesting=build/testingiio
 E2ELDFILE=versatilepb_e2e_iio.ld
+
+ifeq (true,$(TIMER_INTERRUPTS))
+builddirtesting=build/testingiiotmr
+E2ELDFILE=versatilepb_e2e_iiotmr.ld
+endif
 endif
 
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
