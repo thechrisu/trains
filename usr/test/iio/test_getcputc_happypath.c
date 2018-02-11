@@ -1,6 +1,7 @@
 #include "test_getcputc_happypath.h"
 
 void test_getcputc_mirror() {
+  EnableCaches(true);
   ns_tid = Create(MyPriority() + 3, &nameserver_main);
   int clock_server_tid = Create(MyPriority() + 3, &clock_server);
   // https://lists.nongnu.org/archive/html/qemu-devel/2017-09/msg02370.html
