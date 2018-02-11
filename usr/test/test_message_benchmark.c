@@ -125,7 +125,7 @@ void run_benchmarks_for_msgsize(int msg_size) {
 
 void message_benchmark() {
   setup_timer();
-  Create(MyPriority() + 1, &nameserver_main);
+  ns_tid = Create(MyPriority() + 1, &nameserver_main);
   Create(MyPriority() + 1, &clock_server);
   int idle_tid = Create(MyPriority() - 3, &idle_task);
   run_benchmarks_for_msgsize(4);
