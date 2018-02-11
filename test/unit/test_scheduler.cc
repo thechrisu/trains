@@ -8,6 +8,11 @@ TEST(SchedulerTest, init_returns_negative_one_if_max_priority_is_negative) {
   ASSERT_EQ(scheduler_init(&s, -1, (ready_queue *)0), -1);
 }
 
+TEST(SchedulerTest, init_returns_negative_one_if_max_priority_is_greater_than_63) {
+  scheduler s;
+  ASSERT_EQ(scheduler_init(&s, 64, (ready_queue *)0), -1);
+}
+
 TEST(SchedulerTest, init_initializes_a_scheduler_with_one_queue) {
   scheduler s;
   ready_queue rq[1];
@@ -80,13 +85,13 @@ TEST(SchedulerTest, next_task_returns_null_task_descriptor_if_all_queues_are_emp
 
 TEST(SchedulerTest, next_task_returns_task_from_highest_priority_non_empty_queue) {
   scheduler s;
-  ready_queue rq[10];
+  ready_queue rq[64];
   task_descriptor td[5];
   int i;
 
-  scheduler_init(&s, 9, rq);
+  scheduler_init(&s, 63, rq);
   for (i = 0; i < 5; i += 1) {
-    td[i].priority = 2 * i + 1;
+    td[i].priority = 10 * i + 10;
     scheduler_register(&s, &(td[i]));
   }
 

@@ -7,9 +7,11 @@
 
 #include "ready_queue.h"
 #include "task.h"
+#include "tstdlib.h"
 
 typedef struct {
   int max_priority;
+  uint32_t nonempty_hi, nonempty_lo;
   ready_queue *queues;
 } scheduler;
 
@@ -20,7 +22,7 @@ typedef struct {
  * provided values, then sets all the ready queues to NULL.
  * @param   s            A scheduler.
  * @param   max_priority The maximum priority that a task in the scheduler can have.
-                         Must be greater than or equal to zero.
+                         Must be between 0 and 63.
  * @param   queues       An array of max_priority + 1 ready queues.
  * @returns -1 if max_priority is negative, and 0 otherwise.
  */
