@@ -57,9 +57,9 @@ void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapf
   task_descriptor *current_task = get_current_task();
 #ifndef TESTING
   logprintf("\n\r\n\r\n\r");
-  print_tf(tf);
   logprintf("Num ctx sw: %d\n\r", num_ctx_sw);
   logprintf("Abort task id: %d\n\r", current_task->tid);
+  print_tf(tf);
   dump_logs();
   // Reset log index so that we don't dump any logs in main.c
   log_index = 0;
