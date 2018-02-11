@@ -102,7 +102,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       case TRAIN_TX_INTERRUPT:
         event_data = 0;
         interrupt_tx_clear(TRAIN);
-        // TODO wake up train receive notifier, move this to syscall~~
         if (!try_clear_train_send()) {
           // still need CTS
           return tf;
@@ -119,6 +118,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
           interrupt_modem_clear();
           maybe_received_cts();
           if (try_clear_train_send()) {
+            event_data = 0;
             highest_prio_event = TRAIN_TX_INTERRUPT;
           }
         }
@@ -182,7 +182,7 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
 
-  if (pic_status > 0) {
+  if (pic_status > 0 || get_modem_interrupt_bits()) {
     return handle_hwi(current_task, pic_status);
   }
 #endif /* TESTING */

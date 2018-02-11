@@ -1,12 +1,11 @@
 #include "iio.h"
 
-int uart0_cts_asserted = 0;
-int uart0_txfe_asserted = 0;
-
+int uart0_cts_asserted;
+int uart0_txfe_asserted;
 
 void maybe_received_cts() {
 #ifndef TESTING
-  volatile register_t *train_uart = (register_t*)(UART1_BASE + UART_CTLR_OFFSET);
+  volatile register_t *train_uart = (register_t*)(UART1_BASE + UART_FLAG_OFFSET);
   uart0_cts_asserted |= (*train_uart) & CTS_MASK;
 #endif /* TESTING */
 }
@@ -104,6 +103,9 @@ void interrupt_tx_clear(int channel) {
   enable_uart_interrupt(channel, UARTTXINTR_MASK, false);
 #else
   enable_uart_interrupt(channel, UARTTXENABLE_MASK, false);
+  if (channel == TRAIN) {
+    uart0_txfe_asserted = 1;
+  }
 #endif /* VERSATILEPB */
 #endif /* TESTING */
 }

@@ -7,6 +7,9 @@
 
 #include "myio.h"
 
+extern int uart0_txfe_asserted;
+extern int uart0_cts_asserted;
+
 // Dear coding gods, please forgive me
 void nop() {
   __asm__ volatile
@@ -104,6 +107,8 @@ void setup_io() {
 
 void setup_iio() {
   enable_io_interrupts(true);
+  uart0_txfe_asserted = 0;
+  uart0_cts_asserted = 0;
 }
 
 void desetup_iio() {
