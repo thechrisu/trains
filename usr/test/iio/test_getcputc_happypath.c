@@ -39,7 +39,7 @@ void test_get_sensors() {
   for (int i = 0; i < 10; i++) {
     int c = Getc(receiver_tid, TRAIN);
     Assert(c >= 0);
-    bwprintf("Sensor %d: %c", i, c);
+    bwprintf("Sensor %d: %x\n\r", i, c);
   }
   Assert(Kill(WhoIs("TrainTxNotifier")) == 0);
   Assert(Kill(WhoIs("TrainRxNotifier")) == 0);
