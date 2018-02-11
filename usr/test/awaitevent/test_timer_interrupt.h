@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests that AwaitEvent triggers when we get a timer interrupt.
+ */
 #ifndef TEST_TIMER_INTERRUPT_H
 #define TEST_TIMER_INTERRUPT_H
 

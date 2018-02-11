@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Notifier implementations.
+ */
 #ifndef NOTIFIER_H
 #define NOTIFIER_H
 

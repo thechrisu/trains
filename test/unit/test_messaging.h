@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests kernel-level messaging functions.
+ */
 #ifndef TRAINS_TEST_MESSAGING_H
 #define TRAINS_TEST_MESSAGING_H
 

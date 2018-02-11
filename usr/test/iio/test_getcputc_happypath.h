@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Application-like tests for GetcPutc.
+ */
 #ifndef GETCPUTCMIRROR_H
 #define GETCPUTCMIRROR_H
 

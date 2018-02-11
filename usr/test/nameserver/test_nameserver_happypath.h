@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Easy-going test that ensures the nameserver is not completely messed up.x
+ */
 #ifndef TRAINS_TEST_NAMESERVER_HAPPYPATH_H
 #define TRAINS_TEST_NAMESERVER_HAPPYPATH_H
 

@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Test for the MyPriority() syscall.
+ */
 #ifndef TEST_MYPRIORITY_H
 #define TEST_MYPRIORITY_H
 

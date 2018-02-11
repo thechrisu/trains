@@ -1,4 +1,4 @@
-/*
+/**
  * @file
  * @brief Methods for setting/clearing things in the PIC/VIC/whatever.
  */

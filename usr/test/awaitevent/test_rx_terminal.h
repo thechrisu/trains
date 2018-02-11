@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests that AwaitEvent on the receive interrupt from the terminal works.
+ */
 #ifndef TEST_RX_TERMINAL
 #define TEST_RX_TERMINAL
 

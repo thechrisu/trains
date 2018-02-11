@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Definition of certain byte encodings for train commands.
+ */
 #ifndef A0CODES_H
 #define A0CODES_H
 
