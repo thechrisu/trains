@@ -9,8 +9,11 @@ enter_kernel: /* called on an interrupt */
 /* Enter system mode. */
   MSR cpsr_c, #0xDF
 
-/* Save user's registers in a trap frame on the user task's stack. */
+  /* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, sp, #72
+  STMEA sp, {r0-r14}
+	  /* We use 72 bytes for the tf, r0-r14 are only 15*4 = 60 bytes */
+	  /*
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -24,8 +27,9 @@ enter_kernel: /* called on an interrupt */
   STR r10, [sp, #40]
   STR r11, [sp, #44]
   STR r12, [sp, #48]
-  STR r13, [sp, #52]
-  STR r14, [sp, #56]
+	STR r13, [sp, #52]
+	STR r14, [sp, #56]
+*/
 
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
@@ -47,6 +51,10 @@ is_irq:
 
 /* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, sp, #72
+  STMEA sp, {r0-r14}
+	  /* We use 72 bytes for the tf, r0-r14 are only 15*4 = 60 bytes */
+  /*
+  SUB sp, sp, #72
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -61,7 +69,7 @@ is_irq:
   STR r11, [sp, #44]
   STR r12, [sp, #48]
   STR r13, [sp, #52]
-  STR r14, [sp, #56]
+  STR r14, [sp, #56]*/
 
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
@@ -100,7 +108,11 @@ is_swi:
 /* Service interrupt. */
   BL handle_interrupt
 
-/* Load kernel trapframe to return to instruction after e.g. task_activate in schedule. */
+  /* Load kernel trapframe to return to instruction after e.g. task_activate in schedule. */
+
+  LDMFD sp, {r0-r13}
+  ADD sp, sp, #72
+  /*
   LDR r1, [sp, #4]
   LDR r2, [sp, #8]
   LDR r3, [sp, #12]
@@ -114,7 +126,7 @@ is_swi:
   LDR r11, [sp, #44]
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
-  ADD sp, sp, #72
+  ADD sp, sp, #72	*/
   LDR r15, [sp, #-16] /* Update me if sizeof(trapframe) changes */
 
 .text
