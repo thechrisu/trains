@@ -7,6 +7,8 @@ TODO store/load multiple
 leave_kernel:
   /* Store kernel trapframe. */
   SUB sp, sp, #72
+  STMEA sp, {r0-r14}
+  /*
   STR r0, [sp, #0]
   STR r1, [sp, #4]
   STR r2, [sp, #8]
@@ -22,6 +24,7 @@ leave_kernel:
   STR r12, [sp, #48]
   STR r13, [sp, #52]
   STR r14, [sp, #56]
+  */
 
 /* Put the trapframe's psr field in the saved program status register. */
   LDR r4, [r1, #68]
@@ -45,7 +48,10 @@ leave_kernel:
 
 /*
   Load user registers from trapframe. Syscall return value is saved in r0.
-*/
+  */
+  LDMFD sp, {r0-r14}
+
+  /*
   LDR r1, [sp, #4]
   LDR r2, [sp, #8]
   LDR r3, [sp, #12]
@@ -60,6 +66,7 @@ leave_kernel:
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
   LDR r14, [sp, #56]
+  */
   ADD sp, sp, #72
 
 /*
