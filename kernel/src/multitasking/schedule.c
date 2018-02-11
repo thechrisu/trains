@@ -7,7 +7,7 @@ static ready_queue scheduler_queues[MAX_PRIORITY + 1];
 static task_descriptor *current_task;
 
 void setup_scheduler() {
-  scheduler_init(&kscheduler, MAX_PRIORITY, scheduler_queues);
+  kassert(scheduler_init(&kscheduler, MAX_PRIORITY, scheduler_queues) == 0);
 }
 
 task_descriptor *get_current_task() {
