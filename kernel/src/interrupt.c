@@ -133,16 +133,17 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
     return tf;
 }
 
-trapframe *handle_hwi(task_descriptor *current_task, uint32_t pic_status) {
-    int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
-    return handle_vic_event(current_task, highest_prio_event);
+trapframe *handle_hwi(task_descriptor *current_task) {
+  int pic_status = *(register_t *)VIC1_BASE;
+  int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
+  return handle_vic_event(current_task, highest_prio_event);
 }
 
 #if TIMERINTERRUPT_DEBUG
 static register_t prev_fp[MAX_TASKS];
 #endif /* TIMERINTERRUPT_DEBUG */
 
-trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
+trapframe *handle_interrupt(trapframe *tf, bool is_hardware_interrupt) {
   kassert(tf->k_lr != (register_t)0xA1B2C3D4);
 
   task_descriptor *current_task = get_current_task();
@@ -182,8 +183,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
 
-  if (pic_status > 0 || get_modem_interrupt_bits()) {
-    return handle_hwi(current_task, pic_status);
+  if (is_hardware_interrupt) {
+    return handle_hwi(current_task);
   }
 #endif /* TESTING */
   num_syscalls[tf->r0] += 1;

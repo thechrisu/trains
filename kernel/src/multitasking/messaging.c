@@ -6,7 +6,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
   *loc_before_copy = get_clockticks();
   // logprintf("(%d) Before copy\n\r", *loc_before_copy);
 #endif /* CONTEXT_SWITCH_BENCHMARK */
-  
+
   bool sender_msg_too_big = src->tf->r3 > dst->tf->r3;
   if (sender_msg_too_big) { // Truncated
     dst->tf->r0 = -1;
