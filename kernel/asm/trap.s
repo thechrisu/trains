@@ -111,7 +111,6 @@ is_swi:
   /* Load kernel trapframe to return to instruction after e.g. task_activate in schedule. */
 
   LDMFD sp, {r0-r13}
-  ADD sp, sp, #72
   /*
   LDR r1, [sp, #4]
   LDR r2, [sp, #8]
@@ -126,7 +125,8 @@ is_swi:
   LDR r11, [sp, #44]
   LDR r12, [sp, #48]
   LDR r13, [sp, #52]
-  ADD sp, sp, #72	*/
+  */
+  ADD sp, sp, #72
   LDR r15, [sp, #-16] /* Update me if sizeof(trapframe) changes */
 
 .text
