@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests for our messaging system.
+ */
 #ifndef TEST_MESSAGING_H
 #define TEST_MESSAGING_H
 

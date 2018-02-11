@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief E2E test checking that the terminal transmit interrupt is handled correctly.
+ */
 #ifndef TEST_TX_TERMINAL
 #define TEST_TX_TERMINAL
 

@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Generic definitions of I/O primitives.
+ */
 #ifndef IO_H
 #define IO_H
 

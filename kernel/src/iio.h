@@ -1,4 +1,4 @@
-/*
+/**
  * @file
  * @brief Interrupt-driven I/O functions.
  */

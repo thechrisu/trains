@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Defines the types of events one can wait on.
+ */
 #ifndef EVENT_DATA_H
 #define EVENT_DATA_H
 

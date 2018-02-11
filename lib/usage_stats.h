@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Definitions of task usage statistics functions.
+ */
 #ifndef LUSAGE_STATS_H
 #define LUSAGE_STATS_H
 

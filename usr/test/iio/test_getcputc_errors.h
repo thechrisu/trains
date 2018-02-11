@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests for edge cases for GetcPutc.
+ */
 #ifndef GETCPUTC_ERRORS_H
 #define GETCPUTC_ERRORS_H
 

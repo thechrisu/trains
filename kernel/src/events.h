@@ -29,7 +29,7 @@ void setup_events();
  * Puts the task in state TASK_EVENT_BLOCKED.
  * @param event_id Event id to be handled, comes from user.
  * @param task     Pointer to the task that should handle the event.
- * @param see lib/codes.h
+ *                 see lib/codes.h
  */
 register_t event_register(int event_id, task_descriptor *task);
 
