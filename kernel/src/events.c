@@ -49,8 +49,10 @@ void event_handle(int event_id, int event_data) {
     t->blocked_on = NOT_BLOCKED;
     register_task(t);
   } else if (has_event_been_registered[event_id]) {
+#ifndef TESTING
     logprintf("Oops! We dropped an event of type %d.\n\r", event_id);
     Assert(0);
+#endif /* TESTING */
   }
 }
 

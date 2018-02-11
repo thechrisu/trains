@@ -159,6 +159,8 @@ void EnableCaches(bool enable);
 
 /**
  * Waits and blocks for a certain event.
+ * On return from AwaitEvent(), we guarantee that the interrupt
+ * associated with the given event is disabled.
  * @param event_id A valid event id, see <code>event_data.h</code>.
  * @return >-1     Data
  *         -1      Invalid event id

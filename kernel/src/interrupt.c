@@ -72,10 +72,12 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       case TERMINAL_RX_INTERRUPT:
         if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
           highest_prio_event = TERMINAL_RX_INTERRUPT;
-          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-        } else { // TX
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) |= UARTRXINTR_MASK;
+          interrupt_rx_clear(TERMINAL);
+        } else if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTTXINTR_MASK) { // TX
           highest_prio_event = TERMINAL_TX_INTERRUPT;
-          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) |= UARTTXINTR_MASK;
+          interrupt_tx_clear(TERMINAL);
         }
         event_data = 0;
         break;
@@ -83,11 +85,12 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       case TRAIN_RX_INTERRUPT:
         if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
           highest_prio_event = TRAIN_RX_INTERRUPT;
-          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTRXINTR_MASK;
-        } else { // TX
+          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) |= UARTRXINTR_MASK;
+        } else if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTTXINTR_MASK) { // TX
           highest_prio_event = TRAIN_TX_INTERRUPT;
-          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) = UARTTXINTR_MASK;
+          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) |= UARTTXINTR_MASK;
         }
+        event_data = 0;
         break;
 #else
       case TERMINAL_TX_INTERRUPT:

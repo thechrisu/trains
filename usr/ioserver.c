@@ -1,10 +1,5 @@
 #include "ioserver.h"
 
-#define TERMINAL_TX_BUF_SZ 20000
-#define TERMINAL_RX_BUF_SZ 20000
-#define TRAIN_TX_BUF_SZ 2000
-#define TRAIN_RX_BUF_SZ 100
-
 void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
   int sender_tid;
   message received;
@@ -28,6 +23,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         break;
       case MESSAGE_PUTC:
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+        Assert(!char_buffer_is_full(&tx_buf));
         char_buffer_put(&tx_buf, received.msg.putc);
         if (can_put) {
           can_put = false;
