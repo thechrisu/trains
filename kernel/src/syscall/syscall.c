@@ -102,12 +102,13 @@ int syscall_kill(int tid) {
   if (to_kill == NULL_TASK_DESCRIPTOR) {
     return -1;
   }
+  int blocked_on = to_kill->blocked_on;
+  event_deregister(to_kill);
 #ifndef TESTING
-  if (to_kill->blocked_on != NOT_BLOCKED)
-    handle_vic_event(to_kill, to_kill->blocked_on);
+  if (blocked_on != NOT_BLOCKED)
+    handle_vic_event(to_kill, blocked_on);
 #endif /* TESTING */
   deregister_task(to_kill);
-  event_deregister(to_kill);
   task_retire(to_kill, 0);
   return 0;
 }
