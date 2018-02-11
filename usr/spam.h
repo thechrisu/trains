@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Send/Receive stress test with homogeneous clients.
+ */
 #ifndef SPAM_H
 #define SPAM_H
 

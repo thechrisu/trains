@@ -35,7 +35,7 @@ QEMU=qemu-system-arm
 endif
 
 ifeq (true,$(TEST_RUNNER))
-TEST_RUNNER_FLAG = -DE2ETESTING -DTIMER_INTERRUPTS
+TEST_RUNNER_FLAG = -DE2ETESTING -DTIMER_INTERRUPTS -DIOINTERRUPTS
 endif
 
 E2ELDFILE=versatilepb_e2e.ld
@@ -50,6 +50,18 @@ ifeq (true,$(BWLOG))
 BWLOG_FLAG = -DBWLOG
 endif
 
+
+ifeq (true,$(IOINTERRUPTS))
+IOINTERRUPT_FLAG = -DIOINTERRUPTS
+builddirtesting=build/testingiio
+E2ELDFILE=versatilepb_e2e_iio.ld
+
+ifeq (true,$(TIMER_INTERRUPTS))
+builddirtesting=build/testingiiotmr
+E2ELDFILE=versatilepb_e2e_iiotmr.ld
+endif
+endif
+
 QEMUARGS = -M versatilepb -m 32M -kernel $(builddirversatilepb)/main.bin -semihosting
 QEMUGUIARGS = $(QEMUARGS) -serial vc -serial vc -d guest_errors
 QEMUCONSOLEARGS = $(QEMUARGS) -serial null -serial stdio
@@ -61,11 +73,11 @@ QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0
 
 #
 CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-							-Itest-resources -Iusr -Iusr/test -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin $(BWLOG_FLAG)
-CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG)
+							-Itest-resources -Iusr -Iusr/test -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG)
+CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
-CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS) $(TIMER_INTERRUPTS_FLAG)
+CFLAGS_versatilepb_e2e = $(CFLAGSBASE) -DVERSATILEPB -DE2ETESTING -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
 # -c: only compile
 # -fpic: emit position-independent code
 # -msoft-float: use software for floating point

@@ -9,6 +9,8 @@
 #include "tstdlib.h"
 #include "kusage_stats.h"
 #include "usage_stats.h"
+#include "iio.h"
+#include "vic.h"
 
 #if CONTEXT_SWITCH_BENCHMARK
 #include "benchmark.h"
@@ -40,5 +42,10 @@ extern int num_syscalls_total;
 
 #define NULL_TRAPFRAME (trapframe *)0
 
+/**
+ * Utility function to print a trapframe.
+ *
+ * @param tf The trapframe to print.
+ */
 void print_tf(trapframe *tf);
 #endif /* INTERRUPT_H */

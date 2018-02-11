@@ -111,7 +111,7 @@ tid_t task_get_tid(task_descriptor *task);
 
 /**
  * Returns the task id of the parent of the task passed.
- * @param task Task whose parents' <coe>tid</code> is asked for.
+ * @param task Task whose parents' <code>tid</code> is asked for.
  * @return -1 if current task has no parent, otherwise the parent's <code>tid</code>
  */
 tid_t task_get_parent_tid(task_descriptor *task);

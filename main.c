@@ -16,8 +16,10 @@
 #include "test_runner.h"
 #include "usage_stats.h"
 #include "kusage_stats.h"
+#include "vic.h"
 
 #ifndef VERSATILEPB
+#include "kernel/include/labenv/ts7200.h"
 extern void enter_kernel(unsigned int syscall_code);
 extern void handle_data_abort();
 extern void handle_prefetch_abort();
@@ -44,13 +46,16 @@ void kmain() {
   }
   num_syscalls_total = 0;
 
-  // Setup PIC
-  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = VIC_TIMER_MASK;
+  setup_vic();
 
 #if !E2ETESTING || TIMER_INTERRUPTS
   // Setup tick timer
   interrupt_timer_setup();
-#endif /* E2ETESTING && TIMER_INTERRUPTS */
+#endif /* !E2ETESTING || TIMER_INTERRUPTS */
+
+#if !E2ETESTING || IOINTERRUPTS
+  setup_iio();
+#endif /* !E2ETESTING || IOINTERRUPTS */
 
   next_task_id = 1;
 
@@ -171,7 +176,10 @@ int main() {
   : : "r" (&main_tf));
 
   // Disable VIC
-  *(uint32_t *)(VIC_BASE + VIC_ENABLE_OFFSET) = 0x0;
+  vic_maskall();
+  *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = 0x0;
+  *(uint32_t *)(VIC2_BASE + VIC2_ENABLE_OFFSET) = 0x0;
+
 
 #if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
@@ -189,6 +197,8 @@ int main() {
   syscall_total_proc_usage(&usage);
   print_usage(bwprintf, &usage);
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
+
+  desetup_iio();
 
 #if VERSATILEPB
 #if E2ETESTING

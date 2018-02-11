@@ -8,7 +8,7 @@
 #include "tstdlib.h"
 
 enum message_type {
-  MESSAGE_CLOCK_NOTIFIER,
+  MESSAGE_NOTIFIER,
   MESSAGE_TIME,
   REPLY_TIME,
   MESSAGE_DELAY,
@@ -18,6 +18,9 @@ enum message_type {
   MESSAGE_K3_GET_PARAMS,
   REPLY_K3_GET_PARAMS,
   MESSAGE_K3_DONE,
+  MESSAGE_PUTC,
+  MESSAGE_GETC,
+  REPLY_GETC
 };
 
 typedef struct {
@@ -32,6 +35,8 @@ typedef struct {
     int32_t message_delay_ticks;
     int32_t message_delay_until_ticks;
     k3_params reply_k3_params;
+    char putc;
+    char getc;
   } msg;
 } message;
 

@@ -8,6 +8,7 @@
 #include "clock.h"
 #include "codes.h"
 #include "idle.h"
+#include "ioserver.h"
 #include "nameserver.h"
 #include "messages.h"
 #include "myio.h"

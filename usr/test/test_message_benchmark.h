@@ -1,3 +1,8 @@
+/**
+ * @file
+ * @brief Test that runs benchmarks on messaging.
+ *        Used for evaluating the performance of our messaging system.
+ */
 #ifndef TRAINS_MESSAGEBENCHMARK_H
 #define TRAINS_MESSAGEBENCHMARK_H
 

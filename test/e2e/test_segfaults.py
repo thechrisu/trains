@@ -4,12 +4,12 @@ from qemu_tcp_wrapper import qemu_oneshot_test
 TIMEOUT = 10
 
 expected_undefined_output = [
+    'Num ctx sw: 3',
+    'Abort task id: 2',
     '06000010 00000000 00000000 00000000 ',
     '00000000 00000000 00000000 00000000 ',
     '00000000 00000000 00000000 00000000 ',
     '00000000 00000000 00000000 00000000 00000000 00000000 ',
-    'Num ctx sw: 3',
-    'Abort task id: 2',
     '\x1b[94m\x1b[5mReceived abort\x1b[25m\x1b[39m type: Undefined',
     'Processor mode: Undefined',
     'CPSR: 0x6000009b',

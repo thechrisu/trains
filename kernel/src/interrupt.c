@@ -55,14 +55,101 @@ void print_tf(trapframe *tf) {
 #endif /* TESTING */
 }
 
+trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event);
+
+trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event) {
+  int event_data = -2;
+  trapframe *tf = current_task->tf;
+#ifndef TESTING
+    switch (highest_prio_event) {
+      case TIMER_INTERRUPT:
+        event_data = 0;
+        interrupt_timer_clear();
+        ticks += 1;
+        break;
+#if VERSATILEPB
+      case TERMINAL_TX_INTERRUPT: // AFAIK the VIC does not allow us to differentiate :(
+      case TERMINAL_RX_INTERRUPT:
+        if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          highest_prio_event = TERMINAL_RX_INTERRUPT;
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) |= UARTRXINTR_MASK;
+          interrupt_rx_clear(TERMINAL);
+        } else if (*((uint32_t *)(UART1_BASE + UARTMIS_OFFSET)) & UARTTXINTR_MASK) { // TX
+          highest_prio_event = TERMINAL_TX_INTERRUPT;
+          *(uint32_t *)(UART1_BASE + UARTICR_OFFSET) |= UARTTXINTR_MASK;
+          interrupt_tx_clear(TERMINAL);
+        }
+        event_data = 0;
+        break;
+      case TRAIN_TX_INTERRUPT:
+      case TRAIN_RX_INTERRUPT:
+        if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTRXINTR_MASK) {
+          highest_prio_event = TRAIN_RX_INTERRUPT;
+          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) |= UARTRXINTR_MASK;
+        } else if (*((uint32_t *)(UART0_BASE + UARTMIS_OFFSET)) & UARTTXINTR_MASK) { // TX
+          highest_prio_event = TRAIN_TX_INTERRUPT;
+          *(uint32_t *)(UART0_BASE + UARTICR_OFFSET) |= UARTTXINTR_MASK;
+        }
+        event_data = 0;
+        break;
+#else
+      case TERMINAL_TX_INTERRUPT:
+        event_data = 0;
+        interrupt_tx_clear(TERMINAL);
+        break;
+      case TERMINAL_RX_INTERRUPT: {
+        event_data = 0;
+        interrupt_rx_clear(TERMINAL);
+        break;
+      }
+      case TRAIN_TX_INTERRUPT:
+        event_data = 0;
+        interrupt_tx_clear(TRAIN);
+        if (!try_clear_train_send()) {
+          // still need CTS
+          return tf;
+        }
+        break;
+      case TRAIN_RX_INTERRUPT:
+        event_data = 0;
+        interrupt_rx_clear(TRAIN);
+        break;
+#endif /* VERSATILEPB */
+      default: {
+#ifndef VERSATILEPB
+        if (get_modem_interrupt_bits()) { // CTS?
+          interrupt_modem_clear();
+          maybe_received_cts();
+          if (try_clear_train_send()) {
+            event_data = 0;
+            highest_prio_event = TRAIN_TX_INTERRUPT;
+          }
+        }
+#endif /* VERSATILEPB */
+        break; // I <3 GCC
+      }
+    }
+    if (highest_prio_event != -1) {
+      event_handle(highest_prio_event, event_data);
+    }
+#endif /* TESTING */
+    return tf;
+}
+
+trapframe *handle_hwi(task_descriptor *current_task) {
+  int pic_status = *(register_t *)VIC1_BASE;
+  int highest_prio_event = get_highest_vic_bit_event_id(pic_status);
+  return handle_vic_event(current_task, highest_prio_event);
+}
+
 #if TIMERINTERRUPT_DEBUG
 static register_t prev_fp[MAX_TASKS];
 #endif /* TIMERINTERRUPT_DEBUG */
 
-trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
+trapframe *handle_interrupt(trapframe *tf, bool is_hardware_interrupt) {
   kassert(tf->k_lr != (register_t)0xA1B2C3D4);
 
-  volatile task_descriptor *current_task = get_current_task();
+  task_descriptor *current_task = get_current_task();
   kassert(tf->sp != 0);
   end_interval(current_task->tid);
   start_interval();
@@ -99,32 +186,8 @@ trapframe *handle_interrupt(trapframe *tf, uint32_t pic_status) {
   kassert((cpsr_val & 0x1F) == 0x13);
   kassert((tf->psr & 0xFF) == 0x10);
 
-  if (pic_status > 0) {
-    //bwprintf("PIC STATUS: %x\n\r", pic_status);
-    // Clear interrupt
-    int highest_prio_event = -1;
-    for (int i = 0; i <= MAX_EVENT_ID; i++) {
-      //bwprintf("pic_status: %x, event mask: %x\n\r", pic_status, event_masks[i]);
-      if (pic_status & event_masks[i]) {
-        highest_prio_event = i;
-        break;
-      }
-    }
-    int event_data = -2;
-    switch (highest_prio_event) {
-      case TIMER_INTERRUPT:
-        event_data = 0;
-        interrupt_timer_clear();
-        ticks += 1;
-        break;
-      default:
-        break; // I <3 GCC
-    }
-    //bwprintf("H: %d\n\r", highest_prio_event);
-    if (highest_prio_event != -1) {
-      event_handle(highest_prio_event, event_data);
-    }
-    return tf;
+  if (is_hardware_interrupt) {
+    return handle_hwi(current_task);
   }
 #endif /* TESTING */
   num_syscalls[tf->r0] += 1;

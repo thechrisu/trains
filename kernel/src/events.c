@@ -2,13 +2,13 @@
 
 static task_descriptor *registered_tasks[MAX_EVENT_ID + 1];
 
-register_t event_masks[MAX_EVENT_ID + 1];
+bool has_event_been_registered[MAX_EVENT_ID + 1];
 
 void setup_events() {
   for (int i = 0; i <= MAX_EVENT_ID; i++) {
     registered_tasks[i] = NULL_TASK_DESCRIPTOR;
+    has_event_been_registered[i] = false;
   }
-  event_masks[TIMER_INTERRUPT] = VIC_TIMER_MASK;
   tasks_event_blocked = 0;
 }
 
@@ -28,6 +28,11 @@ register_t event_register(int event_id, task_descriptor *task) {
   registered_tasks[event_id] = task;
   task->blocked_on = (enum event_id)event_id;
   task_set_state(task, TASK_EVENT_BLOCKED);
+#if VERSATILEPB && !TIMER_INTERRUPTS
+  if (event_id == TIMER_INTERRUPT) return 0xBADDA7A;
+#endif /* VERSATILEPB && !TIMER_INTERRUPTS */
+  enable_uart_event((enum event_id)event_id);
+  has_event_been_registered[event_id] = true;
   return 0xBADDA7A;
 }
 
@@ -43,6 +48,11 @@ void event_handle(int event_id, int event_data) {
     registered_tasks[event_id] = NULL_TASK_DESCRIPTOR;
     t->blocked_on = NOT_BLOCKED;
     register_task(t);
+  } else if (has_event_been_registered[event_id]) {
+#ifndef TESTING
+    logprintf("Oops! We dropped an event of type %d.\n\r", event_id);
+    Assert(0);
+#endif /* TESTING */
   }
 }
 
@@ -51,6 +61,7 @@ void event_deregister(task_descriptor *td) {
     kassert(td->blocked_on != NOT_BLOCKED);
     kassert(registered_tasks[td->blocked_on] == td);
     registered_tasks[td->blocked_on] = NULL_TASK_DESCRIPTOR;
+    has_event_been_registered[td->blocked_on] = false;
     td->blocked_on = NOT_BLOCKED;
   } else {
     kassert(td->blocked_on == NOT_BLOCKED);

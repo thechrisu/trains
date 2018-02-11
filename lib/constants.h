@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Constant definitions.
+ */
 #ifndef TCONSTANTS_H
 #define TCONSTANTS_H
 

@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Generic assert implementation.
+ */
 #ifndef ASSERT_H
 #define ASSERT_H
 

@@ -253,4 +253,35 @@ int DelayUntil(int tid, int ticks) {
   return -1;
 }
 
+int Putc(int tid, int uart, char ch) { // confoederatio helvetica?
+  Assert(uart == TRAIN || uart == TERMINAL);
+  message send;
+  send.type = MESSAGE_PUTC;
+  send.msg.putc = ch;
+  if (Send(tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0) {
+    return 0;
+  }
+  return -1;
+}
+
+int Getc(int tid, int uart) {
+  Assert(uart == TRAIN || uart == TERMINAL);
+  message send, reply;
+  send.type = MESSAGE_GETC;
+  if (Send(tid, &send, sizeof(send), &reply, sizeof(reply)) >= 0) {
+    Assert(reply.type == REPLY_GETC);
+    return reply.msg.getc;
+  }
+  return -1;
+}
+/*
+void Printf(char *fmt, ...) {
+  va_list va;
+
+  va_start(va, fmt);
+  format(Putc, fmt, va);
+  va_end(va);
+  }*/
+
+
 #endif /* TESTING */
