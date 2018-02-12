@@ -4,7 +4,11 @@ void test_getcputc_mirror() {
   EnableCaches(true);
   ns_tid = Create(MyPriority() + 3, &nameserver_main);
   int clock_server_tid = Create(MyPriority() + 3, &clock_server);
-  // https://lists.nongnu.org/archive/html/qemu-devel/2017-09/msg02370.html
+  /*
+    Save idle task's tid and call Kill on that, instead of using the nameserver to look up
+    the idle task, because the idle task may never have a chance to run:
+    https://lists.nongnu.org/archive/html/qemu-devel/2017-09/msg02370.html
+  */
   int idle_tid = Create(MyPriority() - 3, &idle_task);
   Assert(idle_tid > 0);
   int sender_tid = Create(MyPriority() + 1, &terminal_tx_server);
