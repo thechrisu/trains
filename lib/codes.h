@@ -7,6 +7,7 @@
 #define CODES_H
 
 #include "attributes.h"
+#include "io.h"
 #include "messages.h"
 #include "myio.h"
 #include "tstdlib.h"
@@ -257,6 +258,18 @@ int Putc(int tid, int uart, char ch);
  *          0 on success
  */
 int Getc(int tid, int uart);
+
+/**
+ * Prints a formatted string to the terminal.
+ *
+ * @param   tid The task ID of the terminal output server.
+ * @param   fmt A format string.
+ * @param   ... Arguments for formatting.
+ * @returns -2 if the resulting string is too long.
+ *          -1 if tid is invalid (or if the send failed).
+ *          0 on success.
+ */
+int Printf(int tid, char *fmt, ...);
 
 #define MAX_PRIORITY 64
 
