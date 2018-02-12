@@ -271,7 +271,7 @@ int Getc(int tid, int uart);
  */
 int Printf(int tid, char *fmt, ...);
 
-#define MAX_PRIORITY 64
+#define MAX_PRIORITY 63
 
 #define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
 #define SYS_PASS                   1
