@@ -50,7 +50,6 @@ void k3_first_user_task() {
   Assert(ns_tid > 0);
 #else
   Assert(Create(my_priority - 5, &nameserver_main) > 0);
-  spawn_ioservers();
 #endif /* E2ETESTING */
   Assert(Create(my_priority - 10, &idle_task) > 0);
   clock_server_tid = Create(my_priority - 5, &clock_server);

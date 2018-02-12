@@ -21,7 +21,6 @@ void idle_task() {
       exp *= 1.0 + (loops - 5.0) / 100.0;
     if (loops <= 3)
       exp /= 1.5;
-    go_to_pos(1, 1);
     int32_t u = MyProcUsage();
     bwprintf("%d.%d%%\n\r", u / 10, u % 10);
   }
