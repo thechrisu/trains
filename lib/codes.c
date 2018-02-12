@@ -1,5 +1,4 @@
 #include "codes.h"
-#include "myio.h"
 
 #ifndef TESTING
 #ifdef E2ETESTING

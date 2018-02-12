@@ -25,6 +25,14 @@ int tstrlen(char *s);
 int tstrcmp(char *destination, char *source);
 int tstrncmp(const char *destination, const char *source, int max_length);
 
+int a2d(char ch);
+
+char a2i(char ch, char **src, int base, int *nump);
+
+void ui2a(unsigned int num, unsigned int base, char *bf);
+
+void i2a(int num, char *bf);
+
 #ifdef TESTING
 #else
 

@@ -8,6 +8,7 @@
 
 #include "attributes.h"
 #include "messages.h"
+#include "myio.h"
 #include "tstdlib.h"
 #include "usage_stats.h"
 
