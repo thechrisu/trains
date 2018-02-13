@@ -15,6 +15,8 @@ expected_lines_printf_errors = [
     'Printing too long of a string: -2',
 ]
 
+expected_printf_happy_path_output = read_snapshot('printf_happy_path.txt')
+
 class TestPrintf(unittest.TestCase):
     def test_printf_errors(self):
         real_output = qemu_oneshot_test('printf_errors', '', TIMEOUT, timer_interrupts_on = True, iointerrupts_on = True)
@@ -23,4 +25,4 @@ class TestPrintf(unittest.TestCase):
 
     def test_printf_happy_path(self):
         real_output = qemu_oneshot_test('printf_happy_path', '', TIMEOUT, timer_interrupts_on = True, iointerrupts_on = True)
-        self.assertEqual(split_output(real_output), read_snapshot('printf_happy_path.txt'))
+        self.assertEqual(split_output(real_output), expected_printf_happy_path_output)
