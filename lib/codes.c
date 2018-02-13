@@ -1,5 +1,4 @@
 #include "codes.h"
-#include "myio.h"
 
 #ifndef TESTING
 #ifdef E2ETESTING
@@ -274,14 +273,94 @@ int Getc(int tid, int uart) {
   }
   return -1;
 }
-/*
-void Printf(char *fmt, ...) {
+
+#define PUT(buf, index, c) if (*index < PRINTF_MESSAGE_BUFFER_SIZE) buf[(*index)++] = c
+
+/**
+ * Copies a buffer into an output buffer, making sure the output buffer doesn't overflow.
+ *
+ * @param out       The output buffer.
+ * @param out_index printf_putw keeps this equal to the index of the next location in
+ *                  the output buffer to which it will write. It makes sure that this
+ *                  index doesn't become greater than or equal to PRINTF_MESSAGE_BUFFER_SIZE.
+ * @param bf        The buffer to copy from.
+ */
+void printf_putw(char *out, uint32_t *out_index, char *bf) {
+  char ch;
+  while ((ch = *bf++)) PUT(out, out_index, ch);
+}
+
+/**
+ * Prints a format string and variadic arguments into a buffer, while keeping track of
+ * how many characters have been printed.
+ *
+ * @param out       The buffer to print into.
+ * @param out_index printf_format keeps this equal to the index of the next location in
+ *                  the buffer into which it will print.
+ * @param fmt       A format string.
+ * @param va        Variadic arguments.
+ */
+void printf_format(char *out, uint32_t *out_index, char *fmt, va_list va) {
+  char bf[12];
+  char ch;
+
+  while ((ch = *(fmt++))) {
+    if (ch != '%') {
+      PUT(out, out_index, ch);
+    } else {
+      ch = *(fmt++);
+      switch (ch) {
+        case 0:
+          return;
+        case 'c':
+          PUT(out, out_index, va_arg(va, char));
+          break;
+        case 's':
+          printf_putw(out, out_index, va_arg(va, char *));
+          break;
+        case 'u':
+          ui2a(va_arg(va, unsigned int), 10, bf);
+          printf_putw(out, out_index, bf);
+          break;
+        case 'd':
+          i2a(va_arg(va, int), bf);
+          printf_putw(out, out_index, bf);
+          break;
+        case 'x':
+          ui2a(va_arg(va, unsigned int), 16, bf);
+          printf_putw(out, out_index, bf);
+          break;
+        case '%':
+          PUT(out, out_index, ch);
+          break;
+      }
+    }
+  }
+}
+
+int Printf(int tid, char *fmt, ...) {
+  char buf[PRINTF_MESSAGE_BUFFER_SIZE];
+  uint32_t buf_index = 0;
+
+  message send;
+  send.type = MESSAGE_PRINTF;
+  send.msg.printf.buf = buf;
+
   va_list va;
 
   va_start(va, fmt);
-  format(Putc, fmt, va);
+  printf_format(buf, &buf_index, fmt, va);
   va_end(va);
-  }*/
 
+  if (buf_index >= PRINTF_MESSAGE_BUFFER_SIZE) {
+    return -2;
+  }
+  send.msg.printf.size = buf_index;
+
+  if (Send(tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0) {
+    return 0;
+  }
+  return -1;
+}
 
 #endif /* TESTING */

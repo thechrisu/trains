@@ -7,6 +7,8 @@
 
 #include "tstdlib.h"
 
+#define PRINTF_MESSAGE_BUFFER_SIZE 256
+
 enum message_type {
   MESSAGE_NOTIFIER,
   MESSAGE_TIME,
@@ -20,6 +22,7 @@ enum message_type {
   MESSAGE_K3_DONE,
   MESSAGE_PUTC,
   MESSAGE_GETC,
+  MESSAGE_PRINTF,
   REPLY_GETC
 };
 
@@ -27,6 +30,11 @@ typedef struct {
   int32_t delay;
   int32_t delay_count;
 } k3_params;
+
+typedef struct {
+  char *buf;
+  uint32_t size;
+} printf_params;
 
 typedef struct {
   int type;
@@ -37,6 +45,7 @@ typedef struct {
     k3_params reply_k3_params;
     char putc;
     char getc;
+    printf_params printf;
   } msg;
 } message;
 

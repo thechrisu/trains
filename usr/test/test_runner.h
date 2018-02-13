@@ -19,6 +19,7 @@
 #include "awaitevent/test_rx_terminal.h"
 #include "./iio/test_getcputc_errors.h"
 #include "./iio/test_getcputc_happypath.h"
+#include "./iio/test_printf.h"
 #include "./test_undefined_handler.h"
 #include "./test_message_benchmark.h"
 #include "./test_mypriority.h"
