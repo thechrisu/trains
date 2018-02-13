@@ -13,6 +13,7 @@
 #include "myio.h"
 #include "clock.h"
 #include "nameserver.h"
+#include "./nameserver/fake_nameserver_functions.h"
 #include "stdlib.h"
 
 void message_benchmark();
