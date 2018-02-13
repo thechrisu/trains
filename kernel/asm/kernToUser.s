@@ -31,7 +31,7 @@ leave_kernel:
 
 /*
   Load user registers from trapframe. Syscall return value is saved in r0.
-  */
+*/
   LDMFD sp, {r0-r14}
   ADD sp, sp, #72
 
