@@ -7,12 +7,6 @@ void tmemcpy(void *dst, void *src, unsigned int n) { // (char *) only used to su
   while (n-- > 0) { *dstp++ = *srcp++; }
 }
 
-#ifndef TESTING
-void memcpy(void *dst, void *src, unsigned int n) {
-  tmemcpy(dst, src, n);
-}
-#endif /* TESTING */
-
 void *tmemset(void *s, int c, unsigned int n) {
   unsigned char *p = (unsigned char *)s;
   while (n-- > 0) { *p++ = (unsigned char) c; }
