@@ -5,7 +5,7 @@ from qemu_tcp_wrapper import qemu_oneshot_test
 TIMEOUT = 10
 
 def read_snapshot(file_name):
-    return re.sub(r'\r?\n', '\n\r', open('e2e/snapshots/' + file_name, 'r').read())
+    return re.sub(r'\r?\n', '\n\r', open('e2e/snapshots/' + file_name, 'r').read()).split('\n\r')
 
 expected_lines_printf_errors = [
     'Terminal transmit server not yet up: -1',
