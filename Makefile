@@ -5,6 +5,9 @@ OPTIMIZATION = -O0
 #-DCONTEXT_SWITCH_DEBUG -DSCHEDULE_DEBUG -DTRAPFRAME_DEBUG -DMESSAGE_PASSING_DEBUG -DCONTEXT_SWITCH_BENCHMARK -DTIMERINTERRUPT_DEBUG
 DEBUGFLAGS=
 
+#-flto
+LTO=
+
 # https://stackoverflow.com/questions/18136918/how-to-get-current-relative-directory-of-your-makefile
 current_dir := $(dir $(abspath $(lastword $(MAKEFILE_LIST))))
 builddir = $(current_dir)build/arm
@@ -99,8 +102,7 @@ LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versa
 
 LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
-
-LDFLAGSlab = -init main -flto $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
+LDFLAGSlab = -init main $(LTO) $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L$(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
 
 # /u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
@@ -178,7 +180,7 @@ trainslab:
 #%.c
 $(builddirlab)/%.s: %.c $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(LABPATH)gcc $(CFLAGS_ARM_LAB) -flto $< -S -o $@
+	$(LABPATH)gcc $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
 #
 # $(OBJECTSlab)
 $(builddirlab)/kernel/%.o: kernel/%.s $(ASMlab)
