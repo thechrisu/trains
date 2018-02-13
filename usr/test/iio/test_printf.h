@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests for Printf.
+ */
 #ifndef TEST_PRINTF_H
 #define TEST_PRINTF_H
 

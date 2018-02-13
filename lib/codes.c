@@ -276,11 +276,30 @@ int Getc(int tid, int uart) {
 
 #define PUT(buf, index, c) if (*index < PRINTF_MESSAGE_BUFFER_SIZE) buf[(*index)++] = c
 
+/**
+ * Copies a buffer into an output buffer, making sure the output buffer doesn't overflow.
+ *
+ * @param out       The output buffer.
+ * @param out_index printf_putw keeps this equal to the index of the next location in
+ *                  the output buffer to which it will write. It makes sure that this
+ *                  index doesn't become greater than or equal to PRINTF_MESSAGE_BUFFER_SIZE.
+ * @param bf        The buffer to copy from.
+ */
 void printf_putw(char *out, uint32_t *out_index, char *bf) {
   char ch;
   while ((ch = *bf++)) PUT(out, out_index, ch);
 }
 
+/**
+ * Prints a format string and variadic arguments into a buffer, while keeping track of
+ * how many characters have been printed.
+ *
+ * @param out       The buffer to print into.
+ * @param out_index printf_format keeps this equal to the index of the next location in
+ *                  the buffer into which it will print.
+ * @param fmt       A format string.
+ * @param va        Variadic arguments.
+ */
 void printf_format(char *out, uint32_t *out_index, char *fmt, va_list va) {
   char bf[12];
   char ch;
