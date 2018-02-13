@@ -50,7 +50,6 @@ ifeq (true,$(BWLOG))
 BWLOG_FLAG = -DBWLOG
 endif
 
-
 ifeq (true,$(IOINTERRUPTS))
 IOINTERRUPT_FLAG = -DIOINTERRUPTS
 builddirtesting=build/testingiio
