@@ -92,6 +92,10 @@ void test_runner() {
       exec_prog(MyPriority() + 5, &test_getcputc_mirror);
     } else if (tstrcmp(buf, "test_getcputc_errors")) {
       exec_prog(MyPriority() + 5, &test_getcputc_errors);
+    } else if (tstrcmp(buf, "printf_errors")) {
+      exec_prog(MyPriority() + 5, &printf_errors);
+    } else if (tstrcmp(buf, "printf_happy_path")) {
+      exec_prog(MyPriority() + 5, &printf_happy_path);
     } else if (tstrcmp(buf, "test_get_sensors")) {
       exec_prog(MyPriority() + 5, &test_get_sensors);
     } else if (tstrcmp(buf, "test_go_stop")) {

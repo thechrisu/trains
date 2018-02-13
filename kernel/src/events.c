@@ -28,9 +28,6 @@ register_t event_register(int event_id, task_descriptor *task) {
   registered_tasks[event_id] = task;
   task->blocked_on = (enum event_id)event_id;
   task_set_state(task, TASK_EVENT_BLOCKED);
-#if VERSATILEPB && !TIMER_INTERRUPTS
-  if (event_id == TIMER_INTERRUPT) return 0xBADDA7A;
-#endif /* VERSATILEPB && !TIMER_INTERRUPTS */
   enable_uart_event((enum event_id)event_id);
   has_event_been_registered[event_id] = true;
   return 0xBADDA7A;

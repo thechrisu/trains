@@ -1,0 +1,7 @@
+Char: c
+String: Hello world
+Unsigned integer: 4294967295
+Signed integers: 0 5 -5
+Hex numbers: 1234 deadbeef
+%% <- should be two percent signs
+All at once: a b 4294967295 -1 5678abcd %

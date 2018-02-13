@@ -107,14 +107,23 @@ void vic_maskall() {
 void setup_vic() {
 #ifndef TESTING
   vic_maskall();
+
+#if !E2ETESTING || TIMER_INTERRUPTS
   enable_in_vic(TIMER_INTERRUPT);
-#if !VERSATILEPB || IOINTERRUPTS || !E2ETESTING
+#endif /* !E2ETESTING || TIMER_INTERRUPTS */
+
+#if !E2ETESTING || IOINTERRUPTS
   enable_in_vic(TRAIN_TX_INTERRUPT);
   enable_in_vic(TRAIN_RX_INTERRUPT);
   enable_in_vic(TERMINAL_TX_INTERRUPT);
   enable_in_vic(TERMINAL_RX_INTERRUPT);
+#if !VERSATILEPB
   enable_vic_bit(UART1_BIT); // THE TRAIN, CHOO CHOO
-#endif /* !VERSATILEPB || IOINTERRUPTS || !E2ETESTING */
+#endif /* !VERSATILEPB */
+#endif /* !E2ETESTING || IOINTERRUPTS */
+
+  event_masks[TIMER_INTERRUPT] = VIC1_TIMER_MASK;
+
 #if VERSATILEPB
   event_masks[TERMINAL_TX_INTERRUPT] = VIC1_UART1_MASK;
   event_masks[TERMINAL_RX_INTERRUPT] = VIC1_UART1_MASK;
@@ -125,10 +134,6 @@ void setup_vic() {
   event_masks[TERMINAL_RX_INTERRUPT] = VIC1_UART2RXINT_MASK;
   event_masks[TRAIN_TX_INTERRUPT] = VIC1_UART1TXINT_MASK;
   event_masks[TRAIN_RX_INTERRUPT] = VIC1_UART1RXINT_MASK;
-  /*  TRAIN_TX_INTERRUPT,
-      TRAIN_RX_INTERRUPT, */
-
 #endif /* VERSATILEPB */
-  event_masks[TIMER_INTERRUPT] = VIC1_TIMER_MASK;
 #endif /* TESTING */
 }

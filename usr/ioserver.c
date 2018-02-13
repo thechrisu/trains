@@ -33,6 +33,22 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
+      case MESSAGE_PRINTF:
+        for (uint32_t i = 0; i < received.msg.printf.size; i += 1) {
+          Assert(!char_buffer_is_full(&tx_buf));
+          char_buffer_put(&tx_buf, received.msg.printf.buf[i]);
+        }
+
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+
+        if (received.msg.printf.size > 0 && can_put) {
+          can_put = false;
+          Assert(rawcanputc(channel));
+          Assert(!char_buffer_is_empty(&tx_buf));
+          Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
+        }
+        break;
       default:
         Assert(0);
     }
@@ -119,4 +135,15 @@ void spawn_ioservers() {
   Assert(Create(MyPriority() + 1, &train_rx_server) >= 0);
   Assert(Create(MyPriority() + 1, &terminal_tx_server) >= 0);
   Assert(Create(MyPriority() + 1, &terminal_rx_server) >= 0);
+}
+
+void kill_ioservers() {
+  Assert(Kill(WhoIs("TrainTxServer")) == 0);
+  Assert(Kill(WhoIs("TrainTxNotifier")) == 0);
+  Assert(Kill(WhoIs("TrainRxServer")) == 0);
+  Assert(Kill(WhoIs("TrainRxNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalTxServer")) == 0);
+  Assert(Kill(WhoIs("TerminalTxNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalRxServer")) == 0);
+  Assert(Kill(WhoIs("TerminalRxNotifier")) == 0);
 }
