@@ -12,6 +12,7 @@
 #include "nameserver.h"
 #include "messages.h"
 #include "myio.h"
+#include "views/clock_view.h"
 
 void k4_first_user_task();
 
