@@ -20,9 +20,9 @@ void report_usage() {
   bwprintf("%d.%d%%\n\r", u / 10, u % 10);
 }
 
-void report_usage_cursor() {
+void report_usage_cursor(int sender_tid) {
   int32_t u = MyProcUsage();
-  bwprintf("\033[H%d.%d%%\033[K", u / 10, u % 10);
+  Printf(sender_tid, "\033[H%d.%d%%\033[K", u / 10, u % 10);
 }
 
 void idle_task() {
@@ -48,10 +48,13 @@ void idle_task_cursor() {
 #else
   int c_server_tid = WhoIs("ClockServer");
   Assert(c_server_tid > 0);
+  int sender_tid = WhoIs("TerminalTxServer");
+  Assert(sender_tid > 0);
+
   uint32_t exp = 1 << 20;
   while(1) {
     do_idle_loop(&exp, c_server_tid);
-    report_usage_cursor();
+    report_usage_cursor(sender_tid);
   }
 #endif /* E2ETESTING */
   Assert(0);
