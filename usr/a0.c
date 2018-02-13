@@ -7,6 +7,7 @@
 #include "char_buffer.h"
 #include "myio.h"
 #include "mytimer.h"
+#include "tstdlib.h"
 
 #define sensorBufSize 10
 #define cmdSz 10
@@ -57,30 +58,6 @@ void print_debug(char *msg) {
 #endif
 }
 
-int isValidNumber(char_buffer *buf, unsigned int fromOffset) {
-  if (fromOffset >= buf->elems) return -1;
-  for (unsigned int i = fromOffset; i < buf->elems; i++) {
-    if (buf->data[i] == '\0' || buf->data[i] == ' ')
-      return i + 1;
-    if (!(buf->data[i] >= '0' && buf->data[i] <= '9')) {
-      return -1;
-    }
-  }
-  return 0;
-}
-
-unsigned int parseNumber(char_buffer *buf, unsigned int start_offset) {
-  unsigned int ret = 0;
-  for (unsigned int i = start_offset; i < buf->elems; i++) {
-    if (buf->data[i] == '\0' || buf->data[i] == ' ') {
-      return ret;
-    } else {
-      ret = ret * 10 + (buf->data[i] - '0');
-    }
-  }
-  return ret;
-}
-
 bool interpret_cmd(char_buffer *cmd_buf) {
   switch (cmd_buf->data[0]) {
     case 'g': {
@@ -91,17 +68,17 @@ bool interpret_cmd(char_buffer *cmd_buf) {
       return false;
     }
     case 's': {
-      int nParse = isValidNumber(cmd_buf, 3);
+      int nParse = is_valid_number(cmd_buf, 3);
       if (cmd_buf->data[1] == 't' && cmd_buf->data[2] == 'o'
           && cmd_buf->data[3] == 'p' && cmd_buf->data[4] == '\0') {
         set_go(false);
         print_debug("STOP");
       } else if (cmd_buf->data[1] == 'w'
-          && nParse >= 0 && cmd_buf->elems > (unsigned int) nParse + 1) {
+                 && nParse >= 0 && cmd_buf->elems > (unsigned int) nParse + 1) {
         char change_cmd = cmd_buf->data[nParse];
         go_to_pos(2, 1);
         if ((change_cmd == 'S' || change_cmd == 'C') && cmd_buf->data[nParse + 1] == '\0') {
-          int num = parseNumber(cmd_buf, 3);
+          int num = parse_number(cmd_buf, 3);
           if (num > 0 && (num < 19 || (num >= 153 && num <= 156))) {
             set_turnout(num, change_cmd);
 #if DEBUG
@@ -123,12 +100,12 @@ bool interpret_cmd(char_buffer *cmd_buf) {
       return false;
     }
     case 't': {
-      int numParse1 = isValidNumber(cmd_buf, 3);
+      int numParse1 = is_valid_number(cmd_buf, 3);
       if (numParse1 < 0) break;
-      int numParse2 = isValidNumber(cmd_buf, numParse1);
+      int numParse2 = is_valid_number(cmd_buf, numParse1);
       if (cmd_buf->data[1] == 'r' && cmd_buf->data[2] == ' ' && numParse2 >= 0) {
-        char loco = parseNumber(cmd_buf, 3);
-        char speed = parseNumber(cmd_buf, numParse1);
+        char loco = parse_number(cmd_buf, 3);
+        char speed = parse_number(cmd_buf, numParse1);
 #if DEBUG
         go_to_pos(1, 1);
         printf("SETTING TRAIN: loco %d, speed %d%s", loco, speed, HIDE_CURSOR_TO_EOL);
@@ -139,10 +116,10 @@ bool interpret_cmd(char_buffer *cmd_buf) {
       return false;
     }
     case 'r': {
-      int numParse = isValidNumber(cmd_buf, 3);
+      int numParse = is_valid_number(cmd_buf, 3);
       if (numParse < 0) break;
       if (cmd_buf->data[1] == 'v' && cmd_buf->data[2] == ' ') {
-        int loco = parseNumber(cmd_buf, 3);
+        int loco = parse_number(cmd_buf, 3);
         reverse(loco);
 #if DEBUG
         go_to_pos(1, 1);

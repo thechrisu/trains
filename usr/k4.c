@@ -1,7 +1,6 @@
 #include "k4.h"
 
 #define CMD_MAX_SZ 32
-#define CMD_LINE 2
 
 enum user_command_type {
   USER_CMD_GO,
@@ -57,29 +56,47 @@ void user_command_print(int server_tid, user_command *cmd) {
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
   if (data == '\r') {
     if (string_starts_with(ibuf->data, "tr ")) {
-      int address = parse_two_digit_number(ibuf->data + 3);
-      int speed_index = address > 10 ? 6 : 5;
-      int speed = parse_two_digit_number(ibuf->data + speed_index);
-      cmd->type = USER_CMD_TR;
-      cmd->data[0] = address;
-      cmd->data[1] = speed;
+      int first_num_parse = is_valid_number(ibuf, 3);
+      if (first_num_parse >= 0) {
+        int second_num_parse = is_valid_number(ibuf, first_num_parse);
+        logprintf("FIRST: %d, SECOND: %d\n\r", first_num_parse, second_num_parse);
+        if (second_num_parse >= 0 && ibuf->elems >= (unsigned int) second_num_parse) {
+          int address = parse_two_digit_number(ibuf->data + 3);
+          int speed_index = address > 10 ? 6 : 5;
+          int speed = parse_two_digit_number(ibuf->data + speed_index);
+          if (speed >= 0 && speed <= 14) {
+            cmd->type = USER_CMD_TR;
+            cmd->data[0] = address;
+            cmd->data[1] = speed;
+          }
+        }
+      }
     } else if (string_starts_with(ibuf->data, "rv ")) {
-      int address = parse_two_digit_number(ibuf->data + 3);
-      cmd->type = USER_CMD_RV;
-      cmd->data[0] = address;
-      cmd->data[1] = 0;
+      int nParse = is_valid_number(ibuf, 3);
+      if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
+        int address = parse_two_digit_number(ibuf->data + 3);
+        cmd->type = USER_CMD_RV;
+        cmd->data[0] = address;
+        cmd->data[1] = 0;
+      }
     } else if (string_starts_with(ibuf->data, "sw ")) {
-      int address = parse_two_digit_number(ibuf->data + 3);
-      int switch_index = address > 10 ? 6 : 5;
-      int switch_num = parse_two_digit_number(ibuf->data + switch_index);
-      cmd->type = USER_CMD_SW;
-      cmd->data[0] = address;
-      cmd->data[1] = switch_num;
-    } else if (tstrcmp(ibuf->data, "stop")) {
+      int nParse = is_valid_number(ibuf, 3);
+      if (nParse >= 0 && ibuf->elems == (unsigned int) nParse + 1) {
+        char change_cmd = ibuf->data[nParse];
+        if (change_cmd == 'S' || change_cmd == 'C') {
+          int num = parse_number(ibuf, 3);
+          if (num > 0 && (num < 19 || (num >= 153 && num <= 156))) {
+            cmd->type = USER_CMD_SW;
+            cmd->data[0] = num;
+            cmd->data[1] = change_cmd;
+          }
+        }
+      }
+    } else if (string_starts_with(ibuf->data, "stop") && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
-    } else if (tstrcmp(ibuf->data, "go")) {
+    } else if (string_starts_with(ibuf->data, "go") && ibuf->elems == 2) {
       cmd->type = USER_CMD_GO;
-    } else if (tstrcmp(ibuf->data, "q")) {
+    } else if (string_starts_with(ibuf->data, "q") && ibuf->elems == 1) {
       cmd->type = USER_CMD_Q;
     }
     char_buffer_empty(ibuf);
@@ -99,9 +116,9 @@ void k4_first_user_task() {
 #else
   Assert(Create(my_priority + 2, &nameserver_main) > 0);
 #endif /* E2ETESTING */
-  Assert(Create(my_priority + 1, &idle_task_cursor) > 0);
   int clock_server_tid = Create(my_priority + 3, &clock_server);
   Assert(clock_server_tid > 0);
+  Assert(Create(my_priority - 1, &idle_task_cursor) > 0);
 
   spawn_ioservers();
 
@@ -118,7 +135,7 @@ void k4_first_user_task() {
   Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN);
 
   while (true) {
-    char c = Getc(terminal_rx_server, TERMINAL);
+    int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
     if (parse_command(&current_cmd_buf, &current_cmd, c)) {
       if (current_cmd.type == USER_CMD_Q) {
@@ -129,7 +146,7 @@ void k4_first_user_task() {
       }
     }
   }
-
+  Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(CMD_LINE, 1));
   kill_ioservers();
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
   Assert(Kill(WhoIs("Idle")) == 0);

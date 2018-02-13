@@ -7,6 +7,11 @@ void tmemcpy(void *dst, void *src, unsigned int n) { // (char *) only used to su
   while (n-- > 0) { *dstp++ = *srcp++; }
 }
 
+void memcpy(void *dst, void *src, unsigned int n) { // (char *) only used to suppress warning
+  // assert(dst != src && ((src < dst && (char *) src + n < (char *) dst) || ((char *) dst + n < (char *) src)));
+  tmemcpy(dst, src, n);
+}
+
 void *tmemset(void *s, int c, unsigned int n) {
   unsigned char *p = (unsigned char *)s;
   while (n-- > 0) { *p++ = (unsigned char) c; }
