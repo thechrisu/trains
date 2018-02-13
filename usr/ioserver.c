@@ -136,3 +136,14 @@ void spawn_ioservers() {
   Assert(Create(MyPriority() + 1, &terminal_tx_server) >= 0);
   Assert(Create(MyPriority() + 1, &terminal_rx_server) >= 0);
 }
+
+void kill_ioservers() {
+  Assert(Kill(WhoIs("TrainTxServer")) == 0);
+  Assert(Kill(WhoIs("TrainTxNotifier")) == 0);
+  Assert(Kill(WhoIs("TrainRxServer")) == 0);
+  Assert(Kill(WhoIs("TrainRxNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalTxServer")) == 0);
+  Assert(Kill(WhoIs("TerminalTxNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalRxServer")) == 0);
+  Assert(Kill(WhoIs("TerminalRxNotifier")) == 0);
+}
