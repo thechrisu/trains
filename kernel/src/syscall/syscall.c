@@ -21,7 +21,7 @@ int syscall_create(int priority, void (*code)()) {
   if (register_result) {
     return register_result;
   } else {
-    return task_get_tid(ret);
+    return task_get_userland_tid(ret);
   }
 }
 
@@ -29,7 +29,7 @@ int syscall_mytid() {
   if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -1;
   } else {
-    return task_get_tid(get_current_task());
+    return task_get_userland_tid(get_current_task());
   }
 }
 
@@ -37,7 +37,7 @@ int syscall_myparent_tid() {
   if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -2;
   } else {
-    return task_get_parent_tid(get_current_task());
+    return task_get_userland_parent_tid(get_current_task());
   }
 }
 
@@ -65,7 +65,7 @@ void syscall_send() {
     current_task->tf->r0 = -2;
     return;
   }
-  send(current_task, (task_descriptor *)get_task_with_tid(receiver_tid));
+  send(current_task, (task_descriptor *)get_task_with_userland_tid(receiver_tid));
 }
 
 void syscall_receive() {
@@ -86,7 +86,7 @@ void syscall_reply() {
     current_task->tf->r0 = -2;
     return;
   }
-  reply(get_task_with_tid(sender_tid), current_task);
+  reply(get_task_with_userland_tid(sender_tid), current_task);
 }
 
 int syscall_awaitevent(int event_id) {
@@ -97,10 +97,10 @@ extern trapframe *handle_vic_event(task_descriptor *current_task, int highest_pr
 
 int syscall_kill(int tid) {
   task_descriptor *current_task = get_current_task();
-  if (tid == current_task->tid) {
+  if (tid == task_get_userland_tid(current_task)) {
     return -2;
   }
-  task_descriptor *to_kill = get_task_with_tid(tid);
+  task_descriptor *to_kill = get_task_with_userland_tid(tid);
   if (to_kill == NULL_TASK_DESCRIPTOR) {
     return -1;
   }

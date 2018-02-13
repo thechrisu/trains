@@ -196,6 +196,13 @@ int task_get_userland_tid(task_descriptor *task) {
   return task->generation * MAX_TASKS + task->tid;
 }
 
+int task_get_userland_parent_tid(task_descriptor *task) {
+  if (task->parent == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  }
+  return task->parent->generation * MAX_TASKS + task->parent->tid;
+}
+
 bool is_valid_userland_tid(int userland_tid) {
   tid_t kernel_tid = userland_tid % MAX_TASKS;
   return userland_tid > 0 && kernel_tid < MAX_TASKS && !(available_tids & (1 << kernel_tid));
