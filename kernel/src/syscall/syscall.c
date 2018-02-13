@@ -93,6 +93,8 @@ int syscall_awaitevent(int event_id) {
   return event_register(event_id, get_current_task());
 }
 
+extern trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event);
+
 int syscall_kill(int tid) {
   task_descriptor *current_task = get_current_task();
   if (tid == current_task->tid) {
@@ -105,8 +107,10 @@ int syscall_kill(int tid) {
   int blocked_on = to_kill->blocked_on;
   event_deregister(to_kill);
 #ifndef TESTING
-  if (blocked_on != NOT_BLOCKED)
-    handle_vic_event(to_kill, blocked_on);
+  if (blocked_on != NOT_BLOCKED) {
+    trapframe * junk = handle_vic_event(to_kill, blocked_on);
+    (void*)junk;
+  }
 #endif /* TESTING */
   deregister_task(to_kill);
   task_retire(to_kill, 0);

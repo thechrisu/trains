@@ -15,7 +15,8 @@ builddirversatilepb =build/versatilepb
 builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
-LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
+#LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
+LABPATH = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 .SECONDARY:
 
 XCC	= arm-elf-gcc
@@ -71,9 +72,10 @@ QEMUTESTINGGUIARGS = $(QEMUTESTINGBASEARGS) -serial vc -serial vc
 QEMUTESTINGARGS = $(QEMUTESTINGBASEARGS) -serial null -serial stdio
 QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
-#
-CFLAGSBASE = -c -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
+CFLAGSMIN = -fPIC -flto -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
 							-Itest-resources -Iusr -Iusr/test -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Iinclude/ -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG)
+CFLAGSBASE = $(CFLAGSMIN) -c
+CFLAGSBLOB = $(CFLAGSMIN) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
 CFLAGS_x64 = $(CFLAGSBASE) -DHOSTCONFIG
 CFLAGS_versatilepb = $(CFLAGSBASE) -DVERSATILEPB -mcpu=arm920t -g -nostdlib $(OPTIMIZATION) $(DEBUGFLAGS)
@@ -98,7 +100,9 @@ LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versa
 LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
 
-LDFLAGSlab = -init main -Map=$(builddirlab)/main.map -N -T main.ld \
+LDFLAGSlab = -init main -flto $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
+	-L$(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
+#/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
 
@@ -110,11 +114,12 @@ SOURCESversatilepb=$(SOURCESx64) $(shell find kernel/include/versatilepb -name '
 
 ASM=$(shell find kernel -name '*.s' -not -name 'startup.s')
 ASMversatilepb=$(shell find kernel -name '*.s')
+ASMlab=$(ASM) $(patsubst %.c, $(builddirlab)/%.s, $(SOURCES))
 
 OBJECTS=$(patsubst %.c, $(builddir)/%.o, $(SOURCES)) $(patsubst %.s, $(builddir)/%.o, $(ASM))
 OBJECTSversatilepb=$(patsubst %.c, $(builddirversatilepb)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirversatilepb)/%.o, $(ASMversatilepb))
 OBJECTSversatilepb_e2e=$(patsubst %.c, $(builddirtesting)/%.o, $(SOURCESversatilepb)) $(patsubst %.s, $(builddirtesting)/%.o, $(ASMversatilepb))
-OBJECTSlab=$(patsubst %.c, $(builddirlab)/%.o, $(SOURCES)) $(patsubst %.s, $(builddirlab)/%.o, $(ASM))
+OBJECTSlab=$(patsubst %.s, $(builddirlab)/%.o, $(ASM)) $(patsubst %.c, $(builddirlab)/%.o, $(SOURCES))
 OBJECTSx64=$(patsubst %.c, $(builddirx64)/%.o, $(SOURCESx64))
 
 x64stdlib:
@@ -168,21 +173,22 @@ trainslab:
 	mkdir -p build
 	mkdir -p $(builddirlab)
 	$(MAKE) $(builddirlab)/main.bin
-
-$(builddirlab)/%.s: %.c
+#%.c
+$(builddirlab)/%.s: %.c $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(LABPATH)gcc $(CFLAGS_ARM_LAB)  $< -S -o $@
-
-$(builddirlab)/kernel/%.o: kernel/%.s
+	$(LABPATH)gcc $(CFLAGS_ARM_LAB) $< -S -o $@
+#
+# $(OBJECTSlab)
+$(builddirlab)/kernel/%.o: kernel/%.s $(ASMlab)
 	@mkdir -p $(dir $@)
 	$(LABPATH)as $(ASFLAGS) $< -o $@
 
-$(builddirlab)/%.o: $(builddirlab)/%.s
+$(builddirlab)/%.o: $(builddirlab)/%.s $(ASMlab)
 	@mkdir -p $(dir $@)
 	$(LABPATH)as $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
-	$(LABPATH)ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc
+	$(shell ./gcc-ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc)
 
 $(builddirlab)/main.bin: $(builddirlab)/main.elf
 	$(LABPATH)objcopy -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
