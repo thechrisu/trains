@@ -48,6 +48,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
+        break;
       default:
         Assert(0);
     }

@@ -274,7 +274,7 @@ int Getc(int tid, int uart) {
   return -1;
 }
 
-#define PUT(buf, index, c) if (*index < PRINTF_MESSAGE_BUFFER_SIZE) buf[*(index++)] = c
+#define PUT(buf, index, c) if (*index < PRINTF_MESSAGE_BUFFER_SIZE) buf[(*index)++] = c
 
 void printf_putw(char *out, uint32_t *out_index, char *bf) {
   char ch;
@@ -289,6 +289,7 @@ void printf_format(char *out, uint32_t *out_index, char *fmt, va_list va) {
     if (ch != '%') {
       PUT(out, out_index, ch);
     } else {
+      ch = *(fmt++);
       switch (ch) {
         case 0:
           return;
@@ -332,7 +333,7 @@ int Printf(int tid, char *fmt, ...) {
   printf_format(buf, &buf_index, fmt, va);
   va_end(va);
 
-  if (buf_index > PRINTF_MESSAGE_BUFFER_SIZE) {
+  if (buf_index >= PRINTF_MESSAGE_BUFFER_SIZE) {
     return -2;
   }
   send.msg.printf.size = buf_index;
