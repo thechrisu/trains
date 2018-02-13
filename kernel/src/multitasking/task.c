@@ -19,11 +19,16 @@ task_descriptor *get_task_with_tid(tid_t tid) {
   return &(all_tasks[tid]);
 }
 
+task_descriptor *get_task_with_userland_tid(tid_t tid) {
+  return get_task_with_tid(tid % MAX_TASKS);
+}
+
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Enter task_init, location of task in memory %x\n\r", task);
 #endif /* CONTEXT_SWITCH_DEBUG */
   task->tid = next_task_id;
+  task->generation = 0;
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Was able to access task struct\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
@@ -178,4 +183,8 @@ tid_t task_get_parent_tid(task_descriptor *task) {
 
 int task_get_priority(task_descriptor *task) {
   return task->priority;
+}
+
+int task_get_userland_tid(task_descriptor *task) {
+  return task->generation * MAX_TASKS + task->tid;
 }
