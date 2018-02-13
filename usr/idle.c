@@ -1,6 +1,6 @@
 #include "idle.h"
 
-void do_idle_loop(int *exp, const int c_server_tid) {
+void do_idle_loop(uint32_t *exp, const int c_server_tid) {
   int loops = 0;
   int32_t last_print = Time(c_server_tid);
   while (last_print + 25 > Time(c_server_tid)) {
