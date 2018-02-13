@@ -102,8 +102,10 @@ LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2E
 
 LDFLAGSlab = -init main -flto $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
 	-L$(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
-#/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
-	-L/u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
+
+# /u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
+#
+
 #- ../gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-objcopy -O binary test.elf test.bin
 
 SOURCESx64=main.c $(shell find kernel ! -path '*kernel/include/*' -name '*.c' -not -name 'cp_vec.c') $(shell find test-resources -name '*.c') \
