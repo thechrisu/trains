@@ -9,5 +9,6 @@
 #include "../nameserver/fake_nameserver_functions.h"
 
 void printf_errors();
+void printf_happy_path();
 
 #endif /* TEST_PRINTF_H */
