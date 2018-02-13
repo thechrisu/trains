@@ -1,18 +1,18 @@
 #include "idle.h"
 
-void do_idle_loop() {
+void do_idle_loop(int *exp, const int c_server_tid) {
   int loops = 0;
   int32_t last_print = Time(c_server_tid);
   while (last_print + 25 > Time(c_server_tid)) {
-    for (uint32_t i = 0; i < exp; i++);
+    for (uint32_t i = 0; i < *exp; i++);
     loops++;
   }
   if (loops > 10)
-    exp *= loops / 5;
+    *exp *= loops / 5;
   if (loops > 5)
-    exp *= 1.0 + (loops - 5.0) / 100.0;
+    *exp *= 1.0 + (loops - 5.0) / 100.0;
   if (loops <= 3)
-    exp /= 1.5;
+    *exp /= 1.5;
 }
 
 void report_usage() {
@@ -34,7 +34,7 @@ void idle_task() {
   Assert(c_server_tid > 0);
   uint32_t exp = 1 << 20;
   while(1) {
-    do_idle_loop();
+    do_idle_loop(&exp, c_server_tid);
     report_usage();
   }
 #endif /* E2ETESTING */
@@ -50,7 +50,7 @@ void idle_task_cursor() {
   Assert(c_server_tid > 0);
   uint32_t exp = 1 << 20;
   while(1) {
-    do_idle_loop();
+    do_idle_loop(&exp, c_server_tid);
     report_usage_cursor();
   }
 #endif /* E2ETESTING */
