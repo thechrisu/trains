@@ -64,7 +64,6 @@ struct td {
 typedef struct td task_descriptor;
 
 extern int num_ctx_sw;
-extern tid_t next_task_id;
 
 task_descriptor *get_next_raw_td();
 task_descriptor *get_task_with_tid(tid_t tid);
@@ -133,5 +132,7 @@ int task_get_priority(task_descriptor *task);
  * @returns The userland task ID of the task.
  */
 int task_get_userland_tid(task_descriptor *task);
+
+bool is_valid_userland_tid(int userland_tid);
 
 #endif /* TRAINS_TASK_H */

@@ -2,14 +2,19 @@
 
 extern task_descriptor *get_current_task();
 
-tid_t next_task_id = 1;
+uint64_t available_tids;
+int the_next_generation[MAX_TASKS];
 static task_descriptor all_tasks[MAX_TASKS];
 static task_descriptor *send_queues[MAX_TASKS];
 int num_ctx_sw = 0;
 int tasks_event_blocked = 0;
 
+tid_t get_next_available_tid() {
+  return available_tids == 0 ? -1 : __builtin_clzll(available_tids);
+}
+
 task_descriptor *get_next_raw_td() {
-  return &(all_tasks[next_task_id]);
+  return &(all_tasks[get_next_available_tid()]);
 }
 
 task_descriptor *get_task_with_tid(tid_t tid) {
@@ -27,12 +32,12 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Enter task_init, location of task in memory %x\n\r", task);
 #endif /* CONTEXT_SWITCH_DEBUG */
-  task->tid = next_task_id;
-  task->generation = 0;
+  task->tid = get_next_available_tid();
+  task->generation = the_next_generation[task->tid]++;
+  available_tids &= ~(1 << task->tid);
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Was able to access task struct\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
-  next_task_id++;
   task->priority = priority;
   task->state = TASK_RUNNABLE;
   task->next = NULL_TASK_DESCRIPTOR;
@@ -43,7 +48,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->blocked_on = NOT_BLOCKED;
 
 #ifndef TESTING
-  task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
+  task->tf = (trapframe *)(STACK_TOP - task->tid * BYTES_PER_TASK - sizeof(trapframe));
 #if TIMERINTERRUPT_DEBUG
   logprintf("Task tf(%d): %x\n\r", task->tid, task->tf);
 #endif /* TIMERINTERRUPT_DEBUG */
@@ -168,6 +173,8 @@ void task_retire(task_descriptor *task, int16_t exit_code) {
   task->tf->lr = 0x745C0000 + task->tid;
   task->tf->sp = 0x745C0000 + task->tid;
   task->tf = NULL_TRAPFRAME;
+
+  available_tids |= 1 << task->tid;
 }
 
 tid_t task_get_tid(task_descriptor *task) {
@@ -187,4 +194,9 @@ int task_get_priority(task_descriptor *task) {
 
 int task_get_userland_tid(task_descriptor *task) {
   return task->generation * MAX_TASKS + task->tid;
+}
+
+bool is_valid_userland_tid(int userland_tid) {
+  tid_t kernel_tid = userland_tid % MAX_TASKS;
+  return userland_tid > 0 && kernel_tid < MAX_TASKS && !(available_tids & (1 << kernel_tid));
 }

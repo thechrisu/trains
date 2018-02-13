@@ -25,7 +25,8 @@ extern void handle_data_abort();
 extern void handle_prefetch_abort();
 extern void handle_undefined_abort();
 #endif /* VERSATILEPB */
-extern int next_task_id;
+extern uint64_t available_tids;
+extern int the_next_generation[MAX_TASKS];
 
 trapframe main_tf;
 
@@ -57,7 +58,9 @@ void kmain() {
   setup_iio();
 #endif /* !E2ETESTING || IOINTERRUPTS */
 
-  next_task_id = 1;
+  available_tids = 0x7FFFFFFFFFFFFFFF;
+  for (int i = 0; i < MAX_TASKS; i += 1)
+    the_next_generation[i] = 1;
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");

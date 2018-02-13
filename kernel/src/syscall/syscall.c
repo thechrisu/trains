@@ -1,7 +1,7 @@
 #include "syscall.h"
 
 int syscall_create(int priority, void (*code)()) {
-  if (next_task_id >= MAX_TASKS) {
+  if (get_next_available_tid() == -1) {
     return -2;
   }
   // We do it this way instead of passing the result of register_task(),
@@ -61,7 +61,7 @@ void syscall_send() {
   logprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t receiver_tid = (register_t)current_task->tf->r1;
-  if (receiver_tid < 0 || receiver_tid >= next_task_id) {
+  if (!is_valid_userland_tid(receiver_tid)) {
     current_task->tf->r0 = -2;
     return;
   }
@@ -82,7 +82,7 @@ void syscall_reply() {
   logprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t sender_tid = (register_t)current_task->tf->r1;
-  if (sender_tid < 0 || sender_tid >= next_task_id) {
+  if (!is_valid_userland_tid(sender_tid)) {
     current_task->tf->r0 = -2;
     return;
   }
