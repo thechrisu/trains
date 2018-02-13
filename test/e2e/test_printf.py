@@ -19,14 +19,10 @@ expected_printf_happy_path_output = read_snapshot('printf_happy_path.txt')
 
 class TestPrintf(unittest.TestCase):
     def test_printf_errors(self):
-        real_output = qemu_oneshot_test('printf_errors', '', TIMEOUT, iointerrupts_on = True)
+        real_output = qemu_oneshot_test('printf_errors', '', TIMEOUT, timer_interrupts_on = True, iointerrupts_on = True)
         real_lines = split_output(real_output)
         self.assertEqual(real_lines, expected_lines_printf_errors)
 
     def test_printf_happy_path(self):
-        real_output = qemu_oneshot_test('printf_happy_path', '', TIMEOUT, iointerrupts_on = True)
-        self.assertEqual(split_output(real_output), expected_printf_happy_path_output)
-
-    def test_printf_happy_path_with_timer_interrupts(self):
         real_output = qemu_oneshot_test('printf_happy_path', '', TIMEOUT, timer_interrupts_on = True, iointerrupts_on = True)
         self.assertEqual(split_output(real_output), expected_printf_happy_path_output)

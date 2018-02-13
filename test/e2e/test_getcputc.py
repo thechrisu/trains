@@ -19,17 +19,10 @@ class TestGetcPutc(unittest.TestCase):
             self.assertEqual(r, e)
 
     def test_getcputc_mirror_easy(self):
-        ret = real_output = qemu_oneshot_test('test_getcputc_mirror', 'asdq', TIMEOUT, iointerrupts_on=True)
+        ret = real_output = qemu_oneshot_test('test_getcputc_mirror', 'asdq', TIMEOUT, timer_interrupts_on=True, iointerrupts_on=True)
         self.assertEqual(ret, 'asd')
 
     def test_getcputc_mirror(self):
-        ret = real_output = qemu_oneshot_test('test_getcputc_mirror', (expected_getcputc_mirror * 5) + 'q', TIMEOUT, iointerrupts_on=True)
-        real_lines = list(filter(lambda x: x != '', real_output.split('\n\r')))
-        self.assertEqual(len(real_lines), 1)
-        for r, e in zip(real_lines, [expected_getcputc_mirror * 5] + ['q']):
-            self.assertEqual(real_lines[0], expected_getcputc_mirror * 5)
-
-    def test_getcputc_mirror_with_timer_interrupts(self):
         ret = real_output = qemu_oneshot_test('test_getcputc_mirror', (expected_getcputc_mirror * 5) + 'q', TIMEOUT, timer_interrupts_on=True, iointerrupts_on=True)
         real_lines = list(filter(lambda x: x != '', real_output.split('\n\r')))
         self.assertEqual(len(real_lines), 1)
