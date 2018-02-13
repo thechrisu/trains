@@ -41,7 +41,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
 
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
 
-        if (can_put) {
+        if (received.msg.printf.size > 0 && can_put) {
           can_put = false;
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
