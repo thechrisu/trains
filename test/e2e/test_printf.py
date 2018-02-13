@@ -1,3 +1,4 @@
+import re
 import unittest
 from qemu_tcp_wrapper import qemu_oneshot_test
 
