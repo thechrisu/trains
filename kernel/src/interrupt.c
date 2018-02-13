@@ -55,8 +55,6 @@ void print_tf(trapframe *tf) {
 #endif /* TESTING */
 }
 
-trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event);
-
 trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_event) {
   int event_data = -2;
   trapframe *tf = current_task->tf;

@@ -9,7 +9,7 @@
 - `make qemutestingconsole` Does `make e2etest` and starts QEMU with the test runner as the first user task and with terminal output showing in the console.
 - `make qemutcprun` Does `make e2etest` and starts QEMU with terminal output sent over port 9991.
 - `make arm` Compile the kernel with the train lab configuration on your machine.
-- `make trainslab` Compile the kernel with the train lab configuration (needs access to Prof. Cowan's compiler in `/u/wbcowan`).
+- `make trainslab` Compile the kernel with the train lab configuration (expects `gcc-arm-none-eabi-7-2017-q4-major` and subdirectories to be in your `$HOME` folder).
 - `make upload` Cleans, compiles with the trains lab configuration and uploads it to be accessed in the lab. Run `TEST_RUNNER=true make upload` to build with the test runner as the first user task.
 - `make test` Runs all Googletest unit tests.
 - `make ci` Builds the docs, runs `make arm` and `make versatilepb`, and runs all the tests. Used by Travis CI.
