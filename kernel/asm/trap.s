@@ -9,10 +9,9 @@ enter_kernel: /* called on an interrupt */
 /* Enter system mode. */
   MSR cpsr_c, #0xDF
 
-  /* Save user's registers in a trap frame on the user task's stack. */
+/* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, sp, #72
   STMEA sp, {r0-r14}
-	  /* We use 72 bytes for the tf, r0-r14 are only 15*4 = 60 bytes */
 
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
@@ -35,7 +34,6 @@ is_irq:
 /* Save user's registers in a trap frame on the user task's stack. */
   SUB sp, sp, #72
   STMEA sp, {r0-r14}
-	  /* We use 72 bytes for the tf, r0-r14 are only 15*4 = 60 bytes */
 
 /* Set argument for handle_interrupt to user stack pointer. */
   MOV r0, sp
@@ -74,8 +72,7 @@ is_swi:
 /* Service interrupt. */
   BL handle_interrupt
 
-  /* Load kernel trapframe to return to instruction after e.g. task_activate in schedule. */
-
+/* Load kernel trapframe to return to instruction after e.g. task_activate in schedule. */
   LDMFD sp, {r0-r13}
   ADD sp, sp, #72
   LDR r15, [sp, #-16] /* Update me if sizeof(trapframe) changes */
