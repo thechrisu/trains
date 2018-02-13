@@ -9,5 +9,6 @@
 #include "myio.h"
 
 void idle_task();
+void idle_task_cursor();
 
 #endif /* IDLE_H */
