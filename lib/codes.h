@@ -254,8 +254,8 @@ int Putc(int tid, int uart, char ch);
  * @param tid  The task id of the server managing the input from the UART.
  * @param uart The UART (TRAIN/TERMINAL).
  *
- * @return -1 On error
- *          0 on success
+ * @return -1  On error
+ *         >=0 On success
  */
 int Getc(int tid, int uart);
 

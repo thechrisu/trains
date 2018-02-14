@@ -91,7 +91,7 @@ void kmain() {
 #if E2ETESTING
   kassert(syscall_create(1, &test_runner) > 0);
 #else
-  kassert(syscall_create(10, &k3_first_user_task) > 0);
+  kassert(syscall_create(10, &k4_first_user_task) > 0);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG

@@ -6,6 +6,7 @@
 #define MESSAGE_H
 
 #include "tstdlib.h"
+#include "user_command.h"
 
 #define PRINTF_MESSAGE_BUFFER_SIZE 256
 
@@ -23,6 +24,7 @@ enum message_type {
   MESSAGE_PUTC,
   MESSAGE_GETC,
   MESSAGE_PRINTF,
+  MESSAGE_USER,
   REPLY_GETC,
   REPLY_NAMESERVER
 };
@@ -47,6 +49,7 @@ typedef struct {
     char putc;
     char getc;
     printf_params printf;
+    user_command cmd;
     int nameserver_response;
   } msg;
 } message;

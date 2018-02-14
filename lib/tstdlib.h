@@ -76,6 +76,9 @@ void i2a(int num, char *bf);
 #else
 
 void tmemcpy(void *dst, void *src, unsigned int n);
+#ifndef E2ETESTING
+void memcpy(void *dst, void *src, unsigned int n);
+#endif /* E2ETESTING */
 void *tmemset(void *s, int c, unsigned int n);
 
 #ifdef TESTING
@@ -83,7 +86,6 @@ void *tmemset(void *s, int c, unsigned int n);
 #include <stdint.h>
 #include <cstring>
 #else
-void memcpy(void *dst, void *src, unsigned int n);
 
 // TODO change this via GCC/Clang macros
 typedef unsigned char uint8_t;

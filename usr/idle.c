@@ -1,6 +1,6 @@
 #include "idle.h"
 
-void do_idle_loop(int *exp, const int c_server_tid) {
+void do_idle_loop(uint32_t *exp, const int c_server_tid) {
   int loops = 0;
   int32_t last_print = Time(c_server_tid);
   while (last_print + 25 > Time(c_server_tid)) {
@@ -22,7 +22,7 @@ void report_usage() {
 
 void report_usage_cursor(int sender_tid) {
   int32_t u = MyProcUsage();
-  Printf(sender_tid, "\033[H%d.%d%%\033[K", u / 10, u % 10);
+  Printf(sender_tid, "\033[H%d.%d%%\033[?25l\033[K", u / 10, u % 10);
 }
 
 void idle_task() {
