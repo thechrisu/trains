@@ -14,7 +14,7 @@
 #include "usage_stats.h"
 
 #ifdef E2ETESTING
-#include "../../usr/test/nameserver/fake_nameserver_functions.h"
+#include "../../usr/test/nameserver/ns_tid.h"
 #endif
 
 /**

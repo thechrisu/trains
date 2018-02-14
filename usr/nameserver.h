@@ -7,6 +7,7 @@
 
 #include "stdlib.h"
 #include "codes.h"
+#include "messages.h"
 
 
 #define NAMESERVER_MSG_LENGTH 32

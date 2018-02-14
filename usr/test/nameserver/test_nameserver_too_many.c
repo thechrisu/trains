@@ -15,5 +15,5 @@ void test_nameserver_too_many() {
   bwprintf("RegisterAs before too many: %d\n\r", RegisterAs("The one before"));
   bwprintf("RegisterAs one too many: %d\n\r", RegisterAs("Culprit"));
 
-  fake_Kill();
+  Kill(ns_tid);
 }

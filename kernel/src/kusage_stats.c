@@ -49,13 +49,13 @@ void syscall_total_proc_usage(usage_stats *t_usage) {
   for (int i = 0; i < MAX_TASKS; i++) {
     t_usage->ms_run[i] = total_usage.ms_run[i];
   }
-  t_usage->max_tid = next_task_id - 1;
+  t_usage->max_tid = MAX_TASKS - 1;
 }
 
 void syscall_last_secs_proc_usage(usage_stats *t_usage) {
-  for (int i = 0; i < next_task_id; i++) {
+  for (int i = 0; i < MAX_TASKS; i++) {
     t_usage->ms_run[i] = usage_last_second.ms_run[i];
   }
-  t_usage->max_tid = next_task_id - 1;
+  t_usage->max_tid = MAX_TASKS - 1;
   reset_usage(&usage_last_second);
 }

@@ -13,9 +13,9 @@ expected_k1_output = 'Created: 3.\n\r' \
                      'In other task: MyTid(): 5, MyParentTid(): 2\n\r' \
                      'In other task: MyTid(): 5, MyParentTid(): 2\n\r' \
                      'Created: 5.\n\r' \
-                     'In other task: MyTid(): 6, MyParentTid(): 2\n\r' \
-                     'In other task: MyTid(): 6, MyParentTid(): 2\n\r' \
-                     'Created: 6.\n\r' \
+                     'In other task: MyTid(): 69, MyParentTid(): 2\n\r' \
+                     'In other task: MyTid(): 69, MyParentTid(): 2\n\r' \
+                     'Created: 69.\n\r' \
                      'FirstUserTask: exiting\n\r' \
                      'In other task: MyTid(): 3, MyParentTid(): 2\n\r' \
                      'In other task: MyTid(): 4, MyParentTid(): 2\n\r' \

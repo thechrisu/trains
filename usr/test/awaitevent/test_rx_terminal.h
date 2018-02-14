@@ -12,7 +12,7 @@
 #include "rawio.h"
 #include "../../idle.h"
 #include "../../nameserver.h"
-#include "../nameserver/fake_nameserver_functions.h"
+#include "../nameserver/ns_tid.h"
 
 void test_rx_terminal();
 

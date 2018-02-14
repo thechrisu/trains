@@ -24,8 +24,9 @@ enum message_type {
   MESSAGE_PUTC,
   MESSAGE_GETC,
   MESSAGE_PRINTF,
+  MESSAGE_USER,
   REPLY_GETC,
-  MESSAGE_USER
+  REPLY_NAMESERVER
 };
 
 typedef struct {
@@ -49,6 +50,7 @@ typedef struct {
     char getc;
     printf_params printf;
     user_command cmd;
+    int nameserver_response;
   } msg;
 } message;
 

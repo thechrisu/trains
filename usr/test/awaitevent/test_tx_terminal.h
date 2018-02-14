@@ -11,7 +11,7 @@
 #include "myio.h"
 #include "../../idle.h"
 #include "../../nameserver.h"
-#include "../nameserver/fake_nameserver_functions.h"
+#include "../nameserver/ns_tid.h"
 
 void test_tx_terminal();
 

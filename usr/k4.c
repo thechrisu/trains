@@ -3,7 +3,7 @@
 #define CMD_MAX_SZ 32
 
 void char_buffer_clear(char_buffer *b) {
-  for (int i = 0; i < b->elems; i++) {
+  for (unsigned int i = 0; i < b->elems; i++) {
     b->data[i] = 0;
   }
 }

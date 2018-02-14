@@ -1,15 +1,28 @@
 #include "task.h"
 
+#define AVAILABLE_TIDS_MASK(tid) (1ULL << (MAX_TASKS - (tid + 1)))
+
 extern task_descriptor *get_current_task();
 
-tid_t next_task_id = 1;
+uint64_t available_tids;
+int the_next_generation[MAX_TASKS];
 static task_descriptor all_tasks[MAX_TASKS];
 static task_descriptor *send_queues[MAX_TASKS];
 int num_ctx_sw = 0;
 int tasks_event_blocked = 0;
 
+void setup_tasks() {
+  available_tids = 0x7FFFFFFFFFFFFFFF;
+  for (int i = 0; i < MAX_TASKS; i += 1)
+    the_next_generation[i] = 0;
+}
+
+tid_t get_next_available_tid() {
+  return available_tids == 0 ? -1 : __builtin_clzll(available_tids);
+}
+
 task_descriptor *get_next_raw_td() {
-  return &(all_tasks[next_task_id]);
+  return &(all_tasks[get_next_available_tid()]);
 }
 
 task_descriptor *get_task_with_tid(tid_t tid) {
@@ -19,15 +32,20 @@ task_descriptor *get_task_with_tid(tid_t tid) {
   return &(all_tasks[tid]);
 }
 
+task_descriptor *get_task_with_userland_tid(tid_t tid) {
+  return get_task_with_tid(tid % MAX_TASKS);
+}
+
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Enter task_init, location of task in memory %x\n\r", task);
 #endif /* CONTEXT_SWITCH_DEBUG */
-  task->tid = next_task_id;
+  task->tid = get_next_available_tid();
+  task->generation = the_next_generation[task->tid]++;
+  available_tids &= ~AVAILABLE_TIDS_MASK(task->tid);
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Was able to access task struct\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
-  next_task_id++;
   task->priority = priority;
   task->state = TASK_RUNNABLE;
   task->next = NULL_TASK_DESCRIPTOR;
@@ -38,7 +56,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
   task->blocked_on = NOT_BLOCKED;
 
 #ifndef TESTING
-  task->tf = (trapframe *)(STACK_TOP - next_task_id * BYTES_PER_TASK - sizeof(trapframe));
+  task->tf = (trapframe *)(STACK_TOP - task->tid * BYTES_PER_TASK - sizeof(trapframe));
 #if TIMERINTERRUPT_DEBUG
   logprintf("Task tf(%d): %x\n\r", task->tid, task->tf);
 #endif /* TIMERINTERRUPT_DEBUG */
@@ -83,8 +101,7 @@ void task_activate(task_descriptor *task) {
   logprintf("Start of task_activate\n\r");
   print_tf(task->tf);
 #endif /* TRAPFRAME_DEBUG */
-  kassert((task->tf->sp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->sp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK));
-  //kassert(((task->tf->fp > STACK_TOP - (task->tid + 2) * BYTES_PER_TASK) && (task->tf->fp <= STACK_TOP - (1 + task->tid) * BYTES_PER_TASK)) || (task->tf->fp == (register_t)0xF433000B + (task->tid << 4)));
+  kassert((task->tf->sp > STACK_TOP - (task->tid + 1) * BYTES_PER_TASK) && (task->tf->sp <= STACK_TOP - task->tid * BYTES_PER_TASK));
 #if TIMERINTERRUPT_DEBUG
   kassert((task->tf->r7 & 0xFFFF0000) != 0xF4330000 || ((0xFFF0 & task->tf->r7) >> 4) == task->tid);
 #endif /* TIMERINTERRUPT_DEBUG */
@@ -163,6 +180,9 @@ void task_retire(task_descriptor *task, int16_t exit_code) {
   task->tf->lr = 0x745C0000 + task->tid;
   task->tf->sp = 0x745C0000 + task->tid;
   task->tf = NULL_TRAPFRAME;
+
+  if (the_next_generation[task->tid] < 1000)
+    available_tids |= AVAILABLE_TIDS_MASK(task->tid);
 }
 
 tid_t task_get_tid(task_descriptor *task) {
@@ -178,4 +198,20 @@ tid_t task_get_parent_tid(task_descriptor *task) {
 
 int task_get_priority(task_descriptor *task) {
   return task->priority;
+}
+
+int task_get_userland_tid(task_descriptor *task) {
+  return task->generation * MAX_TASKS + task->tid;
+}
+
+int task_get_userland_parent_tid(task_descriptor *task) {
+  if (task->parent == NULL_TASK_DESCRIPTOR) {
+    return -1;
+  }
+  return task->parent->generation * MAX_TASKS + task->parent->tid;
+}
+
+bool is_valid_userland_tid(int userland_tid) {
+  tid_t kernel_tid = userland_tid % MAX_TASKS;
+  return userland_tid > 0 && kernel_tid < MAX_TASKS && !(available_tids & AVAILABLE_TIDS_MASK(kernel_tid));
 }

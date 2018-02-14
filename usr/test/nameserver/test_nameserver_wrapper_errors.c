@@ -11,5 +11,5 @@ void test_nameserver_wrapper_errors() {
 
   bwprintf("Not found WhoIs: %d\n\r", WhoIs("Bill Cowan"));
 
-  fake_Kill();
+  Kill(ns_tid);
 }

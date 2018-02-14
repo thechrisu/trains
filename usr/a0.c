@@ -8,6 +8,7 @@
 #include "myio.h"
 #include "mytimer.h"
 #include "tstdlib.h"
+#include "tstring.h"
 
 #define sensorBufSize 10
 #define cmdSz 10

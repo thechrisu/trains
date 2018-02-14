@@ -4,7 +4,7 @@ void leaf() {
   int my_tid = MyTid();
 
   char msg[2];
-  msg[0] = 'A' + my_tid - 4;
+  msg[0] = 'A' + (my_tid % 64) - 4;
   msg[1] = '\0';
 
   bwprintf("Leaf %d: %s\n\r", my_tid, msg);
@@ -18,6 +18,9 @@ void internal_node() {
 
   for (int i = 0; i < 4; i += 1) {
     Create(MyPriority() + 2, &leaf);
+  }
+
+  for (int i = 0; i < 4; i += 1) {
     Receive(&tid, msg + i, 1);
     Reply(tid, (char *)0, 0);
   }
@@ -35,10 +38,13 @@ void test_messaging_tree() {
 
   for (int i = 0; i < 2; i += 1) {
     Create(MyPriority() + 1, &internal_node);
+  }
+
+  for (int i = 0; i < 2; i += 1) {
     Receive(&tid, msg + 4 * i, 4);
     Reply(tid, (char *)0, 0);
   }
-  
+
   msg[8] = '\0';
 
   bwprintf("Root: %s\n\r", msg);

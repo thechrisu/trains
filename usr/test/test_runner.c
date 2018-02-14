@@ -62,8 +62,6 @@ void test_runner() {
       exec_prog(MyPriority() + 4, &test_messaging_tree);
     } else if (tstrcmp(buf, "messaging_exit_with_blocked")) {
       exec_prog(MyPriority() + 4, &test_messaging_exit_with_blocked);
-    } else if (tstrcmp(buf, "test_nameserver_errors")) {
-      exec_prog(MyPriority() + 4, &test_nameserver_errors);
     } else if (tstrcmp(buf, "test_nameserver_wrapper_errors")) {
       exec_prog(MyPriority() + 4, &test_nameserver_wrapper_errors);
     } else if (tstrcmp(buf, "test_nameserver_too_many")) {
