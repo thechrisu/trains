@@ -9,7 +9,7 @@
 #include "myio.h"
 #include "stdlib.h"
 #include "nameserver.h"
-#include "test/nameserver/fake_nameserver_functions.h"
+#include "test/nameserver/ns_tid.h"
 
 /**
  * The first user task for K2.

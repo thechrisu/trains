@@ -52,6 +52,7 @@ struct td {
   trapframe *tf;
   task_state state;
   tid_t tid;
+  uint32_t generation;
   int16_t exit_code;
   struct td *prevmsg;
   struct td *nextmsg;
@@ -62,13 +63,23 @@ struct td {
 typedef struct td task_descriptor;
 
 extern int num_ctx_sw;
-extern tid_t next_task_id;
 
+/**
+ * Set up available task bitmap and array of next generations.
+ */
+void setup_tasks();
+
+/**
+ * @returns The next available kernel task ID, based on the available task bitmap, or
+ *          -1 if no task descriptors are available.
+ */
+tid_t get_next_available_tid();
 
 task_descriptor *get_next_raw_td();
 task_descriptor *get_task_with_tid(tid_t tid);
+task_descriptor *get_task_with_userland_tid(tid_t tid);
 
-  /**
+/**
  * Initializes the task structure.
  * Assigns a tid to the task, sets up the tasks trapframe (includes setting up its stack)
  * @param task       Task to be initialized.
@@ -103,14 +114,14 @@ void task_set_state(task_descriptor *task, task_state state);
 void task_retire(task_descriptor *task, int16_t exit_code);
 
 /**
- * Returns the <code>tid</code> of the task passed as argument.
+ * Returns the kernel <code>tid</code> of the task passed as argument.
  * @param task Task, no null check is performed.
  * @return tid
  */
 tid_t task_get_tid(task_descriptor *task);
 
 /**
- * Returns the task id of the parent of the task passed.
+ * Returns the kernel task id of the parent of the task passed.
  * @param task Task whose parents' <code>tid</code> is asked for.
  * @return -1 if current task has no parent, otherwise the parent's <code>tid</code>
  */
@@ -122,5 +133,28 @@ tid_t task_get_parent_tid(task_descriptor *task);
  * @return priority
  */
 int task_get_priority(task_descriptor *task);
+
+/**
+ * Returns the userland task ID of a task, which is defined to be
+ * generation * MAX_TASKS + tid.
+ *
+ * @param   task Task, no null check is performed.
+ * @returns The userland task ID of the task.
+ */
+int task_get_userland_tid(task_descriptor *task);
+
+/**
+ * Returns the userland task ID of a task's parent.
+ *
+ * @param   task Task, no null check is performed.
+ * @returns The userland task ID of the task's parent.
+ */
+int task_get_userland_parent_tid(task_descriptor *task);
+
+/**
+ * @param   userland_tid A userland task ID.
+ * @returns Whether the task ID corresponds to an active task.
+ */
+bool is_valid_userland_tid(int userland_tid);
 
 #endif /* TRAINS_TASK_H */

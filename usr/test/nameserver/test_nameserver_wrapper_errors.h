@@ -8,7 +8,7 @@
 #include "myio.h"
 #include "codes.h"
 
-#include "fake_nameserver_functions.h"
+#include "ns_tid.h"
 #include "../../nameserver.h"
 
 void test_nameserver_wrapper_errors();

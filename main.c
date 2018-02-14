@@ -25,7 +25,8 @@ extern void handle_data_abort();
 extern void handle_prefetch_abort();
 extern void handle_undefined_abort();
 #endif /* VERSATILEPB */
-extern int next_task_id;
+extern uint64_t available_tids;
+extern int the_next_generation[MAX_TASKS];
 
 trapframe main_tf;
 
@@ -57,7 +58,7 @@ void kmain() {
   setup_iio();
 #endif /* !E2ETESTING || IOINTERRUPTS */
 
-  next_task_id = 1;
+  setup_tasks();
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");
@@ -88,9 +89,9 @@ void kmain() {
 
   start_interval();
 #if E2ETESTING
-  syscall_create(1, &test_runner);
+  kassert(syscall_create(1, &test_runner) > 0);
 #else
-  syscall_create(10, &k3_first_user_task);
+  kassert(syscall_create(10, &k3_first_user_task) > 0);
 #endif /* TESTING */
 
 #if CONTEXT_SWITCH_DEBUG

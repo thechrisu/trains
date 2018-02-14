@@ -143,44 +143,19 @@ int nameserver_panic(char *c, char msg_type) {
  * @returns 0 if everything is OK, the appropriate error code otherwise.
  */
 int send_message_to_nameserver(char *c, char msg_type) {
-  char reply;
   char msg[tstrlen(c) + 2];
   msg[0] = msg_type;
   tmemcpy(msg + 1, c, tstrlen(c) + 1);
 
-  register_t args[] = {
-    NAMESERVER_TASK_ID,
-    (register_t)msg,
-    (register_t)(tstrlen(c) + 2),
-    (register_t)&reply,
-    1
-  };
+  message reply;
 
-  if (software_interrupt(SYS_SEND, 5, args) == -2) {
+  if (Send(NAMESERVER_TASK_ID, msg, tstrlen(c) + 2, &reply, sizeof(reply)) == -2) {
     return -1;
   }
 
-  switch (reply) {
-    case (char)('T' + 128):
-      return -2;
-    case (char)('S' + 128):
-      return -3;
-    case (char)('M' + 128):
-    case (char)('N' + 128):
-      return -4;
-    case 'C':
-      return 0;
-    case (char)('W' + 128):
-      return nameserver_panic(c, msg_type);
-    default:
-      if (msg_type == 'R') {
-        return nameserver_panic(c, msg_type);
-      } else if (msg_type == 'W') {
-        return (int)reply;
-      } else {
-        return nameserver_panic(c, msg_type);
-      }
-  }
+  Assert(reply.type == REPLY_NAMESERVER);
+  int response = reply.msg.nameserver_response;
+  return (response == 0xABAD10DE) ? nameserver_panic(c, msg_type) : response;
 }
 
 int RegisterAs(char *c) {

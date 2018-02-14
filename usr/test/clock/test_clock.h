@@ -13,7 +13,7 @@
 #include "myio.h"
 #include "mytimer.h"
 #include "tstdlib.h"
-#include "../nameserver/fake_nameserver_functions.h"
+#include "../nameserver/ns_tid.h"
 
 /**
  * Assert that the given number of milliseconds is within a range of ten-millisecond ticks
