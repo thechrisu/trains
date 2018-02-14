@@ -98,7 +98,7 @@ void delete_from_char(int index, int recipient) {
 }
 
 void print_cmd_char(char c, int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, K_LINE, 1 + index, c, HIDE_CURSOR_TO_EOL, SHOW_CURSOR) == 0);
+  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, K_LINE, 1 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
 #define max(a, b) (a > b ? a : b)
