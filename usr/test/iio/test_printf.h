@@ -10,7 +10,7 @@
 #include "idle.h"
 #include "ioserver.h"
 #include "nameserver.h"
-#include "../nameserver/fake_nameserver_functions.h"
+#include "../nameserver/ns_tid.h"
 
 void printf_errors();
 void printf_happy_path();
