@@ -27,7 +27,7 @@ expected_too_many = [
 expected_happypath = [
     'Basic RegisterAs/WhoIs: Me: 2, Task in question: 2',
     'Other task registers: Them: 4, Task registered: 4',
-    'Overwriting task: Them: 5, Task registered: 5',
+    'Overwriting task: Them: 68, Task registered: 68',
     'I\'m 2 and registered Task1 and Task3. Nameserver says Task1 and Task3 are 2 and 2'
 ]
 

@@ -52,12 +52,12 @@ expected_messaging_tree_output = 'Leaf 4: A\n\r' \
                                  'Leaf 6: C\n\r' \
                                  'Leaf 7: D\n\r' \
                                  'Internal node 3: ABCD\n\r' \
-                                 'Leaf 9: F\n\r' \
-                                 'Leaf 10: G\n\r' \
-                                 'Leaf 11: H\n\r' \
-                                 'Leaf 12: I\n\r' \
-                                 'Internal node 8: FGHI\n\r' \
-                                 'Root: ABCDFGHI\n\r'
+                                 'Leaf 69: B\n\r' \
+                                 'Leaf 70: C\n\r' \
+                                 'Leaf 71: D\n\r' \
+                                 'Leaf 8: E\n\r' \
+                                 'Internal node 68: BCDE\n\r' \
+                                 'Root: ABCDBCDE\n\r'
 
 def test_messaging(self, test_name, expected_output):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT)
