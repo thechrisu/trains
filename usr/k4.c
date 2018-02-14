@@ -118,7 +118,7 @@ void k4_first_user_task() {
   Assert(idle_tid > 0);
 
   spawn_ioservers();
-  int cmd_dispatcher_tid = Create(my_priority + 2, &command_dispatcher_server);
+  int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;

@@ -18,8 +18,8 @@ void command_dispatcher_server() {
             Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
             break;
           case USER_CMD_TR:
-            Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[0]) == 0);
             Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[1]) == 0);
+            Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[0]) == 0);
             break;
           case USER_CMD_SW:
             // TODO spawn reverser
