@@ -8,6 +8,7 @@
 #include "char_buffer.h"
 #include "clock.h"
 #include "codes.h"
+#include "command_dispatcher.h"
 #include "idle.h"
 #include "ioserver.h"
 #include "nameserver.h"
@@ -16,6 +17,7 @@
 #include "terminal.h"
 #include "tstdlib.h"
 #include "tstring.h"
+#include "user_command.h"
 
 void k4_first_user_task();
 

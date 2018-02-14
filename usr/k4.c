@@ -2,27 +2,6 @@
 
 #define CMD_MAX_SZ 32
 
-enum user_command_type {
-  USER_CMD_GO,
-  USER_CMD_STOP,
-  USER_CMD_TR,
-  USER_CMD_SW,
-  USER_CMD_RV,
-  USER_CMD_Q,
-  NULL_USER_CMD
-};
-
-typedef struct {
-  enum user_command_type type;
-  int data[2];
-} user_command;
-
-void user_command_reset(user_command *cmd) {
-  cmd->type = NULL_USER_CMD;
-  cmd->data[0] = 0;
-  cmd->data[1] = 0;
-}
-
 void char_buffer_clear(char_buffer *b) {
   for (int i = 0; i < b->elems; i++) {
     b->data[i] = 0;
@@ -139,7 +118,10 @@ void k4_first_user_task() {
   Assert(idle_tid > 0);
 
   spawn_ioservers();
-
+  int cmd_dispatcher_tid = Create(my_priority + 2, &command_dispatcher_server);
+  Assert(cmd_dispatcher_tid > 0);
+  message cmd_msg;
+  cmd_msg.type = MESSAGE_USER;
 
   user_command current_cmd;
   char cmd_prefix[CMD_MAX_SZ];
@@ -167,6 +149,10 @@ void k4_first_user_task() {
       if (current_cmd.type == USER_CMD_Q) {
         break;
       } else {
+        cmd_msg.msg.cmd.type = current_cmd.type;
+        cmd_msg.msg.cmd.data[0] = current_cmd.data[0];
+        cmd_msg.msg.cmd.data[1] = current_cmd.data[1];
+        Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) >= 0);
         user_command_print(terminal_tx_server, &current_cmd);
         delete_from_char(0, terminal_tx_server);
         // TODO send message to user input server or whatever
@@ -177,6 +163,7 @@ void k4_first_user_task() {
   }
   Assert(Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(K_LINE, 1)) == 0);
   kill_ioservers();
+  Assert(Kill(WhoIs("CommandDispatcher")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
 #ifdef E2ETESTING
   Assert(Kill(ns_tid) == 0);
