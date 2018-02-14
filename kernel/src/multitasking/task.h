@@ -64,9 +64,17 @@ typedef struct td task_descriptor;
 
 extern int num_ctx_sw;
 
+/**
+ * Set up available task bitmap and array of next generations.
+ */
 void setup_tasks();
 
+/**
+ * @returns The next available kernel task ID, based on the available task bitmap, or
+ *          -1 if no task descriptors are available.
+ */
 tid_t get_next_available_tid();
+
 task_descriptor *get_next_raw_td();
 task_descriptor *get_task_with_tid(tid_t tid);
 task_descriptor *get_task_with_userland_tid(tid_t tid);
@@ -135,8 +143,18 @@ int task_get_priority(task_descriptor *task);
  */
 int task_get_userland_tid(task_descriptor *task);
 
+/**
+ * Returns the userland task ID of a task's parent.
+ *
+ * @param   task Task, no null check is performed.
+ * @returns The userland task ID of the task's parent.
+ */
 int task_get_userland_parent_tid(task_descriptor *task);
 
+/**
+ * @param   userland_tid A userland task ID.
+ * @returns Whether the task ID corresponds to an active task.
+ */
 bool is_valid_userland_tid(int userland_tid);
 
 #endif /* TRAINS_TASK_H */

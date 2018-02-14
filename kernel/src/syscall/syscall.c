@@ -45,6 +45,12 @@ void syscall_pass() {
   register_task(get_current_task());
 }
 
+/**
+ * Clears the send queue of a task, making all the tasks on the queue runnable and
+ * registering them with the scheduler.
+ *
+ * @param td A task descriptor.
+ */
 void clear_send_queue(task_descriptor *td) {
   send_queue *q = td->send_queue;
   while (!send_queue_is_empty(q)) {
