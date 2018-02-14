@@ -181,6 +181,8 @@ void task_retire(task_descriptor *task, int16_t exit_code) {
   task->tf->sp = 0x745C0000 + task->tid;
   task->tf = NULL_TRAPFRAME;
 
+  send_queue_empty(task->send_queue);
+
   if (the_next_generation[task->tid] < 1000)
     available_tids |= AVAILABLE_TIDS_MASK(task->tid);
 }
