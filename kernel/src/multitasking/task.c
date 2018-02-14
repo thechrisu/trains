@@ -9,6 +9,12 @@ static task_descriptor *send_queues[MAX_TASKS];
 int num_ctx_sw = 0;
 int tasks_event_blocked = 0;
 
+void setup_tasks() {
+  available_tids = 0x7FFFFFFFFFFFFFFF;
+  for (int i = 0; i < MAX_TASKS; i += 1)
+    the_next_generation[i] = 0;
+}
+
 tid_t get_next_available_tid() {
   return available_tids == 0 ? -1 : __builtin_clzll(available_tids);
 }

@@ -58,9 +58,7 @@ void kmain() {
   setup_iio();
 #endif /* !E2ETESTING || IOINTERRUPTS */
 
-  available_tids = 0x7FFFFFFFFFFFFFFF;
-  for (int i = 0; i < MAX_TASKS; i += 1)
-    the_next_generation[i] = 1;
+  setup_tasks();
 
 #pragma GCC diagnostic ignored "-Wformat-zero-length"
   logprintf("");

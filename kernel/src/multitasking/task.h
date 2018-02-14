@@ -65,6 +65,8 @@ typedef struct td task_descriptor;
 
 extern int num_ctx_sw;
 
+void setup_tasks();
+
 tid_t get_next_available_tid();
 task_descriptor *get_next_raw_td();
 task_descriptor *get_task_with_tid(tid_t tid);
