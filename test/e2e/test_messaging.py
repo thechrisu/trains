@@ -59,6 +59,8 @@ expected_messaging_tree_output = 'Leaf 4: A\n\r' \
                                  'Internal node 68: BCDE\n\r' \
                                  'Root: ABCDBCDE\n\r'
 
+expected_messaging_exit_with_blocked_output = 'Receive-blocked, but parent exited. Error code: -2\n\r'
+
 def test_messaging(self, test_name, expected_output):
     real_output = qemu_oneshot_test(test_name, '', TIMEOUT)
     expected_lines = expected_output.split('\n\r')
@@ -100,7 +102,7 @@ class TestMessaging(unittest.TestCase):
         test_messaging(self, 'messaging_tree', expected_messaging_tree_output)
 
     def test_messaging_exit_with_blocked(self):
-        test_messaging(self, 'messaging_exit_with_blocked', '')
+        test_messaging(self, 'messaging_exit_with_blocked', expected_messaging_exit_with_blocked_output)
 
 
 if __name__ == "__main__":

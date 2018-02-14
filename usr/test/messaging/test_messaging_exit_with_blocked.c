@@ -1,8 +1,8 @@
 #include "test_messaging.h"
 
 void receive_blocked() {
-  Send(MyParentTid(), (char *)0, 0, (char *)0, 0);
-  bwprintf("Receive-blocked: should never reach here\n\r");
+  int error_code = Send(MyParentTid(), (char *)0, 0, (char *)0, 0);
+  bwprintf("Receive-blocked, but parent exited. Error code: %d\n\r", error_code);
 }
 
 void send_blocked() {
@@ -28,9 +28,7 @@ void test_messaging_exit_with_blocked() {
 
   /*
     receive_blocked will run directly after this call to Create. It calls Send immediately.
-    Since its parent (this task) still exists, it will block forever. If send_blocked
-    had a lower priority than its parent, it would call Send after its parent had exited,
-    causing it not to block.
+    It is unblocked when its parent (this task) is destroyed.
   */
   Create(MyPriority() + 1, &receive_blocked);
 }
