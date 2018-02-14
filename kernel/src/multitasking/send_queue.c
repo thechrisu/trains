@@ -15,5 +15,3 @@
 #undef QUEUE_TYPE
 #undef QUEUE_NEXT
 #undef QUEUE_PREV
-
-#define NULL_READY_QUEUE (send_queue)0

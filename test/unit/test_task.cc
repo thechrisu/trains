@@ -7,7 +7,12 @@ using namespace std;
 int oe_in_sensor = false;
 #endif /* ALLTESTS */
 
+extern uint64_t available_tids;
+extern int the_next_generation[MAX_TASKS];
+
 TEST(TaskTest, init_sets_task_correctly) {
+  setup_tasks();
+
   task_descriptor first_task;
 
   task_init(&first_task, 0, (void (*)())0xCAFEBABE, nullptr);
@@ -18,6 +23,8 @@ TEST(TaskTest, init_sets_task_correctly) {
 }
 
 TEST(TaskTest, parents_set_correctly) {
+  setup_tasks();
+
   task_descriptor first_task, second_task;
 
   task_init(&first_task, 0, (void (*)())0xCAFED00D, nullptr);
@@ -26,6 +33,8 @@ TEST(TaskTest, parents_set_correctly) {
 }
 
 TEST(TaskTest, stacks_dont_overlap_at_least_for_trapframe) {
+  setup_tasks();
+
   task_descriptor first_task, second_task;
 
   task_init(&first_task, 0, (void (*)())nullptr, nullptr);
@@ -43,6 +52,8 @@ TEST(TaskTest, stacks_dont_overlap_at_least_for_trapframe) {
 }
 
 TEST(TaskTest, getters_task_id) {
+  setup_tasks();
+
   task_descriptor first_task, second_task;
 
   task_init(&first_task, 0, (void (*)())nullptr, nullptr);
@@ -52,6 +63,8 @@ TEST(TaskTest, getters_task_id) {
 }
 
 TEST(TaskTest, task_ids_assigned_incrementally) {
+  setup_tasks();
+
   task_descriptor first_task, second_task;
 
   task_init(&first_task, 0, (void (*)())nullptr, nullptr);

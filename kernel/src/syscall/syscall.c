@@ -1,7 +1,7 @@
 #include "syscall.h"
 
 int syscall_create(int priority, void (*code)()) {
-  if (next_task_id >= MAX_TASKS) {
+  if (get_next_available_tid() == -1) {
     return -2;
   }
   // We do it this way instead of passing the result of register_task(),
@@ -21,7 +21,7 @@ int syscall_create(int priority, void (*code)()) {
   if (register_result) {
     return register_result;
   } else {
-    return task_get_tid(ret);
+    return task_get_userland_tid(ret);
   }
 }
 
@@ -29,7 +29,7 @@ int syscall_mytid() {
   if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -1;
   } else {
-    return task_get_tid(get_current_task());
+    return task_get_userland_tid(get_current_task());
   }
 }
 
@@ -37,7 +37,7 @@ int syscall_myparent_tid() {
   if (get_current_task() == NULL_TASK_DESCRIPTOR) {
     return -2;
   } else {
-    return task_get_parent_tid(get_current_task());
+    return task_get_userland_parent_tid(get_current_task());
   }
 }
 
@@ -45,8 +45,26 @@ void syscall_pass() {
   register_task(get_current_task());
 }
 
+/**
+ * Clears the send queue of a task, making all the tasks on the queue runnable and
+ * registering them with the scheduler.
+ *
+ * @param td A task descriptor.
+ */
+void clear_send_queue(task_descriptor *td) {
+  send_queue *q = td->send_queue;
+  while (!send_queue_is_empty(q)) {
+    task_descriptor *sender = send_queue_dequeue(q);
+    sender->tf->r0 = -2;
+    task_set_state(sender, TASK_RUNNABLE);
+    register_task(sender);
+  }
+}
+
 void syscall_exit() {
-  task_retire(get_current_task(), 0);
+  task_descriptor *td = get_current_task();
+  task_retire(td, 0);
+  clear_send_queue(td);
 }
 
 void syscall_panic() {
@@ -61,11 +79,11 @@ void syscall_send() {
   logprintf("syscall_send: sender %d, recipient %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t receiver_tid = (register_t)current_task->tf->r1;
-  if (receiver_tid < 0 || receiver_tid >= next_task_id) {
+  if (!is_valid_userland_tid(receiver_tid)) {
     current_task->tf->r0 = -2;
     return;
   }
-  send(current_task, (task_descriptor *)get_task_with_tid(receiver_tid));
+  send(current_task, (task_descriptor *)get_task_with_userland_tid(receiver_tid));
 }
 
 void syscall_receive() {
@@ -82,11 +100,11 @@ void syscall_reply() {
   logprintf("syscall_reply: recipient %d, target %d, message %c\n\r", current_task->tid, current_task->tf->r1, *(char *)(current_task->tf->r2));
 #endif
   register_t sender_tid = (register_t)current_task->tf->r1;
-  if (sender_tid < 0 || sender_tid >= next_task_id) {
+  if (!is_valid_userland_tid(sender_tid)) {
     current_task->tf->r0 = -2;
     return;
   }
-  reply(get_task_with_tid(sender_tid), current_task);
+  reply(get_task_with_userland_tid(sender_tid), current_task);
 }
 
 int syscall_awaitevent(int event_id) {
@@ -97,10 +115,10 @@ extern trapframe *handle_vic_event(task_descriptor *current_task, int highest_pr
 
 int syscall_kill(int tid) {
   task_descriptor *current_task = get_current_task();
-  if (tid == current_task->tid) {
+  if (tid == task_get_userland_tid(current_task)) {
     return -2;
   }
-  task_descriptor *to_kill = get_task_with_tid(tid);
+  task_descriptor *to_kill = get_task_with_userland_tid(tid);
   if (to_kill == NULL_TASK_DESCRIPTOR) {
     return -1;
   }
@@ -114,6 +132,7 @@ int syscall_kill(int tid) {
 #endif /* TESTING */
   deregister_task(to_kill);
   task_retire(to_kill, 0);
+  clear_send_queue(to_kill);
   return 0;
 }
 

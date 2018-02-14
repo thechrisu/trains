@@ -24,5 +24,5 @@ void test_nameserver_happypath() {
   bwprintf("I'm %d and registered Task1 and Task3. Nameserver says Task1 and Task3 are %d and %d\n\r",
            MyTid(), WhoIs("Task1"), WhoIs("Task3"));
 
-  fake_Kill();
+  Kill(ns_tid);
 }

@@ -36,6 +36,8 @@ void test_runner() {
       exec_prog(MyPriority() + 10, &k2_first_user_task);
     } else if (tstrcmp(buf, "k3")) {
       exec_prog(MyPriority() + 15, &k3_first_user_task);
+    } else if (tstrcmp(buf, "k4")) {
+      exec_prog(MyPriority() + 15, &k4_first_user_task);
     } else if (tstrcmp(buf, "test")) {
       bwprintf("TestReturn\n\r", buf);
     } else if (tstrcmp(buf, "messaging_basic")) {
@@ -60,8 +62,6 @@ void test_runner() {
       exec_prog(MyPriority() + 4, &test_messaging_tree);
     } else if (tstrcmp(buf, "messaging_exit_with_blocked")) {
       exec_prog(MyPriority() + 4, &test_messaging_exit_with_blocked);
-    } else if (tstrcmp(buf, "test_nameserver_errors")) {
-      exec_prog(MyPriority() + 4, &test_nameserver_errors);
     } else if (tstrcmp(buf, "test_nameserver_wrapper_errors")) {
       exec_prog(MyPriority() + 4, &test_nameserver_wrapper_errors);
     } else if (tstrcmp(buf, "test_nameserver_too_many")) {

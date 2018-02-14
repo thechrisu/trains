@@ -73,4 +73,10 @@ void terminal_rx_server();
  */
 void spawn_ioservers();
 
+/**
+ * Kills all train/terminal tx/rx servers/notifiers.
+ * Gets their task id from the nameserver, i.e. expects the nameserver to be running.
+ */
+void kill_ioservers();
+
 #endif /* IOSERVER_H */

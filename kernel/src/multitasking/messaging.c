@@ -18,7 +18,7 @@ void transmit_message(task_descriptor *src, task_descriptor *dst) {
   task_set_state(src, TASK_REPLY_BLOCKED);
   task_set_state(dst, TASK_RUNNABLE);
   volatile int* sender_tid = (int*)dst->tf->r1;
-  *sender_tid = task_get_tid(src);
+  *sender_tid = task_get_userland_tid(src);
 #if CONTEXT_SWITCH_BENCHMARK
   volatile int16_t *loc_after_copy = LOC_AFTER_COPY;
   *loc_after_copy = get_clockticks();
