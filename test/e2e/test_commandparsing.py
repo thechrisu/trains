@@ -14,7 +14,7 @@ kexit_msg = cmd_line(12, 1) + 'Bye.\n\r\n\r'
 
 class TestCommandParsing(unittest.TestCase):
     def test_quit(self):
-        self.assertEqual(qemu_oneshot_test('k4', 'q\r', TIMEOUT, timer_interrupts_on=True, iointerrupts_on=True), cmd_line(12, 2) + 'q' + hide_cursor_line + hide_cursor + kexit_msg)
+        self.assertEqual(qemu_oneshot_test('k4', 'q\r', TIMEOUT, timer_interrupts_on=True, iointerrupts_on=True), cmd_line(12, 4) + 'q' + hide_cursor_line + hide_cursor + kexit_msg)
 
         # Cursor addressing is too much of a mess :(
     '''    def test_go_happypath(self):
