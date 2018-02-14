@@ -10,8 +10,9 @@ int parse_two_digit_number(char *s) {
   return 10 * tens + ones;
 }
 
-int string_starts_with(char *s1, char *s2) {
-  while (*s1 && *s2) {
+int string_starts_with(char *s1, char *s2, int max_cmp_index) {
+  int i = 0;
+  while (*s1 && *s2 && max_cmp_index >= i++) {
     if (*s1 != *s2)
       return 0;
     s1 += 1;

@@ -23,47 +23,52 @@ void user_command_reset(user_command *cmd) {
   cmd->data[1] = 0;
 }
 
+void char_buffer_clear(char_buffer *b) {
+  for (int i = 0; i < b->elems; i++) {
+    b->data[i] = 0;
+  }
+}
+
 void user_command_print(int server_tid, user_command *cmd) {
   switch(cmd->type) {
     case USER_CMD_GO:
-      Printf(server_tid, "%s%sGO%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sGO        %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
       break;
     case USER_CMD_STOP:
-      Printf(server_tid, "%s%sSTOP%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sSTOP       %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
       break;
     case USER_CMD_TR:
-      Printf(server_tid, "%s%sTR %d %d%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-             cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sTR %d %d     %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL) == 0);
       break;
     case USER_CMD_SW:
-      Printf(server_tid, "%s%sSW %d %c%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-             cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sSW %d %c         %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL) == 0);
       break;
     case USER_CMD_RV:
-      Printf(server_tid, "%s%sRV %d%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-             cmd->data[0], HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sRV %d           %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], HIDE_CURSOR_TO_EOL) == 0);
       break;
     case NULL_USER_CMD:
-      Printf(server_tid, "%s%sINVALID COMMAND%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-             HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    HIDE_CURSOR_TO_EOL) == 0);
       break;
     default:
-      Printf(server_tid, "%s%sUNKNOWN COMMAND%s", HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-             HIDE_CURSOR_TO_EOL);
+      Assert(Printf(server_tid, "%s%s%sUNKNOWN COMMAND          %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    HIDE_CURSOR_TO_EOL) == 0);
   }
 }
 
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
   if (data == '\r') {
-    if (string_starts_with(ibuf->data, "tr ")) {
+    if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
         int second_num_parse = is_valid_number(ibuf, first_num_parse);
         logprintf("FIRST: %d, SECOND: %d\n\r", first_num_parse, second_num_parse);
         if (second_num_parse >= 0 && ibuf->elems >= (unsigned int) second_num_parse) {
           int address = parse_two_digit_number(ibuf->data + 3);
-          int speed_index = address > 10 ? 6 : 5;
-          int speed = parse_two_digit_number(ibuf->data + speed_index);
+          int speed = parse_two_digit_number(ibuf->data + first_num_parse);
           if (speed >= 0 && speed <= 14) {
             cmd->type = USER_CMD_TR;
             cmd->data[0] = address;
@@ -71,7 +76,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
           }
         }
       }
-    } else if (string_starts_with(ibuf->data, "rv ")) {
+    } else if (string_starts_with(ibuf->data, "rv ", ibuf->elems)) {
       int nParse = is_valid_number(ibuf, 3);
       if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
         int address = parse_two_digit_number(ibuf->data + 3);
@@ -79,7 +84,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
         cmd->data[0] = address;
         cmd->data[1] = 0;
       }
-    } else if (string_starts_with(ibuf->data, "sw ")) {
+    } else if (string_starts_with(ibuf->data, "sw ", ibuf->elems)) {
       int nParse = is_valid_number(ibuf, 3);
       if (nParse >= 0 && ibuf->elems == (unsigned int) nParse + 1) {
         char change_cmd = ibuf->data[nParse];
@@ -92,13 +97,14 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
           }
         }
       }
-    } else if (string_starts_with(ibuf->data, "stop") && ibuf->elems == 4) {
+    } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
-    } else if (string_starts_with(ibuf->data, "go") && ibuf->elems == 2) {
+    } else if (string_starts_with(ibuf->data, "go", ibuf->elems) && ibuf->elems == 2) {
       cmd->type = USER_CMD_GO;
-    } else if (string_starts_with(ibuf->data, "q") && ibuf->elems == 1) {
+    } else if (string_starts_with(ibuf->data, "q", ibuf->elems) && ibuf->elems == 1) {
       cmd->type = USER_CMD_Q;
     }
+    char_buffer_clear(ibuf);
     char_buffer_empty(ibuf);
     return true;
   } else {
@@ -108,6 +114,16 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
 }
 
 #define K_LINE 12
+
+void delete_from_char(int index, int recipient) {
+  Assert(Printf(recipient, "%s%d;%dH%s", ESC, K_LINE, 1 + index, HIDE_CURSOR_TO_EOL) == 0);
+}
+
+void print_cmd_char(char c, int index, int recipient) {
+  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, K_LINE, 1 + index, c, HIDE_CURSOR_TO_EOL, SHOW_CURSOR) == 0);
+}
+
+#define max(a, b) (a > b ? a : b)
 
 void k4_first_user_task() {
   EnableCaches(true);
@@ -136,22 +152,31 @@ void k4_first_user_task() {
   int terminal_rx_server = WhoIs("TerminalRxServer");
 
 #ifndef E2ETESTING
-  Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN);
+  Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
 #endif /* E2ETESTING */
-
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
+    if (c == 127 || c == 8) { // backspace
+      current_cmd_buf.in = max(0, current_cmd_buf.in - 1);
+      current_cmd_buf.data[current_cmd_buf.in] = 0;
+      current_cmd_buf.elems = max(0, current_cmd_buf.elems - 1);
+      delete_from_char(current_cmd_buf.in + 1, terminal_tx_server);
+      continue;
+    }
     if (parse_command(&current_cmd_buf, &current_cmd, c)) {
       if (current_cmd.type == USER_CMD_Q) {
         break;
       } else {
         user_command_print(terminal_tx_server, &current_cmd);
+        delete_from_char(0, terminal_tx_server);
         // TODO send message to user input server or whatever
       }
+    } else {
+      print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(K_LINE, 1));
+  Assert(Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(K_LINE, 1)) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
 #ifdef E2ETESTING

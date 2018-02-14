@@ -16,12 +16,13 @@ int parse_two_digit_number(char *s);
 /**
  * Returns 1 if s1 starts with s2 and 0 otherwise.
  *
- * @param s1  Input string.
- * @param s2  The prefix to match against.
+ * @param s1            Input string.
+ * @param s2            The prefix to match against.
+ * @param max_cmp_index The last index that will be compared.
  *
  * @return 1 if s2 is a prefix of s1, e.g. string_starts_with("TESTER", "TEST") == 1.
  */
-int string_starts_with(char *s1, char *s2);
+int string_starts_with(char *s1, char *s2, int max_cmp_index);
 
 /**
  * Checks if a given string in an input buffer is a nonnegative decimal number.
