@@ -94,11 +94,11 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
 #define K_LINE 12
 
 void delete_from_char(int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%s", ESC, K_LINE, 1 + index, HIDE_CURSOR_TO_EOL) == 0);
+  Assert(Printf(recipient, "%s%d;%dH%s", ESC, K_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
 }
 
 void print_cmd_char(char c, int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, K_LINE, 1 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
+  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, K_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
 #define max(a, b) (a > b ? a : b)
@@ -135,6 +135,7 @@ void k4_first_user_task() {
 
 #ifndef E2ETESTING
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, K_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
 
   Assert(Create(MyPriority() + 1, &clock_view) > 0);
 #endif /* E2ETESTING */
