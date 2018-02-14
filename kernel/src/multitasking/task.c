@@ -1,6 +1,6 @@
 #include "task.h"
 
-#define AVAILABLE_TIDS_MASK(tid) (1ULL << (MAX_TASKS - (tid + 1)));
+#define AVAILABLE_TIDS_MASK(tid) (1ULL << (MAX_TASKS - (tid + 1)))
 
 extern task_descriptor *get_current_task();
 
@@ -212,5 +212,5 @@ int task_get_userland_parent_tid(task_descriptor *task) {
 
 bool is_valid_userland_tid(int userland_tid) {
   tid_t kernel_tid = userland_tid % MAX_TASKS;
-  return userland_tid > 0 && kernel_tid < MAX_TASKS && !(available_tids & (1 << kernel_tid));
+  return userland_tid > 0 && kernel_tid < MAX_TASKS && !(available_tids & AVAILABLE_TIDS_MASK(kernel_tid));
 }
