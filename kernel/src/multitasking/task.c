@@ -1,5 +1,7 @@
 #include "task.h"
 
+#define AVAILABLE_TIDS_MASK(tid) (1ULL << (MAX_TASKS - (tid + 1)));
+
 extern task_descriptor *get_current_task();
 
 uint64_t available_tids;
@@ -40,7 +42,7 @@ void task_init(task_descriptor *task, int priority, void (*task_main)(), task_de
 #endif /* CONTEXT_SWITCH_DEBUG */
   task->tid = get_next_available_tid();
   task->generation = the_next_generation[task->tid]++;
-  available_tids &= ~(1 << task->tid);
+  available_tids &= ~AVAILABLE_TIDS_MASK(task->tid);
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Was able to access task struct\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
@@ -180,7 +182,7 @@ void task_retire(task_descriptor *task, int16_t exit_code) {
   task->tf->sp = 0x745C0000 + task->tid;
   task->tf = NULL_TRAPFRAME;
 
-  available_tids |= 1 << task->tid;
+  available_tids |= AVAILABLE_TIDS_MASK(task->tid);
 }
 
 tid_t task_get_tid(task_descriptor *task) {
