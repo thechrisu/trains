@@ -20,6 +20,8 @@ void command_dispatcher_server() {
           case USER_CMD_TR:
             Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[1]) == 0);
             Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[0]) == 0);
+            //logprintf("Setting speed of train %d to %d\n\r",
+                      received.msg.cmd.data[0], received.msg.cmd.data[1]);
             break;
           case USER_CMD_SW:
             // TODO spawn reverser

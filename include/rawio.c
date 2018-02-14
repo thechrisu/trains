@@ -107,9 +107,10 @@ int rawcanputc(int channel) {
       return 0;
   }
   if (TRAIN == channel) {
-    return !(*flags & (TXFF_MASK | TXBUSY_MASK)) && (*flags & CTS_MASK);
+    //logprintf("TXFF: %x, TXBUSY: %x, CTS: %x\n\r", *flags & TXFF_MASK, *flags & TXBUSY_MASK, *flags & CTS_MASK);
+    return !(*flags & TXFF_MASK) && (*flags & CTS_MASK);
   }
-  return !(*flags & (TXFF_MASK | TXBUSY_MASK));
+  return !(*flags & TXFF_MASK);
 }
 
 int rawcangetc(int channel) {
