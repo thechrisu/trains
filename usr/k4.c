@@ -154,6 +154,8 @@ void k4_first_user_task() {
   Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(K_LINE, 1));
   kill_ioservers();
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
+#ifdef E2ETESTING
   Assert(Kill(ns_tid) == 0);
+#endif /* E2ETESTING */
   Assert(Kill(idle_tid) == 0);
 }
