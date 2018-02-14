@@ -65,7 +65,6 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
         int second_num_parse = is_valid_number(ibuf, first_num_parse);
-        logprintf("FIRST: %d, SECOND: %d\n\r", first_num_parse, second_num_parse);
         if (second_num_parse >= 0 && ibuf->elems >= (unsigned int) second_num_parse) {
           int address = parse_two_digit_number(ibuf->data + 3);
           int speed = parse_two_digit_number(ibuf->data + first_num_parse);
