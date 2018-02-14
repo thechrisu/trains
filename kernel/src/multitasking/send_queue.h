@@ -5,7 +5,6 @@
 #ifndef SEND_QUEUE_H
 #define SEND_QUEUE_H
 
-#include "schedule.h"
 #include "task.h"
 
 #define NULL_SEND_QUEUE (send_queue)0
@@ -51,5 +50,4 @@ void send_queue_enqueue(send_queue *rq, task_descriptor *td);
             task descriptor otherwise.
  */
 task_descriptor *send_queue_dequeue(send_queue *rq);
-
 #endif /* SEND_QUEUE_H */
