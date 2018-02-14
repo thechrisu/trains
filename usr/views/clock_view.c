@@ -4,7 +4,7 @@ void print_clock(int sender_tid, uint32_t deciseconds) {
   uint32_t minutes = deciseconds / 10 / 60;
   uint32_t seconds = (deciseconds / 10) % 60;
   deciseconds = deciseconds % 10;
-  Printf(sender_tid, "\033[2;1H%d:%s%d.%d\033[K", minutes, seconds > 9 ? "" : "0", seconds, deciseconds);
+  Printf(sender_tid, "%s%d;%dH%d:%s%d.%d%s", ESC, CLOCK_LINE, 1, minutes, seconds > 9 ? "" : "0", seconds, deciseconds, HIDE_CURSOR_TO_EOL);
 }
 
 void clock_view() {

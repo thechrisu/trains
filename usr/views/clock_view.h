@@ -6,6 +6,7 @@
 #define CLOCK_VIEW_H
 
 #include "codes.h"
+#include "terminal.h"
 #include "tstdlib.h"
 
 void clock_view();

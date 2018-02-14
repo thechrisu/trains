@@ -9,7 +9,7 @@ def cmd_line(r, c):
 hide_cursor = '\033[?25l'
 show_cursor = '\033[?25h'
 hide_cursor_line = '\033[K'
-preamble = hide_cursor + cmd_line(2, 1)
+preamble = hide_cursor + cmd_line(4, 1)
 kexit_msg = cmd_line(12, 1) + 'Bye.\n\r\n\r'
 
 class TestCommandParsing(unittest.TestCase):
