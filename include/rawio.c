@@ -34,23 +34,19 @@ char raw_get_error(int channel) {
 }
 
 int rawputc(int channel, char c) {
-  volatile int *flags, *data; // just to be safe
+  volatile int *data; // just to be safe
   switch (channel) {
     case TRAIN:
 #if VERSATILEPB
-      flags = (int *) (UART0_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART0_BASE + UART_DATA_OFFSET);
 #else
-      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART1_BASE + UART_DATA_OFFSET);
 #endif
       break;
     case TERMINAL:
 #if VERSATILEPB
-      flags = (int *) (UART1_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART1_BASE + UART_DATA_OFFSET);
 #else
-      flags = (int *) (UART2_BASE + UART_FLAG_OFFSET);
       data = (int *) (UART2_BASE + UART_DATA_OFFSET);
 #endif
       break;
