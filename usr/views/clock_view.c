@@ -15,6 +15,6 @@ void clock_view() {
   while (true) {
     print_clock(sender_tid, deciseconds);
     deciseconds += 1;
-    Delay(clock_server_tid, 10);
+    DelayUntil(clock_server_tid, 10 * deciseconds);
   }
 }
