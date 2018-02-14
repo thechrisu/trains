@@ -52,6 +52,4 @@ void send_queue_enqueue(send_queue *rq, task_descriptor *td);
  */
 task_descriptor *send_queue_dequeue(send_queue *rq);
 
-void send_queue_empty(send_queue *q);
-
 #endif /* SEND_QUEUE_H */

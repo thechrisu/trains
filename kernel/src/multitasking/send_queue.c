@@ -15,12 +15,3 @@
 #undef QUEUE_TYPE
 #undef QUEUE_NEXT
 #undef QUEUE_PREV
-
-void send_queue_empty(send_queue *q) {
-  while (!send_queue_is_empty(q)) {
-    task_descriptor *sender = send_queue_dequeue(q);
-    sender->tf->r0 = -2;
-    task_set_state(sender, TASK_RUNNABLE);
-    register_task(sender);
-  }
-}

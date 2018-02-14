@@ -45,8 +45,20 @@ void syscall_pass() {
   register_task(get_current_task());
 }
 
+void clear_send_queue(task_descriptor *td) {
+  send_queue *q = td->send_queue;
+  while (!send_queue_is_empty(q)) {
+    task_descriptor *sender = send_queue_dequeue(q);
+    sender->tf->r0 = -2;
+    task_set_state(sender, TASK_RUNNABLE);
+    register_task(sender);
+  }
+}
+
 void syscall_exit() {
-  task_retire(get_current_task(), 0);
+  task_descriptor *td = get_current_task();
+  task_retire(td, 0);
+  clear_send_queue(td);
 }
 
 void syscall_panic() {
@@ -114,6 +126,7 @@ int syscall_kill(int tid) {
 #endif /* TESTING */
   deregister_task(to_kill);
   task_retire(to_kill, 0);
+  clear_send_queue(to_kill);
   return 0;
 }
 
