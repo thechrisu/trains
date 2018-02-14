@@ -13,10 +13,9 @@
 #include "nameserver.h"
 #include "messages.h"
 #include "myio.h"
-#include "string.h"
 #include "terminal.h"
 #include "tstdlib.h"
-
+#include "tstring.h"
 
 void k4_first_user_task();
 

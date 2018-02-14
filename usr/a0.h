@@ -5,7 +5,7 @@
 #ifndef A0_H
 #define A0_H
 
-#include "string.h"
+#include "tstring.h"
 
 void a0_main();
 

@@ -1,4 +1,4 @@
-#include "string.h"
+#include "tstring.h"
 
 int parse_two_digit_number(char *s) {
   int tens = a2d(s[0]);

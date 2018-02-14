@@ -107,6 +107,8 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
   }
 }
 
+#define K_LINE 12
+
 void k4_first_user_task() {
   EnableCaches(true);
   int my_priority = MyPriority();
@@ -118,7 +120,8 @@ void k4_first_user_task() {
 #endif /* E2ETESTING */
   int clock_server_tid = Create(my_priority + 3, &clock_server);
   Assert(clock_server_tid > 0);
-  Assert(Create(my_priority - 1, &idle_task_cursor) > 0);
+  int idle_tid = Create(my_priority - 1, &idle_task_cursor);
+  Assert(idle_tid > 0);
 
   spawn_ioservers();
 
@@ -132,7 +135,9 @@ void k4_first_user_task() {
   int terminal_tx_server = WhoIs("TerminalTxServer");
   int terminal_rx_server = WhoIs("TerminalRxServer");
 
+#ifndef E2ETESTING
   Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN);
+#endif /* E2ETESTING */
 
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
@@ -146,8 +151,9 @@ void k4_first_user_task() {
       }
     }
   }
-  Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(CMD_LINE, 1));
+  Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(K_LINE, 1));
   kill_ioservers();
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
-  Assert(Kill(WhoIs("Idle")) == 0);
+  Assert(Kill(ns_tid) == 0);
+  Assert(Kill(idle_tid) == 0);
 }

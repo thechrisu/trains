@@ -1,5 +1,5 @@
-#ifndef STRING_H
-#define STRING_H
+#ifndef TSTRING_H
+#define TSTRING_H
 
 #include "char_buffer.h"
 #include "tstdlib.h"
@@ -42,4 +42,4 @@ int is_valid_number(char_buffer *buf, unsigned int fromOffset);
  */
 unsigned int parse_number(char_buffer *buf, unsigned int start_offset);
 
-#endif /* STRING_H */
+#endif /* TSTRING_H */
