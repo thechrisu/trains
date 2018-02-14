@@ -23,7 +23,8 @@ enum message_type {
   MESSAGE_PUTC,
   MESSAGE_GETC,
   MESSAGE_PRINTF,
-  REPLY_GETC
+  REPLY_GETC,
+  REPLY_NAMESERVER
 };
 
 typedef struct {
@@ -46,6 +47,7 @@ typedef struct {
     char putc;
     char getc;
     printf_params printf;
+    int nameserver_response;
   } msg;
 } message;
 
