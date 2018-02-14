@@ -22,7 +22,7 @@ void report_usage() {
 
 void report_usage_cursor(int sender_tid) {
   int32_t u = MyProcUsage();
-  Printf(sender_tid, "\033[H%d.%d%%\033[K", u / 10, u % 10);
+  Printf(sender_tid, "\033[H%d.%d%%\033[?25l\033[K", u / 10, u % 10);
 }
 
 void idle_task() {
