@@ -88,7 +88,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
         char change_cmd = ibuf->data[nParse];
         if (change_cmd == 'S' || change_cmd == 'C') {
           int num = parse_number(ibuf, 3);
-          if (num > 0 && (num < 19 || (num >= 153 && num <= 156))) {
+          if (is_valid_turnout_num(num)) {
             cmd->type = USER_CMD_SW;
             cmd->data[0] = num;
             cmd->data[1] = change_cmd;

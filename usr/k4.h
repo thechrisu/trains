@@ -15,6 +15,7 @@
 #include "messages.h"
 #include "myio.h"
 #include "terminal.h"
+#include "track_data.h"
 #include "tstdlib.h"
 #include "tstring.h"
 #include "user_command.h"
