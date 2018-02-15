@@ -10,30 +10,25 @@ char get_sensor_index(int receive_index, int sensor_offset);
 
 void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
   bool val_changed = false;
+  int32_t old_offset = SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems : recent_sensors_buf->in - 1);
   for (int i = 0; i < 10; i++) {
     //logprintf("Sensor view: %x", sensors[i]);
     if (sensors[i]) {
       for (int j = 0; j < 8; j++) {
-        char mask = 1 << j;
+        char mask = 1 << (7 - j);
         if (sensors[i] & mask) {
           val_changed = true;
+          char ltr = 'A' + (i/2);
+          char num = 1 + j + (i % 2 == 0 ? 0 : 8);
+          Printf(terminal_tx_server, "%s%d;%dH%c%d   ", ESC, SENSOR_HEADING_LINE + 1 + recent_sensors_buf->in, 1, ltr, num);
           char_buffer_put_replace(recent_sensors_buf, get_sensor_index(i, j));
         }
       }
     }
   }
-  if (!val_changed || char_buffer_is_empty(recent_sensors_buf)) return;
-  int j = 1;
-  bool one_elem = false;
-  for (uint32_t i = char_buffer_iter_prev_starti(recent_sensors_buf);
-       i != char_buffer_iter_prev_starti(recent_sensors_buf) || !one_elem;
-       i = char_buffer_prev_i(recent_sensors_buf, i)) {
-    one_elem = true;
-    char e = recent_sensors_buf->data[i];
-    char ltr = 'A' + (e / 16);
-    char num = 1 + (e % 16);
-    Printf(terminal_tx_server, "%s%d;%dH%c%d   ", ESC, SENSOR_HEADING_LINE + j, 1, ltr, num);
-    j++;
+  if (val_changed) {
+    Printf(terminal_tx_server, "%s%d;%dH   ", ESC, old_offset, 6);
+    Printf(terminal_tx_server, "%s%d;%dH<--", ESC, SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems : recent_sensors_buf->in - 1), 6);
   }
 }
 
@@ -45,7 +40,7 @@ void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t 
 
 char get_sensor_index(int receive_index, int sensor_offset) {
   char sensor_letter_offset = receive_index / 2;
-  return sensor_letter_offset * 16 + sensor_offset + (receive_index % 2 ? 0 : 8);
+  return sensor_letter_offset * 16 + sensor_offset + ((receive_index % 2 == 0) ? 0 : 8);
 }
 
 void sensor_view() {
