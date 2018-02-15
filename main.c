@@ -5,7 +5,7 @@
 #include "crash.h"
 #include "events.h"
 #include "interrupt.h"
-#include "k3.h"
+#include "k4.h"
 #include "myio.h"
 #include "mytimer.h"
 #include "schedule.h"

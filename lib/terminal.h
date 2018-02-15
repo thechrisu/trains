@@ -5,7 +5,9 @@
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
-#define CMD_LINE 2
+#define IDLE_LINE  1
+#define CLOCK_LINE 2
+#define CMD_LINE   4
 
 #define RESET_TEXT "\033[0m"
 #define BLACK_TEXT "\033[30m"
