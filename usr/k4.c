@@ -137,6 +137,9 @@ void k4_first_user_task() {
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, K_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
 
+  cmd_msg.msg.cmd.type = USER_CMD_GO;
+  Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
+
   Assert(Create(my_priority + 2, &switch_resetter) > 0);
 
   Assert(Create(my_priority + 1, &clock_view) > 0);
