@@ -125,7 +125,7 @@ int syscall_kill(int tid) {
   int16_t blocked_on = to_kill->blocked_on;
   event_deregister(to_kill);
 #ifndef TESTING
-  if (blocked_on != NOT_BLOCKED) {
+  if ((enum event_id)blocked_on != NOT_BLOCKED) {
     handle_vic_event(to_kill, blocked_on);
   }
 #endif /* TESTING */
