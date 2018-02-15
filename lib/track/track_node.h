@@ -25,19 +25,25 @@ typedef enum {
 #define DIR_STRAIGHT 0
 #define DIR_CURVED 1
 
-typedef struct {
+struct track_node;
+
+struct track_edge {
   struct track_edge *reverse;
   struct track_node *src, *dest;
   int dist;             /* in millimetres */
-} track_edge;
+};
 
-typedef struct {
+typedef struct track_edge track_edge;
+
+struct track_node {
   const char *name;
   node_type type;
   int num;              /* sensor or switch number */
   struct track_node *reverse;  /* same location, but opposite direction */
   track_edge edge[2];
-} track_node;
+};
+
+typedef struct track_node track_node;
 
 typedef struct {
   bool direction; // true/positive: forward

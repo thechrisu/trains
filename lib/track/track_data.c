@@ -5,9 +5,10 @@ void init_track(track_state *global_track) {
   char *turnouts = global_track->turnouts;
   tmemset(track, 0, (int)(TRACK_MAX*sizeof(track_node)));
 
-
+#ifndef TESTING
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+#endif /* TESTING */
 
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;
@@ -1190,8 +1191,9 @@ void init_track(track_state *global_track) {
   track[143].type = NODE_EXIT;
   track[143].reverse = &track[142];
 
-
+#ifndef TESTING
 #pragma GCC diagnostic pop
+#endif /* TESTING */
 
   for(int i = 0; i < NUM_TURNOUTS; i++) {
     turnouts[i] = 'S'; // offset 18-21 map to 153-156
