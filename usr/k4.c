@@ -58,7 +58,7 @@ void user_command_print(int server_tid, user_command *cmd) {
  * @param ibuf    The buffer holding the input string.
  * @return        1 iff it parsed a command.
  */
-int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
+int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apologize for this mess
   if (data == '\r') {
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
