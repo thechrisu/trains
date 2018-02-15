@@ -28,9 +28,7 @@ void test_runner() {
     buf[i] = '\0';
 
 
-    if (tstrcmp(buf, "a0")) {
-      exec_prog(MyPriority() + 1, &a0_main);
-    } else if (tstrcmp(buf, "k1")) {
+    if (tstrcmp(buf, "k1")) {
       exec_prog(MyPriority() + 4, &k1_first_user_task);
     } else if (tstrcmp(buf, "k2")) {
       exec_prog(MyPriority() + 10, &k2_first_user_task);

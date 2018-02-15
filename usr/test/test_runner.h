@@ -5,7 +5,6 @@
 #ifndef TEST_RUNNER
 #define TEST_RUNNER
 
-#include "../a0.h"
 #include "../k1.h"
 #include "../k2.h"
 #include "../k3.h"
