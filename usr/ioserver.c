@@ -35,7 +35,11 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         break;
       case MESSAGE_PRINTF:
         for (uint32_t i = 0; i < received.msg.printf.size; i += 1) {
-          Assert(!char_buffer_is_full(&tx_buf));
+          if (char_buffer_is_full(&tx_buf)) {
+            logprintf("Transmit buffer of tx server (channel %d), notifier %d full\n\r",
+                      channel, notifier_tid);
+            Assert(!char_buffer_is_full(&tx_buf));
+          }
           char_buffer_put(&tx_buf, received.msg.printf.buf[i]);
         }
 

@@ -8,6 +8,7 @@ void track_state_controller() {
   track_state track;
   init_track(&track);
   int16_t sensor_states[10];
+  tmemset(sensor_states, 0, sizeof(sensor_states));
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -15,7 +16,7 @@ void track_state_controller() {
       case MESSAGE_SENSORSRECEIVED:
         for (int i = 0; i < 10; i++) {
           sensor_states[i] = received.msg.sensors[i];
-          logprintf("TSC Sensor %d: %x", i + 1, sensor_states[i]);
+          logprintf("TSC Sensor %d: %x\n\r", i + 1, sensor_states[i]);
         }
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
@@ -26,6 +27,13 @@ void track_state_controller() {
         reply.msg.tr_data.direction = track.train[train].direction;
         reply.msg.tr_data.should_speed = track.train[train].should_speed;
         reply.msg.tr_data.headlights = track.train[train].headlights;
+        Reply(sender_tid, &reply, sizeof(reply));
+        break;
+      case MESSAGE_GETSENSORS:
+        reply.type = REPLY_GETSENSORS;
+        for (int i = 0; i < 10; i++) {
+          reply.msg.sensors[i] = sensor_states[i];
+        }
         Reply(sender_tid, &reply, sizeof(reply));
         break;
       case MESSAGE_TRAINSETSPEED:

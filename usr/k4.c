@@ -166,6 +166,7 @@ void k4_first_user_task() {
   Assert(Create(my_priority - 1, &switch_resetter) > 0);
 
   Assert(Create(my_priority + 1, &clock_view) > 0);
+  Assert(Create(my_priority + 1, &sensor_view) > 0);
 #endif /* E2ETESTING */
 
   while (true) {
