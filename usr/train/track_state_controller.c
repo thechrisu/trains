@@ -4,6 +4,7 @@ void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
   int sender_tid;
   int train;
+  int turnout;
   message received, reply;
   /*  REPLY_GETTRAIN,
       MESSAGE_PUTTRAIN,
@@ -43,6 +44,13 @@ void track_state_controller() {
                && received.msg.tr_data.should_speed <= 14);
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
+      case MESSAGE_TURNOUTSWITCHED: {
+        int turnout_num = received.msg.turnout_switched_params.turnout_num;
+        Assert(is_valid_turnout_num(turnout_num));
+        track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
+        Reply(sender_tid, EMPTY_MESSAGE, 0);
+        break;
+      }
       default:
         logprintf("track_state_controller received message of type %d\n\r", received.type);
         Assert(0);

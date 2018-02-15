@@ -51,8 +51,14 @@ typedef struct {
   bool headlights;
 } train_data;
 
+typedef enum {
+  TURNOUT_STRAIGHT,
+  TURNOUT_CURVED,
+  TURNOUT_UNKNOWN
+} turnout_state;
+
 typedef struct {
-  char turnouts[NUM_TURNOUTS]; // offset 18-21 map to 153-156
+  turnout_state turnouts[NUM_TURNOUTS]; // offset 18-21 map to 153-156
   train_data train[81];
   track_node track[TRACK_MAX];
 } track_state;

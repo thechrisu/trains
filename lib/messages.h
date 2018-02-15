@@ -12,6 +12,7 @@
 #define PRINTF_MESSAGE_BUFFER_SIZE 256
 
 enum message_type {
+  REPLY_NAMESERVER,
   MESSAGE_NOTIFIER,
   MESSAGE_TIME,
   REPLY_TIME,
@@ -24,16 +25,18 @@ enum message_type {
   MESSAGE_K3_DONE,
   MESSAGE_PUTC,
   MESSAGE_GETC,
+  REPLY_GETC,
   MESSAGE_PRINTF,
   MESSAGE_USER,
   MESSAGE_REVERSE,
+  MESSAGE_SWITCH,
   MESSAGE_GETTRAIN,
   REPLY_GETTRAIN,
-  MESSAGE_TRAINREVERSED,
-  REPLY_GETC,
+  MESSAGE_GETTURNOUTS,
+  REPLY_GETTURNOUTS,
   MESSAGE_TRAINSETSPEED,
-  MESSAGE_SWITCH,
-  REPLY_NAMESERVER
+  MESSAGE_TRAINREVERSED,
+  MESSAGE_TURNOUTSWITCHED
 };
 
 typedef struct {
@@ -61,6 +64,11 @@ typedef struct {
 } message_switch_params;
 
 typedef struct {
+  unsigned int turnout_num;
+  turnout_state state;
+} message_turnout_switched_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -76,6 +84,7 @@ typedef struct {
     message_switch_params switch_params;
     train_data tr_data;
     char train;
+    message_turnout_switched_params turnout_switched_params;
   } msg;
 } message;
 

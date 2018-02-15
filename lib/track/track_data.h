@@ -14,4 +14,6 @@ unsigned int turnout_num_to_map_offset(unsigned int turnout);
 
 unsigned int map_offset_to_turnout(unsigned int offset);
 
+bool is_valid_turnout_num(unsigned int turnout);
+
 #endif /* TRACK_DATA_H */
