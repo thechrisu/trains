@@ -4,7 +4,6 @@ void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
   int sender_tid;
   int train;
-  int turnout;
   message received, reply;
   /*  REPLY_GETTRAIN,
       MESSAGE_PUTTRAIN,
