@@ -55,7 +55,7 @@ void command_dispatcher_server() {
 
             train_data_msg.type = MESSAGE_TURNOUTSWITCHED;
             train_data_msg.msg.turnout_switched_params.turnout_num = turnout_num;
-            train_data_msg.msg.tr_data.should_speed = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
+            train_data_msg.msg.turnout_switched_params.state = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
             Assert(Send(track_state_controller, &train_data_msg, sizeof(train_data_msg),
                         EMPTY_MESSAGE, 0) >= 0);
             break;
