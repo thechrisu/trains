@@ -8,6 +8,12 @@ void char_buffer_clear(char_buffer *b) {
   }
 }
 
+/**
+ * To print a user command to the terminal.
+ *
+ * @param server_tid The task id of the Terminal transmit server.
+ * @param cmd        The command to send.
+ */
 void user_command_print(int server_tid, user_command *cmd) {
   switch(cmd->type) {
     case USER_CMD_GO:
@@ -46,6 +52,12 @@ void user_command_print(int server_tid, user_command *cmd) {
   }
 }
 
+/**
+ * @param data    The latest character received.
+ * @param cmd     User command, the real return value.
+ * @param ibuf    The buffer holding the input string.
+ * @return        1 iff it parsed a command.
+ */
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
   if (data == '\r') {
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
