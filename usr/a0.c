@@ -121,7 +121,7 @@ bool interpret_cmd(char_buffer *cmd_buf) {
       if (numParse < 0) break;
       if (cmd_buf->data[1] == 'v' && cmd_buf->data[2] == ' ') {
         int loco = parse_number(cmd_buf, 3);
-        reverse(loco);
+        bwreverse(loco);
 #if DEBUG
         go_to_pos(1, 1);
         printf("REVERSING %d%s", loco, HIDE_CURSOR_TO_EOL);

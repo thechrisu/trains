@@ -117,7 +117,7 @@ void turn_off_solenoid_if_necessary(uint32_t timestamp) {
   }
 }
 
-void reverse(int train) {
+void bwreverse(int train) {
   // set_speed(train, 0);
   if (global_track_state.train[train].should_restart || global_track_state.train[train].should_restart) return;
   uint16_t should_speed = global_track_state.train[train].should_speed;
