@@ -48,6 +48,7 @@ void track_state_controller() {
         int turnout_num = received.msg.turnout_switched_params.turnout_num;
         Assert(is_valid_turnout_num(turnout_num));
         track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
+        logprintf("Set turnout %d to state %d\n\r", turnout_num_to_map_offset(turnout_num), received.msg.turnout_switched_params.state);
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
       }
