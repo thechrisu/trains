@@ -22,7 +22,7 @@ void init_turnout_view() {
   Assert(reply.type == REPLY_GETTURNOUTS);
 
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTurnouts%s",
-                TURNOUTS_HEADING_LINE, TURNOUTS_COLUMN, HIDE_CURSOR_TO_EOL) == 0);
+                TURNOUTS_HEADING_LINE, TURNOUTS_COLUMN + 1, HIDE_CURSOR_TO_EOL) == 0);
 
   for (int i = 1; i < NUM_TURNOUTS / 2; i += 1) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH    |       |%s",
