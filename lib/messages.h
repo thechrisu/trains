@@ -25,6 +25,7 @@ enum message_type {
   MESSAGE_GETC,
   MESSAGE_PRINTF,
   MESSAGE_USER,
+  MESSAGE_REVERSE,
   REPLY_GETC,
   REPLY_NAMESERVER,
   MESSAGE_SWITCH
@@ -39,6 +40,12 @@ typedef struct {
   char *buf;
   uint32_t size;
 } printf_params;
+
+typedef struct {
+  int train_tx_server_tid;
+  int clock_server_tid;
+  char train_to_reverse;
+} message_reverse_params;
 
 typedef struct {
   int clock_server_tid;
@@ -59,6 +66,7 @@ typedef struct {
     printf_params printf;
     user_command cmd;
     int nameserver_response;
+    message_reverse_params reverser_params;
     message_switch_params switch_params;
   } msg;
 } message;

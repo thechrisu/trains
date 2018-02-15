@@ -144,9 +144,9 @@ void k4_first_user_task() {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
     if (c == 127 || c == 8) { // backspace
-      current_cmd_buf.in = max(0, current_cmd_buf.in - 1);
+      current_cmd_buf.in = current_cmd_buf.in -1;
       current_cmd_buf.data[current_cmd_buf.in] = 0;
-      current_cmd_buf.elems = max(0, current_cmd_buf.elems - 1);
+      current_cmd_buf.elems = current_cmd_buf.elems - 1;
       delete_from_char(current_cmd_buf.in + 1, terminal_tx_server);
       continue;
     }

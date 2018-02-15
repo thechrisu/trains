@@ -21,7 +21,7 @@ void blink_headlights(char loco);
 void set_speed(int train, int speed);
 void set_headlights(int train, bool turn_on);
 void set_turnout(int turnout_num, char state);
-void reverse(int train);
+void bwreverse(int train);
 void turn_off_solenoid_if_necessary(uint32_t timestamp);
 void check_reverse(uint32_t timestamp);
 void check_turnout_buffer();

@@ -18,10 +18,13 @@ void command_dispatcher_server() {
           case USER_CMD_STOP:
             Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
             break;
-          case USER_CMD_TR:
-            Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[1]) == 0);
-            Assert(Putc(train_tx_server, TRAIN, received.msg.cmd.data[0]) == 0);
+          case USER_CMD_TR: {
+            char to_send_bytes[2];
+            to_send_bytes[0] = received.msg.cmd.data[1];
+            to_send_bytes[1] = received.msg.cmd.data[0];
+            Assert(PutBytes(train_tx_server, to_send_bytes, 2) == 0);
             break;
+          }
           case USER_CMD_SW: {
             message send;
             send.type = MESSAGE_SWITCH;

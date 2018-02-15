@@ -271,6 +271,17 @@ int Getc(int tid, int uart);
  */
 int Printf(int tid, char *fmt, ...);
 
+/**
+ * Like Printf, but without formatting.
+ *
+ * @param tid        The task ID of the task to send the message to (Message type MESSAGE_PRINTF).
+ * @param bytes      The bytes to send.
+ * @param bytes_size Number of bytes to send.
+ * @returns -1 if tid is invalid (or if the send failed).
+ *           0 on success.
+ */
+int PutBytes(int tid, void *bytes, uint32_t bytes_size);
+
 #define MAX_PRIORITY 63
 
 #define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
