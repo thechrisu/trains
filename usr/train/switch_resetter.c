@@ -1,12 +1,15 @@
 #include "switch_resetter.h"
 
 static int tx_server_tid;
+static int command_dispatcher_tid;
 
 void switch_turnout(int switch_num, bool curved) {
-  char buf[2];
-  buf[0] = (char)(curved ? 0x22 : 0x21);
-  buf[1] = (char)switch_num;
-  PutBytes(tx_server_tid, buf, 2);
+  message send;
+  send.type = MESSAGE_USER;
+  send.msg.cmd.type = USER_CMD_SW;
+  send.msg.cmd.data[0] = (char)switch_num;
+  send.msg.cmd.data[1] = (char)(curved ? 'C' : 'S');
+  Assert(Send(command_dispatcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
 void disable_solenoid() {
@@ -16,6 +19,7 @@ void disable_solenoid() {
 void switch_resetter() {
   int clock_server_tid = WhoIs("ClockServer");
   tx_server_tid = WhoIs("TrainTxServer");
+  command_dispatcher_tid = WhoIs("CommandDispatcher");
 
   for (int i = 1; i <= 17; i += 2) {
     switch_turnout(i, true);
