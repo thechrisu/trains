@@ -122,12 +122,11 @@ int syscall_kill(int tid) {
   if (to_kill == NULL_TASK_DESCRIPTOR) {
     return -1;
   }
-  int blocked_on = to_kill->blocked_on;
+  int16_t blocked_on = to_kill->blocked_on;
   event_deregister(to_kill);
 #ifndef TESTING
   if (blocked_on != NOT_BLOCKED) {
-    trapframe * junk = handle_vic_event(to_kill, blocked_on);
-    (void*)junk;
+    handle_vic_event(to_kill, blocked_on);
   }
 #endif /* TESTING */
   deregister_task(to_kill);

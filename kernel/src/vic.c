@@ -68,7 +68,7 @@ void disable_vic_bit(int bit) {
     vic_reg = (register_t *)(VIC2_BASE + VIC2_ENABLE_OFFSET);
     bit -= 32;
   }
-  *vic_reg &= !(1 << bit);
+  *vic_reg &= ~(1 << bit);
 #endif /* TESTING */
 }
 

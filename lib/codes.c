@@ -155,7 +155,7 @@ int send_message_to_nameserver(char *c, char msg_type) {
 
   Assert(reply.type == REPLY_NAMESERVER);
   int response = reply.msg.nameserver_response;
-  return (response == 0xABAD10DE) ? nameserver_panic(c, msg_type) : response;
+  return ((uint32_t)response == 0xABAD10DE) ? nameserver_panic(c, msg_type) : response;
 }
 
 int RegisterAs(char *c) {
@@ -317,10 +317,6 @@ int Printf(int tid, char *fmt, ...) {
   char buf[PRINTF_MESSAGE_BUFFER_SIZE];
   uint32_t buf_index = 0;
 
-  message send;
-  send.type = MESSAGE_PRINTF;
-  send.msg.printf.buf = buf;
-
   va_list va;
 
   va_start(va, fmt);
@@ -330,7 +326,14 @@ int Printf(int tid, char *fmt, ...) {
   if (buf_index >= PRINTF_MESSAGE_BUFFER_SIZE) {
     return -2;
   }
-  send.msg.printf.size = buf_index;
+  return PutBytes(tid, buf, buf_index);
+}
+
+int PutBytes(int tid, void *bytes, uint32_t bytes_size) {
+  message send;
+  send.type = MESSAGE_PRINTF;
+  send.msg.printf.buf = bytes;
+  send.msg.printf.size = bytes_size;
 
   if (Send(tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0) {
     return 0;

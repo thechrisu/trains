@@ -26,41 +26,35 @@ typedef enum {
 #define DIR_CURVED 1
 
 struct track_node;
-typedef struct track_node track_node;
-typedef struct track_edge track_edge;
 
 struct track_edge {
-  track_edge *reverse;
-  track_node *src, *dest;
+  struct track_edge *reverse;
+  struct track_node *src, *dest;
   int dist;             /* in millimetres */
 };
+
+typedef struct track_edge track_edge;
 
 struct track_node {
   const char *name;
   node_type type;
   int num;              /* sensor or switch number */
-  track_node *reverse;  /* same location, but opposite direction */
+  struct track_node *reverse;  /* same location, but opposite direction */
   track_edge edge[2];
 };
 
-struct train_data {
+typedef struct track_node track_node;
+
+typedef struct {
   bool direction; // true/positive: forward
   int should_speed;
   bool headlights;
-  uint32_t time_reverse_sent;
-  bool sent_reverse;
-  bool should_restart;
-};
+} train_data;
 
-struct track_state {
+typedef struct {
   char turnouts[NUM_TURNOUTS]; // offset 18-21 map to 153-156
-  struct train_data train[81];
-  struct track_node track[TRACK_MAX];
-  bool should_switch_off_solenoid;
-  uint32_t last_switch_time;
-  uint16_t last_sensor_query;
-  char_buffer trains_to_reverse;
-  // int train_to_reverse;
-};
+  train_data train[81];
+  track_node track[TRACK_MAX];
+} track_state;
 
 #endif /* TRACK_NODE_H */
