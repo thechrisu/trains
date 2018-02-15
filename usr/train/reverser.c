@@ -40,7 +40,7 @@ void reverser() {
 #endif /* DEBUG_REVERSAL */
 
       char send_reverse_cmd[2];
-      send_reverse_cmd[0] = 15;
+      send_reverse_cmd[0] = REVERSE_SPEED;
       send_reverse_cmd[1] = train_to_reverse;
       PutBytes(train_tx_tid, send_reverse_cmd, 2);
 
