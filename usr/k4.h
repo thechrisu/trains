@@ -18,7 +18,8 @@
 #include "tstdlib.h"
 #include "tstring.h"
 #include "user_command.h"
-#include "trains/switch_resetter.h"
+#include "train/switch_resetter.h"
+#include "train/track_state_controller.h"
 #include "views/clock_view.h"
 
 void k4_first_user_task();

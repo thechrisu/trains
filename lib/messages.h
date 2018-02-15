@@ -5,6 +5,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include "track_data.h"
 #include "tstdlib.h"
 #include "user_command.h"
 
@@ -26,9 +27,13 @@ enum message_type {
   MESSAGE_PRINTF,
   MESSAGE_USER,
   MESSAGE_REVERSE,
+  MESSAGE_GETTRAIN,
+  REPLY_GETTRAIN,
+  MESSAGE_TRAINREVERSED,
   REPLY_GETC,
-  REPLY_NAMESERVER,
-  MESSAGE_SWITCH
+  MESSAGE_TRAINSETSPEED,
+  MESSAGE_SWITCH,
+  REPLY_NAMESERVER
 };
 
 typedef struct {
@@ -44,6 +49,7 @@ typedef struct {
 typedef struct {
   int train_tx_server_tid;
   int clock_server_tid;
+  int track_state_controller_tid;
   char train_to_reverse;
 } message_reverse_params;
 
@@ -68,6 +74,8 @@ typedef struct {
     int nameserver_response;
     message_reverse_params reverser_params;
     message_switch_params switch_params;
+    train_data tr_data;
+    char train;
   } msg;
 } message;
 
