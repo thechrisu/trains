@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Task that switches a single switch
+ */
 #ifndef SWITCHER_H
 #define SWITCHER_H
 
