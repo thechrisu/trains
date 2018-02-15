@@ -18,6 +18,7 @@
 #include "tstdlib.h"
 #include "tstring.h"
 #include "user_command.h"
+#include "train/switch_resetter.h"
 #include "train/track_state_controller.h"
 #include "views/clock_view.h"
 

@@ -159,7 +159,12 @@ void k4_first_user_task() {
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, K_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
 
-  Assert(Create(MyPriority() + 1, &clock_view) > 0);
+  cmd_msg.msg.cmd.type = USER_CMD_GO;
+  Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
+
+  Assert(Create(my_priority - 1, &switch_resetter) > 0);
+
+  Assert(Create(my_priority + 1, &clock_view) > 0);
 #endif /* E2ETESTING */
 
   while (true) {
@@ -173,15 +178,16 @@ void k4_first_user_task() {
       continue;
     }
     if (parse_command(&current_cmd_buf, &current_cmd, c)) {
+      if (current_cmd.type != NULL_USER_CMD) {
+        cmd_msg.msg.cmd.type = current_cmd.type;
+        cmd_msg.msg.cmd.data[0] = current_cmd.data[0];
+        cmd_msg.msg.cmd.data[1] = current_cmd.data[1];
+        Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
+      }
+
       if (current_cmd.type == USER_CMD_Q) {
         break;
       } else {
-        if (current_cmd.type != NULL_USER_CMD) {
-          cmd_msg.msg.cmd.type = current_cmd.type;
-          cmd_msg.msg.cmd.data[0] = current_cmd.data[0];
-          cmd_msg.msg.cmd.data[1] = current_cmd.data[1];
-          Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) >= 0);
-        }
         user_command_print(terminal_tx_server, &current_cmd);
         delete_from_char(0, terminal_tx_server);
       }
