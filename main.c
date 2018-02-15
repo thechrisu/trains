@@ -185,18 +185,18 @@ int main() {
 #if !E2ETESTING || TIMER_INTERRUPTS
   interrupt_timer_teardown();
 
-  // bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
-  // bwprintf("Total number of syscalls: %d\n\r", num_syscalls_total);
-  //
-  // bwprintf("Number of syscalls by code:\n\r");
-  // bwprintf("Code\tCount\n\r");
-  // for (int i = 0; i < NUM_SYSCALL_CODES; i += 1) {
-  //   bwprintf("%d\t%d\n\r", i, num_syscalls[i]);
-  // }
-  //
-  // usage_stats usage;
-  // syscall_total_proc_usage(&usage);
-  // print_usage(bwprintf, &usage);
+  bwprintf("Total number of context switches: %d\n\r", num_ctx_sw);
+  bwprintf("Total number of syscalls: %d\n\r", num_syscalls_total);
+
+  bwprintf("Number of syscalls by code:\n\r");
+  bwprintf("Code\tCount\n\r");
+  for (int i = 0; i < NUM_SYSCALL_CODES; i += 1) {
+    bwprintf("%d\t%d\n\r", i, num_syscalls[i]);
+  }
+
+  usage_stats usage;
+  syscall_total_proc_usage(&usage);
+  print_usage(bwprintf, &usage);
 #endif /* E2ETESTING && TIMER_INTERRUPTS */
 
   desetup_iio();
@@ -205,8 +205,6 @@ int main() {
 #if E2ETESTING
   bwprintf("ENDPROG\n\r");
 #endif /* E2ETESTING */
-
-  while(1);
 
   __asm__(
     "MOV r0, #0x18\n\t"
