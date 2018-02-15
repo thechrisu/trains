@@ -32,6 +32,7 @@ enum message_type {
   MESSAGE_TRAINREVERSED,
   REPLY_GETC,
   MESSAGE_TRAINSETSPEED,
+  MESSAGE_SWITCH,
   REPLY_NAMESERVER
 };
 
@@ -53,6 +54,13 @@ typedef struct {
 } message_reverse_params;
 
 typedef struct {
+  int clock_server_tid;
+  int tx_server_tid;
+  int switch_num;
+  bool curved;
+} message_switch_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -65,6 +73,7 @@ typedef struct {
     user_command cmd;
     int nameserver_response;
     message_reverse_params reverser_params;
+    message_switch_params switch_params;
     train_data tr_data;
     char train;
   } msg;

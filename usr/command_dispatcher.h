@@ -10,6 +10,7 @@
 #include "messages.h"
 #include "user_command.h"
 #include "train/reverser.h"
+#include "train/switcher.h"
 
 /**
  * Interprets messages sent from the train FirstUserTask and relays them
