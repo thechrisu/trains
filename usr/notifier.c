@@ -9,7 +9,7 @@ void generic_notifier(enum event_id to_wait_on, int server_tid) {
     Assert(AwaitEvent(to_wait_on) == 0);
     Assert(Send(server_tid, &msg, sizeof(msg), EMPTY_MESSAGE, 0) >= 0);
   }
-  Assert("ACCIDENTALLY KILLED NOTIFIER\n\r" == "");
+  logprintf("ACCIDENTALLY KILLED NOTIFIER (EVENT: %d)\n\r", to_wait_on);
   Assert(0);
 }
 

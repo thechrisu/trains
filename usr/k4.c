@@ -8,36 +8,56 @@ void char_buffer_clear(char_buffer *b) {
   }
 }
 
+/**
+ * To print a user command to the terminal.
+ *
+ * @param server_tid The task id of the Terminal transmit server.
+ * @param cmd        The command to send.
+ */
 void user_command_print(int server_tid, user_command *cmd) {
   switch(cmd->type) {
     case USER_CMD_GO:
-      Assert(Printf(server_tid, "%s%s%sGO        %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sGO        %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR,
+                    CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case USER_CMD_STOP:
-      Assert(Printf(server_tid, "%s%s%sSTOP       %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sSTOP       %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case USER_CMD_TR:
-      Assert(Printf(server_tid, "%s%s%sTR %d %d     %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sTR %d %d     %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case USER_CMD_SW:
-      Assert(Printf(server_tid, "%s%s%sSW %d %c         %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sSW %d %c         %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case USER_CMD_RV:
-      Assert(Printf(server_tid, "%s%s%sRV %d           %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-                    cmd->data[0], HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sRV %d           %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case NULL_USER_CMD:
-      Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-                    HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sINVALID COMMAND        %s%s",
+                    RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     default:
-      Assert(Printf(server_tid, "%s%s%sUNKNOWN COMMAND          %s", HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
-                    HIDE_CURSOR_TO_EOL) == 0);
+      Assert(Printf(server_tid, "%s%s%s%sUNKNOWN COMMAND          %s%s",
+                    RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
   }
 }
 
+/**
+ * @param data    The latest character received.
+ * @param cmd     User command, the real return value.
+ * @param ibuf    The buffer holding the input string.
+ * @return        1 iff it parsed a command.
+ */
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
   if (data == '\r') {
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
@@ -121,6 +141,8 @@ void k4_first_user_task() {
   spawn_ioservers();
   int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
+  Assert(Create(my_priority + 7, &track_state_controller) > 0);
+
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
 

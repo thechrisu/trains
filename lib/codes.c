@@ -155,7 +155,7 @@ int send_message_to_nameserver(char *c, char msg_type) {
 
   Assert(reply.type == REPLY_NAMESERVER);
   int response = reply.msg.nameserver_response;
-  return (response == 0xABAD10DE) ? nameserver_panic(c, msg_type) : response;
+  return ((uint32_t)response == 0xABAD10DE) ? nameserver_panic(c, msg_type) : response;
 }
 
 int RegisterAs(char *c) {

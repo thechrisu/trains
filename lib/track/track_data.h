@@ -6,9 +6,9 @@
 #define TRACK_DATA_H
 
 #include "track_node.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
-void init_track(struct track_state *global_track);
+void init_track(track_state *global_track);
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout);
 

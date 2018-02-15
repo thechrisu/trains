@@ -1,12 +1,15 @@
 #include "track_data.h"
 
-struct track_state global_track_state;
-char trains_reverse[81];
-
-void init_track(struct track_state *global_track) {
+void init_track(track_state *global_track) {
   track_node *track = global_track->track;
   char *turnouts = global_track->turnouts;
   tmemset(track, 0, (int)(TRACK_MAX*sizeof(track_node)));
+
+#ifndef TESTING
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wincompatible-pointer-types"
+#endif /* TESTING */
+
   track[0].name = "A1";
   track[0].type = NODE_SENSOR;
   track[0].num = 0;
@@ -1188,17 +1191,15 @@ void init_track(struct track_state *global_track) {
   track[143].type = NODE_EXIT;
   track[143].reverse = &track[142];
 
+#ifndef TESTING
+#pragma GCC diagnostic pop
+#endif /* TESTING */
+
   for(int i = 0; i < NUM_TURNOUTS; i++) {
     turnouts[i] = 'S'; // offset 18-21 map to 153-156
   }
-  global_track->last_sensor_query = 0;
-  global_track->last_switch_time = 0;
-  char_buffer_init(&(global_track->trains_to_reverse), trains_reverse, 81);
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;
-    global_track->train[i].should_restart = false;
-    global_track->train[i].time_reverse_sent = 0;
-    global_track->train[i].sent_reverse = false;
   }
 }
 
