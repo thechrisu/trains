@@ -9,6 +9,7 @@
 #include "codes.h"
 #include "messages.h"
 #include "user_command.h"
+#include "trains/switcher.h"
 
 /**
  * Interprets messages sent from the train FirstUserTask and relays them

@@ -26,7 +26,8 @@ enum message_type {
   MESSAGE_PRINTF,
   MESSAGE_USER,
   REPLY_GETC,
-  REPLY_NAMESERVER
+  REPLY_NAMESERVER,
+  MESSAGE_SWITCH
 };
 
 typedef struct {
@@ -40,6 +41,13 @@ typedef struct {
 } printf_params;
 
 typedef struct {
+  int clock_server_tid;
+  int tx_server_tid;
+  int switch_num;
+  bool curved;
+} message_switch_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -51,6 +59,7 @@ typedef struct {
     printf_params printf;
     user_command cmd;
     int nameserver_response;
+    message_switch_params switch_params;
   } msg;
 } message;
 
