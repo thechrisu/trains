@@ -106,10 +106,11 @@ int rawcanputc(int channel) {
     default:
       return 0;
   }
+#ifndef VERSATILEPB
   if (TRAIN == channel) {
-    //logprintf("TXFF: %x, TXBUSY: %x, CTS: %x\n\r", *flags & TXFF_MASK, *flags & TXBUSY_MASK, *flags & CTS_MASK);
     return !(*flags & TXFF_MASK) && (*flags & CTS_MASK);
   }
+#endif /* VERSATILEPB */
   return !(*flags & TXFF_MASK);
 }
 
