@@ -85,6 +85,7 @@ typedef struct {
     train_data tr_data;
     char train;
     message_turnout_switched_params turnout_switched_params;
+    turnout_state turnout_states[NUM_TURNOUTS];
   } msg;
 } message;
 

@@ -111,14 +111,12 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
   }
 }
 
-#define K_LINE 12
-
 void delete_from_char(int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%s", ESC, K_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
+  Assert(Printf(recipient, "%s%d;%dH%s", ESC, PROMPT_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
 }
 
 void print_cmd_char(char c, int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, K_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
+  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
 #define max(a, b) (a > b ? a : b)
@@ -157,7 +155,7 @@ void k4_first_user_task() {
 
 #ifndef E2ETESTING
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, K_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, PROMPT_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
 
   cmd_msg.msg.cmd.type = USER_CMD_GO;
   Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
@@ -165,6 +163,7 @@ void k4_first_user_task() {
   Assert(Create(my_priority - 1, &switch_resetter) > 0);
 
   Assert(Create(my_priority + 1, &clock_view) > 0);
+  Assert(Create(my_priority + 1, &turnout_view) > 0);
 #endif /* E2ETESTING */
 
   while (true) {
@@ -195,7 +194,7 @@ void k4_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  Assert(Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(K_LINE, 1)) == 0);
+  Assert(Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1)) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);

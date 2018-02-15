@@ -24,6 +24,13 @@ void track_state_controller() {
         reply.msg.tr_data.headlights = track.train[train].headlights;
         Reply(sender_tid, &reply, sizeof(reply));
         break;
+      case MESSAGE_GETTURNOUTS:
+        reply.type = REPLY_GETTURNOUTS;
+        for (int i = 0; i < NUM_TURNOUTS; i += 1) {
+          reply.msg.turnout_states[i] = track.turnouts[i];
+        }
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
+        break;
       case MESSAGE_TRAINSETSPEED:
         train = received.msg.train;
         Assert(train >= 0 && train <= 80);
