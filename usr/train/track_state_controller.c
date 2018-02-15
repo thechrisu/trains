@@ -5,15 +5,20 @@ void track_state_controller() {
   int sender_tid;
   int train;
   message received, reply;
-  /*  REPLY_GETTRAIN,
-      MESSAGE_PUTTRAIN,
-  */
   track_state track;
   init_track(&track);
+  int16_t sensor_states[10];
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
+      case MESSAGE_SENSORSRECEIVED:
+        for (int i = 0; i < 10; i++) {
+          sensor_states[i] = received.msg.sensors[i];
+          logprintf("TSC Sensor %d: %x", i + 1, sensor_states[i]);
+        }
+        Reply(sender_tid, EMPTY_MESSAGE, 0);
+        break;
       case MESSAGE_GETTRAIN:
         train = received.msg.train;
         Assert(train >= 0 && train <= 80);

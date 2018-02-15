@@ -9,12 +9,13 @@ void sensor_secretary() {
   Assert(track_state_controller > 0);
   while (true) {
     Assert(Putc(train_tx_server, TRAIN, CMD_ALL_SENSORS) == 0);
-    uint16_t sensors[10];
+    message sensor_msg;
+    sensor_msg.type = MESSAGE_SENSORSRECEIVED;
     for (int i = 0; i < 10; i++) {
       int c = Getc(train_rx_server, TRAIN);
       Assert(c >= 0);
-      sensors[i] = c;
+      sensor_msg.msg.sensors[i] = c;
     }
-    // TODO push to track state controller. 
+    Send(track_state_controller, &sensor_msg, sizeof(sensor_msg), EMPTY_MESSAGE, 0);
   }
 }

@@ -33,7 +33,8 @@ enum message_type {
   REPLY_GETC,
   MESSAGE_TRAINSETSPEED,
   MESSAGE_SWITCH,
-  REPLY_NAMESERVER
+  REPLY_NAMESERVER,
+  MESSAGE_SENSORSRECEIVED
 };
 
 typedef struct {
@@ -76,6 +77,7 @@ typedef struct {
     message_switch_params switch_params;
     train_data tr_data;
     char train;
+    int16_t sensors[10];
   } msg;
 } message;
 
