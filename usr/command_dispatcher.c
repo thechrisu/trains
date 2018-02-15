@@ -22,6 +22,7 @@ void command_dispatcher_server() {
             Assert(Putc(train_tx_server, TRAIN, CMD_GO) == 0);
             break;
           case USER_CMD_STOP:
+          case USER_CMD_Q:
             Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
             break;
           case USER_CMD_TR: {
