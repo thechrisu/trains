@@ -22,11 +22,13 @@ void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
       }
     }
   }
-  if (!val_changed) return;
+  if (!val_changed || char_buffer_is_empty(recent_sensors_buf)) return;
   int j = 1;
+  bool one_elem = false;
   for (uint32_t i = char_buffer_iter_prev_starti(recent_sensors_buf);
-       i != char_buffer_iter_prev_endx(recent_sensors_buf);
+       i != char_buffer_iter_prev_starti(recent_sensors_buf) || !one_elem;
        i = char_buffer_prev_i(recent_sensors_buf, i)) {
+    one_elem = true;
     char e = recent_sensors_buf->data[i];
     char ltr = 'A' + (e / 16);
     char num = 1 + (e % 16);
