@@ -77,7 +77,10 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
       case MESSAGE_NOTIFIER: {
         char c;
         Assert(rawcangetc(channel));
-        Assert(rawgetc(channel, &c) == 0);
+        int err = rawgetc(channel, &c);
+        if (err) {
+          logprintf("OE: %x, BE: %x, PE: %x, FE: %x\n\r", err & OE_MASK, err & BE_MASK, err & PE_MASK, err & FE_MASK);
+        }
         Assert(!char_buffer_is_full(&rx_buf));
         char_buffer_put(&rx_buf, c);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
