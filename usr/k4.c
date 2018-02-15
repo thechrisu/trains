@@ -137,7 +137,9 @@ void k4_first_user_task() {
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, K_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
 
-  Assert(Create(MyPriority() + 1, &clock_view) > 0);
+  Assert(Create(my_priority + 2, &switch_resetter) > 0);
+
+  Assert(Create(my_priority + 1, &clock_view) > 0);
 #endif /* E2ETESTING */
 
   while (true) {
