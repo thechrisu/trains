@@ -91,17 +91,19 @@ bool IS_EMPTY(BUFFER_TYPE)(BUFFER_TYPE *b) {
 }
 
 BUFFER_SIZE_TYPE ITER_PREV_STARTI(BUFFER_TYPE)(BUFFER_TYPE *b) {
+  if (b->elems == 0 && b->in == 0) return 0;
   return (b->elems + b->in - 1) % b->elems;
 }
 
 BUFFER_SIZE_TYPE ITER_PREV_ENDX(BUFFER_TYPE)(BUFFER_TYPE *b) {
-  return b->in;
+  return ITER_PREV_STARTI(BUFFER_TYPE)(b) + 1;
 }
 
 BUFFER_SIZE_TYPE NEXT_I(BUFFER_TYPE)(BUFFER_TYPE *b, BUFFER_SIZE_TYPE i) {
-  return (i + 1) % b->elems;
+  return (i + 1) % b->elems, 0;
 }
 
 BUFFER_SIZE_TYPE PREV_I(BUFFER_TYPE)(BUFFER_TYPE *b, BUFFER_SIZE_TYPE i) {
+  if (i + b->elems == 0) return 0;
   return (i - 1 + b->elems) % b->elems;
 }
