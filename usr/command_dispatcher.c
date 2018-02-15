@@ -5,6 +5,7 @@ void command_dispatcher_server() {
   message received;
   Assert(RegisterAs("CommandDispatcher") == 0);
   int train_tx_server = WhoIs("TrainTxServer");
+  int clock_server = WhoIs("ClockServer"); // TODO send to reverser/switcher
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
