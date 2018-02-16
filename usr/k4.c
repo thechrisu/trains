@@ -101,6 +101,8 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       cmd->type = USER_CMD_GO;
     } else if (string_starts_with(ibuf->data, "q", ibuf->elems) && ibuf->elems == 1) {
       cmd->type = USER_CMD_Q;
+    } else {
+      user_command_reset(cmd);
     }
     char_buffer_clear(ibuf);
     char_buffer_empty(ibuf);
