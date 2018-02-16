@@ -17,14 +17,15 @@ void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
           val_changed = true;
           char ltr = 'A' + (i/2);
           char num = 1 + j + (i % 2 == 0 ? 0 : 8);
+          old_offset = SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems - 1 : recent_sensors_buf->in - 1);
           Printf(terminal_tx_server, "%s%d;%dH%c%d   ", ESC, SENSOR_HEADING_LINE + 1 + recent_sensors_buf->in, 1, ltr, num);
+          Printf(terminal_tx_server, "%s%d;%dH   ", ESC, old_offset, 6);
           char_buffer_put_replace(recent_sensors_buf, get_sensor_index(i, j));
         }
       }
     }
   }
   if (val_changed) {
-    Printf(terminal_tx_server, "%s%d;%dH   ", ESC, old_offset, 6);
     Printf(terminal_tx_server, "%s%d;%dH<--", ESC, SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems - 1 : recent_sensors_buf->in - 1), 6);
   }
 }
