@@ -16,7 +16,6 @@ void track_state_controller() {
       case MESSAGE_SENSORSRECEIVED:
         for (int i = 0; i < 10; i++) {
           sensor_states[i] = received.msg.sensors[i];
-          logprintf("TSC Sensor %d: %x\n\r", i + 1, sensor_states[i]);
         }
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;

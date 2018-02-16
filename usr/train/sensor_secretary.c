@@ -9,12 +9,10 @@ void sensor_secretary() {
   Assert(track_state_controller > 0);
   while (true) {
     Assert(Putc(train_tx_server, TRAIN, CMD_ALL_SENSORS) == 0);
-    logprintf("PUT sensor\n\r");
     message sensor_msg;
     sensor_msg.type = MESSAGE_SENSORSRECEIVED;
     for (int i = 0; i < 10; i++) {
       int c = Getc(train_rx_server, TRAIN);
-      logprintf("Sensor sec (%d)\n\r", i + 1);
       Assert(c >= 0);
       sensor_msg.msg.sensors[i] = c;
     }

@@ -12,7 +12,6 @@ void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
   bool val_changed = false;
   int32_t old_offset = SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems : recent_sensors_buf->in - 1);
   for (int i = 0; i < 10; i++) {
-    // logprintf("Sensor view: %x", sensors[i]);
     if (sensors[i]) {
       for (int j = 0; j < 8; j++) {
         char mask = 1 << (7 - j);
