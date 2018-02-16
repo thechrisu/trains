@@ -27,7 +27,7 @@ char raw_get_error(int channel) {
   }
   int err = *(int *)(ERROR_REG + UART_RSR_OFFSET);
   if (err) {
-    *ERROR_REG = 0; // RESET
+    *(ERROR_REG + UART_RSR_OFFSET) = 0; // RESET
   }
   return err & 0xF;
 #endif
