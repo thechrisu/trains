@@ -5,6 +5,7 @@
 #ifndef SWITCHER_H
 #define SWITCHER_H
 
+#include "a0codes.h"
 #include "codes.h"
 #include "messages.h"
 

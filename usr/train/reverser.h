@@ -5,6 +5,7 @@
 #ifndef REVERSER_H
 #define REVERSER_H
 
+#include "a0codes.h"
 #include "codes.h"
 #include "messages.h"
 

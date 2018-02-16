@@ -103,6 +103,7 @@ void setup_io() {
   nop();
   setfifo(TERMINAL, OFF);
   nop();
+  raw_get_error(TRAIN); // Just to make sure we don't cause it...
 }
 
 void setup_iio() {

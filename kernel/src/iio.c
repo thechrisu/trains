@@ -6,7 +6,7 @@ int uart0_txfe_asserted;
 void maybe_received_cts() {
 #ifndef TESTING
   volatile register_t *train_uart = (register_t*)(UART1_BASE + UART_FLAG_OFFSET);
-  uart0_cts_asserted |= (*train_uart) & CTS_MASK;
+  uart0_cts_asserted |= *train_uart & CTS_MASK;
 #endif /* TESTING */
 }
 
@@ -35,6 +35,10 @@ void enable_uart_interrupt(int channel, register_t enable_mask, int enable) {
   case TRAIN:
     reg = (register_t *)UART0_BASE;
     break;
+  default:
+    reg = 0;
+    kassert(0);
+    break;
   }
   reg += UARTIMSC_OFFSET >> 2;
 #else
@@ -44,6 +48,10 @@ void enable_uart_interrupt(int channel, register_t enable_mask, int enable) {
     break;
   case TRAIN:
     reg = (register_t *)UART1_BASE;
+    break;
+  default:
+    reg = 0;
+    kassert(0);
     break;
   }
   reg += UART_CTLR_OFFSET >> 2;

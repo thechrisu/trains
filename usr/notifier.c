@@ -27,6 +27,7 @@ void train_tx_notifier() {
 void train_rx_notifier() {
   Assert(RegisterAs("TrainRxNotifier") == 0);
   Assert(WhoIs("TrainRxNotifier") == MyTid());
+
   generic_notifier(TRAIN_RX_INTERRUPT, MyParentTid());
 }
 

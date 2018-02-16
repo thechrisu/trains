@@ -32,6 +32,9 @@ enum message_type {
   MESSAGE_SWITCH,
   MESSAGE_GETTRAIN,
   REPLY_GETTRAIN,
+  MESSAGE_GETSENSORS,
+  REPLY_GETSENSORS,
+  MESSAGE_SENSORSRECEIVED,
   MESSAGE_GETTURNOUTS,
   REPLY_GETTURNOUTS,
   MESSAGE_TRAINSETSPEED,
@@ -84,6 +87,7 @@ typedef struct {
     message_switch_params switch_params;
     train_data tr_data;
     char train;
+    int16_t sensors[10];
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
   } msg;

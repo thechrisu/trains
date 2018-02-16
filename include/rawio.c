@@ -25,11 +25,11 @@ char raw_get_error(int channel) {
   default:
     return 0;
   }
-  ERROR_REG = (int *)(ERROR_REG + UART_RSR_OFFSET);
-  if (*ERROR_REG) {
-    *ERROR_REG = 0; // RESET
+  int err = *(int *)(ERROR_REG + UART_RSR_OFFSET);
+  if (err) {
+    *(ERROR_REG + UART_RSR_OFFSET) = 0; // RESET
   }
-  return *ERROR_REG;
+  return err & 0xF;
 #endif
 }
 
@@ -108,7 +108,13 @@ int rawcanputc(int channel) {
   }
 #ifndef VERSATILEPB
   if (TRAIN == channel) {
-    return !(*flags & TXFF_MASK) && (*flags & CTS_MASK);
+    volatile int txff = *flags & TXFF_MASK;
+    volatile int cts = *flags & CTS_MASK;
+    volatile int r = !txff && cts;
+    if (!r) {
+      logprintf("Canputc for %d, TXFF: %x, CTS: %x\n\r", txff, cts);
+    }
+    return r;
   }
 #endif /* VERSATILEPB */
   return !(*flags & TXFF_MASK);

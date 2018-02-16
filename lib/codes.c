@@ -174,6 +174,7 @@ void EnableCaches(bool enable) {
 int AwaitEvent(int event_id) {
   register_t args[] = {(register_t)event_id};
   int ret = software_interrupt(SYS_AWAIT_EVENT, 1, args);
+  Assert(ret != 0xBADDA7A);
   return ret;
 }
 

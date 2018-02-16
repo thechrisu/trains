@@ -9,6 +9,7 @@
 
 #define IDLE_LINE             1
 #define CLOCK_LINE            2
+#define SENSOR_HEADING_LINE   4
 #define TURNOUTS_HEADING_LINE 4
 #define TURNOUTS_COLUMN       12
 #define CMD_LINE              18

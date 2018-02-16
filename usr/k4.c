@@ -58,7 +58,7 @@ void user_command_print(int server_tid, user_command *cmd) {
  * @param ibuf    The buffer holding the input string.
  * @return        1 iff it parsed a command.
  */
-int parse_command(char_buffer *ibuf, user_command *cmd, char data) {
+int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apologize for this mess
   if (data == '\r') {
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
@@ -140,6 +140,7 @@ void k4_first_user_task() {
   int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
   Assert(Create(my_priority + 7, &track_state_controller) > 0);
+  Assert(Create(my_priority + 4, &sensor_secretary) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
@@ -162,8 +163,10 @@ void k4_first_user_task() {
 
   Assert(Create(my_priority - 1, &switch_resetter) > 0);
 
-  Assert(Create(my_priority + 1, &clock_view) > 0);
-  Assert(Create(my_priority + 1, &turnout_view) > 0);
+  Assert(Create(my_priority, &clock_view) > 0);
+  Assert(Create(my_priority, &sensor_view) > 0);
+  Assert(Create(my_priority, &turnout_view) > 0);
+
 #endif /* E2ETESTING */
 
   while (true) {
@@ -185,6 +188,8 @@ void k4_first_user_task() {
       }
 
       if (current_cmd.type == USER_CMD_Q) {
+        Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
+        Delay(clock_server_tid, 100);
         break;
       } else {
         user_command_print(terminal_tx_server, &current_cmd);
@@ -194,7 +199,7 @@ void k4_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  Assert(Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1)) == 0);
+  Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);

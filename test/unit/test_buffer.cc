@@ -68,6 +68,52 @@ TEST(BufferTest, buffer_should_work_i_am_sorry_i_dont_have_more_detail) {
   }
 }
 
+TEST(BufferTest, iterate_backwards) {
+  char buf_data[BUF_SIZE];
+  char_buffer buf;
+  char_buffer_init(&buf, buf_data, BUF_SIZE);
+  char_buffer_put(&buf, 'A');
+  ASSERT_EQ(char_buffer_iter_prev_starti(&buf), 0);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 0), 0);
+
+  char_buffer_put(&buf, 'B');
+  ASSERT_EQ(char_buffer_iter_prev_starti(&buf), 1);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 1), 0);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 0), 1);
+
+  for (int i = 0; i < 8; i++) {
+    char_buffer_put(&buf, 'C' + i);
+  }
+  ASSERT_EQ(char_buffer_iter_prev_starti(&buf), 9);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 9), 8);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 1), 0);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 0), 9);
+}
+
+TEST(BufferTest, put_replace_iterate_backwards) {
+  char buf_data[BUF_SIZE];
+  char_buffer buf;
+  char_buffer_init(&buf, buf_data, BUF_SIZE);
+  for (int i = 0; i < 15; i++) {
+    char_buffer_put_replace(&buf, 'A' + i);
+  }
+
+  ASSERT_EQ(char_buffer_iter_prev_starti(&buf), 4);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 4), 3);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 3), 2);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 0), 9);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 6), 5);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 5), 4);
+}
+
+TEST(BufferTest, iterate_backwards_empty) {
+  char buf_data[BUF_SIZE];
+  char_buffer buf;
+  char_buffer_init(&buf, buf_data, BUF_SIZE);
+  ASSERT_EQ(char_buffer_prev_i(&buf, 0), 0);
+  ASSERT_EQ(char_buffer_iter_prev_starti(&buf), 0);
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);

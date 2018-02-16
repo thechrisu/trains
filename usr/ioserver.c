@@ -35,7 +35,11 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         break;
       case MESSAGE_PRINTF:
         for (uint32_t i = 0; i < received.msg.printf.size; i += 1) {
-          Assert(!char_buffer_is_full(&tx_buf));
+          if (char_buffer_is_full(&tx_buf)) {
+            logprintf("Transmit buffer of tx server (channel %d), notifier %d full\n\r",
+                      channel, notifier_tid);
+            Assert(!char_buffer_is_full(&tx_buf));
+          }
           char_buffer_put(&tx_buf, received.msg.printf.buf[i]);
         }
 
@@ -73,7 +77,10 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
       case MESSAGE_NOTIFIER: {
         char c;
         Assert(rawcangetc(channel));
-        Assert(rawgetc(channel, &c) == 0);
+        int err = rawgetc(channel, &c);
+        if (err) {
+          logprintf("OE: %x, BE: %x, PE: %x, FE: %x\n\r", err & OE_MASK, err & BE_MASK, err & PE_MASK, err & FE_MASK);
+        }
         Assert(!char_buffer_is_full(&rx_buf));
         char_buffer_put(&rx_buf, c);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
@@ -131,10 +138,10 @@ void terminal_rx_server() {
 }
 
 void spawn_ioservers() {
-  Assert(Create(MyPriority() + 1, &train_tx_server) >= 0);
-  Assert(Create(MyPriority() + 1, &train_rx_server) >= 0);
-  Assert(Create(MyPriority() + 1, &terminal_tx_server) >= 0);
-  Assert(Create(MyPriority() + 1, &terminal_rx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &train_tx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &train_rx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &terminal_tx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &terminal_rx_server) >= 0);
 }
 
 void kill_ioservers() {
