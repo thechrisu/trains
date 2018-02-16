@@ -8,7 +8,6 @@ char get_sensor_index(int receive_index, int sensor_offset);
 
 void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
   bool val_changed = false;
-  int32_t old_offset = SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems - 1 : recent_sensors_buf->in - 1);
   for (int i = 0; i < 10; i++) {
     if (sensors[i]) {
       for (int j = 0; j < 8; j++) {
@@ -17,9 +16,9 @@ void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
           val_changed = true;
           char ltr = 'A' + (i/2);
           char num = 1 + j + (i % 2 == 0 ? 0 : 8);
-          old_offset = SENSOR_HEADING_LINE + 1 + (recent_sensors_buf->in == 0 ? recent_sensors_buf->elems - 1 : recent_sensors_buf->in - 1);
-          Printf(terminal_tx_server, "%s%d;%dH%c%d   ", ESC, SENSOR_HEADING_LINE + 1 + recent_sensors_buf->in, 1, ltr, num);
-          Printf(terminal_tx_server, "%s%d;%dH   ", ESC, old_offset, 6);
+          uint32_t offset = recent_sensors_buf->in;
+          Printf(terminal_tx_server, "%s%d;%dH%c%d   ", ESC, SENSOR_HEADING_LINE + 1 + offset, 1, ltr, num);
+          Printf(terminal_tx_server, "%s%d;%dH   ", ESC, SENSOR_HEADING_LINE + 1 + (offset + 9) % 10, 6);
           char_buffer_put_replace(recent_sensors_buf, get_sensor_index(i, j));
         }
       }
