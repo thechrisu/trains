@@ -1,8 +1,6 @@
 #include "sensor_view.h"
 
 #define SENSOR_HISTORY_LENGTH 10
-#define SENSOR_HEADING_LINE 4
-#define SENSOR_REFRESH_PERIOD 6
 
 static char_buffer *recent_sensors_buf;
 
@@ -34,6 +32,7 @@ void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
 void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t leading_edge[10]) {
   for (int i = 0; i  < 10; i++) {
     leading_edge[i] = ~old_sensors[i] & new_sensors[i]; // 0 -> 1
+    old_sensors[i] = new_sensors[i];
   }
 }
 
@@ -64,7 +63,7 @@ void sensor_view() {
 
   Printf(terminal_tx_server, "%s%d;%dHSensors: ", ESC, SENSOR_HEADING_LINE, 1);
   while (true) {
-    Assert(Delay(clock_server, SENSOR_REFRESH_PERIOD) == 0);
+    Assert(Delay(clock_server, REFRESH_PERIOD) == 0);
     message sensor_poll_msg, sensor_poll_reply;
     sensor_poll_msg.type = MESSAGE_GETSENSORS;
     Assert(Send(track_state_controller,
