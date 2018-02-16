@@ -23,6 +23,13 @@ void track_state_controller() {
         reply.msg.tr_data.headlights = track.train[train].headlights;
         Reply(sender_tid, &reply, sizeof(reply));
         break;
+      case MESSAGE_GETTURNOUTS:
+        reply.type = REPLY_GETTURNOUTS;
+        for (int i = 0; i < NUM_TURNOUTS; i += 1) {
+          reply.msg.turnout_states[i] = track.turnouts[i];
+        }
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
+        break;
       case MESSAGE_TRAINSETSPEED:
         train = received.msg.train;
         Assert(train >= 0 && train <= 80);
@@ -43,6 +50,13 @@ void track_state_controller() {
                && received.msg.tr_data.should_speed <= 14);
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
+      case MESSAGE_TURNOUTSWITCHED: {
+        int turnout_num = received.msg.turnout_switched_params.turnout_num;
+        Assert(is_valid_turnout_num(turnout_num));
+        track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
+        Reply(sender_tid, EMPTY_MESSAGE, 0);
+        break;
+      }
       default:
         logprintf("track_state_controller received message of type %d\n\r", received.type);
         Assert(0);

@@ -8,6 +8,7 @@
 #include "a0codes.h"
 #include "codes.h"
 #include "messages.h"
+#include "track_node.h"
 #include "user_command.h"
 #include "train/reverser.h"
 #include "train/switcher.h"

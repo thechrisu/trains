@@ -2,7 +2,7 @@
 
 void init_track(track_state *global_track) {
   track_node *track = global_track->track;
-  char *turnouts = global_track->turnouts;
+  turnout_state *turnouts = global_track->turnouts;
   tmemset(track, 0, (int)(TRACK_MAX*sizeof(track_node)));
 
 #ifndef TESTING
@@ -1196,7 +1196,7 @@ void init_track(track_state *global_track) {
 #endif /* TESTING */
 
   for(int i = 0; i < NUM_TURNOUTS; i++) {
-    turnouts[i] = 'S'; // offset 18-21 map to 153-156
+    turnouts[i] = TURNOUT_UNKNOWN; // offset 18-21 map to 153-156
   }
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;
@@ -1211,4 +1211,8 @@ unsigned int turnout_num_to_map_offset(unsigned int turnout) {
 unsigned int map_offset_to_turnout(unsigned int offset) {
   if (offset < 18) return offset + 1;
   return offset + (153 - 18);
+}
+
+bool is_valid_turnout_num(unsigned int turnout) {
+  return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
 }
