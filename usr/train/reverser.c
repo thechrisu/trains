@@ -10,7 +10,7 @@ void reverser() {
     case MESSAGE_REVERSE:
 
       train_to_reverse = received.msg.reverser_params.train_to_reverse;
-      Assert(train_to_reverse >= 0 && train_to_reverse <= 81);
+      Assert(train_to_reverse <= 81);
       train_tx_tid = received.msg.reverser_params.train_tx_server_tid;
       clock_server_tid = received.msg.reverser_params.clock_server_tid;
       track_state_controller_tid = received.msg.reverser_params.track_state_controller_tid;

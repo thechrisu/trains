@@ -6,7 +6,11 @@ void generic_notifier(enum event_id to_wait_on, int server_tid) {
   message msg;
   msg.type = MESSAGE_NOTIFIER;
   while (true) {
+    if (to_wait_on == TRAIN_RX_INTERRUPT)
+      logprintf("Putting trainrxnotifier to sleep...\n\r");
     Assert(AwaitEvent(to_wait_on) == 0);
+    if (to_wait_on == TRAIN_RX_INTERRUPT)
+      logprintf("NOT WOKE\n\r");
     Assert(Send(server_tid, &msg, sizeof(msg), EMPTY_MESSAGE, 0) >= 0);
   }
   logprintf("ACCIDENTALLY KILLED NOTIFIER (EVENT: %d)\n\r", to_wait_on);
@@ -27,6 +31,7 @@ void train_tx_notifier() {
 void train_rx_notifier() {
   Assert(RegisterAs("TrainRxNotifier") == 0);
   Assert(WhoIs("TrainRxNotifier") == MyTid());
+
   generic_notifier(TRAIN_RX_INTERRUPT, MyParentTid());
 }
 

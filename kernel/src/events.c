@@ -13,6 +13,8 @@ void setup_events() {
 }
 
 bool event_has_task(int event_id) {
+  if (registered_tasks[event_id] != NULL_TASK_DESCRIPTOR && event_id == TRAIN_RX_INTERRUPT)
+    logprintf("Registered task id: %d\n\r", registered_tasks[event_id]->tid);
   return registered_tasks[event_id] != NULL_TASK_DESCRIPTOR
     && registered_tasks[event_id]->state == TASK_EVENT_BLOCKED;
 }
@@ -25,6 +27,9 @@ register_t event_register(int event_id, task_descriptor *task) {
   if (event_has_task(event_id)) {
     return -3;
   }
+  if (event_id == TRAIN_RX_INTERRUPT) {
+    logprintf("Registering task %d for train rx\n\r", task->tid);
+  }
   registered_tasks[event_id] = task;
   task->blocked_on = (enum event_id)event_id;
   task_set_state(task, TASK_EVENT_BLOCKED);
@@ -35,8 +40,12 @@ register_t event_register(int event_id, task_descriptor *task) {
 
 void event_handle(int event_id, int event_data) {
   kassert(event_id >= 0 && event_id <= MAX_EVENT_ID);
+  if (event_id == TRAIN_RX_INTERRUPT)
+    logprintf("Event handle train rx\n\r");
   if (event_has_task(event_id)) {
     task_descriptor *t = registered_tasks[event_id];
+    if (event_id == TRAIN_RX_INTERRUPT)
+      logprintf("Task %d has train rx\n\r", t->tid);
     kassert(t->state == TASK_EVENT_BLOCKED);
     kassert(t->blocked_on == (enum event_id)event_id);
     kassert(t->tf->r0 == 0xBADDA7A);

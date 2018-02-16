@@ -6,7 +6,7 @@ int uart0_txfe_asserted;
 void maybe_received_cts() {
 #ifndef TESTING
   volatile register_t *train_uart = (register_t*)(UART1_BASE + UART_FLAG_OFFSET);
-  uart0_cts_asserted |= (*train_uart) & CTS_MASK;
+  uart0_cts_asserted |= *train_uart & CTS_MASK;
 #endif /* TESTING */
 }
 

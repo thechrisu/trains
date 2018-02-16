@@ -12,6 +12,8 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
 
     switch (received.type) {
       case MESSAGE_NOTIFIER:
+        /*if (channel == TRAIN)
+          logprintf("NOT for train\n\r");*/
         if (!char_buffer_is_empty(&tx_buf)) {
           can_put = false;
           Assert(rawcanputc(channel));
@@ -29,6 +31,8 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
           can_put = false;
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
+          if (channel == TRAIN)
+            logprintf("Transmitting to train\n\r");
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
@@ -75,6 +79,8 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
 
     switch (received.type) {
       case MESSAGE_NOTIFIER: {
+        if (channel == TRAIN)
+          logprintf("NOT\n\r");
         char c;
         Assert(rawcangetc(channel));
         int err = rawgetc(channel, &c);
@@ -138,10 +144,10 @@ void terminal_rx_server() {
 }
 
 void spawn_ioservers() {
-  Assert(Create(MyPriority() + 1, &train_tx_server) >= 0);
-  Assert(Create(MyPriority() + 1, &train_rx_server) >= 0);
-  Assert(Create(MyPriority() + 1, &terminal_tx_server) >= 0);
-  Assert(Create(MyPriority() + 1, &terminal_rx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &train_tx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &train_rx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &terminal_tx_server) >= 0);
+  Assert(Create(MyPriority() + 10, &terminal_rx_server) >= 0);
 }
 
 void kill_ioservers() {

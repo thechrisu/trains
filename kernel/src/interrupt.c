@@ -110,6 +110,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
         break;
       case TRAIN_RX_INTERRUPT:
         event_data = 0;
+        logprintf("TRRX\n\r");
         interrupt_rx_clear(TRAIN);
         break;
 #endif /* VERSATILEPB */
