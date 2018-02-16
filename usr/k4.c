@@ -107,8 +107,12 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
     char_buffer_clear(ibuf);
     char_buffer_empty(ibuf);
     return true;
+  } else if (char_buffer_put_safe(ibuf, data)) {
+    char_buffer_clear(ibuf);
+    char_buffer_empty(ibuf);
+    user_command_reset(cmd);
+    return true;
   } else {
-    char_buffer_put(ibuf, data);
     return false;
   }
 }
