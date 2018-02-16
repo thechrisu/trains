@@ -145,12 +145,12 @@ void spawn_ioservers() {
 }
 
 void kill_ioservers() {
-  Assert(Kill(WhoIs("TrainTxServer")) == 0);
   Assert(Kill(WhoIs("TrainTxNotifier")) == 0);
-  Assert(Kill(WhoIs("TrainRxServer")) == 0);
+  Assert(Kill(WhoIs("TrainTxServer")) == 0);
   Assert(Kill(WhoIs("TrainRxNotifier")) == 0);
-  Assert(Kill(WhoIs("TerminalTxServer")) == 0);
+  Assert(Kill(WhoIs("TrainRxServer")) == 0);
   Assert(Kill(WhoIs("TerminalTxNotifier")) == 0);
-  Assert(Kill(WhoIs("TerminalRxServer")) == 0);
+  Assert(Kill(WhoIs("TerminalTxServer")) == 0);
   Assert(Kill(WhoIs("TerminalRxNotifier")) == 0);
+  Assert(Kill(WhoIs("TerminalRxServer")) == 0);
 }
