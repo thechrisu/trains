@@ -24,19 +24,22 @@ enum message_type {
   MESSAGE_K3_DONE,
   MESSAGE_PUTC,
   MESSAGE_GETC,
+  REPLY_GETC,
   MESSAGE_PRINTF,
+  REPLY_NAMESERVER,
   MESSAGE_USER,
   MESSAGE_REVERSE,
+  MESSAGE_SWITCH,
   MESSAGE_GETTRAIN,
   REPLY_GETTRAIN,
   MESSAGE_GETSENSORS,
   REPLY_GETSENSORS,
-  MESSAGE_TRAINREVERSED,
-  REPLY_GETC,
+  MESSAGE_SENSORSRECEIVED,
+  MESSAGE_GETTURNOUTS,
+  REPLY_GETTURNOUTS,
   MESSAGE_TRAINSETSPEED,
-  MESSAGE_SWITCH,
-  REPLY_NAMESERVER,
-  MESSAGE_SENSORSRECEIVED
+  MESSAGE_TRAINREVERSED,
+  MESSAGE_TURNOUTSWITCHED
 };
 
 typedef struct {
@@ -64,6 +67,11 @@ typedef struct {
 } message_switch_params;
 
 typedef struct {
+  unsigned int turnout_num;
+  turnout_state state;
+} message_turnout_switched_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -80,6 +88,8 @@ typedef struct {
     train_data tr_data;
     char train;
     int16_t sensors[10];
+    message_turnout_switched_params turnout_switched_params;
+    turnout_state turnout_states[NUM_TURNOUTS];
   } msg;
 } message;
 
