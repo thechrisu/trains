@@ -188,6 +188,8 @@ void k4_first_user_task() {
       }
 
       if (current_cmd.type == USER_CMD_Q) {
+        Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
+        Delay(clock_server_tid, 100);
         break;
       } else {
         user_command_print(terminal_tx_server, &current_cmd);
@@ -197,7 +199,7 @@ void k4_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  Assert(Printf(terminal_tx_server, "%sBye.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1)) == 0);
+  Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
