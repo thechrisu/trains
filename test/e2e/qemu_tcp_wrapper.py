@@ -88,9 +88,10 @@ def kill_qemu(handle):
 
 def call_qemu_tcp(optimized, timer_interrupts_on, iointerrupts_on):
     os.chdir(os.path.join(dir_path, '../..'))
-    popen_arg = '%s %s make qemutcprun%s' % ('TIMER_INTERRUPTS=true' if timer_interrupts_on else '', 'IOINTERRUPTS=true' if iointerrupts_on else '', 'o' if optimized else '')
+    popen_arg = 'exec make qemutcprun%s%s%s' % ('o' if optimized else '', ' TIMER_INTERRUPTS=true' if timer_interrupts_on else '', ' IOINTERRUPTS=true' if iointerrupts_on else '')
     handle = Popen(popen_arg, shell=True, stdout=PIPE,
-                   stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid))
+                   stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)  # , env=os.environ.copy())
+    i = 0
     lines = ''
     while True:
         line = handle.stderr.readline().decode('utf-8')
@@ -100,6 +101,11 @@ def call_qemu_tcp(optimized, timer_interrupts_on, iointerrupts_on):
         elif 'failed' in line or 'Failed' in line:
             kill_qemu(handle)
             raise ConnectionError(lines)
+        i += 1
+        if i > 20:
+            kill_qemu(handle)
+            raise ConnectionAbortedError(lines)
+
 
 def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False,
                       iointerrupts_on=False, will_segfault=False):
