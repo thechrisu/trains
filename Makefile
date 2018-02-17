@@ -191,7 +191,7 @@ $(builddirlab)/%.o: $(builddirlab)/%.s $(ASMlab)
 	$(AS) $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
-	$(shell ./gcc-ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc)
+	./gcc-ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc
 
 $(builddirlab)/main.bin: $(builddirlab)/main.elf
 	$(OBJCOPY) -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
