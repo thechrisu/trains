@@ -1,4 +1,5 @@
 .PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun md5
+.SECONDARY:
 default: upload;
 
 OPTIMIZATION = -O0
@@ -19,13 +20,12 @@ builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 #LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-LABPATH = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
-.SECONDARY:
+TOOLPATH = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
 
-XCC	= arm-elf-gcc
-AS	= arm-elf-as
-LD	= arm-elf-ld
-OBJCOPY = arm-elf-objcopy
+XCC	= $(TOOLPATH)gcc
+AS	= $(TOOLPATH)as
+LD	= $(TOOLPATH)ld
+OBJCOPY = $(TOOLPATH)objcopy
 
 # Detect if in Windows Subsystem for Linux
 ifeq ($(shell cat /proc/version | grep Microsoft || echo Linux),Linux)
