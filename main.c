@@ -10,7 +10,7 @@
 #include "mytimer.h"
 #include "schedule.h"
 #include "send_queue.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "syscall.h"
 #include "task.h"
 #include "test_runner.h"

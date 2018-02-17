@@ -14,7 +14,7 @@
 #include "clock.h"
 #include "nameserver.h"
 #include "./nameserver/ns_tid.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 void message_benchmark();
 

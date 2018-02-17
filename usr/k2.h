@@ -7,7 +7,7 @@
 
 #include "codes.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "nameserver.h"
 #include "test/nameserver/ns_tid.h"
 

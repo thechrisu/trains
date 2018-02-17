@@ -5,7 +5,7 @@
 #ifndef TRAINS_LAB_TIMER_H
 #define TRAINS_LAB_TIMER_H
 
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "timer_data.h"
 #include "ts7200.h"
 

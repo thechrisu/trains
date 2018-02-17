@@ -5,7 +5,7 @@
 #ifndef TRAINS_NS_TID_H
 #define TRAINS_NS_TID_H
 
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "codes.h"
 
 extern int ns_tid;

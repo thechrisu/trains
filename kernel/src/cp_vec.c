@@ -1,6 +1,6 @@
 #include "kassert.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 extern void enter_kernel();
 
