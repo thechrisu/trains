@@ -11,7 +11,7 @@ cache:
   apt: true
   directories:
    - $HOME/test/googletest
-   - $HOME/gnuarm-4.0.2/
+   - $HOME/gcc-arm-none-eabi-7-2017-q4-major
 
 addons:
   apt:
