@@ -34,13 +34,11 @@ install:
 env:
   -GTEST=$TRAVIS_BUILD_DIR/test/googletest/gtest/include
   -LIBGTEST=$TRAVIS_BUILD_DIR/test/googletest/build/googlemock/gtest/libgtest.a
-  -ARMLIBS=$HOME/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
 
 script:
   - which doxygen
   - ls $GTEST
   - ls $LIBGTEST
-  - ls $ARMLIBS
   - make md5
   - make ci -j2
 

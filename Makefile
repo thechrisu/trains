@@ -21,6 +21,7 @@ builddirtesting =build/testing
 
 #LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
 TOOLPATH = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
+ARMLIBS = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
 
 XCC	= $(TOOLPATH)gcc
 AS	= $(TOOLPATH)as
