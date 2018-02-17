@@ -102,7 +102,7 @@ LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versa
 LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
 	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
 LDFLAGSlab = -init main $(LTO) $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
-	-L$(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
+	-L$(armlibs)
 
 # /u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #
