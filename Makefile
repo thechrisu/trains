@@ -95,14 +95,14 @@ ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
 
 
 LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
-	-L$(armlibs) # SET THIS ENV VAR
+	-L$(ARMLIBS) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
-	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+	-L$(ARMLIBS) -nostartfiles # SET THIS ENV VAR
 
 LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
-	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+	-L$(ARMLIBS) -nostartfiles # SET THIS ENV VAR
 LDFLAGSlab = -init main $(LTO) $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
-	-L$(armlibs)
+	-L$(ARMLIBS)
 
 # /u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #
