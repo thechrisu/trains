@@ -3,7 +3,6 @@ import signal
 import socket
 import socketserver
 import sys
-import threading
 from queue import Queue
 from subprocess import Popen, PIPE, call
 
@@ -87,38 +86,25 @@ def kill_qemu(handle):
     handle.wait()
 
 
-call_qemu_tcp_handle = None
-call_qemu_tcp_lines = None
-
-
-def on_timeout(**kwargs):
-    if call_qemu_tcp_handle is not None:
-        kill_qemu(call_qemu_tcp_handle)
-    raise ConnectionError(call_qemu_tcp_lines)
-
-
 def call_qemu_tcp(optimized, timer_interrupts_on, iointerrupts_on):
     os.chdir(os.path.join(dir_path, '../..'))
     popen_arg = 'exec make qemutcprun%s%s%s' % ('o' if optimized else '', ' TIMER_INTERRUPTS=true' if timer_interrupts_on else '', ' IOINTERRUPTS=true' if iointerrupts_on else '')
-    call_qemu_tcp_handle = Popen(popen_arg, shell=True, stdout=PIPE, stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)
-    timeout_timer = threading.Timer(3, on_timeout)
+    handle = Popen(popen_arg, shell=True, stdout=PIPE,
+                   stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)  # , env=os.environ.copy())
     i = 0
-    call_qemu_tcp_lines = ''
+    lines = ''
     while True:
-        line = call_qemu_tcp_handle.stderr.readline().decode('utf-8')
-        call_qemu_tcp_lines += line if line != '' else ''
+        line = handle.stderr.readline().decode('utf-8')
+        lines += line if line != '' else ''
         if 'QEMU waiting' in line:
-            timeout_timer.cancel()
-            return call_qemu_tcp_handle
+            return handle
         elif 'failed' in line or 'Failed' in line:
-            timeout_timer.cancel()
-            kill_qemu(call_qemu_tcp_handle)
-            raise ConnectionError(call_qemu_tcp_lines)
+            kill_qemu(handle)
+            raise ConnectionError(lines)
         i += 1
         if i > 20:
-            timeout_timer.cancel()
-            kill_qemu(call_qemu_tcp_handle)
-            raise ConnectionAbortedError(call_qemu_tcp_lines)
+            kill_qemu(handle)
+            raise ConnectionAbortedError(lines)
 
 
 def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False,
