@@ -179,22 +179,22 @@ trainslab:
 #%.c
 $(builddirlab)/%.s: %.c $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(LABPATH)gcc $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
+	$(XCC) $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
 #
 # $(OBJECTSlab)
 $(builddirlab)/kernel/%.o: kernel/%.s $(ASMlab)
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) $< -o $@
 
 $(builddirlab)/%.o: $(builddirlab)/%.s $(ASMlab)
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
 	$(shell ./gcc-ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc)
 
 $(builddirlab)/main.bin: $(builddirlab)/main.elf
-	$(LABPATH)objcopy -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
+	$(OBJCOPY) -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
 
 #bwio.s: bwio.c
 #	$(XCC) -S $(CFLAGS) bwio.c
