@@ -14,6 +14,7 @@ int tasks_event_blocked = 0;
 void setup_tasks() {
   available_tids = 0x7FFFFFFFFFFFFFFF;
   for (int i = 0; i < MAX_TASKS; i += 1)
+    all_tasks[i]->state = TASK_ZOMBIE;
     the_next_generation[i] = 0;
 }
 
@@ -37,6 +38,8 @@ task_descriptor *get_task_with_userland_tid(tid_t tid) {
 }
 
 void task_init(task_descriptor *task, int priority, void (*task_main)(), task_descriptor *parent) {
+  kassert(task->state == TASK_ZOMBIE);
+
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Enter task_init, location of task in memory %x\n\r", task);
 #endif /* CONTEXT_SWITCH_DEBUG */
