@@ -1,4 +1,5 @@
 .PHONY: default ci arm versatilepb trainslab labdebug upload test qemu docs qemutesting qemutcprun md5
+.SECONDARY:
 default: upload;
 
 OPTIMIZATION = -O0
@@ -19,13 +20,13 @@ builddirtesting =build/testing
 #$(current_dir)build/versatilepb
 
 #LABPATH = /u/wbcowan/gnuarm-4.0.2/bin/arm-elf-
-LABPATH = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
-.SECONDARY:
+TOOLPATH = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/bin/arm-none-eabi-
+ARMLIBS = $(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
 
-XCC	= arm-elf-gcc
-AS	= arm-elf-as
-LD	= arm-elf-ld
-OBJCOPY = arm-elf-objcopy
+XCC	= $(TOOLPATH)gcc
+AS	= $(TOOLPATH)as
+LD	= $(TOOLPATH)ld
+OBJCOPY = $(TOOLPATH)objcopy
 
 # Detect if in Windows Subsystem for Linux
 ifeq ($(shell cat /proc/version | grep Microsoft || echo Linux),Linux)
@@ -95,14 +96,14 @@ ASFLAGS_versatilepb = -mcpu=arm920t -mapcs-32 -g --defsym VERSATILEPB=1
 
 
 LDFLAGSarm = -init main -Map=$(builddir)/main.map -N -T main.ld \
-	-L$(armlibs) # SET THIS ENV VAR
+	-L$(ARMLIBS) # SET THIS ENV VAR
 LDFLAGSversatilepb = -init main -Map=$(builddirversatilepb)/main.map -N -T versatilepb.ld \
-	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+	-L$(ARMLIBS) -nostartfiles # SET THIS ENV VAR
 
 LDFLAGSversatilepb_e2e = -init main -Map=$(builddirtesting)/main.map -N -T $(E2ELDFILE) \
-	-L$(armlibs) -nostartfiles # SET THIS ENV VAR
+	-L$(ARMLIBS) -nostartfiles # SET THIS ENV VAR
 LDFLAGSlab = -init main $(LTO) $(OPTIMIZATION) -Map=$(builddirlab)/main.map -N -T main.ld \
-	-L$(HOME)/gcc-arm-none-eabi-7-2017-q4-major/lib/gcc/arm-none-eabi/7.2.1
+	-L$(ARMLIBS)
 
 # /u/wbcowan/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 #
@@ -179,22 +180,22 @@ trainslab:
 #%.c
 $(builddirlab)/%.s: %.c $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(LABPATH)gcc $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
+	$(XCC) $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
 #
 # $(OBJECTSlab)
 $(builddirlab)/kernel/%.o: kernel/%.s $(ASMlab)
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) $< -o $@
 
 $(builddirlab)/%.o: $(builddirlab)/%.s $(ASMlab)
 	@mkdir -p $(dir $@)
-	$(LABPATH)as $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) $< -o $@
 
 $(builddirlab)/main.elf: $(OBJECTSlab)
-	$(shell ./gcc-ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc)
+	./gcc-ld $(LDFLAGSlab) -o $@ $(OBJECTSlab) -lgcc
 
 $(builddirlab)/main.bin: $(builddirlab)/main.elf
-	$(LABPATH)objcopy -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
+	$(OBJCOPY) -O binary $(builddirlab)/main.elf $(builddirlab)/main.bin
 
 #bwio.s: bwio.c
 #	$(XCC) -S $(CFLAGS) bwio.c

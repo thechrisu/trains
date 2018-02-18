@@ -1,4 +1,4 @@
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "myio.h"
 #include "syscall/syscall.h"
 

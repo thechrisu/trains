@@ -7,7 +7,7 @@
 
 #include "codes.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 void test_messaging_basic();
 void test_messaging_receive_before_send();

@@ -5,7 +5,7 @@
 #ifndef TRAINS_NAMESERVER_H
 #define TRAINS_NAMESERVER_H
 
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "codes.h"
 #include "messages.h"
 

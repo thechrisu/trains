@@ -11,7 +11,7 @@ cache:
   apt: true
   directories:
    - $HOME/test/googletest
-   - $HOME/gnuarm-4.0.2/
+   - $HOME/gcc-arm-none-eabi-7-2017-q4-major
 
 addons:
   apt:
@@ -25,23 +25,19 @@ git:
 
 install:
   - ls ~
-  - ls $HOME/gnuarm-4.0.2
   - pwd
-  - if [ ! -d $HOME/gnuarm-4.0.2/bin ]; then wget http://www.doc.ironwoodlabs.com/gnuarm/gnuarm-distribution/web/www.gnuarm.com/bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 --quiet && tar -xjf bu-2.16.1_gcc-4.0.2-c-c++_nl-1.14.0_gi-6.4_x86-64.tar.bz2 -C ~; fi
-  - PATH=$HOME/gnuarm-4.0.2/bin:$PATH
+  - if [ ! -d $HOME/gcc-arm-none-eabi-7-2017-q4-major/bin ]; then wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/7-2017q4/gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2?revision=375265d4-e9b5-41c8-bf23-56cbe927e156?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,7-2017-q4-major --output-document=gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 --quiet && tar -xjf gcc-arm-none-eabi-7-2017-q4-major-linux.tar.bz2 -C ~; fi
   - rm -rf test/googletest
   - if [ -d $HOME/test/googletest/build ]; then ln -s $HOME/test/googletest $TRAVIS_BUILD_DIR/test/googletest; else cd test && git clone -b gtest-real https://github.com/culshoefer/googletest-prebuilt.git && mv googletest-prebuilt/gtest googletest && ls googletest && mv googletest/googletest googletest/gtest && cd .. && mkdir -p $HOME/test && cp -r $TRAVIS_BUILD_DIR/test/googletest $HOME/test; fi
 
 env:
   -GTEST=$TRAVIS_BUILD_DIR/test/googletest/gtest/include
   -LIBGTEST=$TRAVIS_BUILD_DIR/test/googletest/build/googlemock/gtest/libgtest.a
-  -armlibs=$HOME/gnuarm-4.0.2/lib/gcc/arm-elf/4.0.2
 
 script:
   - which doxygen
   - ls $GTEST
   - ls $LIBGTEST
-  - ls $armlibs
   - make md5
   - make ci -j2
 

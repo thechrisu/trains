@@ -24,7 +24,7 @@
 #include "./test_mypriority.h"
 #include "clock/test_clock.h"
 #include "myio.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 void test_runner();
 

@@ -9,7 +9,7 @@
 
 #if VERSATILEPB // QEMU
 #include "../kernel/include/versatilepb/timer.h"
-#include "stdlib.h"
+#include "tstdlib.h"
 
 #else
 

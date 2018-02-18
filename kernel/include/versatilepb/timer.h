@@ -6,7 +6,7 @@
 #define TRAINS_VERSATILEPB_TIMER_H
 
 
-#include "stdlib.h"
+#include "tstdlib.h"
 #include "timer_data.h"
 #include "versatilepb.h"
 
