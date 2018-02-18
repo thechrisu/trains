@@ -14,7 +14,7 @@ int tasks_event_blocked = 0;
 void setup_tasks() {
   available_tids = 0x7FFFFFFFFFFFFFFF;
   for (int i = 0; i < MAX_TASKS; i += 1) {
-    all_tasks[i]->state = TASK_ZOMBIE;
+    all_tasks[i].state = TASK_ZOMBIE;
     the_next_generation[i] = 0;
   }
 }
