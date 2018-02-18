@@ -167,7 +167,7 @@ void k4_first_user_task() {
   cmd_msg.msg.cmd.type = USER_CMD_GO;
   Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
 
-  Assert(Create(my_priority - 1, &switch_resetter) > 0);
+  Assert(Create(my_priority - 1, &turnout_resetter) > 0);
 
   Assert(Create(my_priority, &clock_view) > 0);
   Assert(Create(my_priority, &sensor_view) > 0);
