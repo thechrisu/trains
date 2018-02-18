@@ -62,7 +62,7 @@ typedef struct {
 typedef struct {
   int clock_server_tid;
   int tx_server_tid;
-  int switch_num;
+  int turnout_num;
   bool curved;
 } message_switch_params;
 

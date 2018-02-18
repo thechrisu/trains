@@ -46,7 +46,7 @@ void command_dispatcher_server() {
             send.type = MESSAGE_SWITCH;
             send.msg.switch_params.clock_server_tid = clock_server;
             send.msg.switch_params.tx_server_tid = train_tx_server;
-            send.msg.switch_params.switch_num = turnout_num;
+            send.msg.switch_params.turnout_num = turnout_num;
             send.msg.switch_params.curved = curved;
 
             int switcher_tid = Create(MyPriority() + 7, &switcher);

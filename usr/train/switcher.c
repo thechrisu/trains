@@ -14,7 +14,7 @@ void switcher() {
 
   char buf[2];
   buf[0] = (char)(received.msg.switch_params.curved ? SWITCH_CURVED : SWITCH_STRAIGHT);
-  buf[1] = (char)received.msg.switch_params.switch_num;
+  buf[1] = (char)received.msg.switch_params.turnout_num;
 
   PutBytes(tx_server_tid, buf, 2);
   Delay(clock_server_tid, 15);
