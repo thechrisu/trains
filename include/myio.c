@@ -141,7 +141,7 @@ int setfifo(int channel, int state) {
       line = (int *) (UART1_BASE + UART_LCRH_OFFSET);
 #else
       line = (int *) (UART2_BASE + UART_LCRH_OFFSET);
-#endif
+#endif /* VERSATILEPB */
       break;
     default:
       return -1;

@@ -347,7 +347,7 @@ int bwgetc( int channel ) {
       return -1;
   }
 
-  while (!(*flags & RXFF_MASK));
+  while (*flags & RXFE_MASK);
   c = *data;
   return c;
 }

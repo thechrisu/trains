@@ -79,9 +79,14 @@ int rawgetc(int channel, char *c) {
     default:
       return -1;
   }
-  *c = *data & DATA_MASK;
+  volatile int d = *data;
+  *c = d & DATA_MASK;
   if (channel == TRAIN) {
+#if FIFOS
+    return (d & ((OE_MASK | BE_MASK | PE_MASK | FE_MASK) << 8)) >> 8;
+#else
     return raw_get_error(channel) & (OE_MASK | BE_MASK | PE_MASK | FE_MASK);
+#endif /* FIFOS */
   }
   return 0;
 }
@@ -140,5 +145,5 @@ int rawcangetc(int channel) {
     default:
       return 0;
   }
-  return *flags & RXFF_MASK;
+  return !(*flags & RXFE_MASK);
 }
