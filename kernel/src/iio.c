@@ -80,6 +80,9 @@ void enable_uart_event(enum event_id e) {
       break;
     case TERMINAL_RX_INTERRUPT:
       enable_uart_interrupt(TERMINAL, UARTRXINTR_MASK, enable);
+#if FIFOS && IOINTERRUPTS
+      enable_uart_interrupt(TERMINAL, UARTRTINTR_MASK, enable);
+#endif /* FIFOS */
       break;
     default:
       break;
@@ -97,6 +100,9 @@ void enable_uart_event(enum event_id e) {
       break;
     case TERMINAL_RX_INTERRUPT:
       enable_uart_interrupt(TERMINAL, UARTRXENABLE_MASK, enable);
+#if FIFOS && IOINTERRUPTS
+      enable_uart_interrupt(TERMINAL, UARTRTENABLE_MASK, enable);
+#endif /* FIFOS */
       break;
     default:
       break;
@@ -122,8 +128,18 @@ void interrupt_rx_clear(int channel) {
 #ifndef TESTING
 #if VERSATILEPB
   enable_uart_interrupt(channel, UARTRXINTR_MASK, false);
+#if FIFOS && IOINTERURPTS
+  if (channel == TERMINAL) {
+    enable_uart_interrupt(channel, UARTRTINTR_MASK, false);
+  }
+#endif /* FIFOS */
 #else
   enable_uart_interrupt(channel, UARTRXENABLE_MASK, false);
+#if FIFOS && IOINTERRUPTS
+  if (channel == TERMINAL) {
+    enable_uart_interrupt(channel, UARTRTENABLE_MASK, false);
+  }
+#endif /* FIFOS */
 #endif /* VERSATILEPB */
 #endif /* TESTING */
 }

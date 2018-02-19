@@ -82,6 +82,10 @@ void enable_io_interrupts(int enable) {
   nop();
   enable_uart_interrupt(TRAIN, UARTRXINTR_MASK, enable);
   enable_uart_interrupt(TERMINAL, UARTRXINTR_MASK, enable);
+#if FIFOS && IOINTERRUPTS
+  nop();
+  enable_uart_interrupt(TERMINAL, UARTRTINTR_MASK, enable);
+#endif /* FIFOS && IOINTERRUPTS */
 #else
   enable_uart_interrupt(TRAIN, UARTTXENABLE_MASK, enable);
   enable_uart_interrupt(TERMINAL, UARTTXENABLE_MASK, enable);
@@ -90,6 +94,10 @@ void enable_io_interrupts(int enable) {
   enable_uart_interrupt(TERMINAL, UARTRXENABLE_MASK, enable);
   nop();
   enable_uart_interrupt(TRAIN, UARTMIENABLE_MASK, enable);
+#if FIFOS && IOINTERRUPTS
+  nop();
+  enable_uart_interrupt(TRAIN, UARTRTENABLE_MASK, enable);
+#endif /* FIFOS && IOINTERRUPTS */
 #endif /* VERSATILEPB */
   nop();
 }
@@ -101,7 +109,11 @@ void setup_io() {
   nop();
   setfifo(TRAIN, OFF);
   nop();
+#if FIFOS && IOINTERRUPTS
+  setfifo(TERMINAL, ON);
+#else
   setfifo(TERMINAL, OFF);
+#endif /* FIFOS */
   nop();
   raw_get_error(TRAIN); // Just to make sure we don't cause it...
 }
@@ -156,6 +168,11 @@ int setfifo(int channel, int state) {
     buf |= WLEN_MASK;
   }
   buf = state ? (buf | FEN_MASK) : (buf & ~FEN_MASK);
+#if VERSATILEPB
+  if (state && channel == TERMINAL) {
+    *((int *)UART1_BASE + UARTIFLS_OFFSET) |= (2 << 3) | 2; // half full
+  }
+#endif /* VERSATILEPB */
   *line = buf;
   return 0;
 }
