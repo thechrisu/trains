@@ -230,6 +230,11 @@ void test_runner() {
       .code = &test_go_stop,
       .prio = 5
     },
+    {
+      .name = "destroy_many_tasks",
+      .code = &test_destroy_many_tasks,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
