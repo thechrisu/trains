@@ -28,6 +28,7 @@
 #define CLEAR_SCREEN "\033[2J"
 #define CURSOR_UPPER_LEFT "\033[H"
 #define ESC ("\033[")
+#define ESC_CH ('\033')
 #define __CURSOR_ROW_COL(r, c) ("\033[" #r ";" #c "H")
 #define CURSOR_ROW_COL(r, c) __CURSOR_ROW_COL(r, c)
 #define HIDE_CURSOR "\033[?25l"

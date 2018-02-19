@@ -26,10 +26,21 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         Assert(!char_buffer_is_full(&tx_buf));
         char_buffer_put(&tx_buf, received.msg.putc);
         if (can_put) {
-          can_put = false;
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
+#if FIFOS && IOINTERRUPTS
+	  while (rawcanputc(channel)) {
+	    //Assert(1 == 0);
+	    if (char_buffer_peek(&tx_buf) == ESC_CH || char_buffer_is_empty(&tx_buf)) {
+	      break;
+	    }
+	    Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+	  }
+	  can_put = rawcanputc(channel);
+#else
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          can_put = false;
+#endif /* FIFOS */
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
@@ -46,10 +57,20 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
 
         if (received.msg.printf.size > 0 && can_put) {
-          can_put = false;
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
+#if FIFOS && IOINTERRUPTS
+	  while (rawcanputc(channel)) {
+	    if (char_buffer_peek(&tx_buf) == ESC_CH || char_buffer_is_empty(&tx_buf)) {
+	      break;
+	    }
+	    Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+	  }
+	  can_put = rawcanputc(channel);
+#else
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          can_put = false;
+#endif /* FIFOS */
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
@@ -75,6 +96,9 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
 
     switch (received.type) {
       case MESSAGE_NOTIFIER: {
+#if FIFOS && IOINTERRUPTS
+	while (rawcangetc(channel)) {
+#endif /* FIFOS */
         char c;
         Assert(rawcangetc(channel));
         int err = rawgetc(channel, &c);
@@ -83,8 +107,15 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
         }
         Assert(!char_buffer_is_full(&rx_buf));
         char_buffer_put(&rx_buf, c);
+#if FIFOS && IOINTERRUPTS
+        }
+#endif /* FIFOS */
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+#if FIFOS && IOINTERRUPTS
+        while (!int32_t_buffer_is_empty(&wait_buf)) {
+#else
         if (!int32_t_buffer_is_empty(&wait_buf)) {
+#endif /* FIFOS */
           reply.type = REPLY_GETC;
           reply.msg.getc = char_buffer_get(&rx_buf);
           Assert(Reply(int32_t_buffer_get(&wait_buf), &reply, sizeof(reply)) >= 0);

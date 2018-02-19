@@ -122,9 +122,20 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
             event_data = 0;
             highest_prio_event = TRAIN_TX_INTERRUPT;
           }
+          break;
         }
 #endif /* VERSATILEPB */
-        break; // I <3 GCC
+#if FIFOS && IOINTERRUPTS
+	if (is_rt_interrupt() && event_has_task(TERMINAL_RX_INTERRUPT)) {
+	  kassert(highest_prio_event == -1);
+	  event_data = 0;
+	  highest_prio_event = TERMINAL_RX_INTERRUPT;
+	  interrupt_rx_clear(TERMINAL);
+	  //syscall_panic();
+	  // TODO disable both the RT and the RX interrupt.
+	  break;
+	}
+#endif /* FIFOS */
       }
     }
     if (highest_prio_event != -1) {

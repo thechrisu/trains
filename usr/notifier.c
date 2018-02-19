@@ -40,6 +40,13 @@ void terminal_tx_notifier() {
 void terminal_rx_notifier() { // TODO make this more general by passing in the names/interrupts via messsages (and registering this task as MyParentTid() + X)...
   Assert(RegisterAs("TerminalRxNotifier") == 0);
   Assert(WhoIs("TerminalRxNotifier") == MyTid());
+
+#if FIFOS && IOINTERRUPTS // Needs to be turned on, otherwise Getc() will never wake up (at least in Versatile/PB)
+  message msg;
+  msg.type = MESSAGE_NOTIFIER;
+  Assert(Send(MyParentTid(), &msg, sizeof(msg), EMPTY_MESSAGE, 0) == 0);
+#endif /* FIFOS && IOINTERRUPTS */
+
   generic_notifier(TERMINAL_RX_INTERRUPT, MyParentTid());
 }
 

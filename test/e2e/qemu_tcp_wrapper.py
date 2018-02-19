@@ -88,7 +88,7 @@ def kill_qemu(handle):
 
 def call_qemu_tcp(optimized, timer_interrupts_on, iointerrupts_on):
     os.chdir(os.path.join(dir_path, '../..'))
-    popen_arg = 'exec make qemutcprun%s%s%s 2>&1' % ('o' if optimized else '', ' TIMER_INTERRUPTS=true' if timer_interrupts_on else '', ' IOINTERRUPTS=true' if iointerrupts_on else '')
+    popen_arg = 'exec make qemutcprun FIFOS=true %s%s%s 2>&1' % ('o' if optimized else '', ' TIMER_INTERRUPTS=true' if timer_interrupts_on else '', ' IOINTERRUPTS=true' if iointerrupts_on else '')
     handle = Popen(popen_arg, shell=True, stdout=PIPE,
                    stdin=PIPE, stderr=PIPE, preexec_fn=os.setsid)  # , env=os.environ.copy())
     lines = ''

@@ -162,3 +162,18 @@ int get_modem_interrupt_bits() {
 #endif /* VERSATILEPB */
 #endif /* TESTING */
 }
+
+int is_rt_interrupt() {
+#if TESTING
+  return 0;
+#else
+#if VERSATILEPB
+  if (*(register_t*)VIC1_BASE & VIC1_UART1_MASK) {
+#else
+  if (*(register_t*)VIC2_BASE & VIC2_UART2MOD_MASK) {
+#endif /* VERSATILEPB */
+    return rawcangetc(TERMINAL);
+  }
+  return 0;
+#endif /* TESTING */
+}
