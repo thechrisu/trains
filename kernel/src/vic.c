@@ -119,6 +119,9 @@ void setup_vic() {
   enable_in_vic(TERMINAL_RX_INTERRUPT);
 #if !VERSATILEPB
   enable_vic_bit(UART1_BIT); // THE TRAIN, CHOO CHOO
+#if FIFOS && IOINTERRUPTS
+  enable_vic_bit(UART2_BIT); // FOR FIFOS
+#endif /* FIFOS && IOINTERRUPTS */
 #endif /* !VERSATILEPB */
 #endif /* !E2ETESTING || IOINTERRUPTS */
 
