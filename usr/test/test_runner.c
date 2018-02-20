@@ -255,6 +255,11 @@ void test_runner() {
       .code = &test_destroy_block_kill,
       .prio = 5
     },
+    {
+      .name = "destroy_parent_tid",
+      .code = &test_destroy_parent_tid,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 

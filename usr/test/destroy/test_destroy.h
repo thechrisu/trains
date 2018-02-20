@@ -11,5 +11,6 @@ void test_destroy_task_limit();
 void test_destroy_nameserver();
 void test_destroy_send_queue();
 void test_destroy_block_kill();
+void test_destroy_parent_tid();
 
 #endif /* TEST_DESTROY_H */

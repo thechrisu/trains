@@ -7,6 +7,12 @@ destroy_send_queue_output = \
     ['Parent exiting'] + \
     ['Child with tid {} exiting'.format(tid) for tid in range(67, 77)]
 
+destroy_parent_tid_output = [
+    'Parent - MyTid: 2',
+    'Child - MyTid: 67, MyParentTid: 2',
+    'Grandchild - MyTid: 4, MyParentTid: 67'
+]
+
 def split_output(s):
     return list(filter(lambda x: x != '', s.split('\n\r')))
 
@@ -33,3 +39,6 @@ class TestDestroy(unittest.TestCase):
 
     def test_destroy_block_kill(self):
         test_destroy(self, 'destroy_block_kill')
+
+    def test_destroy_parent_tid(self):
+        test_destroy_with_output(self, 'destroy_parent_tid', destroy_parent_tid_output)
