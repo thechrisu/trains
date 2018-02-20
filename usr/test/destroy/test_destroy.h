@@ -9,5 +9,7 @@
 void test_destroy_many_tasks();
 void test_destroy_task_limit();
 void test_destroy_nameserver();
+void test_destroy_send_queue();
+void test_destroy_block_kill();
 
 #endif /* TEST_DESTROY_H */

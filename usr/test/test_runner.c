@@ -245,6 +245,16 @@ void test_runner() {
       .code = &test_destroy_nameserver,
       .prio = 5
     },
+    {
+      .name = "destroy_send_queue",
+      .code = &test_destroy_send_queue,
+      .prio = 5
+    },
+    {
+      .name = "destroy_block_kill",
+      .code = &test_destroy_block_kill,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
