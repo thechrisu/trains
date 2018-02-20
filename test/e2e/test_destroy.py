@@ -17,3 +17,6 @@ class TestDestroy(unittest.TestCase):
 
     def test_destroy_task_limit(self):
         test_destroy(self, 'destroy_task_limit')
+
+    def test_destroy_nameserver(self):
+        test_destroy(self, 'destroy_nameserver')

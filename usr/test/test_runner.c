@@ -240,6 +240,11 @@ void test_runner() {
       .code = &test_destroy_task_limit,
       .prio = 5
     },
+    {
+      .name = "destroy_nameserver",
+      .code = &test_destroy_nameserver,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 

@@ -3,8 +3,11 @@
 
 #include "codes.h"
 #include "constants.h"
+#include "nameserver.h"
+#include "../nameserver/ns_tid.h"
 
 void test_destroy_many_tasks();
 void test_destroy_task_limit();
+void test_destroy_nameserver();
 
 #endif /* TEST_DESTROY_H */
