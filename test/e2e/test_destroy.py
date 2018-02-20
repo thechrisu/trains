@@ -1,6 +1,8 @@
 import unittest
 from qemu_tcp_wrapper import qemu_oneshot_test
 
+TIMEOUT = 10
+
 def split_output(s):
     return list(filter(lambda x: x != '', s.split('\n\r')))
 
