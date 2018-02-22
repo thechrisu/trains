@@ -2,8 +2,8 @@
 
 
 void getter() {
-  for (int i = 0; i < 4; i++) {
-    bwgetc(TERMINAL);
+  for (int i = 0; i < 5; i++) {
+    Assert(bwgetc(TERMINAL) >= 0);
   }
 }
 

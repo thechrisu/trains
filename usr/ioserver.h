@@ -11,6 +11,7 @@
 #include "int32_t_buffer.h"
 #include "notifier.h"
 #include "rawio.h"
+#include "terminal.h"
 
 #define TERMINAL_TX_BUF_SZ 20000
 #define TERMINAL_RX_BUF_SZ 20000

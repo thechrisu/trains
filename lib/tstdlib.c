@@ -1,15 +1,16 @@
 #include "tstdlib.h"
 
-void tmemcpy(void *dst, void *src, unsigned int n) { // (char *) only used to suppress warning
+void tmemcpy(void *dst, const void *src, unsigned int n) { // (char *) only used to suppress warning
   // assert(dst != src && ((src < dst && (char *) src + n < (char *) dst) || ((char *) dst + n < (char *) src)));
   unsigned char *srcp = (unsigned char *)src;
   unsigned char *dstp = (unsigned char *)dst;
   while (n-- > 0) { *dstp++ = *srcp++; }
 }
 
-void memcpy(void *dst, void *src, unsigned int n) { // (char *) only used to suppress warning
+void *memcpy(void *dst, const void *src, unsigned int n) { // (char *) only used to suppress warning
   // assert(dst != src && ((src < dst && (char *) src + n < (char *) dst) || ((char *) dst + n < (char *) src)));
   tmemcpy(dst, src, n);
+  return dst;
 }
 
 void *tmemset(void *s, int c, unsigned int n) {
@@ -19,7 +20,7 @@ void *tmemset(void *s, int c, unsigned int n) {
 }
 
 void *memset(void *s, int c, unsigned int n) {
-  tmemset(s, c, n);
+  return tmemset(s, c, n);
 }
 
 int tstrncmp(const char *destination, const char *source, int max_length) {

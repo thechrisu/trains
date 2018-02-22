@@ -12,6 +12,7 @@
 // TODO install_handler(int interrupt_num);
 
 #define UART1_BIT 52
+#define UART2_BIT 54
 
 /**
  * Want to read/write something in the VIC, but don't know which bit to modify?

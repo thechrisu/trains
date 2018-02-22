@@ -114,6 +114,18 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
         break;
 #endif /* VERSATILEPB */
       default: {
+#if FIFOS && IOINTERRUPTS
+        if (is_rt_interrupt()) {
+          kassert(highest_prio_event == -1);
+          event_data = 0;
+          interrupt_rx_clear(TERMINAL);
+          highest_prio_event = TERMINAL_RX_INTERRUPT;
+          break;
+        }
+#ifndef VERSATILEPB
+        else
+#endif /* VERSATILEPB */
+#endif /* FIFOS && IOINTERRUTPS */
 #ifndef VERSATILEPB
         if (get_modem_interrupt_bits()) { // CTS?
           interrupt_modem_clear();
@@ -122,9 +134,9 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
             event_data = 0;
             highest_prio_event = TRAIN_TX_INTERRUPT;
           }
+          break;
         }
 #endif /* VERSATILEPB */
-        break; // I <3 GCC
       }
     }
     if (highest_prio_event != -1) {

@@ -48,7 +48,7 @@ void event_handle(int event_id, int event_data) {
   } else if (has_event_been_registered[event_id]) {
 #ifndef TESTING
     logprintf("Oops! We dropped an event of type %d.\n\r", event_id);
-    Assert(0);
+    kassert(0);
 #endif /* TESTING */
   }
 }

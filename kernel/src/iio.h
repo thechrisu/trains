@@ -78,4 +78,10 @@ void interrupt_tx_clear(int channel);
  */
 int get_modem_interrupt_bits();
 
+/**
+ * Checks if the VIC has the correct status and if there is a byte in the receive FIFO.
+ * @return >0 if the above conditions are true, 0 if not.
+ */
+int is_rt_interrupt();
+
 #endif /* IIO_H */

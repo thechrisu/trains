@@ -15,6 +15,7 @@
 #define PUT_REPLACE(T)         CONCAT(T, _put_replace)
 #define REMOVE(T)              CONCAT(T, _remove)
 #define GET(T)                 CONCAT(T, _get)
+#define PEEK(T)                CONCAT(T, _peek)
 #define EMPTY(T)               CONCAT(T, _empty)
 
 // Would have implemented this using _Generic, but we are on C99.
@@ -64,6 +65,10 @@ void PUT_REPLACE(BUFFER_TYPE)(BUFFER_TYPE *b, ELEMENT_TYPE e) {
 void REMOVE(BUFFER_TYPE)(BUFFER_TYPE *b) {
   b->out = (b->out + 1) % b->size;
   b->elems--;
+}
+
+ELEMENT_TYPE PEEK(BUFFER_TYPE)(BUFFER_TYPE *b) {
+  return b->data[b->out];
 }
 
 ELEMENT_TYPE GET(BUFFER_TYPE)(BUFFER_TYPE *b) {

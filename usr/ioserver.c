@@ -26,10 +26,10 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         Assert(!char_buffer_is_full(&tx_buf));
         char_buffer_put(&tx_buf, received.msg.putc);
         if (can_put) {
-          can_put = false;
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          can_put = false;
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
@@ -46,10 +46,86 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
 
         if (received.msg.printf.size > 0 && can_put) {
-          can_put = false;
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          can_put = false;
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
+        }
+        break;
+      default:
+        Assert(0);
+    }
+  }
+  Assert(0);
+}
+
+void fifo_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
+  int sender_tid;
+  message received;
+  char buf[buf_sz];
+  char_buffer tx_buf;
+  char_buffer_init(&tx_buf, buf, buf_sz);
+  bool can_put = false;
+  while (true) {
+    Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
+
+    switch (received.type) {
+      case MESSAGE_NOTIFIER:
+        if (!char_buffer_is_empty(&tx_buf)) {
+          do {
+            if (char_buffer_is_empty(&tx_buf)) {
+              break;
+            }
+            Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          } while (rawcanputc(channel) && !(char_buffer_peek(&tx_buf) == ESC_CH));
+          can_put = false;
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
+        } else {
+          can_put = true;
+        }
+        break;
+      case MESSAGE_PUTC:
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+        Assert(!char_buffer_is_full(&tx_buf));
+        char_buffer_put(&tx_buf, received.msg.putc);
+        if (can_put) {
+          if (!rawcanputc(channel))
+            logprintf("CANT PUT IN %s\n\r", channel == TRAIN ? "TRAIN" : "TERMINAL");
+            Assert(rawcanputc(channel));
+          Assert(!char_buffer_is_empty(&tx_buf));
+          do {
+            if (char_buffer_is_empty(&tx_buf)) {
+              break;
+            }
+            Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          } while (rawcanputc(channel) && !(char_buffer_peek(&tx_buf) == ESC_CH));
+          can_put = false;
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
+        }
+        break;
+      case MESSAGE_PRINTF:
+        for (uint32_t i = 0; i < received.msg.printf.size; i += 1) {
+          if (char_buffer_is_full(&tx_buf)) {
+            logprintf("Transmit buffer of tx server (channel %d), notifier %d full\n\r",
+                      channel, notifier_tid);
+            Assert(!char_buffer_is_full(&tx_buf));
+          }
+          char_buffer_put(&tx_buf, received.msg.printf.buf[i]);
+        }
+
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+
+        if (received.msg.printf.size > 0 && can_put) {
+          Assert(rawcanputc(channel));
+          Assert(!char_buffer_is_empty(&tx_buf));
+          do {
+            if (char_buffer_is_empty(&tx_buf)) {
+              break;
+            }
+            Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          } while (rawcanputc(channel) && !(char_buffer_peek(&tx_buf) == ESC_CH));
+          can_put = false;
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
@@ -107,6 +183,55 @@ void generic_rx_server(uint16_t buf_sz, int channel) {
   Assert(0);
 }
 
+void fifo_rx_server(uint16_t buf_sz, int channel) {
+  int sender_tid;
+  message received, reply;
+  char buf[buf_sz];
+  char_buffer rx_buf;
+  char_buffer_init(&rx_buf, buf, buf_sz);
+  int32_t wait[MAX_TASKS];
+  int32_t_buffer wait_buf;
+  int32_t_buffer_init(&wait_buf, wait, MAX_TASKS);
+
+  while (true) {
+    Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
+
+    switch (received.type) {
+      case MESSAGE_NOTIFIER: {
+        while (rawcangetc(channel)) {
+          char c;
+          Assert(rawcangetc(channel));
+          int err = rawgetc(channel, &c);
+          if (err) {
+            logprintf("OE: %x, BE: %x, PE: %x, FE: %x\n\r", err & OE_MASK, err & BE_MASK, err & PE_MASK, err & FE_MASK);
+          }
+          Assert(!char_buffer_is_full(&rx_buf));
+          char_buffer_put(&rx_buf, c);
+        }
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+        while (!int32_t_buffer_is_empty(&wait_buf)) {
+          reply.type = REPLY_GETC;
+          reply.msg.getc = char_buffer_get(&rx_buf);
+          Assert(Reply(int32_t_buffer_get(&wait_buf), &reply, sizeof(reply)) >= 0);
+        }
+        break;
+      }
+      case MESSAGE_GETC:
+        if (!char_buffer_is_empty(&rx_buf)) {
+          reply.type = REPLY_GETC;
+          reply.msg.getc = char_buffer_get(&rx_buf);
+          Assert(Reply(sender_tid, &reply, sizeof(reply)) >= 0);
+        } else {
+          int32_t_buffer_put(&wait_buf, sender_tid);
+        }
+        break;
+      default:
+        Assert(0);
+    }
+  }
+  Assert(0);
+}
+
 void train_tx_server() {
   Assert(RegisterAs("TrainTxServer") == 0);
   Assert(WhoIs("TrainTxServer") == MyTid());
@@ -127,14 +252,22 @@ void terminal_tx_server() {
   Assert(WhoIs("TerminalTxServer") == MyTid());
   int notifier_tid = Create(MyPriority() + 1, &terminal_tx_notifier);
   Assert(notifier_tid >= 0);
+#if FIFOS && IOINTERRUPTS
+  fifo_tx_server(TERMINAL_TX_BUF_SZ, TERMINAL, notifier_tid);
+#else
   generic_tx_server(TERMINAL_TX_BUF_SZ, TERMINAL, notifier_tid);
+#endif /* FIFOS && IOINTERRUPTS */
 }
 
 void terminal_rx_server() {
   Assert(RegisterAs("TerminalRxServer") == 0);
   Assert(WhoIs("TerminalRxServer") == MyTid());
   Assert(Create(MyPriority() + 1, &terminal_rx_notifier) >= 0);
+#if FIFOS && IOINTERRUPTS
+  fifo_rx_server(TERMINAL_RX_BUF_SZ, TERMINAL);
+#else
   generic_rx_server(TERMINAL_RX_BUF_SZ, TERMINAL);
+#endif /* FIFOS && IOINTERRUPTS */
 }
 
 void spawn_ioservers() {

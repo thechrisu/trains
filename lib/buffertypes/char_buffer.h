@@ -18,6 +18,7 @@ void char_buffer_put(char_buffer *b, char e);
 int char_buffer_put_safe(char_buffer *b, char e);
 void char_buffer_put_replace(char_buffer *b, char e);
 void char_buffer_remove(char_buffer *b);
+char char_buffer_peek(char_buffer *b);
 char char_buffer_get(char_buffer *b);
 void char_buffer_empty(char_buffer *b);
 uint32_t char_buffer_length(char_buffer *b);

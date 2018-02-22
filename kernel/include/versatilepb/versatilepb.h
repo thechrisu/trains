@@ -54,6 +54,7 @@
 #define STP2_MASK           0x08
 #define PEN_MASK            0x01
 
+#define UARTIFLS_OFFSET     0x034
 #define UARTIMSC_OFFSET     0x038
 #define UARTRIS_OFFSET      0x03C
 #define UARTMIS_OFFSET      0x040 // Read-only
@@ -64,6 +65,7 @@
 #define UARTCTSMIC_MASK     0x001 // Note we don't use this in versatilepb
 #define UARTRXINTR_MASK     0x010
 #define UARTTXINTR_MASK     0x020
+#define UARTRTINTR_MASK     0x040
 #define UARTERRORS_MASK     0x780
 
 #define VIC1_BASE           0x10140000
@@ -86,4 +88,4 @@
 // #define TX_FIFO_WIDTH 8 // TODO
 // #define RX_FIFO_WIDTH 11 // TODO
 // start bit - data bits(8, LSB first) - parity bit - stop bits
-// #define FIFO_DEPTH 16 // TODO
+#define FIFO_DEPTH 16

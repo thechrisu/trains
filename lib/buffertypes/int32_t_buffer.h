@@ -18,6 +18,7 @@ void int32_t_buffer_put(int32_t_buffer *b, int32_t e);
 int int32_t_buffer_put_safe(int32_t_buffer *b, int32_t e);
 void int32_t_buffer_put_replace(int32_t_buffer *b, int32_t e);
 void int32_t_buffer_remove(int32_t_buffer *b);
+int32_t int32_t_buffer_peek(int32_t_buffer *b);
 int32_t int32_t_buffer_get(int32_t_buffer *b);
 void int32_t_buffer_empty(int32_t_buffer *b);
 uint32_t int32_t_buffer_length(int32_t_buffer *b);

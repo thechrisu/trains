@@ -13,7 +13,7 @@ class TestInterrupts(unittest.TestCase):
             self.assertEqual(r, e)
 
     def test_rx_terminal(self):
-        ret = real_output = qemu_oneshot_test('test_rx_terminal', 'ddddd', TIMEOUT, iointerrupts_on=True)
+        ret = real_output = qemu_oneshot_test('test_rx_terminal', 'ddddd', TIMEOUT, iointerrupts_on=True, send_pause=0.05)
         real_lines = list(filter(lambda x: x != '', real_output.split('\n\r')))
         expected_lines = ['TerminalRxInterrupt return code: 0'] * 5
         self.assertEqual(len(real_lines), len(expected_lines))
