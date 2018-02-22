@@ -75,7 +75,7 @@ void i2a(int num, char *bf);
 #if HOSTCONFIG
 #else
 
-void tmemcpy(void *dst, void *src, unsigned int n);
+void tmemcpy(void *dst, const void *src, unsigned int n);
 void *tmemset(void *s, int c, unsigned int n);
 
 #ifndef E2ETESTING
