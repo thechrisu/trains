@@ -128,7 +128,7 @@ def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False,
             assert s.sendall(bytes(prog_name, 'ascii')) is None
             if not send_pause is None:
                 for i in te_data:
-                    time.sleep(0.05)
+                    time.sleep(send_pause)
                     assert s.sendall(bytes(i, 'ascii')) is None
             else:
                 assert s.sendall(bytes(te_data, 'ascii')) is None
