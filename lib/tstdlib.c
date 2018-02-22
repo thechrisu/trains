@@ -18,6 +18,10 @@ void *tmemset(void *s, int c, unsigned int n) {
   return s;
 }
 
+void *memset(void *s, int c, unsigned int n) {
+  tmemset(s, c, n);
+}
+
 int tstrncmp(const char *destination, const char *source, int max_length) {
   for (int i = 0; i < max_length; i++) {
     if (destination[i] == '\0' && source[i] == '\0') return 0;
