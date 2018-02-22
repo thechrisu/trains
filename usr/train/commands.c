@@ -13,6 +13,19 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) >= 0);
 }
 
+void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train, bool current_direction) {
+  char send_reverse_cmd[2];
+  send_reverse_cmd[0] = REVERSE_SPEED;
+  send_reverse_cmd[1] = train;
+  PutBytes(train_tx_server_tid, send_reverse_cmd, 2);
+
+  message send;
+  send.type = MESSAGE_TRAINREVERSED;
+  send.msg.train = train;
+  send.msg.tr_data.direction = !current_direction;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) >= 0);
+}
+
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved) {
   char buf[2];
   buf[0] = (char)(curved ? 0x22 : 0x21);
