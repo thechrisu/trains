@@ -11,12 +11,9 @@ void switcher() {
 
   int clock_server_tid = received.msg.switch_params.clock_server_tid;
   int tx_server_tid = received.msg.switch_params.tx_server_tid;
+  int track_state_controller_tid = WhoIs("TrackStateController");
 
-  char buf[2];
-  buf[0] = (char)(received.msg.switch_params.curved ? SWITCH_CURVED : SWITCH_STRAIGHT);
-  buf[1] = (char)received.msg.switch_params.turnout_num;
-
-  PutBytes(tx_server_tid, buf, 2);
-  Delay(clock_server_tid, 15);
-  Putc(tx_server_tid, TRAIN, (char)SWITCH_SOLENOID);
+  int turnout_num = received.msg.switch_params.turnout_num;
+  bool curved = received.msg.switch_params.curved;
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, turnout_num, curved);
 }

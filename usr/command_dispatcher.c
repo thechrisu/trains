@@ -2,7 +2,7 @@
 
 void command_dispatcher_server() {
   int sender_tid;
-  message received, train_data_msg;
+  message received;
   Assert(RegisterAs("CommandDispatcher") == 0);
   int train_tx_server = WhoIs("TrainTxServer");
   int clock_server = WhoIs("ClockServer");
@@ -42,12 +42,6 @@ void command_dispatcher_server() {
             int switcher_tid = Create(MyPriority() + 7, &switcher);
             Assert(switcher_tid > 0);
             Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-
-            train_data_msg.type = MESSAGE_TURNOUTSWITCHED;
-            train_data_msg.msg.turnout_switched_params.turnout_num = turnout_num;
-            train_data_msg.msg.turnout_switched_params.state = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
-            Assert(Send(track_state_controller, &train_data_msg, sizeof(train_data_msg),
-                        EMPTY_MESSAGE, 0) >= 0);
             break;
           }
           case USER_CMD_RV: {
