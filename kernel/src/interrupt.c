@@ -116,7 +116,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
       default: {
 #if FIFOS && IOINTERRUPTS
         if (is_rt_interrupt()) {
-          logprintf("RTI\n\r");
           kassert(highest_prio_event == -1);
           event_data = 0;
           interrupt_rx_clear(TERMINAL);

@@ -92,9 +92,9 @@ void fifo_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
         Assert(!char_buffer_is_full(&tx_buf));
         char_buffer_put(&tx_buf, received.msg.putc);
         if (can_put) {
-          /*if (!rawcanputc(channel))
+          if (!rawcanputc(channel))
             logprintf("CANT PUT IN %s\n\r", channel == TRAIN ? "TRAIN" : "TERMINAL");
-            Assert(rawcanputc(channel));*/
+            Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
           do {
             if (char_buffer_is_empty(&tx_buf)) {
@@ -127,10 +127,8 @@ void fifo_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
             }
             Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           } while (rawcanputc(channel) && !(char_buffer_peek(&tx_buf) == ESC_CH));
-          can_put = rawcanputc(channel);
-          int r = Reply(notifier_tid, EMPTY_MESSAGE, 0);
-          if (r < 0)
-            logprintf("REPLY: %d\n\r", r);
+          can_put = false;
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
       default:
