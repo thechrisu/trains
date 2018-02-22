@@ -25,6 +25,7 @@
 #include "./test_message_benchmark.h"
 #include "./test_mypriority.h"
 #include "clock/test_clock.h"
+#include "destroy/test_destroy.h"
 #include "myio.h"
 #include "tstdlib.h"
 
