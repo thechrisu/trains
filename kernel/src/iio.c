@@ -169,11 +169,15 @@ int is_rt_interrupt() {
 #else
 #if VERSATILEPB
   if (*(register_t*)VIC1_BASE & VIC1_UART1_MASK) {
-#else
-  if (*(register_t*)VIC2_BASE & VIC2_UART2MOD_MASK) {
-#endif /* VERSATILEPB */
     return rawcangetc(TERMINAL);
   }
   return 0;
+#else
+#if DEBUG_FIFOS
+  logprintf("VIC: %x\n\r", *((register_t*)VIC2_BASE) & VIC2_UART2MOD_MASK);
+  logprintf("UART: %x\n\r", (register_t*)(UART2_BASE + UART_INTR_OFFSET));
+#endif /* DEBUG_FIFOS */
+  return ((*(register_t*)VIC2_BASE & VIC2_UART2MOD_MASK) && (*(register_t*)(UART2_BASE + UART_INTR_OFFSET) & UARTRTINTR_MASK));
+#endif /* VERSATILEPB */
 #endif /* TESTING */
 }
