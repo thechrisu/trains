@@ -17,7 +17,7 @@ void reverser() {
       Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
 
       get_train_msg.type = MESSAGE_GETTRAIN;
-      get_train_msg.msg.train = train_to_reverse;
+      get_train_msg.msg.tr_data.train = train_to_reverse;
 
       Assert(Send(track_state_controller_tid, &get_train_msg, sizeof(get_train_msg),
                   &train_data_msg, sizeof(train_data_msg))

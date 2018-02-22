@@ -8,7 +8,7 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
 
   message send;
   send.type = MESSAGE_TRAINSETSPEED;
-  send.msg.train = train;
+  send.msg.tr_data.train = train;
   send.msg.tr_data.should_speed = speed;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
@@ -21,7 +21,7 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
 
   message send;
   send.type = MESSAGE_TRAINREVERSED;
-  send.msg.train = train;
+  send.msg.tr_data.train = train;
   send.msg.tr_data.direction = !current_direction;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
