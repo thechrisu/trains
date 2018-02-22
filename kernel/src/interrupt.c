@@ -122,7 +122,7 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
           highest_prio_event = TERMINAL_RX_INTERRUPT;
           break;
         }
-#ifdef VERSATILEPB
+#ifndef VERSATILEPB
         else
 #endif /* VERSATILEPB */
 #endif /* FIFOS && IOINTERRUTPS */
