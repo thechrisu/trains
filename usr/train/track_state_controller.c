@@ -57,9 +57,6 @@ void track_state_controller() {
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         track.train[train].direction = received.msg.tr_data.direction;
-        track.train[train].should_speed = received.msg.tr_data.should_speed;
-        Assert(received.msg.tr_data.should_speed >= 0
-               && received.msg.tr_data.should_speed <= 14);
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
       case MESSAGE_TURNOUTSWITCHED: {
