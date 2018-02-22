@@ -138,16 +138,6 @@ trapframe *handle_vic_event(task_descriptor *current_task, int highest_prio_even
           break;
         }
 #endif /* VERSATILEPB */
-#if FIFOS && IOINTERRUPTS
-        if (is_rt_interrupt()) {
-          logprintf("RT\n\r");
-          kassert(highest_prio_event == -1);
-          event_data = 0;
-          interrupt_rx_clear(TERMINAL);
-          highest_prio_event = TERMINAL_RX_INTERRUPT;
-          break;
-        }
-#endif /* FIFOS */
       }
     }
     if (highest_prio_event != -1) {

@@ -77,7 +77,7 @@ void i2a(int num, char *bf);
 
 void tmemcpy(void *dst, void *src, unsigned int n);
 #ifndef E2ETESTING
-void memcpy(void *dst, void *src, unsigned int n);
+void *memcpy(void *dst, const void *src, unsigned int n);
 #endif /* E2ETESTING */
 void *tmemset(void *s, int c, unsigned int n);
 
