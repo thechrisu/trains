@@ -1,5 +1,61 @@
 #include "test_runner.h"
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
+typedef struct {
+  char *name;
+  void (*code)();
+  int prio;
+} test;
+
+void print_help() {
+  bwprintf("\n\r");
+  bwprintf("%sHelp%s\n\r", BOLD_TEXT, RESET_TEXT);
+  bwprintf("help\tPrint this help screen.\n\r");
+  bwprintf("list\tList available tests.\n\r");
+  bwprintf("\n\r");
+}
+
+void print_tests(test *tests) {
+  bwprintf("\n\r");
+  bwprintf("%sTests%s\n\r", BOLD_TEXT, RESET_TEXT);
+  bwprintf("test\n\r");
+
+  test *current_test = (test *)tests;
+  while (!tstrcmp(current_test->name, "")) {
+    bwprintf("%s\n\r", current_test->name);
+    current_test += 1;
+  }
+
+  bwprintf("\n\r");
+}
+
+void run_test(test *tests, char *name) {
+  if (tstrcmp(name, "help")) {
+    print_help();
+    return;
+  } else if (tstrcmp(name, "list")) {
+    print_tests(tests);
+    return;
+  } else if (tstrcmp(name, "test")) {
+    bwprintf("TestReturn\n\r");
+    return;
+  }
+
+  test *current_test = (test *)tests;
+  while (!tstrcmp(current_test->name, "")) {
+    if (tstrcmp(name, current_test->name)) {
+      Create(MyPriority() + current_test->prio, current_test->code);
+      return;
+    }
+    current_test += 1;
+  }
+
+  if (!tstrcmp(name, "q")) {
+    bwprintf("Unknown test program \"%s\"\n\r", name);
+  }
+}
+
 void exec_prog(int priority, void (*code)()) {
   Create(priority, code);
 }
@@ -9,6 +65,210 @@ void test_runner() {
   char buf[512];
   int i;
 
+  test tests[] = {
+    {
+      .name = "k1",
+      .code = &k1_first_user_task,
+      .prio = 4
+    },
+    {
+      .name = "k2",
+      .code = &k2_first_user_task,
+      .prio = 10
+    },
+    {
+      .name = "k3",
+      .code = &k3_first_user_task,
+      .prio = 15
+    },
+    {
+      .name = "k4",
+      .code = &k4_first_user_task,
+      .prio = 15
+    },
+    {
+      .name = "messaging_basic",
+      .code = &test_messaging_basic,
+      .prio = 4
+    },
+    {
+      .name = "messaging_receive_before_send",
+      .code = &test_messaging_receive_before_send,
+      .prio = 4
+    },
+    {
+      .name = "messaging_sequence",
+      .code = &test_messaging_sequence,
+      .prio = 4
+    },
+    {
+      .name = "messaging_truncation",
+      .code = &test_messaging_truncation,
+      .prio = 4
+    },
+    {
+      .name = "messaging_invalid_tid",
+      .code = &test_messaging_invalid_tid,
+      .prio = 4
+    },
+    {
+      .name = "messaging_fifo_send",
+      .code = &test_messaging_fifo_send,
+      .prio = 4
+    },
+    {
+      .name = "messaging_same_priority",
+      .code = &test_messaging_same_priority,
+      .prio = 4
+    },
+    {
+      .name = "messaging_send_recipient_zombie",
+      .code = &test_messaging_send_recipient_zombie,
+      .prio = 4
+    },
+    {
+      .name = "messaging_reply_target_zombie",
+      .code = &test_messaging_reply_target_zombie,
+      .prio = 4
+    },
+    {
+      .name = "messaging_tree",
+      .code = &test_messaging_tree,
+      .prio = 4
+    },
+    {
+      .name = "messaging_exit_with_blocked",
+      .code = &test_messaging_exit_with_blocked,
+      .prio = 4
+    },
+    {
+      .name = "test_nameserver_wrapper_errors",
+      .code = &test_nameserver_wrapper_errors,
+      .prio = 4
+    },
+    {
+      .name = "test_nameserver_too_many",
+      .code = &test_nameserver_too_many,
+      .prio = 4
+    },
+    {
+      .name = "test_nameserver_happypath",
+      .code = &test_nameserver_happypath,
+      .prio = 4
+    },
+    {
+      .name = "test_undefined_handler",
+      .code = &test_undefined_handler,
+      .prio = 4
+    },
+    {
+      .name = "message_benchmark",
+      .code = &message_benchmark,
+      .prio = 6
+    },
+    {
+      .name = "test_mypriority",
+      .code = &test_mypriority,
+      .prio = 4
+    },
+    {
+      .name = "test_timer_interrupt",
+      .code = &test_timer_interrupt,
+      .prio = 4
+    },
+    {
+      .name = "test_tx_terminal",
+      .code = &test_tx_terminal,
+      .prio = 4
+    },
+    {
+      .name = "test_rx_terminal",
+      .code = &test_rx_terminal,
+      .prio = 4
+    },
+    {
+      .name = "clock_errors",
+      .code = &clock_errors,
+      .prio = 3
+    },
+    {
+      .name = "clock_accuracy",
+      .code = &clock_accuracy,
+      .prio = 3
+    },
+    {
+      .name = "clock_syscall_errors",
+      .code = &clock_syscall_errors,
+      .prio = 3
+    },
+    {
+      .name = "clock_syscall_accuracy",
+      .code = &clock_syscall_accuracy,
+      .prio = 3
+    },
+    {
+      .name = "test_getcputc_mirror",
+      .code = &test_getcputc_mirror,
+      .prio = 5
+    },
+    {
+      .name = "test_getcputc_errors",
+      .code = &test_getcputc_errors,
+      .prio = 5
+    },
+    {
+      .name = "printf_errors",
+      .code = &printf_errors,
+      .prio = 5
+    },
+    {
+      .name = "printf_happy_path",
+      .code = &printf_happy_path,
+      .prio = 5
+    },
+    {
+      .name = "test_get_sensors",
+      .code = &test_get_sensors,
+      .prio = 5
+    },
+    {
+      .name = "test_go_stop",
+      .code = &test_go_stop,
+      .prio = 5
+    },
+    {
+      .name = "destroy_many_tasks",
+      .code = &test_destroy_many_tasks,
+      .prio = 5
+    },
+    {
+      .name = "destroy_task_limit",
+      .code = &test_destroy_task_limit,
+      .prio = 5
+    },
+    {
+      .name = "destroy_nameserver",
+      .code = &test_destroy_nameserver,
+      .prio = 5
+    },
+    {
+      .name = "destroy_send_queue",
+      .code = &test_destroy_send_queue,
+      .prio = 5
+    },
+    {
+      .name = "destroy_block_kill",
+      .code = &test_destroy_block_kill,
+      .prio = 5
+    },
+    {
+      .name = "destroy_parent_tid",
+      .code = &test_destroy_parent_tid,
+      .prio = 5
+    },
+    { .name = "" } // Keep this guard element at the end of the array.
+  };
+
   do {
     i = 0;
     buf[0] = '\0';
@@ -17,89 +277,22 @@ void test_runner() {
 
     c = bwgetc(TERMINAL);
     while (c != '\r') {
-      buf[i] = c;
-      i += 1;
-      putc(TERMINAL, c);
+      if (c == 8 || c == 127) {
+        i = max(0, i - 1);
+        putc(TERMINAL, 8);
+        putc(TERMINAL, ' ');
+        putc(TERMINAL, 8);
+      } else {
+        buf[i] = c;
+        i += 1;
+        putc(TERMINAL, c);
+      }
       c = bwgetc(TERMINAL);
     }
 
-    bwprintf("\n\r");
-
     buf[i] = '\0';
 
-
-    if (tstrcmp(buf, "k1")) {
-      exec_prog(MyPriority() + 4, &k1_first_user_task);
-    } else if (tstrcmp(buf, "k2")) {
-      exec_prog(MyPriority() + 10, &k2_first_user_task);
-    } else if (tstrcmp(buf, "k3")) {
-      exec_prog(MyPriority() + 15, &k3_first_user_task);
-    } else if (tstrcmp(buf, "k4")) {
-      exec_prog(MyPriority() + 15, &k4_first_user_task);
-    } else if (tstrcmp(buf, "test")) {
-      bwprintf("TestReturn\n\r", buf);
-    } else if (tstrcmp(buf, "messaging_basic")) {
-      exec_prog(MyPriority() + 4, &test_messaging_basic);
-    } else if (tstrcmp(buf, "messaging_receive_before_send")) {
-      exec_prog(MyPriority() + 4, &test_messaging_receive_before_send);
-    } else if (tstrcmp(buf, "messaging_sequence")) {
-      exec_prog(MyPriority() + 4, &test_messaging_sequence);
-    } else if (tstrcmp(buf, "messaging_truncation")) {
-      exec_prog(MyPriority() + 4, &test_messaging_truncation);
-    } else if (tstrcmp(buf, "messaging_invalid_tid")) {
-      exec_prog(MyPriority() + 4, &test_messaging_invalid_tid);
-    } else if (tstrcmp(buf, "messaging_fifo_send")) {
-      exec_prog(MyPriority() + 4, &test_messaging_fifo_send);
-    } else if (tstrcmp(buf, "messaging_same_priority")) {
-      exec_prog(MyPriority() + 4, &test_messaging_same_priority);
-    } else if (tstrcmp(buf, "messaging_send_recipient_zombie")) {
-      exec_prog(MyPriority() + 4, &test_messaging_send_recipient_zombie);
-    } else if (tstrcmp(buf, "messaging_reply_target_zombie")) {
-      exec_prog(MyPriority() + 4, &test_messaging_reply_target_zombie);
-    } else if (tstrcmp(buf, "messaging_tree")) {
-      exec_prog(MyPriority() + 4, &test_messaging_tree);
-    } else if (tstrcmp(buf, "messaging_exit_with_blocked")) {
-      exec_prog(MyPriority() + 4, &test_messaging_exit_with_blocked);
-    } else if (tstrcmp(buf, "test_nameserver_wrapper_errors")) {
-      exec_prog(MyPriority() + 4, &test_nameserver_wrapper_errors);
-    } else if (tstrcmp(buf, "test_nameserver_too_many")) {
-      exec_prog(MyPriority() + 4, &test_nameserver_too_many);
-    } else if (tstrcmp(buf, "test_nameserver_happypath")) {
-      exec_prog(MyPriority() + 4, &test_nameserver_happypath);
-    } else if (tstrcmp(buf, "test_undefined_handler")) {
-      exec_prog(MyPriority() + 4, &test_undefined_handler);
-    } else if (tstrcmp(buf, "message_benchmark")) {
-      exec_prog(MyPriority() + 6, &message_benchmark);
-    } else if (tstrcmp(buf, "test_mypriority")) {
-      exec_prog(MyPriority() + 4, &test_mypriority);
-    } else if (tstrcmp(buf, "test_timer_interrupt")) {
-      exec_prog(MyPriority() + 4, &test_timer_interrupt);
-    } else if (tstrcmp(buf, "test_tx_terminal")) {
-      exec_prog(MyPriority() + 4, &test_tx_terminal);
-    } else if (tstrcmp(buf, "test_rx_terminal")) {
-      exec_prog(MyPriority() + 4, &test_rx_terminal);
-    } else if (tstrcmp(buf, "clock_errors")) {
-      exec_prog(MyPriority() + 3, &clock_errors);
-    } else if (tstrcmp(buf, "clock_accuracy")) {
-      exec_prog(MyPriority() + 3, &clock_accuracy);
-    } else if (tstrcmp(buf, "clock_syscall_errors")) {
-      exec_prog(MyPriority() + 3, &clock_syscall_errors);
-    } else if (tstrcmp(buf, "clock_syscall_accuracy")) {
-      exec_prog(MyPriority() + 3, &clock_syscall_accuracy);
-    } else if (tstrcmp(buf, "test_getcputc_mirror")) {
-      exec_prog(MyPriority() + 5, &test_getcputc_mirror);
-    } else if (tstrcmp(buf, "test_getcputc_errors")) {
-      exec_prog(MyPriority() + 5, &test_getcputc_errors);
-    } else if (tstrcmp(buf, "printf_errors")) {
-      exec_prog(MyPriority() + 5, &printf_errors);
-    } else if (tstrcmp(buf, "printf_happy_path")) {
-      exec_prog(MyPriority() + 5, &printf_happy_path);
-    } else if (tstrcmp(buf, "test_get_sensors")) {
-      exec_prog(MyPriority() + 5, &test_get_sensors);
-    } else if (tstrcmp(buf, "test_go_stop")) {
-      exec_prog(MyPriority() + 5, &test_go_stop);
-    } else if (!tstrcmp(buf, "q")) {
-      bwprintf("Unknown test program \"%s\"\n\r", buf);
-    }
+    bwprintf("\n\r");
+    run_test(tests, buf);
   } while (!tstrcmp(buf, "q"));
 }

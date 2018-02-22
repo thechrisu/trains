@@ -6,7 +6,8 @@
 #define TRAINS_TEST_BUFFER_H
 
 
-#include <stdio.h>
+#include <iostream>
+#include <cstdlib>
 #include "char_buffer.h"
 
 #endif /* TRAINS_TEST_BUFFER_H */

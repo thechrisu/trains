@@ -5,6 +5,8 @@
 #ifndef TEST_RUNNER
 #define TEST_RUNNER
 
+#include "terminal.h"
+
 #include "../k1.h"
 #include "../k2.h"
 #include "../k3.h"
@@ -23,6 +25,7 @@
 #include "./test_message_benchmark.h"
 #include "./test_mypriority.h"
 #include "clock/test_clock.h"
+#include "destroy/test_destroy.h"
 #include "myio.h"
 #include "tstdlib.h"
 

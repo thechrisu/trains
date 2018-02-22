@@ -55,9 +55,11 @@ void clear_send_queue(task_descriptor *td) {
   send_queue *q = td->send_queue;
   while (!send_queue_is_empty(q)) {
     task_descriptor *sender = send_queue_dequeue(q);
-    sender->tf->r0 = -2;
-    task_set_state(sender, TASK_RUNNABLE);
-    register_task(sender);
+    if (sender->state == TASK_RECEIVE_BLOCKED) {
+      sender->tf->r0 = -2;
+      task_set_state(sender, TASK_RUNNABLE);
+      register_task(sender);
+    }
   }
 }
 
