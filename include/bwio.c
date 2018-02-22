@@ -220,7 +220,7 @@ int putc(int channel, char c) {
   // TXFF: Transmit buffer full
   if (TRAIN == channel) {
 #if VERSATILEPB
-    while ((*flags & TXFF_MASK));
+    while (*flags & TXFF_MASK);
 #else
     int got_empty = 0;
     int got_cts = 0;
@@ -228,9 +228,9 @@ int putc(int channel, char c) {
       got_cts |= *flags & CTS_MASK;
       got_empty |= *flags & TXFE_MASK;
     }
-#endif
+#endif /* VERSATILEPB */
   } else {
-    while ((*flags & TXFF_MASK));
+    while (*flags & TXFF_MASK);
   }
   *data = c;
   return 0;
