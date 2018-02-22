@@ -81,7 +81,7 @@ void fifo_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
             }
             Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           } while (rawcanputc(channel) && !(char_buffer_peek(&tx_buf) == ESC_CH));
-          can_put = rawcanputc(channel);
+          can_put = false;
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         } else {
           can_put = true;
@@ -102,7 +102,7 @@ void fifo_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
             }
             Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           } while (rawcanputc(channel) && !(char_buffer_peek(&tx_buf) == ESC_CH));
-          can_put = rawcanputc(channel);
+          can_put = false;
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
