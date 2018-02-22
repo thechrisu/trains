@@ -1,5 +1,7 @@
 #include "test_runner.h"
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
 typedef struct {
   char *name;
   void (*code)();
@@ -52,6 +54,10 @@ void run_test(test *tests, char *name) {
   if (!tstrcmp(name, "q")) {
     bwprintf("Unknown test program \"%s\"\n\r", name);
   }
+}
+
+void exec_prog(int priority, void (*code)()) {
+  Create(priority, code);
 }
 
 void test_runner() {
@@ -241,9 +247,16 @@ void test_runner() {
 
     c = bwgetc(TERMINAL);
     while (c != '\r') {
-      buf[i] = c;
-      i += 1;
-      putc(TERMINAL, c);
+      if (c == 8 || c == 127) {
+        i = max(0, i - 1);
+        putc(TERMINAL, 8);
+        putc(TERMINAL, ' ');
+        putc(TERMINAL, 8);
+      } else {
+        buf[i] = c;
+        i += 1;
+        putc(TERMINAL, c);
+      }
       c = bwgetc(TERMINAL);
     }
 
