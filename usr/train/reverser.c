@@ -23,14 +23,15 @@ void reverser() {
                   &train_data_msg, sizeof(train_data_msg))
              > 0);
 
+      int should_speed = train_data_msg.msg.tr_data.should_speed;
+
 #if DEBUG_REVERSAL
-      logprintf("Stopping train %d (speed %d) for reversal\n\r",
-                train_to_reverse, train_data_msg.msg.tr_data.should_speed);
+      logprintf("Stopping train %d (speed %d) for reversal\n\r", train_to_reverse, should_speed);
 #endif /* DEBUG_REVERSAL */
 
       set_train_speed(train_tx_tid, track_state_controller_tid, train_to_reverse, 0);
 
-      Delay(clock_server_tid, train_data_msg.msg.tr_data.should_speed * 33); // 3 seconds
+      Delay(clock_server_tid, should_speed * 33); // 3 seconds
 
 #if DEBUG_REVERSAL
       logprintf("Reversing train %d\n\r", train_to_reverse);
@@ -39,11 +40,9 @@ void reverser() {
       reverse_train(train_tx_tid, track_state_controller_tid, train_to_reverse, train_data_msg.msg.tr_data.direction);
 
 #if DEBUG_REVERSAL
-      logprintf("Re-accelerating train %d after reversal to %d\n\r", train_to_reverse,
-                train_data_msg.msg.tr_data.should_speed);
+      logprintf("Re-accelerating train %d after reversal to %d\n\r", train_to_reverse, should_speed);
 #endif /* DEBUG_REVERSAL */
 
-      int should_speed = train_data_msg.msg.tr_data.should_speed;
       set_train_speed(train_tx_tid, track_state_controller_tid, train_to_reverse, should_speed);
       break;
     default:
