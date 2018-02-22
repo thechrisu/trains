@@ -50,9 +50,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
           Assert(!char_buffer_is_empty(&tx_buf));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
           can_put = false;
-          int r = Reply(notifier_tid, EMPTY_MESSAGE, 0);
-          if (r < 0)
-            logprintf("REPLY: %d\n\r", r);
+          Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
         break;
       default:
