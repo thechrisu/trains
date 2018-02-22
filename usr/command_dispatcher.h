@@ -10,6 +10,7 @@
 #include "messages.h"
 #include "track_node.h"
 #include "user_command.h"
+#include "train/commands.h"
 #include "train/reverser.h"
 #include "train/switcher.h"
 

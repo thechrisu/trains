@@ -25,19 +25,9 @@ void command_dispatcher_server() {
           case USER_CMD_Q:
             Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
             break;
-          case USER_CMD_TR: {
-            char to_send_bytes[2];
-            to_send_bytes[0] = received.msg.cmd.data[1];
-            to_send_bytes[1] = received.msg.cmd.data[0];
-            Assert(PutBytes(train_tx_server, to_send_bytes, 2) == 0);
-
-            train_data_msg.type = MESSAGE_TRAINSETSPEED;
-            train_data_msg.msg.train = received.msg.cmd.data[0];
-            train_data_msg.msg.tr_data.should_speed = received.msg.cmd.data[1];
-            Assert(Send(track_state_controller, &train_data_msg, sizeof(train_data_msg),
-                        EMPTY_MESSAGE, 0) >= 0);
+          case USER_CMD_TR:
+            set_train_speed(train_tx_server, track_state_controller, received.msg.cmd.data[0], received.msg.cmd.data[1]);
             break;
-          }
           case USER_CMD_SW: {
             int turnout_num = (int)received.msg.cmd.data[0];
             int curved = received.msg.cmd.data[1] == 'C';

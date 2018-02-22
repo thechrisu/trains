@@ -29,10 +29,7 @@ void reverser() {
                 train_to_reverse, train_data_msg.msg.tr_data.should_speed);
 #endif /* DEBUG_REVERSAL */
 
-      char initial_reverse_cmd[2];
-      initial_reverse_cmd[0] = 0;
-      initial_reverse_cmd[1] = train_to_reverse;
-      PutBytes(train_tx_tid, initial_reverse_cmd, 2);
+      set_train_speed(train_tx_tid, track_state_controller_tid, train_to_reverse, 0);
 
       Delay(clock_server_tid, train_data_msg.msg.tr_data.should_speed * 33); // 3 seconds
 
@@ -50,16 +47,8 @@ void reverser() {
                 train_data_msg.msg.tr_data.should_speed);
 #endif /* DEBUG_REVERSAL */
 
-      char final_speed_cmd[2];
-      final_speed_cmd[0] = train_data_msg.msg.tr_data.should_speed;
-      final_speed_cmd[1] = train_to_reverse;
-      PutBytes(train_tx_tid, final_speed_cmd, 2);
-
-      train_data_msg.type = MESSAGE_TRAINREVERSED;
-      train_data_msg.msg.train = train_to_reverse;
-      train_data_msg.msg.tr_data.direction = !train_data_msg.msg.tr_data.direction;
-      Assert(Send(track_state_controller_tid, &train_data_msg, sizeof(train_data_msg),
-                  EMPTY_MESSAGE, 0) >= 0);
+      int should_speed = train_data_msg.msg.tr_data.should_speed;
+      set_train_speed(train_tx_tid, track_state_controller_tid, train_to_reverse, should_speed);
       break;
     default:
       logprintf("Reverser got bad message of type %d\n\r", received.type);
