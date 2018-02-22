@@ -3,6 +3,7 @@ import signal
 import socket
 import socketserver
 import sys
+import time
 from queue import Queue
 from subprocess import Popen, PIPE, call
 
@@ -103,7 +104,7 @@ def call_qemu_tcp(optimized, timer_interrupts_on, iointerrupts_on):
 
 
 def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False,
-                      iointerrupts_on=False, will_segfault=False):
+                      iointerrupts_on=False, will_segfault=False, send_pause=None):
     qemu_handle = call_qemu_tcp(False, timer_interrupts_on, iointerrupts_on)
     q = Queue()
     # time.sleep(1)
@@ -124,12 +125,17 @@ def qemu_oneshot_test(prog, te_data, timeout, timer_interrupts_on=False,
             return None
         else:
             prog_name = '%s\r' % prog
-            s.sendall(bytes(prog_name, 'ascii'))
-            s.sendall(bytes(te_data, 'ascii'))
+            assert s.sendall(bytes(prog_name, 'ascii')) is None
+            if not send_pause is None:
+                for i in te_data:
+                    time.sleep(0.05)
+                    assert s.sendall(bytes(i, 'ascii')) is None
+            else:
+                assert s.sendall(bytes(te_data, 'ascii')) is None
             prog_output = read_socket(s, may_send_cr=True)
             if prog_output.startswith(prog + '\n\r'):
                 prog_output = prog_output.split(prog + '\n\r')[1]
-            s.sendall(bytes('q\r', 'ascii'))
+            assert s.sendall(bytes('q\r', 'ascii')) is None
             if not will_segfault and \
                (read_socket(s, 1000) is None or read_socket(s, 1000) is None):
                 print(prog_output)
