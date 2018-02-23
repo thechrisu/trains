@@ -266,6 +266,11 @@ void test_runner() {
       .code = &test_destroy_parent_tid,
       .prio = 5
     },
+    {
+      .name = "test_constant_velocity_model",
+      .code = &test_constant_velocity_model,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
