@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief PROJECT user tasks
+ * @brief Trains project user tasks
  */
 #ifndef PROJECT_H
 #define PROJECT_H
