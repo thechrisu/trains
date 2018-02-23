@@ -5,7 +5,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "track_data.h"
+#include "track_node.h"
 #include "tstdlib.h"
 #include "user_command.h"
 
