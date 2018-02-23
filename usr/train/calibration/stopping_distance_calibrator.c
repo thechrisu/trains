@@ -31,6 +31,7 @@ void stopping_distance_calibrator() {
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
 
   do {
+    Assert(Delay(clock_server_tid, REFRESH_PERIOD) == 0);
     get_sensors(track_state_controller_tid, reply);
     get_leading_edge(current_sensors, reply.msg.sensors, leading_edge);
   } while (!(leading_edge[0] & 0x2));
@@ -41,6 +42,7 @@ void stopping_distance_calibrator() {
   set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
   do {
+    Assert(Delay(clock_server_tid, REFRESH_PERIOD) == 0);
     get_sensors(track_state_controller_tid, reply);
     get_leading_edge(current_sensors, reply.msg.sensors, leading_edge);
   } while (!(leading_edge[4] & 0x20));

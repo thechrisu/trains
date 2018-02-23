@@ -5,6 +5,7 @@
 #include "codes.h"
 #include "commands.h"
 #include "messages.h"
+#include "terminal.h"
 #include "train_util.h"
 
 void stopping_distance_calibrator();
