@@ -28,7 +28,7 @@ uint32_t super_default_speeds[15] = {
 
 void setup_speed_to_velocity_map(uint32_t map[81][15], default_speed defaults[], uint32_t super_defaults[15]) {
   for (int i = 0; i < 81; i++) {
-    for (int j = 0; j < 15; i++) {
+    for (int j = 0; j < 15; j++) {
       map[i][j] = super_defaults[j];
     }
   }

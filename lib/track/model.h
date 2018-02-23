@@ -13,7 +13,7 @@ typedef struct {
 #define DEFINITE_MAX_CM_PER_SEC 60
 
 extern default_speed default_speeds[];
-uint32_t super_default_speeds[15];
+extern uint32_t super_default_speeds[15];
 
 void setup_speed_to_velocity_map(uint32_t map[81][15], default_speed defaults[], uint32_t super_defaults[15]);
 

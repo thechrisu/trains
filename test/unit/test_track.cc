@@ -17,7 +17,7 @@ TEST(TestTrack, default_speeds_getset) {
     }
   };
 
-  default_speed super_defaults[15];
+  uint32_t super_defaults[15];
   super_defaults[14] = 1337;
 
   setup_speed_to_velocity_map(m, real_defaults, super_defaults);
