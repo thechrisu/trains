@@ -40,8 +40,8 @@ void user_command_print(int server_tid, user_command *cmd) {
                     GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
                     cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
-    case USER_CMD_CS:
-      Assert(Printf(server_tid, "%s%s%s%sCS %d %d          %s%s",
+    case USER_CMD_SD:
+      Assert(Printf(server_tid, "%s%s%s%sSD %d %d          %s%s",
                     GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
                     cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
@@ -100,7 +100,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           }
         }
       }
-    } else if (string_starts_with(ibuf->data, "cs ", ibuf->elems) ) {
+    } else if (string_starts_with(ibuf->data, "sd ", ibuf->elems) ) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
         int second_num_parse = is_valid_number(ibuf, first_num_parse);
@@ -108,7 +108,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           int address = parse_two_digit_number(ibuf->data + 3);
           int speed = parse_two_digit_number(ibuf->data + first_num_parse);
           if (speed >= 0 && speed <= 14) {
-            cmd->type = USER_CMD_CS;
+            cmd->type = USER_CMD_SD;
             cmd->data[0] = address;
             cmd->data[1] = speed;
           }

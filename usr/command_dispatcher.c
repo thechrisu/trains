@@ -55,7 +55,7 @@ void command_dispatcher_server() {
             Assert(Send(reverser_tid, &rv_cmd, sizeof(rv_cmd), EMPTY_MESSAGE, 0) == 0);
             break;
           }
-          case USER_CMD_CS: {
+          case USER_CMD_SD: {
             message send;
             send.type = MESSAGE_CALIB_SD;
             send.msg.calib_sd_params.train = (int)received.msg.cmd.data[0];
