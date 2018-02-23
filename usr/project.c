@@ -1,4 +1,4 @@
-#include "k4.h"
+#include "project.h"
 
 #define CMD_MAX_SZ 32
 
@@ -127,7 +127,7 @@ void print_cmd_char(char c, int index, int recipient) {
 
 #define max(a, b) (a > b ? a : b)
 
-void k4_first_user_task() {
+void project_first_user_task() {
   EnableCaches(true);
 
   int my_priority = MyPriority();
