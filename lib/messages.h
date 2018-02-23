@@ -90,6 +90,7 @@ typedef struct {
     k3_params reply_k3_params;
     char putc;
     char getc;
+    char train;
     printf_params printf;
     user_command cmd;
     int nameserver_response;
@@ -100,11 +101,8 @@ typedef struct {
     int32_t train_speeds[15];
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
-<<<<<<< HEAD
     message_calib_sd_params calib_sd_params;
-=======
     default_speed ucsm;
->>>>>>> Added track state controller impl for constant train velocity model
   } msg;
 } message;
 

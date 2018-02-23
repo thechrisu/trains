@@ -9,6 +9,7 @@
 #include "messages.h"
 #include "nameserver.h"
 #include "./nameserver/ns_tid.h"
+#include "../train/commands.h"
 #include "../train/track_state_controller.h"
 
 void test_constant_velocity_model();

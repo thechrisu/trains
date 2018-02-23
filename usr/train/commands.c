@@ -59,3 +59,20 @@ void get_sensors(int track_state_controller_tid, message reply) {
   Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
   Assert(reply.type == REPLY_GETSENSORS);
 }
+
+void get_constant_velocity_model(int track_state_controller_tid, int train, message *reply) {
+  message send;
+  send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
+  send.msg.train = train;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
+  Assert(reply->type == REPLY_GETCONSTANTSPEEDMODEL);
+}
+
+void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, uint32_t velocity) {
+  message send;
+  send.type = MESSAGE_UPDATECONSTANTSPEEDMODEL;
+  send.msg.ucsm.train = train;
+  send.msg.ucsm.speed = speed;
+  send.msg.ucsm.velocity = velocity;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+}
