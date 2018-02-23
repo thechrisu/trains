@@ -1,6 +1,9 @@
 #include "commands.h"
 
 void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, int train, int speed) {
+  Assert(train >= 1 && train <= 80);
+  Assert(speed >= 0 && speed <= 14);
+
   char to_send_bytes[2];
   to_send_bytes[0] = speed;
   to_send_bytes[1] = train;
@@ -14,6 +17,8 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
 }
 
 void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train, bool current_direction) {
+  Assert(train > 0 && train <= 80);
+
   char send_reverse_cmd[2];
   send_reverse_cmd[0] = REVERSE_SPEED;
   send_reverse_cmd[1] = train;
@@ -27,6 +32,8 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
 }
 
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved) {
+  Assert(is_valid_turnout_num(turnout_num));
+
   char buf[2];
   buf[0] = (char)(curved ? 0x22 : 0x21);
   buf[1] = (char)turnout_num;

@@ -8,6 +8,7 @@
 #include "a0codes.h"
 #include "codes.h"
 #include "messages.h"
+#include "track_data.h"
 
 /**
  * Sets the speed of a train, both in reality and in the track state controller.
