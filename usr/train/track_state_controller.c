@@ -20,7 +20,7 @@ void track_state_controller() {
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
       case MESSAGE_GETTRAIN:
-        train = received.msg.train;
+        train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         reply.type = REPLY_GETTRAIN;
         reply.msg.tr_data.direction = track.train[train].direction;
@@ -43,7 +43,7 @@ void track_state_controller() {
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
       case MESSAGE_TRAINSETSPEED:
-        train = received.msg.train;
+        train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         Assert(received.msg.tr_data.should_speed >= 0
                && received.msg.tr_data.should_speed <= 14);
@@ -54,12 +54,9 @@ void track_state_controller() {
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
       case MESSAGE_TRAINREVERSED:
-        train = received.msg.train;
+        train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         track.train[train].direction = received.msg.tr_data.direction;
-        track.train[train].should_speed = received.msg.tr_data.should_speed;
-        Assert(received.msg.tr_data.should_speed >= 0
-               && received.msg.tr_data.should_speed <= 14);
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
       case MESSAGE_TURNOUTSWITCHED: {

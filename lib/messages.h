@@ -86,7 +86,6 @@ typedef struct {
     message_reverse_params reverser_params;
     message_switch_params switch_params;
     train_data tr_data;
-    char train;
     int16_t sensors[10];
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];

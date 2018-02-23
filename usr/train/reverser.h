@@ -7,6 +7,7 @@
 
 #include "a0codes.h"
 #include "codes.h"
+#include "commands.h"
 #include "messages.h"
 
 /**

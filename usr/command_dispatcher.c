@@ -2,7 +2,7 @@
 
 void command_dispatcher_server() {
   int sender_tid;
-  message received, train_data_msg;
+  message received;
   Assert(RegisterAs("CommandDispatcher") == 0);
   int train_tx_server = WhoIs("TrainTxServer");
   int clock_server = WhoIs("ClockServer");
@@ -25,19 +25,9 @@ void command_dispatcher_server() {
           case USER_CMD_Q:
             Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
             break;
-          case USER_CMD_TR: {
-            char to_send_bytes[2];
-            to_send_bytes[0] = received.msg.cmd.data[1];
-            to_send_bytes[1] = received.msg.cmd.data[0];
-            Assert(PutBytes(train_tx_server, to_send_bytes, 2) == 0);
-
-            train_data_msg.type = MESSAGE_TRAINSETSPEED;
-            train_data_msg.msg.train = received.msg.cmd.data[0];
-            train_data_msg.msg.tr_data.should_speed = received.msg.cmd.data[1];
-            Assert(Send(track_state_controller, &train_data_msg, sizeof(train_data_msg),
-                        EMPTY_MESSAGE, 0) >= 0);
+          case USER_CMD_TR:
+            set_train_speed(train_tx_server, track_state_controller, received.msg.cmd.data[0], received.msg.cmd.data[1]);
             break;
-          }
           case USER_CMD_SW: {
             int turnout_num = (int)received.msg.cmd.data[0];
             int curved = received.msg.cmd.data[1] == 'C';
@@ -52,12 +42,6 @@ void command_dispatcher_server() {
             int switcher_tid = Create(MyPriority() + 7, &switcher);
             Assert(switcher_tid > 0);
             Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-
-            train_data_msg.type = MESSAGE_TURNOUTSWITCHED;
-            train_data_msg.msg.turnout_switched_params.turnout_num = turnout_num;
-            train_data_msg.msg.turnout_switched_params.state = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
-            Assert(Send(track_state_controller, &train_data_msg, sizeof(train_data_msg),
-                        EMPTY_MESSAGE, 0) >= 0);
             break;
           }
           case USER_CMD_RV: {

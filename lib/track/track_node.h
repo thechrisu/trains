@@ -46,6 +46,7 @@ struct track_node {
 typedef struct track_node track_node;
 
 typedef struct {
+  char train;
   bool direction; // true/positive: forward
   int should_speed;
   bool headlights;

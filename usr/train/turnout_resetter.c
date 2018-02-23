@@ -1,24 +1,11 @@
 #include "turnout_resetter.h"
 
 static int clock_server_tid;
-static int track_state_controller_tid;
 static int tx_server_tid;
+static int track_state_controller_tid;
 
-void switch_turnout(int turnout_num, bool curved) {
-  message send;
-
-  char buf[2];
-  buf[0] = (char)(curved ? 0x22 : 0x21);
-  buf[1] = (char)turnout_num;
-  PutBytes(tx_server_tid, buf, 2);
-
-  send.type = MESSAGE_TURNOUTSWITCHED;
-  send.msg.turnout_switched_params.turnout_num = turnout_num;
-  send.msg.turnout_switched_params.state = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) >= 0);
-
-  Delay(clock_server_tid, 15);
-  Putc(tx_server_tid, TRAIN, (char)0x20);
+static void switch_turnout_with_tids(int turnout_num, bool curved) {
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, turnout_num, curved);
 }
 
 void turnout_resetter() {
@@ -27,10 +14,10 @@ void turnout_resetter() {
   track_state_controller_tid = WhoIs("TrackStateController");
 
   for (int i = 1; i <= 18; i += 1) {
-    switch_turnout(i, true);
+    switch_turnout_with_tids(i, true);
   }
-  switch_turnout(153, true);
-  switch_turnout(154, false);
-  switch_turnout(155, true);
-  switch_turnout(156, false);
+  switch_turnout_with_tids(153, true);
+  switch_turnout_with_tids(154, false);
+  switch_turnout_with_tids(155, true);
+  switch_turnout_with_tids(156, false);
 }
