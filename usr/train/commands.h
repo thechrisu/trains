@@ -40,6 +40,6 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
  */
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved);
 
-void get_sensors(int track_state_controller_tid, message reply);
+void get_sensors(int track_state_controller_tid, message *reply);
 
 #endif /* TRAIN_COMMANDS_H */

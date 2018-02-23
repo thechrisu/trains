@@ -58,7 +58,7 @@ void sensor_view() {
   while (true) {
     Assert(Delay(clock_server, REFRESH_PERIOD) == 0);
     message sensor_poll_reply;
-    get_sensors(track_state_controller, sensor_poll_reply);
+    get_sensors(track_state_controller, &sensor_poll_reply);
     get_leading_edge(current_sensors, sensor_poll_reply.msg.sensors, leading_edge);
     print_sensors(terminal_tx_server, leading_edge);
   }

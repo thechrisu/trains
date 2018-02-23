@@ -53,9 +53,9 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   Putc(train_tx_server_tid, TRAIN, (char)0x20);
 }
 
-void get_sensors(int track_state_controller_tid, message reply) {
+void get_sensors(int track_state_controller_tid, message *reply) {
   message send;
   send.type = MESSAGE_GETSENSORS;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-  Assert(reply.type == REPLY_GETSENSORS);
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
+  Assert(reply->type == REPLY_GETSENSORS);
 }
