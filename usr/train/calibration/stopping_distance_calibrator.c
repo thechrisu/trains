@@ -2,12 +2,7 @@
 
 void stopping_distance_calibrator() {
   int sender_tid;
-  message received, reply;
-  int16_t current_sensors[10], leading_edge[10];
-
-  for (int i = 0; i < 10; i += 1) {
-    current_sensors[i] = 0;
-  }
+  message received;
 
   Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
 
@@ -30,22 +25,14 @@ void stopping_distance_calibrator() {
   reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
 
-  do {
-    Assert(Delay(clock_server_tid, REFRESH_PERIOD) == 0);
-    get_sensors(track_state_controller_tid, &reply);
-    get_leading_edge(current_sensors, reply.msg.sensors, leading_edge);
-  } while (!(leading_edge[0] & 0x2));
+  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 3);
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 3);
   Delay(clock_server_tid, 200);
   reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
-  do {
-    Assert(Delay(clock_server_tid, REFRESH_PERIOD) == 0);
-    get_sensors(track_state_controller_tid, &reply);
-    get_leading_edge(current_sensors, reply.msg.sensors, leading_edge);
-  } while (!(leading_edge[4] & 0x20));
+  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 8);
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
 }
