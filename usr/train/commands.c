@@ -16,7 +16,7 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
-void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train, bool current_direction) {
+void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train) {
   Assert(train > 0 && train <= 80);
 
   char send_reverse_cmd[2];
@@ -24,10 +24,14 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
   send_reverse_cmd[1] = train;
   Assert(PutBytes(train_tx_server_tid, send_reverse_cmd, 2) == 0);
 
-  message send;
+  message send, reply;
+  send.type = MESSAGE_GETTRAIN;
+  send.msg.tr_data.train = train;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+
   send.type = MESSAGE_TRAINREVERSED;
   send.msg.tr_data.train = train;
-  send.msg.tr_data.direction = !current_direction;
+  send.msg.tr_data.direction = !reply.msg.tr_data.direction;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
@@ -47,4 +51,11 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
 
   Delay(clock_server_tid, 15);
   Putc(train_tx_server_tid, TRAIN, (char)0x20);
+}
+
+void get_sensors(int track_state_controller_tid, message reply) {
+  message send;
+  send.type = MESSAGE_GETSENSORS;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_GETSENSORS);
 }

@@ -26,9 +26,8 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
  * @param train_tx_server_tid        The task ID of the train transmit server.
  * @param track_state_controller_tid The task ID of the track state controller.
  * @param train                      The train to reverse.
- * @param speed                      The current direction of the train.
  */
-void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train, bool current_direction);
+void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train);
 
 /**
  * Switches a turnout, both in reality and in the track state controller.
@@ -40,5 +39,7 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
  * @param curved                     Whether to make the turnout straight or curved.
  */
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved);
+
+void get_sensors(int track_state_controller_tid, message reply);
 
 #endif /* TRAIN_COMMANDS_H */

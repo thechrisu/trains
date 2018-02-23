@@ -37,7 +37,7 @@ void reverser() {
       logprintf("Reversing train %d\n\r", train_to_reverse);
 #endif /* DEBUG_REVERSAL */
 
-      reverse_train(train_tx_tid, track_state_controller_tid, train_to_reverse, train_data_msg.msg.tr_data.direction);
+      reverse_train(train_tx_tid, track_state_controller_tid, train_to_reverse);
 
 #if DEBUG_REVERSAL
       logprintf("Re-accelerating train %d after reversal to %d\n\r", train_to_reverse, should_speed);

@@ -29,13 +29,6 @@ void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
   }
 }
 
-void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t leading_edge[10]) {
-  for (int i = 0; i  < 10; i++) {
-    leading_edge[i] = ~old_sensors[i] & new_sensors[i]; // 0 -> 1
-    old_sensors[i] = new_sensors[i];
-  }
-}
-
 char get_sensor_index(int receive_index, int sensor_offset) {
   char sensor_letter_offset = receive_index / 2;
   return sensor_letter_offset * 16 + sensor_offset + ((receive_index % 2 == 0) ? 0 : 8);
@@ -64,11 +57,8 @@ void sensor_view() {
   Printf(terminal_tx_server, "%s%d;%dHSensors: ", ESC, SENSOR_HEADING_LINE, 1);
   while (true) {
     Assert(Delay(clock_server, REFRESH_PERIOD) == 0);
-    message sensor_poll_msg, sensor_poll_reply;
-    sensor_poll_msg.type = MESSAGE_GETSENSORS;
-    Assert(Send(track_state_controller,
-         &sensor_poll_msg, sizeof(sensor_poll_msg),
-                &sensor_poll_reply, sizeof(sensor_poll_reply)) > 0);
+    message sensor_poll_reply;
+    get_sensors(track_state_controller, sensor_poll_reply);
     get_leading_edge(current_sensors, sensor_poll_reply.msg.sensors, leading_edge);
     print_sensors(terminal_tx_server, leading_edge);
   }

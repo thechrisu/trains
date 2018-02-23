@@ -6,8 +6,10 @@
 #define SENSOR_VIEW_H
 
 #include "codes.h"
+#include "commands.h"
 #include "terminal.h"
 #include "tstdlib.h"
+#include "train_util.h"
 
 void sensor_view();
 

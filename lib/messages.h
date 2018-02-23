@@ -39,7 +39,8 @@ enum message_type {
   REPLY_GETTURNOUTS,
   MESSAGE_TRAINSETSPEED,
   MESSAGE_TRAINREVERSED,
-  MESSAGE_TURNOUTSWITCHED
+  MESSAGE_TURNOUTSWITCHED,
+  MESSAGE_CALIB_SD,
 };
 
 typedef struct {
@@ -72,6 +73,11 @@ typedef struct {
 } message_turnout_switched_params;
 
 typedef struct {
+  int train;
+  int speed;
+} message_calib_sd_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -89,6 +95,7 @@ typedef struct {
     int16_t sensors[10];
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
+    message_calib_sd_params calib_sd_params;
   } msg;
 } message;
 

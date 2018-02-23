@@ -12,6 +12,7 @@ enum user_command_type {
   USER_CMD_SW,
   USER_CMD_RV,
   USER_CMD_Q,
+  USER_CMD_CS,
   NULL_USER_CMD
 };
 
