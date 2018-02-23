@@ -3,4 +3,4 @@
 - [ ] Documentation
   - [ ] Docblocks
   - [ ] Kernel documentation (if necessary)
-- [ ] Test It In The Lab™
+- [ ] Test It In The Lab with `-O2` and `-flto`™
