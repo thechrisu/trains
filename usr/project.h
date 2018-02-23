@@ -1,9 +1,9 @@
 /**
  * @file
- * @brief K4 user tasks
+ * @brief Trains project user tasks
  */
-#ifndef K4_H
-#define K4_H
+#ifndef PROJECT_H
+#define PROJECT_H
 
 #include "char_buffer.h"
 #include "clock.h"
@@ -26,6 +26,6 @@
 #include "views/sensor_view.h"
 #include "views/turnout_view.h"
 
-void k4_first_user_task();
+void project_first_user_task();
 
-#endif /* K4_H */
+#endif /* PROJECT_H */

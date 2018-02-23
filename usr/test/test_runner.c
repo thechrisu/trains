@@ -82,8 +82,8 @@ void test_runner() {
       .prio = 15
     },
     {
-      .name = "k4",
-      .code = &k4_first_user_task,
+      .name = "project",
+      .code = &project_first_user_task,
       .prio = 15
     },
     {
