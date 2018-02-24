@@ -20,7 +20,6 @@ void velocity_calibrator() {
   int clock_server_tid = WhoIs("ClockServer");
   int tx_server_tid = WhoIs("TrainTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
-
   int terminal_tx_server = WhoIs("TerminalTxServer");
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s", ESC, CALIB_LINE, 1, "Calibrating velocity for train ", train, " and speed ", speed, HIDE_CURSOR_TO_EOL) == 0);
 
@@ -98,4 +97,5 @@ void automated_velocity_calibrator() {
   }
 
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE, 1, "Automatic velocity calibration finished", HIDE_CURSOR_TO_EOL) == 0);
+  set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
 }
