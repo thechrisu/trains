@@ -1240,7 +1240,10 @@ unsigned int sensor_offset(char bank, unsigned int index) {
 }
 
 uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
-  (void)t;
+  uint32_t distance = 0;
+
+  track_node *track = t->track;
+
   (void)start;
   (void)end;
   return 0;
