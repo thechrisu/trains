@@ -7,10 +7,9 @@ void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t 
   }
 }
 
-bool is_sensor_triggered(int16_t sensors[10], char bank, int index) {
-  int i = 2 * (bank - 'A') + (index >= 9 ? 1 : 0);
-  int j = 1 << ((16 - index) % 8);
-  return sensors[i] & j;
+bool is_sensor_triggered(int16_t sensors[10], char bank, unsigned int index) {
+  unsigned int offset = sensor_offset(bank, index);
+  return sensors[sensor_data_element(offset)] & sensor_data_mask(offset);
 }
 
 void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, char bank, int index) {

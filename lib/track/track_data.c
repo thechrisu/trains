@@ -1216,3 +1216,23 @@ unsigned int map_offset_to_turnout(unsigned int offset) {
 bool is_valid_turnout_num(unsigned int turnout) {
   return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
 }
+
+char sensor_bank(unsigned int offset) {
+  return 'A' + offset / 16;
+}
+
+unsigned int sensor_index(unsigned int offset) {
+  return 1 + offset % 16;
+}
+
+unsigned int sensor_data_element(unsigned int offset) {
+  return 2 * (sensor_bank(offset) - 'A') + (sensor_index(offset) >= 9 ? 1 : 0);
+}
+
+unsigned int sensor_data_mask(unsigned int offset) {
+  return 1 << ((16 - sensor_index(offset)) % 8);
+}
+
+unsigned int sensor_offset(char bank, unsigned int index) {
+  return 16 * (bank - 'A') + (index >= 9 ? 8 : 0) + (index - 1) % 8;
+}
