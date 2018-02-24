@@ -6,9 +6,9 @@ static char_buffer *recent_sensors_buf;
 
 void print_sensors(int terminal_tx_server, int16_t sensors[10]) {
   for (int i = 0; i < 80; i += 1) {
-    char ltr = sensor_bank(i);
-    unsigned int num = sensor_index(i);
-    if (is_sensor_triggered(sensors, ltr, num)) {
+    if (is_sensor_triggered(sensors, i)) {
+      char ltr = sensor_bank(i);
+      unsigned int num = sensor_index(i);
       uint32_t offset = recent_sensors_buf->in;
       Printf(terminal_tx_server, "%s%d;%dH%c%d   ", ESC, SENSOR_HEADING_LINE + 1 + offset, 1, ltr, num);
       Printf(terminal_tx_server, "%s%d;%dH   ", ESC, SENSOR_HEADING_LINE + 1 + (offset + 9) % 10, 6);
