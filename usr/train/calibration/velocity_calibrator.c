@@ -1,8 +1,8 @@
 #include "velocity_calibrator.h"
 
 void velocity_calibrator() {
-  char sensor_letters[] = { 'D', 'E', 'D', 'B', 'C', 'A', 'B', 'C', 'D', 'E', 'E', 'D', 0 };
-  int sensor_numbers[] = { 5, 6, 4, 6, 12, 4, 16, 10, 16, 14, 14, 9, 5, 0 };
+  char sensor_letters[] = { 'D', 'E', 'D', 'B', 'C', 'A', 'B', 'C', 'B', 'D', 'E', 'E', 'D', 0 };
+  int sensor_numbers[] =  {  5,   6,   4,   6,   12,  4,   16,  10,  1,   14,  14,  9,   5,  0 };
 
   int sender_tid;
   message received;
@@ -10,11 +10,11 @@ void velocity_calibrator() {
   Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
 
   Assert(sender_tid == MyParentTid());
-  Assert(received.type == MESSAGE_CALIB_SD);
+  Assert(received.type == MESSAGE_CALIB_V);
 
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
 
-  int train = received.msg.calib_sd_params.train;
+  int train = received.msg.calib_v_params.train;
 
   int clock_server_tid = WhoIs("ClockServer");
   int tx_server_tid = WhoIs("TrainTxServer");
@@ -33,6 +33,7 @@ void velocity_calibrator() {
     char number = sensor_numbers[i];
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, letter, number);
     logprintf("Sensor %c%d triggered at %d ticks\n\r", letter, number, Time(clock_server_tid));
+    i += 1;
   }
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
