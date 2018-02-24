@@ -1238,3 +1238,10 @@ unsigned int sensor_data_mask(unsigned int offset) {
 unsigned int sensor_offset(char bank, unsigned int index) {
   return 16 * (bank - 'A') + (index >= 9 ? 8 : 0) + (index - 1) % 8;
 }
+
+uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+  (void)t;
+  (void)start;
+  (void)end;
+  return 0;
+}

@@ -11,7 +11,8 @@ void test_constant_velocity_model() {
     Assert(receive.msg.train_speeds[i] == 0);
   }
 
-  update_constant_velocity_model(track_state_controller_tid, 1, 14, 1337);
+  // B7 to A10
+  update_constant_velocity_model(track_state_controller_tid, 1, 14, 39, 10, 1337);
 
   get_constant_velocity_model(track_state_controller_tid, 1, &receive);
   for (int i = 0; i < 14; i++) {

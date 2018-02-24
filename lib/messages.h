@@ -87,6 +87,14 @@ typedef struct {
 } message_calib_v_params;
 
 typedef struct {
+  int train;
+  int speed;
+  unsigned int start;
+  unsigned int end;
+  uint32_t time_elapsed;
+} message_ucsm_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -108,7 +116,7 @@ typedef struct {
     turnout_state turnout_states[NUM_TURNOUTS];
     message_calib_sd_params calib_sd_params;
     message_calib_v_params calib_v_params;
-    default_speed ucsm;
+    message_ucsm_params ucsm;
   } msg;
 } message;
 

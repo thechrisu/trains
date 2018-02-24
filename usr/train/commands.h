@@ -59,7 +59,9 @@ void get_constant_velocity_model(int track_state_controller_tid, int train, mess
  * @param track_state_controller_tid    Task ID of the track state controller.
  * @param train                         Train whose model should be updated (1-80).
  * @param speed                         Speed mapping that should be adjusted (0-14).
- * @param velocity                      Velocity to be set (In 100th mm/s).
+ * @param start                         Offset of the sensor at the start of the measurement.
+ * @param end                           Offset of the sensor at the end of the measurement.
+ * @param time_elapsed                  Time it took to travel between the two sensors.
  */
-void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, uint32_t velocity);
+void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, unsigned int start, unsigned int end, uint32_t time_elapsed);
 #endif /* TRAIN_COMMANDS_H */

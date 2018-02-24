@@ -80,11 +80,12 @@ void track_state_controller() {
       case MESSAGE_UPDATECONSTANTSPEEDMODEL: {
 	int t = received.msg.ucsm.train;
 	int s = received.msg.ucsm.speed;
-	uint32_t v = received.msg.ucsm.velocity;
+        uint32_t distance = distance_between_sensors(&track, received.msg.ucsm.start, received.msg.ucsm.end);
+        uint32_t velocity = distance / received.msg.ucsm.time_elapsed;
 	Assert(t >= 1 && t <= 80);
 	Assert(s >= 0 && s <= 14);
-	Assert(v < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
-	track.speed_to_velocity[t][s] = v;
+	Assert(velocity < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
+	track.speed_to_velocity[t][s] = velocity;
 	Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
 	break;
       }
