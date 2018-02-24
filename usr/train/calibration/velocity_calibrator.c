@@ -1,8 +1,8 @@
 #include "velocity_calibrator.h"
 
 void velocity_calibrator() {
-  char sensor_letters[] = { 'D', 'E', 'D', 'B', 'C', 'A', 'B', 'C', 'B', 'D', 'E', 'E', 'D', 0 };
-  int sensor_numbers[] =  {  5,   6,   4,   6,   12,  4,   16,  10,  1,   14,  14,  9,   5,  0 };
+  char sensor_letters[] = { 'D', 'E', 'D', 'B', 'C', 'A', 'B', 'C', 'B', 'C', 'E', 'E', 'C', 'A', 'B', 'C', 'B', 'D', 'E', 'E', 0 };
+  int sensor_numbers[] =  {  5,   6,   4,   6,   12,  4,   16,  10,  3,   2,   2,   15,  12,  4,   16,  10,  1,   14,  14,  9,  0 };
 
   int sender_tid;
   message received;
@@ -23,7 +23,9 @@ void velocity_calibrator() {
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 6, true);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 10, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 15, true);
-  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, false);
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, true);
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 155, true);
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 156, false);
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
 
@@ -33,6 +35,11 @@ void velocity_calibrator() {
     char number = sensor_numbers[i];
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, letter, number);
     logprintf("Sensor %c%d triggered at %d ticks\n\r", letter, number, Time(clock_server_tid));
+
+    if (letter == 'B' && number == 3) {
+      switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, false);
+    }
+
     i += 1;
   }
 
