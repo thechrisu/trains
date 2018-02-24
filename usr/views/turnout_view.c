@@ -21,7 +21,7 @@ void init_turnout_view() {
   Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
   Assert(reply.type == REPLY_GETTURNOUTS);
 
-  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTurnouts%s",
+  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTurnouts:%s",
                 TURNOUTS_HEADING_LINE, TURNOUTS_COLUMN + 1, HIDE_CURSOR_TO_EOL) == 0);
 
   for (int i = 1; i < NUM_TURNOUTS / 2; i += 1) {
