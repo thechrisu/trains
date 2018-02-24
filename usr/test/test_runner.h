@@ -24,6 +24,7 @@
 #include "./test_undefined_handler.h"
 #include "./test_message_benchmark.h"
 #include "./test_mypriority.h"
+#include "./test_model.h"
 #include "clock/test_clock.h"
 #include "destroy/test_destroy.h"
 #include "myio.h"

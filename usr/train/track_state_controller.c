@@ -67,6 +67,27 @@ void track_state_controller() {
         Reply(sender_tid, EMPTY_MESSAGE, 0);
         break;
       }
+      case MESSAGE_GETCONSTANTSPEEDMODEL: {
+	int t = received.msg.train;
+	Assert(t >= 1 && t <= 80);
+        reply.type = REPLY_GETCONSTANTSPEEDMODEL;
+        for (int i = 0; i < 15; i++) {
+          reply.msg.train_speeds[i] = track.speed_to_velocity[t][i];
+        }
+        Reply(sender_tid, &reply, sizeof(reply));
+	break;
+      }
+      case MESSAGE_UPDATECONSTANTSPEEDMODEL: {
+	int t = received.msg.ucsm.train;
+	int s = received.msg.ucsm.speed;
+	uint32_t v = received.msg.ucsm.velocity;
+	Assert(t >= 1 && t <= 80);
+	Assert(s >= 0 && s <= 14);
+	Assert(v < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
+	track.speed_to_velocity[t][s] = v;
+	Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+	break;
+      }
       default:
         logprintf("track_state_controller received message of type %d\n\r", received.type);
         Assert(0);

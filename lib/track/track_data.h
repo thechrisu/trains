@@ -5,6 +5,7 @@
 #ifndef TRACK_DATA_H
 #define TRACK_DATA_H
 
+#include "model.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
