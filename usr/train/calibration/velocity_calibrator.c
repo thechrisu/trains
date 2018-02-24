@@ -24,8 +24,8 @@ void velocity_calibrator() {
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 10, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 15, true);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, true);
-  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 155, true);
-  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 156, false);
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 155, false);
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 156, true);
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
 
