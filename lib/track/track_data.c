@@ -1239,12 +1239,32 @@ unsigned int sensor_offset(char bank, unsigned int index) {
   return 16 * (bank - 'A') + (index >= 9 ? 8 : 0) + (index - 1) % 8;
 }
 
+track_node *find_sensor(track_state *t, unsigned int offset) {
+  // TODO finish this function
+  (void)offset;
+  return &(t->track[0]);
+}
+
 uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
   uint32_t distance = 0;
 
-  track_node *track = t->track;
+  track_node *current_node = find_sensor(t, start);
+  track_node *end_node = find_sensor(t, end);
 
-  (void)start;
-  (void)end;
-  return 0;
+  while (current_node != end_node) {
+    switch (current_node->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+        distance += current_node->edge[DIR_AHEAD].dist;
+        current_node = current_node->edge[DIR_AHEAD].dest;
+        break;
+      case NODE_BRANCH:
+        // TODO handle this case
+        break;
+      default:
+        Assert(0);
+    }
+  }
+
+  return distance;
 }
