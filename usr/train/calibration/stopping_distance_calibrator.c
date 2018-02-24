@@ -22,6 +22,12 @@ void stopping_distance_calibrator() {
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 18, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 5, false);
 
+  // HACK: unless the last run was (likely) at speed 12, 13, or 14, move train forward to make sure it's over C7 sensor
+  if (speed != 13 && speed != 14 && speed != 1) {
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
+    Delay(clock_server_tid, 200);
+  }
+
   reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
 
