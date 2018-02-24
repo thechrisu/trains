@@ -9,7 +9,7 @@ void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t 
 
 bool is_sensor_triggered(int16_t sensors[10], unsigned int offset);
 
-void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, char bank, int index);
+void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, unsigned int offset);
 
 #endif /* TRAIN_UTIL_H */
 

@@ -33,14 +33,14 @@ void stopping_distance_calibrator() {
   reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
 
-  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', speed < 6 ? 7 : 3);
+  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', speed < 6 ? 7 : 3));
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
   Delay(clock_server_tid, 330);
   reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
-  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 8);
+  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', 8));
 
   set_train_speed_and_headlights(tx_server_tid, track_state_controller_tid, train, 0, true);
 }
