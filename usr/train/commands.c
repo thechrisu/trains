@@ -1,11 +1,15 @@
 #include "commands.h"
 
 void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, int train, int speed) {
+  set_train_speed_and_headlights(train_tx_server_tid, track_state_controller_tid, train, speed, false);
+}
+
+void set_train_speed_and_headlights(int train_tx_server_tid, int track_state_controller_tid, int train, int speed, bool headlights) {
   Assert(train >= 1 && train <= 80);
   Assert(speed >= 0 && speed <= 14);
 
   char to_send_bytes[2];
-  to_send_bytes[0] = speed;
+  to_send_bytes[0] = speed + (headlights ? 0x10 : 0);
   to_send_bytes[1] = train;
   Assert(PutBytes(train_tx_server_tid, to_send_bytes, 2) == 0);
 
@@ -13,6 +17,7 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
   send.type = MESSAGE_TRAINSETSPEED;
   send.msg.tr_data.train = train;
   send.msg.tr_data.should_speed = speed;
+  send.msg.tr_data.headlights = headlights;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 

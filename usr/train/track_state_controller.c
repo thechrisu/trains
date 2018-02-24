@@ -48,6 +48,7 @@ void track_state_controller() {
         Assert(received.msg.tr_data.should_speed >= 0
                && received.msg.tr_data.should_speed <= 14);
         track.train[train].should_speed = received.msg.tr_data.should_speed;
+        track.train[train].headlights = received.msg.tr_data.headlights;
 #if DEBUG_REVERSAL
         logprintf("Track state controller: Set speed of %d to %d\n\r", train, track.train[train].should_speed);
 #endif /* DEBUG_REVERSAL */

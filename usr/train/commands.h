@@ -20,6 +20,8 @@
  */
 void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, int train, int speed);
 
+void set_train_speed_and_headlights(int train_tx_server_tid, int track_state_controller_tid, int train, int speed, bool headlights);
+
 /**
  * Reverses a train, both in reality and in the track state controller.
  *
