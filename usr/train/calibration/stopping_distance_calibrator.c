@@ -36,8 +36,8 @@ void stopping_distance_calibrator() {
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 13);
 
     set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
-    Delay(clock_server_tid, 330);
     switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, true);
+    Delay(clock_server_tid, 330);
     reverse_train(tx_server_tid, track_state_controller_tid, train);
     set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
