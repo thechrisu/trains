@@ -1,10 +1,9 @@
 #include "stopping_distance_calibrator.h"
 
 /**
-   TODO 14 'at the back'
-   Then back up, switch 5 to curved
-   go forward quite some time
-   switch 5 to straight
+  TODO Autocalibrate
+  - Go from calibration in the back to the front and vice versa
+  - Repeat this multiple times
 */
 
 void stopping_distance_calibrator() {
@@ -35,15 +34,15 @@ void stopping_distance_calibrator() {
     set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
 
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 13);
-    Delay(200);
 
     set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
     Delay(clock_server_tid, 330);
-    reverse_train(tx_server_tid, track_state_controller_tid, train);
     switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, true);
+    reverse_train(tx_server_tid, track_state_controller_tid, train);
     set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'E', 8);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, false);
 
     set_train_speed_and_headlights(tx_server_tid, track_state_controller_tid, train, 0, true);
   } else {
