@@ -1,5 +1,12 @@
 #include "stopping_distance_calibrator.h"
 
+/**
+   TODO 14 'at the back'
+   Then back up, switch 5 to curved
+   go forward quite some time
+   switch 5 to straight
+*/
+
 void stopping_distance_calibrator() {
   int sender_tid;
   message received;
@@ -18,29 +25,52 @@ void stopping_distance_calibrator() {
   int tx_server_tid = WhoIs("TrainTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
 
-  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 3, false);
-  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 18, false);
-  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 5, false);
+  if (speed == 14) {
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 9, false);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, false);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 12, false);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, false);
 
-  // HACK: unless the last run was (likely) at speed 12, 13, or 14, move train forward to make sure it's over C7 sensor
-  if (speed != 13 && speed != 14 && speed != 1) {
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
+    reverse_train(tx_server_tid, track_state_controller_tid, train);
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
+
+    poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 13);
+    Delay(200);
+
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
+    Delay(clock_server_tid, 330);
+    reverse_train(tx_server_tid, track_state_controller_tid, train);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, true);
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
+
+    poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'E', 8);
+
+    set_train_speed_and_headlights(tx_server_tid, track_state_controller_tid, train, 0, true);
+  } else {
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 3, false);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 18, false);
+    switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 5, false);
+
+    // HACK: unless the last run was (likely) at 8-14, move train forward to make sure it's over C7 sensor
+    if (speed != 1 && speed < 9) {
+      set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
+      Delay(clock_server_tid, 200);
+    }
+
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
     Delay(clock_server_tid, 200);
+    reverse_train(tx_server_tid, track_state_controller_tid, train);
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
+
+    poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', speed < 6 ? 7 : 3);
+
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
+    Delay(clock_server_tid, 330);
+    reverse_train(tx_server_tid, track_state_controller_tid, train);
+    set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
+
+    poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 8);
+
+    set_train_speed_and_headlights(tx_server_tid, track_state_controller_tid, train, 0, true);
   }
-
-  set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
-  Delay(clock_server_tid, 200);
-  reverse_train(tx_server_tid, track_state_controller_tid, train);
-  set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
-
-  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', speed < 6 ? 7 : 3);
-
-  set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
-  Delay(clock_server_tid, 330);
-  reverse_train(tx_server_tid, track_state_controller_tid, train);
-  set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
-
-  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, 'C', 8);
-
-  set_train_speed_and_headlights(tx_server_tid, track_state_controller_tid, train, 0, true);
 }
