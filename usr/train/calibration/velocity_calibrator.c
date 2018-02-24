@@ -33,7 +33,7 @@ void velocity_calibrator() {
   while (sensor_letters[i]) {
     char letter = sensor_letters[i];
     char number = sensor_numbers[i];
-    poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, letter, number);
+    poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset(letter, number));
     logprintf("Sensor %c%d triggered at %d ticks\n\r", letter, number, Time(clock_server_tid));
 
     if (letter == 'B' && number == 3) {
