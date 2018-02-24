@@ -45,6 +45,11 @@ void user_command_print(int server_tid, user_command *cmd) {
                     GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
                     cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_V:
+      Assert(Printf(server_tid, "%s%s%s%sV %d          %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%s%sINVALID COMMAND        %s%s",
                     RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
@@ -113,6 +118,14 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             cmd->data[1] = speed;
           }
         }
+      }
+    } else if (string_starts_with(ibuf->data, "v ", ibuf->elems)) {
+      int nParse = is_valid_number(ibuf, 2);
+      if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
+        int address = parse_two_digit_number(ibuf->data + 2);
+        cmd->type = USER_CMD_V;
+        cmd->data[0] = address;
+        cmd->data[1] = 0;
       }
     } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
