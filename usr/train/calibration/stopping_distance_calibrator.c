@@ -28,6 +28,8 @@ void stopping_distance_calibrator() {
     Delay(clock_server_tid, 200);
   }
 
+  set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
+  Delay(clock_server_tid, 200);
   reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
 
