@@ -13,6 +13,7 @@
 #include "train/commands.h"
 #include "train/reverser.h"
 #include "train/switcher.h"
+#include "train/calibration/stopping_distance_calibrator.h"
 
 /**
  * Interprets messages sent from the train FirstUserTask and relays them

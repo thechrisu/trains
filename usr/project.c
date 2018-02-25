@@ -40,6 +40,11 @@ void user_command_print(int server_tid, user_command *cmd) {
                     GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
                     cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_SD:
+      Assert(Printf(server_tid, "%s%s%s%sSD %d %d          %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%s%sINVALID COMMAND        %s%s",
                     RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
@@ -92,6 +97,20 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             cmd->type = USER_CMD_SW;
             cmd->data[0] = num;
             cmd->data[1] = change_cmd;
+          }
+        }
+      }
+    } else if (string_starts_with(ibuf->data, "sd ", ibuf->elems) ) {
+      int first_num_parse = is_valid_number(ibuf, 3);
+      if (first_num_parse >= 0) {
+        int second_num_parse = is_valid_number(ibuf, first_num_parse);
+        if (second_num_parse >= 0 && ibuf->elems >= (unsigned int) second_num_parse) {
+          int address = parse_two_digit_number(ibuf->data + 3);
+          int speed = parse_two_digit_number(ibuf->data + first_num_parse);
+          if (speed >= 0 && speed <= 14) {
+            cmd->type = USER_CMD_SD;
+            cmd->data[0] = address;
+            cmd->data[1] = speed;
           }
         }
       }

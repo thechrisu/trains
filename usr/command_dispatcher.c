@@ -52,7 +52,17 @@ void command_dispatcher_server() {
             rv_cmd.msg.reverser_params.clock_server_tid = clock_server;
             rv_cmd.msg.reverser_params.track_state_controller_tid = track_state_controller;
             int reverser_tid = Create(my_priority + 7, &reverser);
-            Send(reverser_tid, &rv_cmd, sizeof(rv_cmd), EMPTY_MESSAGE, 0);
+            Assert(Send(reverser_tid, &rv_cmd, sizeof(rv_cmd), EMPTY_MESSAGE, 0) == 0);
+            break;
+          }
+          case USER_CMD_SD: {
+            message send;
+            send.type = MESSAGE_CALIB_SD;
+            send.msg.calib_sd_params.train = (int)received.msg.cmd.data[0];
+            send.msg.calib_sd_params.speed = (int)received.msg.cmd.data[1];
+
+            int child_tid = Create(my_priority + 7, &stopping_distance_calibrator);
+            Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
             break;
           }
           default:

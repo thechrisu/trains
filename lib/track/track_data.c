@@ -1201,6 +1201,8 @@ void init_track(track_state *global_track) {
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;
   }
+
+  setup_speed_to_velocity_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {

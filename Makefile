@@ -80,7 +80,7 @@ QEMUTESTINGARGS = $(QEMUTESTINGBASEARGS) -serial null -serial stdio
 QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
 CFLAGSMIN = -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-							-Itest-resources -Iusr -Iusr/test -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Ilib/track -Iinclude/ -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG) $(FIFOS_FLAG)
+							-Itest-resources -Iusr -Iusr/test -Iusr/train -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Ilib/track -Iinclude/ -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG) $(FIFOS_FLAG)
 CFLAGSBASE = $(CFLAGSMIN) -c
 CFLAGSBLOB = $(CFLAGSMIN) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
@@ -184,7 +184,7 @@ trainslab:
 #%.c
 $(builddirlab)/%.s: %.c $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(XCC) $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
+	$(XCC) $(CFLAGS_ARM_LAB) -DFIFOS $(LTO) $< -S -o $@
 #
 # $(OBJECTSlab)
 $(builddirlab)/kernel/%.o: kernel/%.s $(ASMlab)
