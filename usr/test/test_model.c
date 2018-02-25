@@ -11,14 +11,13 @@ void test_constant_velocity_model() {
     Assert(receive.msg.train_speeds[i] == 0);
   }
 
-  // B7 to A10
-  update_constant_velocity_model(track_state_controller_tid, 1, 14, 39, 10, 1337);
+  update_constant_velocity_model(track_state_controller_tid, 1, 14, sensor_offset('B', 7), sensor_offset('A', 10), 9);
 
   get_constant_velocity_model(track_state_controller_tid, 1, &receive);
   for (int i = 0; i < 14; i++) {
     Assert(receive.msg.train_speeds[i] == 0);
   }
-  Assert(receive.msg.train_speeds[14] == 1337);
+  Assert(receive.msg.train_speeds[14] == 289 / 9);
 
   Assert(Kill(track_state_controller_tid) == 0);
 

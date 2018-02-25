@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "messages.h"
 #include "nameserver.h"
+#include "track_data.h"
 #include "./nameserver/ns_tid.h"
 #include "../train/commands.h"
 #include "../train/track_state_controller.h"
