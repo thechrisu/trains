@@ -82,11 +82,11 @@ int rawgetc(int channel, char *c) {
   volatile int d = *data;
   *c = d & DATA_MASK;
   if (channel == TRAIN) {
-#if FIFOS
+    /*#if FIFOS
     return (d & ((OE_MASK | BE_MASK | PE_MASK | FE_MASK) << 8)) >> 8;
-#else
+    #else*/
     return raw_get_error(channel) & (OE_MASK | BE_MASK | PE_MASK | FE_MASK);
-#endif /* FIFOS */
+    // #endif /* FIFOS */
   }
   return 0;
 }

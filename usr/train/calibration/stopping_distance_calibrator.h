@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Task to do a single manual stopping distance calibration run
+ */
 #ifndef STOPPING_DISTANCE_CALIBRATOR_H
 #define STOPPING_DISTANCE_CALIBRATOR_H
 

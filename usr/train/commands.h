@@ -11,7 +11,7 @@
 #include "track_data.h"
 
 /**
- * Sets the speed of a train, both in reality and in the track state controller.
+ * Sets the speed of a train, both in reality and in the track state controller. The headlights are turned off.
  *
  * @param train_tx_server_tid        The task ID of the train transmit server.
  * @param track_state_controller_tid The task ID of the track state controller.
@@ -20,6 +20,15 @@
  */
 void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, int train, int speed);
 
+/**
+ * Sets the speed of a train and its headlights, both in reality and in the track state controller.
+ *
+ * @param train_tx_server_tid        The task ID of the train transmit server.
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param train                      The train to set the speed of.
+ * @param speed                      The speed to accelerate or decelerate the train to.
+ * @param headlights                 Whether or not the headlights should be on.
+ */
 void set_train_speed_and_headlights(int train_tx_server_tid, int track_state_controller_tid, int train, int speed, bool headlights);
 
 /**
@@ -42,6 +51,11 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
  */
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved);
 
+/**
+ * Queries the track state controller for sensor data.
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param reply                      A message in which to store the sensor data, coming from the track state controller's reply.
+ */
 void get_sensors(int track_state_controller_tid, message *reply);
 
 #endif /* TRAIN_COMMANDS_H */
