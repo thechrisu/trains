@@ -184,7 +184,7 @@ trainslab:
 #%.c
 $(builddirlab)/%.s: %.c $(SOURCES)
 	@mkdir -p $(dir $@)
-	$(XCC) $(CFLAGS_ARM_LAB) $(LTO) $< -S -o $@
+	$(XCC) $(CFLAGS_ARM_LAB) -DFIFOS $(LTO) $< -S -o $@
 #
 # $(OBJECTSlab)
 $(builddirlab)/kernel/%.o: kernel/%.s $(ASMlab)
