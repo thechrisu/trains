@@ -65,6 +65,7 @@ void user_command_print(int server_tid, user_command *cmd) {
  */
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apologize for this mess
   if (data == '\r') {
+    if (ibuf->elems == 0) return true;
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
@@ -204,6 +205,7 @@ void project_first_user_task() {
       delete_from_char(current_cmd_buf.in + 1, terminal_tx_server);
       continue;
     }
+    bool has_char = current_cmd_buf.elems > 0;
     if (parse_command(&current_cmd_buf, &current_cmd, c)) {
       if (current_cmd.type != NULL_USER_CMD) {
         cmd_msg.msg.cmd.type = current_cmd.type;
@@ -217,8 +219,10 @@ void project_first_user_task() {
         Delay(clock_server_tid, 100);
         break;
       } else {
-        user_command_print(terminal_tx_server, &current_cmd);
-        delete_from_char(0, terminal_tx_server);
+        if (has_char) {
+          user_command_print(terminal_tx_server, &current_cmd);
+          delete_from_char(0, terminal_tx_server);
+        }
       }
     } else {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
