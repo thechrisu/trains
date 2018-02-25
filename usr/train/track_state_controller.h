@@ -6,6 +6,7 @@
 #define TRACK_STATE_CONTROLLER
 
 #include "codes.h"
+#include "model.h"
 #include "messages.h"
 #include "../track/track_data.h"
 #include "../track/track_node.h"

@@ -5,7 +5,8 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
-#include "track_data.h"
+#include "model_data.h"
+#include "track_node.h"
 #include "tstdlib.h"
 #include "user_command.h"
 
@@ -41,6 +42,9 @@ enum message_type {
   MESSAGE_TRAINREVERSED,
   MESSAGE_TURNOUTSWITCHED,
   MESSAGE_CALIB_SD,
+  MESSAGE_GETCONSTANTSPEEDMODEL,
+  REPLY_GETCONSTANTSPEEDMODEL,
+  MESSAGE_UPDATECONSTANTSPEEDMODEL
 };
 
 typedef struct {
@@ -86,6 +90,7 @@ typedef struct {
     k3_params reply_k3_params;
     char putc;
     char getc;
+    char train;
     printf_params printf;
     user_command cmd;
     int nameserver_response;
@@ -93,9 +98,11 @@ typedef struct {
     message_switch_params switch_params;
     train_data tr_data;
     int16_t sensors[10];
+    int32_t train_speeds[15];
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
     message_calib_sd_params calib_sd_params;
+    default_speed ucsm;
   } msg;
 } message;
 
