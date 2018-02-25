@@ -9,7 +9,7 @@
 #include "model_data.h"
 #include "tstdlib.h"
 
-#define DEFINITE_MAX_CM_PER_SEC 60
+#define DEFINITE_MAX_CM_PER_SEC 70
 
 /**
  * Initializes the speed->velocity map passed by the first argument.
