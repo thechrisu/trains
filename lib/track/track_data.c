@@ -1240,9 +1240,22 @@ unsigned int sensor_offset(char bank, unsigned int index) {
 }
 
 track_node *find_sensor(track_state *t, unsigned int offset) {
-  // TODO finish this function
-  (void)offset;
-  return &(t->track[0]);
+  char bank = sensor_bank(offset);
+  int index = sensor_index(offset);
+
+  char buf[4];
+  buf[0] = bank;
+  ui2a(index, 10, buf + 1);
+
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    track_node *current_node = &(t->track[i]);
+    if (tstrncmp(buf, current_node->name, tstrlen(buf) + 1) == 0) {
+      return current_node;
+    }
+  }
+
+  Assert(0);
+  return 0;
 }
 
 uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
