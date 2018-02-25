@@ -25,9 +25,16 @@ void velocity_calibrator() {
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 10, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 15, true);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, true);
+  switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 17, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 155, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 156, true);
 
+  reverse_train(tx_server_tid, track_state_controller_tid, train);
+  set_train_speed(tx_server_tid, track_state_controller_tid, train, 13);
+  poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('E', 10));
+  set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
+  Delay(clock_server_tid, 350);
+  reverse_train(tx_server_tid, track_state_controller_tid, train);
   set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
   int last_time, this_time;
