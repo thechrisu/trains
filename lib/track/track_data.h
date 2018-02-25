@@ -23,4 +23,35 @@ unsigned int map_offset_to_turnout(unsigned int offset);
  */
 bool is_valid_turnout_num(unsigned int turnout);
 
+/**
+ * @param   offset The index of a sensor within the sensor data bitmap.
+ * @returns The letter of a bank (A to E) to which the sensor belongs.
+ */
+char sensor_bank(unsigned int offset);
+
+/**
+ * @param   offset The index of a sensor within the sensor data bitmap.
+ * @returns The index of the sensor within its bank (1 to 16).
+ */
+unsigned int sensor_index(unsigned int offset);
+
+/**
+ * @param   offset The index of a sensor within the sensor data bitmap.
+ * @returns The element of a sensor data array `sensor_data` in which the state of the sensor is found.
+ */
+unsigned int sensor_data_element(unsigned int offset);
+
+/**
+ * @param   offset The index of a sensor within the sensor data bitmap.
+ * @returns The mask to apply to `sensor_data[sensor_data_element(offset)]` to get the sensor's state.
+ */
+unsigned int sensor_data_mask(unsigned int offset);
+
+/**
+ * @param   bank  The letter of the bank (A to E) to which the sensor belongs.
+ * @param   index The index of the sensor within its bank.
+ * @returns The index of the sensor within the sensor data bitmap.
+ */
+unsigned int sensor_offset(char bank, unsigned int index);
+
 #endif /* TRACK_DATA_H */

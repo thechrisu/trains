@@ -15,7 +15,7 @@ all:
 	$(MAKE) all1
 
 all1: test_buffer.out test_ready_queue.out test_scheduler.out test_task.out test_messaging.out \
-			test_stdlib.out test_all.out
+			test_stdlib.out test_track_data.out test_all.out
 	./unit/test_all.out
 	./unit/test_buffer.out
 	./unit/test_ready_queue.out
@@ -23,6 +23,7 @@ all1: test_buffer.out test_ready_queue.out test_scheduler.out test_task.out test
 	./unit/test_messaging.out
 	./unit/test_stdlib.out
 	./unit/test_task.out
+	./unit/test_track_data.out
 
 alltests: test_all.out
 	./unit/test_all.out
@@ -52,6 +53,9 @@ test_task.out: unit/test_task.cc $(SRC_TASK)
 	g++ -o unit/$@ $< $(SRC_TASK) $(FLAGS)
 
 test_stdlib.out: unit/test_stdlib.cc $(SRC)
+	g++ -o unit/$@ $< $(SRC) $(FLAGS)
+
+test_track_data.out: unit/test_track_data.cc $(SRC)
 	g++ -o unit/$@ $< $(SRC) $(FLAGS)
 
 clean:

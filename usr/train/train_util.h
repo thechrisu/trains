@@ -13,14 +13,19 @@
 void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t leading_edge[10]);
 
 /**
+ * @param   sensors A set of sensor data.
+ * @param   offset  The offset of a sensor within the sensor data bitmap.
+ * @returns Whether or not the sensor is triggered in the sensor data.
+ */
+bool is_sensor_triggered(int16_t sensors[10], unsigned int offset);
+
+/**
  * Poll the track state controller for sensor data until the given sensor has been triggered.
  *
  * @param clock_server_tid           The task ID of the clock server.
  * @param track_state_controller_tid The task ID of the track state controller.
- * @param bank                       The sensor bank (A to E) of the sensor to wait for.
- * @param index                      The index of the sensor to wait for (1 to 16).
+ * @param offset                     The offset of a sensor within the sensor data bitmap.
  */
-void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, char bank, int index);
+void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, unsigned int offset);
 
 #endif /* TRAIN_UTIL_H */
-
