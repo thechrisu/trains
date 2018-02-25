@@ -15,7 +15,7 @@ void velocity_calibrator() {
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
 
   int train = received.msg.calib_v_params.train;
-  int speed = 10;
+  int speed = 14;
 
   int clock_server_tid = WhoIs("ClockServer");
   int tx_server_tid = WhoIs("TrainTxServer");

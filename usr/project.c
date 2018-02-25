@@ -180,6 +180,14 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
   }
 }
 
+void delete_from_char(int index, int recipient) {
+  Assert(Printf(recipient, "%s%d;%dH%s", ESC, PROMPT_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
+}
+
+void print_cmd_char(char c, int index, int recipient) {
+  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
+}
+
 void log_calibration_data(int train) {
   int track_state_controller_tid = WhoIs("TrackStateController");
   Assert(track_state_controller_tid > 0);
@@ -208,14 +216,6 @@ void log_calibration_data(int train) {
   for (int i = 0; i <= 14; i += 1) {
     logprintf("%d%s | %d\n\r", i, i >= 10 ? (i >= 100 ? (i >= 1000 ? (i >= 10000 ? (i >= 100000 ? (i >= 1000 * 1000 ? (i >= 10 * 1000 * 1000 ? " " : "  ") : "   ") : "    ") : "     ") : "      ") : "       ") : "        ", reply.msg.train_times[i]);
   }
-}
-
-void delete_from_char(int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%s", ESC, PROMPT_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
-}
-
-void print_cmd_char(char c, int index, int recipient) {
-  Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
 #define max(a, b) (a > b ? a : b)
