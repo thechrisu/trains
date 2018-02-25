@@ -1202,7 +1202,33 @@ void init_track(track_state *global_track) {
     global_track->train[i].should_speed = 0;
   }
 
-  setup_speed_to_velocity_map(global_track->speed_to_velocity);
+  default_speed default_speeds[] = {
+    { // Guard element
+      .train = 1337,
+      .speed = 1337,
+      .velocity = 1337
+    }
+  };
+
+  uint32_t super_default_speeds[15] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  };
+
+  setup_speed_to_velocity_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {
