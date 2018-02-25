@@ -83,11 +83,13 @@ void track_state_controller() {
         uint32_t distance = distance_between_sensors(&track, received.msg.ucsm.start, received.msg.ucsm.end);
         // Distance is in 10^-3 m, one tick is 10^-2 s -> distance per tick is in 10^-1 m/s.
         // We want 10^-5 m/s = 1/100 mm/s -> multiply by 10^4 = 10,000.
-        uint32_t velocity = distance / received.msg.ucsm.ticks * 10000;
+        uint32_t velocity = distance * 10000 / received.msg.ucsm.ticks;
 	Assert(t >= 1 && t <= 80);
 	Assert(s >= 0 && s <= 14);
 	Assert(velocity < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
-	track.speed_to_velocity[t][s] = velocity;
+	track.speed_to_velocity[t][s] *= 9;
+        track.speed_to_velocity[t][s] += velocity;
+	track.speed_to_velocity[t][s] /= 10;
 	Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
 	break;
       }

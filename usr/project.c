@@ -157,6 +157,22 @@ void print_cmd_char(char c, int index, int recipient) {
   Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
+void log_calibration_data() {
+  int track_state_controller_tid = WhoIs("TrackStateController");
+  Assert(track_state_controller_tid > 0);
+
+  message send, reply;
+  send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
+  send.msg.train = 58;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+
+  logprintf("Train 58 velocity calibration data\n\r");
+  logprintf("Speed | Velocity\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, i >= 10 ? "   " : "    ", reply.msg.train_speeds[i]);
+  }
+}
+
 #define max(a, b) (a > b ? a : b)
 
 void project_first_user_task() {
@@ -237,6 +253,7 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
+  log_calibration_data();
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);

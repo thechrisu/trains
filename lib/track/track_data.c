@@ -1202,7 +1202,7 @@ void init_track(track_state *global_track) {
     global_track->train[i].should_speed = 0;
   }
 
-  setup_speed_to_velocity_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
+  setup_speed_to_velocity_map(global_track->speed_to_velocity);
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {
@@ -1282,16 +1282,9 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uin
 
       track_node *curved_node = start->edge[DIR_CURVED].dest;
       uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
-      result = distance_between_sensors_helper(curved_node, end, curved_total_distance, limit - 1);
-      if (result != 0) {
-        return result;
-      }
-
-      Assert(0);
-      return 0;
+      return distance_between_sensors_helper(curved_node, end, curved_total_distance, limit - 1);
     }
     default:
-      Assert(0);
       return 0;
   }
 }
@@ -1299,5 +1292,7 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uin
 uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
   track_node *start_node = find_sensor(t, start);
   track_node *end_node = find_sensor(t, end);
-  return distance_between_sensors_helper(start_node, end_node, 0, 5);
+  int result = distance_between_sensors_helper(start_node, end_node, 0, 5);
+  Assert(result != 0);
+  return result;
 }

@@ -1,39 +1,39 @@
 #include "model.h"
 
-default_speed default_speeds[] = {
-  { // Guard element
-    .train = 1337,
-    .speed = 1337,
-    .velocity = 1337
-  }
-};
+void setup_speed_to_velocity_map(uint32_t map[81][15]) {
+  default_speed default_speeds[] = {
+    { // Guard element
+      .train = 1337,
+      .speed = 1337,
+      .velocity = 1337
+    }
+  };
 
-uint32_t super_default_speeds[15] = {
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0,
-  0
-};
+  uint32_t super_default_speeds[15] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  };
 
-void setup_speed_to_velocity_map(uint32_t map[81][15], default_speed defaults[], uint32_t super_defaults[15]) {
   for (int i = 0; i < 81; i++) {
     for (int j = 0; j < 15; j++) {
-      map[i][j] = super_defaults[j];
+      map[i][j] = super_default_speeds[j];
     }
   }
 
-  default_speed *current_speed = (default_speed *)defaults;
+  default_speed *current_speed = (default_speed *)default_speeds;
   while (!(current_speed->train == 1337 && current_speed->speed == 1337 && current_speed->velocity == 1337)) {
     int t = current_speed->train;
     int s = current_speed->speed;

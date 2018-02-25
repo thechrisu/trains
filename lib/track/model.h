@@ -11,9 +11,6 @@
 
 #define DEFINITE_MAX_CM_PER_SEC 60
 
-extern default_speed default_speeds[];
-extern uint32_t super_default_speeds[15];
-
 /**
  * Initializes the speed->velocity map passed by the first argument.
  *
@@ -21,6 +18,6 @@ extern uint32_t super_default_speeds[15];
  * @param defaults       An array of default values (special guard element defined in default_speeds) for each train.
  * @param super_defaults If a certain train has no default for a speed, this array defines the global default values.
  */
-void setup_speed_to_velocity_map(uint32_t map[81][15], default_speed defaults[], uint32_t super_defaults[15]);
+void setup_speed_to_velocity_map(uint32_t map[81][15]);
 
 #endif /* TRAIN_MODEL_H */
