@@ -1258,26 +1258,46 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
   return 0;
 }
 
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
-  uint32_t distance = 0;
-
-  track_node *current_node = find_sensor(t, start);
-  track_node *end_node = find_sensor(t, end);
-
-  while (current_node != end_node) {
-    switch (current_node->type) {
-      case NODE_SENSOR:
-      case NODE_MERGE:
-        distance += current_node->edge[DIR_AHEAD].dist;
-        current_node = current_node->edge[DIR_AHEAD].dest;
-        break;
-      case NODE_BRANCH:
-        // TODO handle this case
-        break;
-      default:
-        Assert(0);
-    }
+uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uint32_t total_distance, int limit) {
+  if (start == end) {
+    return total_distance;
+  } else if (limit == 0) {
+    return 0;
   }
 
-  return distance;
+  switch (start->type) {
+    case NODE_SENSOR:
+    case NODE_MERGE: {
+      track_node *next_node = start->edge[DIR_AHEAD].dest;
+      uint32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
+      return distance_between_sensors_helper(next_node, end, new_total_distance, limit - 1);
+    }
+    case NODE_BRANCH: {
+      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
+      uint32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
+      uint32_t result = distance_between_sensors_helper(straight_node, end, straight_total_distance, limit - 1);
+      if (result != 0) {
+        return result;
+      }
+
+      track_node *curved_node = start->edge[DIR_CURVED].dest;
+      uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
+      result = distance_between_sensors_helper(curved_node, end, curved_total_distance, limit - 1);
+      if (result != 0) {
+        return result;
+      }
+
+      Assert(0);
+      return 0;
+    }
+    default:
+      Assert(0);
+      return 0;
+  }
+}
+
+uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+  track_node *start_node = find_sensor(t, start);
+  track_node *end_node = find_sensor(t, end);
+  return distance_between_sensors_helper(start_node, end_node, 0, 5);
 }
