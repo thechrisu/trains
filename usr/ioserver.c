@@ -7,15 +7,17 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
   char_buffer tx_buf;
   char_buffer_init(&tx_buf, buf, buf_sz);
   bool can_put = false;
+  raw_get_error(channel);
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
-
+    Assert(!raw_get_error(channel));
     switch (received.type) {
       case MESSAGE_NOTIFIER:
         if (!char_buffer_is_empty(&tx_buf)) {
           can_put = false;
           Assert(rawcanputc(channel));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          Assert(!raw_get_error(channel));
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         } else {
           can_put = true;
@@ -29,6 +31,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          Assert(!raw_get_error(channel));
           can_put = false;
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
@@ -49,6 +52,7 @@ void generic_tx_server(uint16_t buf_sz, int channel, int notifier_tid) {
           Assert(rawcanputc(channel));
           Assert(!char_buffer_is_empty(&tx_buf));
           Assert(rawputc(channel, char_buffer_get(&tx_buf)) == 0);
+          Assert(!raw_get_error(channel));
           can_put = false;
           Assert(Reply(notifier_tid, EMPTY_MESSAGE, 0) >= 0);
         }
