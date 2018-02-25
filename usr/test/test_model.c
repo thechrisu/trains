@@ -11,13 +11,14 @@ void test_constant_velocity_model() {
     Assert(receive.msg.train_speeds[i] == 0);
   }
 
-  update_constant_velocity_model(track_state_controller_tid, 1, 14, sensor_offset('B', 7), sensor_offset('A', 10), 9);
+  update_constant_velocity_model(track_state_controller_tid, 1, 14, sensor_offset('B', 7), sensor_offset('A', 10), 90);
 
   get_constant_velocity_model(track_state_controller_tid, 1, &receive);
   for (int i = 0; i < 14; i++) {
     Assert(receive.msg.train_speeds[i] == 0);
   }
-  Assert(receive.msg.train_speeds[14] == 289 / 9);
+  // 289 mm, 90 ticks, divide by 10 for EWMA calculation
+  Assert(receive.msg.train_speeds[14] == 289 * 10000 / 90 / 10);
 
   Assert(Kill(track_state_controller_tid) == 0);
 
