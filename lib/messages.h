@@ -91,7 +91,7 @@ typedef struct {
   int speed;
   unsigned int start;
   unsigned int end;
-  uint32_t time_elapsed;
+  int ticks;
 } message_ucsm_params;
 
 typedef struct {

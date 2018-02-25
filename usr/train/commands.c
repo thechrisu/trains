@@ -73,13 +73,13 @@ void get_constant_velocity_model(int track_state_controller_tid, int train, mess
   Assert(reply->type == REPLY_GETCONSTANTSPEEDMODEL);
 }
 
-void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, unsigned int start, unsigned int end, uint32_t time_elapsed) {
+void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, unsigned int start, unsigned int end, uint32_t ticks) {
   message send;
   send.type = MESSAGE_UPDATECONSTANTSPEEDMODEL;
   send.msg.ucsm.train = train;
   send.msg.ucsm.speed = speed;
   send.msg.ucsm.start = start;
   send.msg.ucsm.end = end;
-  send.msg.ucsm.time_elapsed = time_elapsed;
+  send.msg.ucsm.ticks = ticks;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }

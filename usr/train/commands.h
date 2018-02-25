@@ -77,6 +77,6 @@ void get_constant_velocity_model(int track_state_controller_tid, int train, mess
  * @param end                           Offset of the sensor at the end of the measurement.
  * @param time_elapsed                  Time it took to travel between the two sensors.
  */
-void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, unsigned int start, unsigned int end, uint32_t time_elapsed);
+void update_constant_velocity_model(int track_state_controller_tid, int train, int speed, unsigned int start, unsigned int end, uint32_t ticks);
 
 #endif /* TRAIN_COMMANDS_H */

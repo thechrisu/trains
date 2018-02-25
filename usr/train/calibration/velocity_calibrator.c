@@ -15,6 +15,7 @@ void velocity_calibrator() {
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
 
   int train = received.msg.calib_v_params.train;
+  int speed = 10;
 
   int clock_server_tid = WhoIs("ClockServer");
   int tx_server_tid = WhoIs("TrainTxServer");
@@ -27,14 +28,22 @@ void velocity_calibrator() {
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 155, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 156, true);
 
-  set_train_speed(tx_server_tid, track_state_controller_tid, train, 10);
+  set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
+  int last_time = Time(clock_server_tid);
   int i = 0;
   while (sensor_letters[i]) {
     char letter = sensor_letters[i];
     char number = sensor_numbers[i];
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset(letter, number));
-    logprintf("Sensor %c%d triggered at %d ticks\n\r", letter, number, Time(clock_server_tid));
+
+    if (i > 0) {
+      unsigned int start = sensor_offset(sensor_letters[i - 1], sensor_numbers[i - 1]);
+      unsigned int end = sensor_offset(letter, number);
+      int this_time = Time(clock_server_tid);
+      update_constant_velocity_model(track_state_controller_tid, train, speed, start, end, last_time - this_time);
+      last_time = this_time;
+    }
 
     if (letter == 'B' && number == 3) {
       switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, false);
