@@ -30,16 +30,12 @@ void stopping_distance_calibrator() {
     switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 12, false);
     switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, false);
 
-    reverse_train(tx_server_tid, track_state_controller_tid, train);
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
+    stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, 8);
 
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', 13));
 
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
+    stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, speed);
     switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, true);
-    Delay(clock_server_tid, 330);
-    reverse_train(tx_server_tid, track_state_controller_tid, train);
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
 
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('E', 8));
     switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 11, false);
@@ -56,17 +52,11 @@ void stopping_distance_calibrator() {
       Delay(clock_server_tid, 200);
     }
 
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
-    Delay(clock_server_tid, 200);
-    reverse_train(tx_server_tid, track_state_controller_tid, train);
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, 8);
+    stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, 8);
 
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', speed < 6 ? 7 : 3));
 
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
-    Delay(clock_server_tid, 330);
-    reverse_train(tx_server_tid, track_state_controller_tid, train);
-    set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
+    stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, speed);
 
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', 8));
 

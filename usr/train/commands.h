@@ -41,6 +41,27 @@ void set_train_speed_and_headlights(int train_tx_server_tid, int track_state_con
 void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int train);
 
 /**
+ * Stops a train, reverses it, and restarts it in the other direction at a given speed.
+ *
+ * @param clock_server_tid           The task ID of the clock server.
+ * @param train_tx_server_tid        The task ID of the train transmit server.
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param train                      The train to reverse.
+ * @param speed                      The speed to set the train to after reversing.
+ */
+void stop_and_reverse_train_to_speed(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int train, int speed);
+
+/**
+ * Stops a train, reverses it, and restarts it in the other direction at its previous speed.
+ *
+ * @param clock_server_tid           The task ID of the clock server.
+ * @param train_tx_server_tid        The task ID of the train transmit server.
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param train                      The train to reverse.
+ */
+void stop_and_reverse_train(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int train);
+
+/**
  * Switches a turnout, both in reality and in the track state controller.
  *
  * @param clock_server_tid           The task ID of the clock server.
