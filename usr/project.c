@@ -167,7 +167,7 @@ void log_calibration_data(int train) {
   send.msg.train = train;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
 
-  logprintf("Train 58 velocity calibration data\n\r");
+  logprintf("Train %d velocity calibration data\n\r", train);
   logprintf("Speed | Velocity\n\r");
   for (int i = 0; i <= 14; i += 1) {
     logprintf("%d%s | %d\n\r", i, i >= 10 ? "   " : "    ", reply.msg.train_speeds[i]);

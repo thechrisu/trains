@@ -74,7 +74,7 @@ void straight_do_automated_velocity_calibration(int train, int speed, int track_
 
   stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, 10);
   poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('D', 12));
-  if (speed > 6) {
+  if (speed > 6 && speed != 14) {
     Delay(clock_server_tid, speed * 30);
   }
   stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, 0);
@@ -101,12 +101,10 @@ void automated_velocity_calibrator() {
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 8, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 15, false);
 
-  straight_do_automated_velocity_calibration(train, 13, track_state_controller_tid, clock_server_tid, tx_server_tid);
-  straight_do_automated_velocity_calibration(train, 14, track_state_controller_tid, clock_server_tid, tx_server_tid);
-  straight_do_automated_velocity_calibration(train, 1, track_state_controller_tid, clock_server_tid, tx_server_tid);
   int num_repetitions = 1;
   for (int i = 0; i < num_repetitions; i++) {
     for (int speed = 1; speed < 15; speed++) {
+      straight_do_automated_velocity_calibration(train, speed, track_state_controller_tid, clock_server_tid, tx_server_tid);
     }
   }
 }
