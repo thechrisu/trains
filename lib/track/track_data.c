@@ -1293,7 +1293,61 @@ void init_track(track_state *global_track) {
     60798
   };
 
+  default_value default_stopping_distances[] = {
+    { // Guard element
+      .train = 1337,
+      .speed = 1337,
+      .value = 1337
+    }
+  };
+
+  uint32_t super_default_stopping_distances[15] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  };
+
+  default_value default_stopping_times[] = {
+    { // Guard element
+      .train = 1337,
+      .speed = 1337,
+      .value = 1337
+    }
+  };
+
+  uint32_t super_default_stopping_times[15] = {
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+  };
+
   setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
+  setup_default_map(global_track->stopping_distance, default_stopping_distances, super_default_stopping_distances);
+  setup_default_map(global_track->stopping_time_mus, default_stopping_times, super_default_stopping_times);
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {
