@@ -158,13 +158,13 @@ void print_cmd_char(char c, int index, int recipient) {
   Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
-void log_calibration_data() {
+void log_calibration_data(int train) {
   int track_state_controller_tid = WhoIs("TrackStateController");
   Assert(track_state_controller_tid > 0);
 
   message send, reply;
   send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
-  send.msg.train = 58;
+  send.msg.train = train;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
 
   logprintf("Train 58 velocity calibration data\n\r");
@@ -224,6 +224,7 @@ void project_first_user_task() {
 
 #endif /* E2ETESTING */
 
+  int last_calibrated_train;
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
@@ -243,6 +244,8 @@ void project_first_user_task() {
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
+      if (current_cmd.type == USER_CMD_V)
+        last_calibrated_train = current_cmd.data[0];
       if (current_cmd.type == USER_CMD_Q) {
         Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
         Delay(clock_server_tid, 100);
@@ -257,7 +260,7 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  log_calibration_data();
+  log_calibration_data(last_calibrated_train);
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);

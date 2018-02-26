@@ -9,5 +9,6 @@
 #include "train_util.h"
 
 void velocity_calibrator();
+void automated_velocity_calibrator();
 
 #endif /* VELOCITY_CALIBRATOR_H */

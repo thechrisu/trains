@@ -70,7 +70,7 @@ void command_dispatcher_server() {
             send.type = MESSAGE_CALIB_V;
             send.msg.calib_v_params.train = (int)received.msg.cmd.data[0];
 
-            int child_tid = Create(my_priority + 7, &velocity_calibrator);
+            int child_tid = Create(my_priority + 7, &automated_velocity_calibrator);
             Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
             break;
           }
