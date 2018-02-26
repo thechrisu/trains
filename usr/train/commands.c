@@ -40,6 +40,53 @@ void reverse_train(int train_tx_server_tid, int track_state_controller_tid, int 
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
+void stop_and_reverse_helper(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int train, int previous_speed, int speed) {
+#if DEBUG_REVERSAL
+  logprintf("Stopping train %d (speed %d) for reversal\n\r", train, previous_speed);
+#endif /* DEBUG_REVERSAL */
+
+  set_train_speed(train_tx_server_tid, track_state_controller_tid, train, 0);
+
+  Delay(clock_server_tid, previous_speed * 33); // 3 seconds
+
+#if DEBUG_REVERSAL
+  logprintf("Reversing train %d\n\r", train);
+#endif /* DEBUG_REVERSAL */
+
+  reverse_train(train_tx_server_tid, track_state_controller_tid, train);
+  Delay(clock_server_tid, 8);
+
+#if DEBUG_REVERSAL
+  logprintf("Re-accelerating train %d after reversal to %d\n\r", train, speed);
+#endif /* DEBUG_REVERSAL */
+
+  set_train_speed(train_tx_server_tid, track_state_controller_tid, train, speed);
+}
+
+void stop_and_reverse_train_to_speed(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int train, int speed) {
+  message received, reply;
+
+  received.type = MESSAGE_GETTRAIN;
+  received.msg.tr_data.train = train;
+
+  Assert(Send(track_state_controller_tid, &received, sizeof(received), &reply, sizeof(reply)) > 0);
+
+  int should_speed = reply.msg.tr_data.should_speed;
+  stop_and_reverse_helper(clock_server_tid, train_tx_server_tid, track_state_controller_tid, train, should_speed, speed);
+}
+
+void stop_and_reverse_train(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int train) {
+  message received, reply;
+
+  received.type = MESSAGE_GETTRAIN;
+  received.msg.tr_data.train = train;
+
+  Assert(Send(track_state_controller_tid, &received, sizeof(received), &reply, sizeof(reply)) > 0);
+
+  int should_speed = reply.msg.tr_data.should_speed;
+  stop_and_reverse_helper(clock_server_tid, train_tx_server_tid, track_state_controller_tid, train, should_speed, should_speed);
+}
+
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved) {
   Assert(is_valid_turnout_num(turnout_num));
 
