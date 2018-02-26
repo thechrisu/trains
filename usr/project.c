@@ -274,7 +274,11 @@ void project_first_user_task() {
   Assert(Create(my_priority, &turnout_view) > 0);
 #endif /* E2ETESTING */
 
+<<<<<<< HEAD
   int last_calibrated_train = 0;
+=======
+  int last_calibrated_train = -1;
+>>>>>>> Fix merge
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
