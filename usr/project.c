@@ -224,7 +224,7 @@ void project_first_user_task() {
 
 #endif /* E2ETESTING */
 
-  int last_calibrated_train;
+  int last_calibrated_train = 0;
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
@@ -260,7 +260,9 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  log_calibration_data(last_calibrated_train);
+  if (last_calibrated_train > 0) {
+    log_calibration_data(last_calibrated_train);
+  }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
