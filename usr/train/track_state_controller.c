@@ -87,9 +87,13 @@ void track_state_controller() {
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
         Assert(velocity < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
-        track.speed_to_velocity[t][s] *= 9;
-        track.speed_to_velocity[t][s] += velocity;
-        track.speed_to_velocity[t][s] /= 10;
+        if (track.speed_to_velocity[t][s] == 0) {
+          track.speed_to_velocity[t][s] = velocity;
+        } else {
+          track.speed_to_velocity[t][s] *= 9;
+          track.speed_to_velocity[t][s] += velocity;
+          track.speed_to_velocity[t][s] /= 10;
+        }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       }
