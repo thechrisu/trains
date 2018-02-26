@@ -1211,7 +1211,7 @@ void init_track(track_state *global_track) {
     {
       .train = 74,
       .speed = 2,
-      .velocity = 7232 
+      .velocity = 7232
     },
     {
       .train = 74,
