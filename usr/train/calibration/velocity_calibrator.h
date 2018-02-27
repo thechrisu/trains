@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Task to automatically measure velocity for one train
+ */
 #ifndef VELOCITY_CALIBRATOR_H
 #define VELOCITY_CALIBRATOR_H
 
