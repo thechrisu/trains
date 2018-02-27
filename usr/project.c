@@ -222,7 +222,6 @@ void project_first_user_task() {
   Assert(Create(my_priority, &clock_view) > 0);
   Assert(Create(my_priority, &sensor_view) > 0);
   Assert(Create(my_priority, &turnout_view) > 0);
-
 #endif /* E2ETESTING */
 
   int last_calibrated_train = 0;
