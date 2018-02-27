@@ -20,11 +20,11 @@ void test_constant_velocity_model() {
   message receive;
   get_constant_velocity_model(track_state_controller_tid, 1, &receive);
 
-  int32_t first_train_speeds[15];
+  uint32_t first_train_speeds[15];
   first_train_speeds[0] = 0;
 
   for (int i = 0; i < 15; i++) {
-    int this_speed = receive.msg.train_speeds[i];
+    unsigned int this_speed = receive.msg.train_speeds[i];
     assert_valid_velocity(i, receive.msg.train_speeds[i]);
     first_train_speeds[i] = this_speed;
   }

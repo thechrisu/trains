@@ -130,3 +130,37 @@ void update_constant_velocity_model(int track_state_controller_tid, int train, i
   send.msg.ucsm.ticks = ticks;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
+
+void get_stopping_distance_model(int track_state_controller_tid, int train, message *reply) {
+  message send;
+  send.type = MESSAGE_GETSTOPPINGDISTANCEMODEL;
+  send.msg.train = train;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
+  Assert(reply->type == REPLY_GETSTOPPINGDISTANCEMODEL);
+}
+
+void update_stopping_distance_model(int track_state_controller_tid, int train, int speed, uint32_t distance) {
+  message send;
+  send.type = MESSAGE_UPDATESTOPPINGDISTANCEMODEL;
+  send.msg.usdm.train = train;
+  send.msg.usdm.speed = speed;
+  send.msg.usdm.value = distance;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+}
+
+void get_stopping_time_model(int track_state_controller_tid, int train, message *reply) {
+  message send;
+  send.type = MESSAGE_GETSTOPPINGTIMEMODEL;
+  send.msg.train = train;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
+  Assert(reply->type == REPLY_GETSTOPPINGTIMEMODEL);
+}
+
+void update_stopping_time_model(int track_state_controller_tid, int train, int speed, uint32_t time) {
+  message send;
+  send.type = MESSAGE_UPDATESTOPPINGTIMEMODEL;
+  send.msg.ustm.train = train;
+  send.msg.ustm.speed = speed;
+  send.msg.ustm.value = time;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+}
