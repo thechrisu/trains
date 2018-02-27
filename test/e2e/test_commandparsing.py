@@ -10,7 +10,7 @@ hide_cursor = '\033[?25l'
 show_cursor = '\033[?25h'
 hide_cursor_line = '\033[K'
 preamble = hide_cursor + cmd_line(4, 1)
-kexit_msg = cmd_line(22, 1) + 'Quitting...\n\r' + cmd_line(19, 1) + 'Bye' + hide_cursor_line + '.\n\r\n\r'
+kexit_msg = cmd_line(22, 1) + 'Quitting...\n\r' + cmd_line(22, 1) + 'Bye' + hide_cursor_line + '.\n\r\n\r'
 
 class TestCommandParsing(unittest.TestCase):
     def test_quit(self):
