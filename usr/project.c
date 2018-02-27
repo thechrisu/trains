@@ -180,6 +180,36 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
   }
 }
 
+void log_calibration_data(int train) {
+  int track_state_controller_tid = WhoIs("TrackStateController");
+  Assert(track_state_controller_tid > 0);
+
+  message reply;
+  get_constant_velocity_model(track_state_controller_tid, train, &reply);
+
+  logprintf("Train %d velocity calibration data\n\r", train);
+  logprintf("Speed | Velocity\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, i >= 10 ? "   " : "    ", reply.msg.train_speeds[i]);
+  }
+
+  get_stopping_distance_model(track_state_controller_tid, train, &reply);
+
+  logprintf("Train %d stopping distance data\n\r", train);
+  logprintf("Speed | Distance\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, i >= 10 ? (i >= 100 ? (i >= 1000 ? (i >= 10000 ? (i >= 100000 ? " " : "  ") : "   ") : "    ") : "     ") : "      ", reply.msg.train_distances[i]);
+  }
+
+  get_stopping_time_model(track_state_controller_tid, train, &reply);
+
+  logprintf("Train %d stopping time data\n\r", train);
+  logprintf("Speed | Time\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, i >= 10 ? (i >= 100 ? (i >= 1000 ? (i >= 10000 ? (i >= 100000 ? (i >= 1000 * 1000 ? (i >= 10 * 1000 * 1000 ? " " : "  ") : "   ") : "    ") : "     ") : "      ") : "       ") : "        ", reply.msg.train_times[i]);
+  }
+}
+
 void delete_from_char(int index, int recipient) {
   Assert(Printf(recipient, "%s%d;%dH%s", ESC, PROMPT_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
 }
@@ -188,25 +218,12 @@ void print_cmd_char(char c, int index, int recipient) {
   Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
-void log_calibration_data(int train) {
-  int track_state_controller_tid = WhoIs("TrackStateController");
-  Assert(track_state_controller_tid > 0);
-
-  message send, reply;
-  send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
-  send.msg.train = train;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-
-  logprintf("Train %d velocity calibration data\n\r", train);
-  logprintf("Speed | Velocity\n\r");
-  for (int i = 0; i <= 14; i += 1) {
-    logprintf("%d%s | %d\n\r", i, i >= 10 ? "   " : "    ", reply.msg.train_speeds[i]);
-  }
-}
-
 #define max(a, b) (a > b ? a : b)
 
 void project_first_user_task() {
+  char active_trains[] = {24, 58, 70, 71, 74};
+  int num_active_trains = 5;
+
   EnableCaches(true);
 
   init_parameters();
@@ -294,7 +311,9 @@ void project_first_user_task() {
     }
   }
   if (last_calibrated_train > 0) {
-    log_calibration_data(last_calibrated_train);
+    for (int i = 0; i < num_active_trains; i++) {
+      log_calibration_data(active_trains[i]);
+    } 
   }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
