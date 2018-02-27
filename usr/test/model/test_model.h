@@ -14,5 +14,6 @@
 #include "../train/track_state_controller.h"
 
 void test_constant_velocity_model();
+void test_distance_between_sensors();
 
 #endif /* TEST_MODEL_H */
