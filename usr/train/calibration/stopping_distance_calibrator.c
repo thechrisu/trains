@@ -20,6 +20,9 @@ void stopping_distance_calibrator() {
   int train = received.msg.calib_sd_params.train;
   int speed = received.msg.calib_sd_params.speed;
 
+  int terminal_tx_server = WhoIs("TerminalTxServer");
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s", ESC, CALIB_LINE, 1, "Calibrating stopping distance for train ", train, " and speed ", speed, HIDE_CURSOR_TO_EOL) == 0);
+
   int clock_server_tid = WhoIs("ClockServer");
   int tx_server_tid = WhoIs("TrainTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
@@ -62,4 +65,6 @@ void stopping_distance_calibrator() {
 
     set_train_speed_and_headlights(tx_server_tid, track_state_controller_tid, train, 0, true);
   }
+
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE, 1, "Stopping distance calibration finished", HIDE_CURSOR_TO_EOL) == 0);
 }

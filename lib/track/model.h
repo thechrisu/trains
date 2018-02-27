@@ -9,10 +9,7 @@
 #include "model_data.h"
 #include "tstdlib.h"
 
-#define DEFINITE_MAX_CM_PER_SEC 60
-
-extern default_speed default_speeds[];
-extern uint32_t super_default_speeds[15];
+#define DEFINITE_MAX_CM_PER_SEC 70
 
 /**
  * Initializes the speed->velocity map passed by the first argument.

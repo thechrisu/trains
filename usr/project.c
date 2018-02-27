@@ -45,6 +45,11 @@ void user_command_print(int server_tid, user_command *cmd) {
                     GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
                     cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_V:
+      Assert(Printf(server_tid, "%s%s%s%sV %d          %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%s%sINVALID COMMAND        %s%s",
                     RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
@@ -115,6 +120,14 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           }
         }
       }
+    } else if (string_starts_with(ibuf->data, "v ", ibuf->elems)) {
+      int nParse = is_valid_number(ibuf, 2);
+      if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
+        int address = parse_two_digit_number(ibuf->data + 2);
+        cmd->type = USER_CMD_V;
+        cmd->data[0] = address;
+        cmd->data[1] = 0;
+      }
     } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
     } else if (string_starts_with(ibuf->data, "go", ibuf->elems) && ibuf->elems == 2) {
@@ -145,6 +158,22 @@ void print_cmd_char(char c, int index, int recipient) {
   Assert(Printf(recipient, "%s%d;%dH%c%s%s", ESC, PROMPT_LINE, 3 + index, c, HIDE_CURSOR_TO_EOL, HIDE_CURSOR) == 0);
 }
 
+void log_calibration_data(int train) {
+  int track_state_controller_tid = WhoIs("TrackStateController");
+  Assert(track_state_controller_tid > 0);
+
+  message send, reply;
+  send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
+  send.msg.train = train;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+
+  logprintf("Train %d velocity calibration data\n\r", train);
+  logprintf("Speed | Velocity\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, i >= 10 ? "   " : "    ", reply.msg.train_speeds[i]);
+  }
+}
+
 #define max(a, b) (a > b ? a : b)
 
 void project_first_user_task() {
@@ -165,8 +194,8 @@ void project_first_user_task() {
   spawn_ioservers();
   int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
-  Assert(Create(my_priority + 7, &track_state_controller) > 0);
-  Assert(Create(my_priority + 4, &sensor_secretary) > 0);
+  Assert(Create(my_priority + 2, &track_state_controller) > 0);
+  Assert(Create(my_priority + 2, &sensor_secretary) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
@@ -183,6 +212,7 @@ void project_first_user_task() {
 #ifndef E2ETESTING
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, PROMPT_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE - 1, 1, "Kalibration Korner:", HIDE_CURSOR_TO_EOL) == 0);
 
   cmd_msg.msg.cmd.type = USER_CMD_GO;
   Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
@@ -192,9 +222,9 @@ void project_first_user_task() {
   Assert(Create(my_priority, &clock_view) > 0);
   Assert(Create(my_priority, &sensor_view) > 0);
   Assert(Create(my_priority, &turnout_view) > 0);
-
 #endif /* E2ETESTING */
 
+  int last_calibrated_train = 0;
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
@@ -214,6 +244,8 @@ void project_first_user_task() {
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
+      if (current_cmd.type == USER_CMD_V)
+        last_calibrated_train = current_cmd.data[0];
       if (current_cmd.type == USER_CMD_Q) {
         Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
         Delay(clock_server_tid, 100);
@@ -227,6 +259,9 @@ void project_first_user_task() {
     } else {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
+  }
+  if (last_calibrated_train > 0) {
+    log_calibration_data(last_calibrated_train);
   }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();

@@ -1202,6 +1202,97 @@ void init_track(track_state *global_track) {
     global_track->train[i].should_speed = 0;
   }
 
+  default_speed default_speeds[] = {
+    {
+      .train = 74,
+      .speed = 1,
+      .velocity = 927
+    },
+    {
+      .train = 74,
+      .speed = 2,
+      .velocity = 7232
+    },
+    {
+      .train = 74,
+      .speed = 3,
+      .velocity = 12487
+    },
+    {
+      .train = 74,
+      .speed = 4,
+      .velocity = 17264
+    },
+    {
+      .train = 74,
+      .speed = 5,
+      .velocity = 21792
+    },
+    {
+      .train = 74,
+      .speed = 6,
+      .velocity = 26829
+    },
+    {
+      .train = 74,
+      .speed = 7,
+      .velocity = 33375
+    },
+    {
+      .train = 74,
+      .speed = 8,
+      .velocity = 36168
+    },
+    {
+      .train = 74,
+      .speed = 9,
+      .velocity = 43879
+    },
+    {
+      .train = 74,
+      .speed = 10,
+      .velocity = 47806
+    },
+    {
+      .train = 74,
+      .speed = 11,
+      .velocity = 55389
+    },
+    {
+      .train = 74,
+      .speed = 13,
+      .velocity = 61212
+    },
+    {
+      .train = 74,
+      .speed = 14,
+      .velocity = 60798
+    },
+    { // Guard element
+      .train = 1337,
+      .speed = 1337,
+      .velocity = 1337
+    }
+  };
+
+  uint32_t super_default_speeds[15] = {
+    0,
+    927,
+    7232,
+    12487,
+    17264,
+    21792,
+    26829,
+    33375,
+    36168,
+    43879,
+    47806,
+    55389,
+    56570,
+    61212,
+    60798
+  };
+
   setup_speed_to_velocity_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
 }
 
@@ -1237,4 +1328,63 @@ unsigned int sensor_data_mask(unsigned int offset) {
 
 unsigned int sensor_offset(char bank, unsigned int index) {
   return 16 * (bank - 'A') + (index >= 9 ? 8 : 0) + (index - 1) % 8;
+}
+
+track_node *find_sensor(track_state *t, unsigned int offset) {
+  char bank = sensor_bank(offset);
+  int index = sensor_index(offset);
+
+  char buf[4];
+  buf[0] = bank;
+  ui2a(index, 10, buf + 1);
+
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    track_node *current_node = &(t->track[i]);
+    if (tstrncmp(buf, current_node->name, tstrlen(buf) + 1) == 0) {
+      return current_node;
+    }
+  }
+
+  Assert(0);
+  return 0;
+}
+
+uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uint32_t total_distance, int limit) {
+  if (start == end) {
+    return total_distance;
+  } else if (limit == 0) {
+    return 0;
+  }
+
+  switch (start->type) {
+    case NODE_SENSOR:
+    case NODE_MERGE: {
+      track_node *next_node = start->edge[DIR_AHEAD].dest;
+      uint32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
+      return distance_between_sensors_helper(next_node, end, new_total_distance, limit - 1);
+    }
+    case NODE_BRANCH: {
+      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
+      uint32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
+      uint32_t result = distance_between_sensors_helper(straight_node, end, straight_total_distance, limit - 1);
+      if (result != 0) {
+        return result;
+      }
+
+      track_node *curved_node = start->edge[DIR_CURVED].dest;
+      uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
+      return distance_between_sensors_helper(curved_node, end, curved_total_distance, limit - 1);
+    }
+    default:
+      return 0;
+  }
+}
+
+uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+  if (start == end) return 0;
+  track_node *start_node = find_sensor(t, start);
+  track_node *end_node = find_sensor(t, end);
+  int result = distance_between_sensors_helper(start_node, end_node, 0, 5);
+  Assert(result != 0);
+  return result;
 }
