@@ -1203,6 +1203,71 @@ void init_track(track_state *global_track) {
   }
 
   default_speed default_speeds[] = {
+    {
+      .train = 74,
+      .speed = 1,
+      .velocity = 927
+    },
+    {
+      .train = 74,
+      .speed = 2,
+      .velocity = 7232
+    },
+    {
+      .train = 74,
+      .speed = 3,
+      .velocity = 12487
+    },
+    {
+      .train = 74,
+      .speed = 4,
+      .velocity = 17264
+    },
+    {
+      .train = 74,
+      .speed = 5,
+      .velocity = 21792
+    },
+    {
+      .train = 74,
+      .speed = 6,
+      .velocity = 26829
+    },
+    {
+      .train = 74,
+      .speed = 7,
+      .velocity = 33375
+    },
+    {
+      .train = 74,
+      .speed = 8,
+      .velocity = 36168
+    },
+    {
+      .train = 74,
+      .speed = 9,
+      .velocity = 43879
+    },
+    {
+      .train = 74,
+      .speed = 10,
+      .velocity = 47806
+    },
+    {
+      .train = 74,
+      .speed = 11,
+      .velocity = 55389
+    },
+    {
+      .train = 74,
+      .speed = 13,
+      .velocity = 61212
+    },
+    {
+      .train = 74,
+      .speed = 14,
+      .velocity = 60798
+    },
     { // Guard element
       .train = 1337,
       .speed = 1337,
@@ -1212,20 +1277,20 @@ void init_track(track_state *global_track) {
 
   uint32_t super_default_speeds[15] = {
     0,
-    948,
-    7240,
-    12469,
+    927,
+    7232,
+    12487,
     17264,
-    21720,
-    26933,
-    33666,
-    35438,
-    44888,
-    48095,
-    51794,
-    56111,
+    21792,
+    26829,
+    33375,
+    36168,
+    43879,
+    47806,
+    55389,
+    56570,
     61212,
-    61212
+    60798
   };
 
   setup_speed_to_velocity_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);

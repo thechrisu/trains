@@ -5,8 +5,8 @@ void assert_valid_velocity(int speed, int velocity) {
     Assert(velocity == 0);
   } else {
     Assert(velocity > 0);
-    Assert(velocity > speed * 4782 - 6000);
-    Assert(velocity < speed * 4782 + 6000);
+    Assert(velocity > speed * 4782 - 8000);
+    Assert(velocity < speed * 4782 + 8000);
   }
 }
 
