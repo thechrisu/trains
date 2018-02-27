@@ -21,6 +21,9 @@ void velocity_calibrator() {
   int tx_server_tid = WhoIs("TrainTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
 
+  int terminal_tx_server = WhoIs("TerminalTxServer");
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s", ESC, CALIB_LINE, 1, "Calibrating velocity for train ", train, " and speed ", speed, HIDE_CURSOR_TO_EOL) == 0);
+
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 6, true);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 10, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 15, true);
@@ -58,6 +61,8 @@ void velocity_calibrator() {
   }
 
   set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
+
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE, 1, "Velocity calibration finished", HIDE_CURSOR_TO_EOL) == 0);
 }
 
 void straight_do_automated_velocity_calibration(int train, int speed, int track_state_controller_tid, int clock_server_tid, int tx_server_tid) {
@@ -96,6 +101,9 @@ void automated_velocity_calibrator() {
   int clock_server_tid = WhoIs("ClockServer");
   int tx_server_tid = WhoIs("TrainTxServer");
 
+  int terminal_tx_server = WhoIs("TerminalTxServer");
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s", ESC, CALIB_LINE, 1, "Calibrating velocity automatically for train ", train, HIDE_CURSOR_TO_EOL) == 0);
+
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 6, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 7, false);
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 8, false);
@@ -107,4 +115,6 @@ void automated_velocity_calibrator() {
       straight_do_automated_velocity_calibration(train, speed, track_state_controller_tid, clock_server_tid, tx_server_tid);
     }
   }
+
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE, 1, "Automatic velocity calibration finished", HIDE_CURSOR_TO_EOL) == 0);
 }

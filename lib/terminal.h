@@ -12,8 +12,9 @@
 #define SENSOR_HEADING_LINE   4
 #define TURNOUTS_HEADING_LINE 4
 #define TURNOUTS_COLUMN       12
-#define CMD_LINE              18
-#define PROMPT_LINE           19
+#define CALIB_LINE            19
+#define CMD_LINE              21
+#define PROMPT_LINE           22
 
 #define RESET_TEXT "\033[0m"
 #define BOLD_TEXT "\033[1m"
