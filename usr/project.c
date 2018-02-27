@@ -194,8 +194,8 @@ void project_first_user_task() {
   spawn_ioservers();
   int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
-  Assert(Create(my_priority + 7, &track_state_controller) > 0);
-  Assert(Create(my_priority + 4, &sensor_secretary) > 0);
+  Assert(Create(my_priority + 2, &track_state_controller) > 0);
+  Assert(Create(my_priority + 2, &sensor_secretary) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
