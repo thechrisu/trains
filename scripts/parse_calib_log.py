@@ -1,4 +1,6 @@
 from collections import defaultdict
+from statistics import mean
+
 import re
 import sys
 
@@ -19,14 +21,16 @@ def print_default_value_dict(data, name):
     out += ',\n\r'.join(def_array) + '  };\n\r\n\r'
     out += '  uint32_t super_' + name + '[15] = {\n\r'
     for i in range(0, 15):
-        out += repr(super_vals[i]) + ', '
+        out += repr(int(mean(super_vals[i]))) + ', '
     out += '\n\r  };\n\r\n\r'
     print(out)
 
 
 def get_log_lines():
     assert(len(sys.argv) == 2)
-    log_file = open(sys.argv[1]).read()
+    f = open(sys.argv[1])
+    log_file = f.read()
+    f.close()
     lines = log_file.split('\n\r')
     assert(len(lines) % LINES_PER_BLOCK == 0)
     return lines
