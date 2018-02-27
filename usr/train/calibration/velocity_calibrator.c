@@ -36,22 +36,11 @@ void velocity_calibrator() {
   poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('E', 10));
   stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, speed);
 
-  int last_time, this_time;
   int i = 0;
   while (sensor_letters[i]) {
     char letter = sensor_letters[i];
     char number = sensor_numbers[i];
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset(letter, number));
-
-    this_time = Time(clock_server_tid);
-
-    if (i > 0) {
-      unsigned int start = sensor_offset(sensor_letters[i - 1], sensor_numbers[i - 1]);
-      unsigned int end = sensor_offset(letter, number);
-      update_constant_velocity_model(track_state_controller_tid, train, speed, start, end, this_time - last_time);
-    }
-
-    last_time = this_time;
 
     if (letter == 'B' && number == 3) {
       switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, 16, false);
@@ -66,17 +55,9 @@ void velocity_calibrator() {
 }
 
 void straight_do_automated_velocity_calibration(int train, int speed, int track_state_controller_tid, int clock_server_tid, int tx_server_tid) {
-  int first_time, second_time;
   set_train_speed(tx_server_tid, track_state_controller_tid, train, speed);
   poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('D', 11));
-  first_time = Time(clock_server_tid);
   poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', 16));
-  second_time = Time(clock_server_tid);
-
-  unsigned int start = sensor_offset('D', 11);
-  unsigned int end = sensor_offset('C', 16);
-  update_constant_velocity_model(track_state_controller_tid, train, speed, start, end, second_time - first_time);
-
   stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, 10);
   poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('D', 12));
   if (speed > 6 && speed != 14) {
