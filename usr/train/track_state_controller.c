@@ -119,6 +119,46 @@ void track_state_controller() {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       }
+      case MESSAGE_GETSTOPPINGDISTANCEMODEL: {
+	int t = received.msg.train;
+	Assert(t >= 1 && t <= 80);
+        reply.type = REPLY_GETSTOPPINGDISTANCEMODEL;
+        for (int i = 0; i < 15; i++) {
+          reply.msg.train_distances[i] = track.stopping_distance[t][i];
+        }
+        Reply(sender_tid, &reply, sizeof(reply));
+	break;
+      }
+      case MESSAGE_UPDATESTOPPINGDISTANCEMODEL: {
+	int t = received.msg.usdm.train;
+	int s = received.msg.usdm.speed;
+	uint32_t v = received.msg.usdm.value;
+	Assert(t >= 1 && t <= 80);
+	Assert(s >= 0 && s <= 14);
+	track.stopping_distance[t][s] = v;
+	Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+	break;
+      }
+      case MESSAGE_GETSTOPPINGTIMEMODEL: {
+	int t = received.msg.train;
+	Assert(t >= 1 && t <= 80);
+        reply.type = REPLY_GETSTOPPINGTIMEMODEL;
+        for (int i = 0; i < 15; i++) {
+          reply.msg.train_times[i] = track.stopping_time_mus[t][i];
+        }
+        Reply(sender_tid, &reply, sizeof(reply));
+	break;
+      }
+      case MESSAGE_UPDATESTOPPINGTIMEMODEL: {
+	int t = received.msg.ustm.train;
+	int s = received.msg.ustm.speed;
+	uint32_t v = received.msg.ustm.value;
+	Assert(t >= 1 && t <= 80);
+	Assert(s >= 0 && s <= 14);
+	track.stopping_time_mus[t][s] = v;
+	Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+	break;
+      }
       default:
         logprintf("track_state_controller received message of type %d\n\r", received.type);
         Assert(0);
