@@ -1316,6 +1316,7 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uin
 }
 
 uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+  if (start == end) return 0;
   track_node *start_node = find_sensor(t, start);
   track_node *end_node = find_sensor(t, end);
   int result = distance_between_sensors_helper(start_node, end_node, 0, 5);

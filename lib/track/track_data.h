@@ -55,8 +55,6 @@ unsigned int sensor_data_mask(unsigned int offset);
 unsigned int sensor_offset(char bank, unsigned int index);
 
 /**
- * Watch out! This function will fail an assertion if start and end are the same.
- *
  * @param   t     The track to base the distance calculation off of.
  * @param   start The offset of the sensor to start at.
  * @param   end   The offset of the sensor to finish at.
