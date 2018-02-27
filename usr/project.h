@@ -19,7 +19,7 @@
 #include "tstdlib.h"
 #include "tstring.h"
 #include "user_command.h"
-#include "train/sensor_secretary.h"
+#include "train/sensors/sensor_secretary.h"
 #include "train/turnout_resetter.h"
 #include "train/track_state_controller.h"
 #include "views/clock_view.h"
