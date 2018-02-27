@@ -277,7 +277,7 @@ void terminal_rx_server() {
 void spawn_ioservers() {
   Assert(Create(MyPriority() + 3, &train_tx_server) >= 0);
   Assert(Create(MyPriority() + 3, &train_rx_server) >= 0);
-  Assert(Create(MyPriority() + 3, terminal_tx_server) >= 0);
+  Assert(Create(MyPriority() + 3, &terminal_tx_server) >= 0);
   Assert(Create(MyPriority() + 3, &terminal_rx_server) >= 0);
 }
 
