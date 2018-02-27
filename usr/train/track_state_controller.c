@@ -80,7 +80,22 @@ void track_state_controller() {
       case MESSAGE_UPDATECONSTANTSPEEDMODEL: {
         int t = received.msg.ucsm.train;
         int s = received.msg.ucsm.speed;
-        uint32_t distance = distance_between_sensors(&track, received.msg.ucsm.start, received.msg.ucsm.end);
+        int ticks = received.msg.ucsm.ticks;
+        unsigned int start = received.msg.ucsm.start;
+        unsigned int end = received.msg.ucsm.end;
+        uint32_t distance = distance_between_sensors(&track, start, end);
+
+        if (ticks == 0) {
+          char start_bank = sensor_bank(start);
+          unsigned int start_index = sensor_index(start);
+          char end_bank = sensor_bank(end);
+          unsigned int end_index = sensor_index(end);
+          logprintf("Tried to calibrate velocity between %c%d and %c%d with zero ticks\n\r", start_bank, start_index, end_bank, end_index);
+          logprintf("Train: %d, speed: %d, distance: %d\n\r", t, s, distance);
+          Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+          break;
+        }
+
         // Distance is in 10^-3 m, one tick is 10^-2 s -> distance per tick is in 10^-1 m/s.
         // We want 10^-5 m/s = 1/100 mm/s -> multiply by 10^4 = 10,000.
         uint32_t velocity = distance * 10000 / received.msg.ucsm.ticks;
