@@ -11,6 +11,8 @@
 #include "../track/track_data.h"
 #include "../track/track_node.h"
 
+extern track_state track;
+
 /**
  * Source of truth for the train track.
  */

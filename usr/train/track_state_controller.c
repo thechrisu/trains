@@ -1,14 +1,17 @@
 #include "track_state_controller.h"
 
+track_state track;
+
 void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
   int sender_tid;
   int train;
   message received, reply;
-  track_state track;
   init_track(&track);
   int16_t sensor_states[10];
   tmemset(sensor_states, 0, sizeof(sensor_states));
+
+  int clock_server_tid = WhoIs("ClockServer");
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -26,6 +29,8 @@ void track_state_controller() {
         reply.msg.tr_data.direction = track.train[train].direction;
         reply.msg.tr_data.should_speed = track.train[train].should_speed;
         reply.msg.tr_data.headlights = track.train[train].headlights;
+        reply.msg.tr_data.last_speed = track.train[train].last_speed;
+        reply.msg.tr_data.time_speed_last_changed = track.train[train].time_speed_last_changed;
         Reply(sender_tid, &reply, sizeof(reply));
         break;
       case MESSAGE_GETSENSORS:
@@ -47,8 +52,10 @@ void track_state_controller() {
         Assert(train >= 0 && train <= 80);
         Assert(received.msg.tr_data.should_speed >= 0
                && received.msg.tr_data.should_speed <= 14);
+        track.train[train].last_speed = track.train[train].should_speed;
         track.train[train].should_speed = received.msg.tr_data.should_speed;
         track.train[train].headlights = received.msg.tr_data.headlights;
+        track.train[train].time_speed_last_changed = Time(clock_server_tid);
 #if DEBUG_REVERSAL
         logprintf("Track state controller: Set speed of %d to %d\n\r", train, track.train[train].should_speed);
 #endif /* DEBUG_REVERSAL */

@@ -195,6 +195,7 @@ void project_first_user_task() {
   int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
   Assert(Create(my_priority + 2, &track_state_controller) > 0);
+  Assert(Create(my_priority + 2, &sensor_interpreter) > 0);
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
 
   message cmd_msg;
@@ -212,7 +213,7 @@ void project_first_user_task() {
 #ifndef E2ETESTING
   Assert(Printf(terminal_tx_server, "%s%s", RESET_TEXT, CLEAR_SCREEN) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, PROMPT_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE - 1, 1, "Kalibration Korner:", HIDE_CURSOR_TO_EOL) == 0);
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE - 1, 1, "Kalibration Korner\xE2\x84\xA2:", HIDE_CURSOR_TO_EOL) == 0);
 
   cmd_msg.msg.cmd.type = USER_CMD_GO;
   Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
