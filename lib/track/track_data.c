@@ -1384,7 +1384,7 @@ uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned i
   if (start == end) return 0;
   track_node *start_node = find_sensor(t, start);
   track_node *end_node = find_sensor(t, end);
-  int result = distance_between_sensors_helper(start_node, end_node, 0, 4);
+  int result = distance_between_sensors_helper(start_node, end_node, 0, 5);
   Assert(result != 0);
   return result;
 }
@@ -1411,5 +1411,5 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 
 bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end) {
   track_node *start_node = find_sensor(t, start);
-  return start_node->type == NODE_SENSOR && sensor_is_followed_by_helper(start_node->edge[DIR_AHEAD].dest, find_sensor(t, end), 4);
+  return start_node->type == NODE_SENSOR && sensor_is_followed_by_helper(start_node->edge[DIR_AHEAD].dest, find_sensor(t, end), 5);
 }
