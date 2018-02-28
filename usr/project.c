@@ -50,6 +50,11 @@ void user_command_print(int server_tid, user_command *cmd) {
                     GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
                     cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_SET:
+      Assert(Printf(server_tid, "%s%s%s%sSET %s %d          %s%s",
+                    GREEN_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
+                    get_parameter_name(cmd->data[0]), cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%s%sINVALID COMMAND        %s%s",
                     RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR, CURSOR_ROW_COL(CMD_LINE, 1),
@@ -127,6 +132,25 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
         cmd->type = USER_CMD_V;
         cmd->data[0] = address;
         cmd->data[1] = 0;
+      }
+    } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
+      char param_name[10];
+      unsigned int i = 4;
+      while (i < ibuf->elems && i < 14 && ibuf->data[i]) {
+        param_name[i] = ibuf->data[i];
+        i += 1;
+      }
+      param_name[i] = '\0';
+
+      if (tstrcmp(param_name, "t1train")) {
+        if (i < ibuf->elems) {
+          int n = is_valid_number(ibuf, i);
+          if (n >= 0 && ibuf->elems >= (unsigned int)n) {
+            cmd->type = USER_CMD_SET;
+            cmd->data[0] = SET_T1TRAIN;
+            cmd->data[1] = parse_two_digit_number(ibuf->data + i);
+          }
+        }
       }
     } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
