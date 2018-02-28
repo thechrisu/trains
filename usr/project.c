@@ -136,7 +136,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
       char param_name[10];
       unsigned int i = 4;
-      while (i < ibuf->elems && i < 14 && ibuf->data[i]) {
+      while (i < ibuf->elems && i < 13 && ibuf->data[i]) {
         param_name[i] = ibuf->data[i];
         i += 1;
       }
