@@ -74,6 +74,16 @@ void command_dispatcher_server() {
             Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
             break;
           }
+          case USER_CMD_SET:
+            switch (received.msg.cmd.data[0]) {
+              case SET_T1TRAIN:
+                t1train = received.msg.cmd.data[1];
+                break;
+              default:
+                Assert(0);
+                break;
+            }
+            break;
           default:
             Assert(0);
             break; // Invalid command.
