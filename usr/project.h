@@ -14,6 +14,7 @@
 #include "nameserver.h"
 #include "messages.h"
 #include "myio.h"
+#include "parameters.h"
 #include "terminal.h"
 #include "track_data.h"
 #include "tstdlib.h"

@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "commands.h"
 #include "messages.h"
+#include "parameters.h"
 #include "terminal.h"
 #include "track_data.h"
 #include "track_state_controller.h"
