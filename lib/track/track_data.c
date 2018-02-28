@@ -1388,3 +1388,28 @@ uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned i
   Assert(result != 0);
   return result;
 }
+
+uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int limit) {
+  if (start == end) {
+    return true;
+  } else if (limit == 0) {
+    return false;
+  }
+
+  switch (start->type) {
+    case NODE_MERGE:
+      return sensor_is_followed_by_helper(start->edge[DIR_AHEAD].dest, end, limit - 1);
+    case NODE_BRANCH: {
+      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
+      track_node *curved_node = start->edge[DIR_CURVED].dest;
+      return sensor_is_followed_by_helper(straight_node, end, limit - 1) || sensor_is_followed_by_helper(curved_node, end, limit - 1);
+    }
+    default:
+      return false;
+  }
+}
+
+bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end) {
+  track_node *start_node = find_sensor(t, start);
+  return start_node->type == NODE_SENSOR && sensor_is_followed_by_helper(start_node->edge[DIR_AHEAD].dest, find_sensor(t, end), 5);
+}

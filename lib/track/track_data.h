@@ -64,4 +64,12 @@ unsigned int sensor_offset(char bank, unsigned int index);
  */
 uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end);
 
+/**
+ * @param   t     The track to base the distance calculation off of.
+ * @param   start The offset of the sensor to start at.
+ * @param   end   The offset of the sensor to finish at.
+ * @returns Whether start is directly followed by end.
+ */
+bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end);
+
 #endif /* TRACK_DATA_H */

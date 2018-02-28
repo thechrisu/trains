@@ -50,6 +50,8 @@ typedef struct {
   bool direction; // true/positive: forward
   int should_speed;
   bool headlights;
+  int last_speed;
+  int time_speed_last_changed;
 } train_data;
 
 typedef enum {
