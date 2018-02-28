@@ -46,6 +46,12 @@ enum message_type {
   MESSAGE_GETCONSTANTSPEEDMODEL,
   REPLY_GETCONSTANTSPEEDMODEL,
   MESSAGE_UPDATECONSTANTSPEEDMODEL,
+  MESSAGE_GETSTOPPINGDISTANCEMODEL,
+  REPLY_GETSTOPPINGDISTANCEMODEL,
+  MESSAGE_UPDATESTOPPINGDISTANCEMODEL,
+  MESSAGE_GETSTOPPINGTIMEMODEL,
+  REPLY_GETSTOPPINGTIMEMODEL,
+  MESSAGE_UPDATESTOPPINGTIMEMODEL,
 };
 
 typedef struct {
@@ -111,12 +117,16 @@ typedef struct {
     message_switch_params switch_params;
     train_data tr_data;
     int16_t sensors[10];
-    int32_t train_speeds[15];
+    uint32_t train_speeds[15];
+    uint32_t train_distances[15];
+    uint32_t train_times[15];
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
     message_calib_sd_params calib_sd_params;
     message_calib_v_params calib_v_params;
     message_ucsm_params ucsm;
+    default_value usdm;
+    default_value ustm;
   } msg;
 } message;
 

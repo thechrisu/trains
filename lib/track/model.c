@@ -1,21 +1,20 @@
 #include "model.h"
 
-void setup_speed_to_velocity_map(uint32_t map[81][15], default_speed defaults[], uint32_t super_defaults[15]) {
+void setup_default_map(uint32_t map[81][15], default_value defaults[], uint32_t super_defaults[15]) {
   for (int i = 0; i < 81; i++) {
     for (int j = 0; j < 15; j++) {
       map[i][j] = super_defaults[j];
     }
   }
 
-  default_speed *current_speed = (default_speed *)defaults;
-  while (!(current_speed->train == 1337 && current_speed->speed == 1337 && current_speed->velocity == 1337)) {
-    int t = current_speed->train;
-    int s = current_speed->speed;
-    uint32_t v = current_speed->velocity;
+  default_value *current_value = (default_value *)defaults;
+  while (!(current_value->train == 1337 && current_value->speed == 1337 && current_value->value == 1337)) {
+    int t = current_value->train;
+    int s = current_value->speed;
+    uint32_t v = current_value->value;
     Assert(t >= 1 && t <= 81);
     Assert(s >= 0 && s <= 14);
-    Assert(v < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
     map[t][s] = v;
-    current_speed += 1;
+    current_value += 1;
   }
 }

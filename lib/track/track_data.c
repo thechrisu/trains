@@ -1202,98 +1202,123 @@ void init_track(track_state *global_track) {
     global_track->train[i].should_speed = 0;
   }
 
-  default_speed default_speeds[] = {
-    {
-      .train = 74,
-      .speed = 1,
-      .velocity = 927
-    },
-    {
-      .train = 74,
-      .speed = 2,
-      .velocity = 7232
-    },
-    {
-      .train = 74,
-      .speed = 3,
-      .velocity = 12487
-    },
-    {
-      .train = 74,
-      .speed = 4,
-      .velocity = 17264
-    },
-    {
-      .train = 74,
-      .speed = 5,
-      .velocity = 21792
-    },
-    {
-      .train = 74,
-      .speed = 6,
-      .velocity = 26829
-    },
-    {
-      .train = 74,
-      .speed = 7,
-      .velocity = 33375
-    },
-    {
-      .train = 74,
-      .speed = 8,
-      .velocity = 36168
-    },
-    {
-      .train = 74,
-      .speed = 9,
-      .velocity = 43879
-    },
-    {
-      .train = 74,
-      .speed = 10,
-      .velocity = 47806
-    },
-    {
-      .train = 74,
-      .speed = 11,
-      .velocity = 55389
-    },
-    {
-      .train = 74,
-      .speed = 13,
-      .velocity = 61212
-    },
-    {
-      .train = 74,
-      .speed = 14,
-      .velocity = 60798
-    },
-    { // Guard element
-      .train = 1337,
-      .speed = 1337,
-      .velocity = 1337
-    }
+  default_value default_speeds[] = {
+    { .train = 24, .speed = 0, .value = 0 },
+    { .train = 24, .speed = 1, .value = 927 },
+    { .train = 24, .speed = 2, .value = 7232 },
+    { .train = 24, .speed = 3, .value = 12487 },
+    { .train = 24, .speed = 4, .value = 17264 },
+    { .train = 24, .speed = 5, .value = 21792 },
+    { .train = 24, .speed = 6, .value = 26829 },
+    { .train = 24, .speed = 7, .value = 33375 },
+    { .train = 24, .speed = 8, .value = 36168 },
+    { .train = 24, .speed = 9, .value = 43879 },
+    { .train = 24, .speed = 10, .value = 47806 },
+    { .train = 24, .speed = 11, .value = 55389 },
+    { .train = 24, .speed = 12, .value = 56570 },
+    { .train = 24, .speed = 13, .value = 61212 },
+    { .train = 24, .speed = 14, .value = 60798 },
+    { .train = 74, .speed = 0, .value = 0 },
+    { .train = 74, .speed = 1, .value = 923 },
+    { .train = 74, .speed = 2, .value = 7225 },
+    { .train = 74, .speed = 3, .value = 12462 },
+    { .train = 74, .speed = 4, .value = 17220 },
+    { .train = 74, .speed = 5, .value = 21784 },
+    { .train = 74, .speed = 6, .value = 26735 },
+    { .train = 74, .speed = 7, .value = 33404 },
+    { .train = 74, .speed = 8, .value = 36291 },
+    { .train = 74, .speed = 9, .value = 43451 },
+    { .train = 74, .speed = 10, .value = 48204 },
+    { .train = 74, .speed = 11, .value = 55029 },
+    { .train = 74, .speed = 12, .value = 57034 },
+    { .train = 74, .speed = 13, .value = 61212 },
+    { .train = 74, .speed = 14, .value = 60329 },
+    { .train = 1337, .speed = 1337, .value = 1337 }
   };
 
   uint32_t super_default_speeds[15] = {
-    0,
-    927,
-    7232,
-    12487,
-    17264,
-    21792,
-    26829,
-    33375,
-    36168,
-    43879,
-    47806,
-    55389,
-    56570,
-    61212,
-    60798
+    0, 925, 7228, 12474, 17242, 21788, 26782, 33389, 36229, 43665, 48005, 55209, 56802, 61212, 60563, 
   };
 
-  setup_speed_to_velocity_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
+  default_value default_stopping_distances[] = {
+    { .train = 24, .speed = 0, .value = 0 },
+    { .train = 24, .speed = 1, .value = 110 },
+    { .train = 24, .speed = 2, .value = 350 },
+    { .train = 24, .speed = 3, .value = 740 },
+    { .train = 24, .speed = 4, .value = 1960 },
+    { .train = 24, .speed = 5, .value = 3980 },
+    { .train = 24, .speed = 6, .value = 7440 },
+    { .train = 24, .speed = 7, .value = 12790 },
+    { .train = 24, .speed = 8, .value = 20090 },
+    { .train = 24, .speed = 9, .value = 30670 },
+    { .train = 24, .speed = 10, .value = 43640 },
+    { .train = 24, .speed = 11, .value = 60160 },
+    { .train = 24, .speed = 12, .value = 80220 },
+    { .train = 24, .speed = 13, .value = 102330 },
+    { .train = 24, .speed = 14, .value = 142342 },
+    { .train = 74, .speed = 0, .value = 0 },
+    { .train = 74, .speed = 1, .value = 110 },
+    { .train = 74, .speed = 2, .value = 350 },
+    { .train = 74, .speed = 3, .value = 740 },
+    { .train = 74, .speed = 4, .value = 1960 },
+    { .train = 74, .speed = 5, .value = 3980 },
+    { .train = 74, .speed = 6, .value = 7440 },
+    { .train = 74, .speed = 7, .value = 12790 },
+    { .train = 74, .speed = 8, .value = 20090 },
+    { .train = 74, .speed = 9, .value = 30670 },
+    { .train = 74, .speed = 10, .value = 43640 },
+    { .train = 74, .speed = 11, .value = 60160 },
+    { .train = 74, .speed = 12, .value = 80220 },
+    { .train = 74, .speed = 13, .value = 102330 },
+    { .train = 74, .speed = 14, .value = 142342 },
+    { .train = 1337, .speed = 1337, .value = 1337 }
+  };
+
+  uint32_t super_default_stopping_distances[15] = {
+    0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 80220, 102330, 142342, 
+  };
+
+  default_value default_stopping_times[] = {
+    { .train = 24, .speed = 0, .value = 0 },
+    { .train = 24, .speed = 1, .value = 0 },
+    { .train = 24, .speed = 2, .value = 0 },
+    { .train = 24, .speed = 3, .value = 0 },
+    { .train = 24, .speed = 4, .value = 0 },
+    { .train = 24, .speed = 5, .value = 0 },
+    { .train = 24, .speed = 6, .value = 0 },
+    { .train = 24, .speed = 7, .value = 0 },
+    { .train = 24, .speed = 8, .value = 0 },
+    { .train = 24, .speed = 9, .value = 0 },
+    { .train = 24, .speed = 10, .value = 0 },
+    { .train = 24, .speed = 11, .value = 0 },
+    { .train = 24, .speed = 12, .value = 0 },
+    { .train = 24, .speed = 13, .value = 0 },
+    { .train = 24, .speed = 14, .value = 0 },
+    { .train = 74, .speed = 0, .value = 0 },
+    { .train = 74, .speed = 1, .value = 0 },
+    { .train = 74, .speed = 2, .value = 0 },
+    { .train = 74, .speed = 3, .value = 0 },
+    { .train = 74, .speed = 4, .value = 0 },
+    { .train = 74, .speed = 5, .value = 0 },
+    { .train = 74, .speed = 6, .value = 0 },
+    { .train = 74, .speed = 7, .value = 0 },
+    { .train = 74, .speed = 8, .value = 0 },
+    { .train = 74, .speed = 9, .value = 0 },
+    { .train = 74, .speed = 10, .value = 0 },
+    { .train = 74, .speed = 11, .value = 0 },
+    { .train = 74, .speed = 12, .value = 0 },
+    { .train = 74, .speed = 13, .value = 0 },
+    { .train = 74, .speed = 14, .value = 0 },
+    { .train = 1337, .speed = 1337, .value = 1337 }
+  };
+
+  uint32_t super_default_stopping_times[15] = {
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+  };
+
+  setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
+  setup_default_map(global_track->stopping_distance, default_stopping_distances, super_default_stopping_distances);
+  setup_default_map(global_track->stopping_time_mus, default_stopping_times, super_default_stopping_times);
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {

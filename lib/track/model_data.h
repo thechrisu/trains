@@ -7,10 +7,13 @@
 
 #include "tstdlib.h"
 
+ // velocity in 1/100th mm/s
+ // stopping distance in 1/100th mm
+ // stopping time in microseconds
 typedef struct {
   int train;
   int speed;
-  uint32_t velocity; // in 1/100th mm/s
-} default_speed;
+  uint32_t value;
+} default_value;
 
 #endif /* MODEL_DATA_H */
