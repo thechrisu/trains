@@ -1,7 +1,5 @@
 #include "test_model.h"
 
-int sd_polynomial_val(int speed);
-
 int sd_polynomial_val(int speed) {
   return 100 * (0.80616977 * speed * speed * speed
     - 5.37389122 * speed * speed + 16.86623686 * speed - 9.08379739);
@@ -16,8 +14,6 @@ void assert_valid_stopping_distance(int speed, int distance) {
     Assert(distance < sd_polynomial_val(speed) * 1.1 + 1000);
   }
 }
-
-void assert_in_bounds(int val, int exp, int bounds);
 
 void assert_in_bounds(int val, int exp, int bounds) {
   Assert(val < exp + bounds);

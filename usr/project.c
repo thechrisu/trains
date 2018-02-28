@@ -222,9 +222,6 @@ void log_calibration_data(int train) {
 #define max(a, b) (a > b ? a : b)
 
 void project_first_user_task() {
-  // char active_trains[] = {24, 58, 70, 71, 74};
-  // int num_active_trains = 5;
-
   EnableCaches(true);
 
   init_parameters();
