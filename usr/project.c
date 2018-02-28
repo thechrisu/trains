@@ -222,8 +222,8 @@ void log_calibration_data(int train) {
 #define max(a, b) (a > b ? a : b)
 
 void project_first_user_task() {
-  char active_trains[] = {24, 58, 70, 71, 74};
-  int num_active_trains = 5;
+  // char active_trains[] = {24, 58, 70, 71, 74};
+  // int num_active_trains = 5;
 
   EnableCaches(true);
 
@@ -275,7 +275,7 @@ void project_first_user_task() {
   Assert(Create(my_priority, &turnout_view) > 0);
 #endif /* E2ETESTING */
 
-  int last_calibrated_train = 0;
+  int t1train = -1;
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
@@ -295,8 +295,6 @@ void project_first_user_task() {
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
-      if (current_cmd.type == USER_CMD_V)
-        last_calibrated_train = current_cmd.data[0];
       if (current_cmd.type == USER_CMD_Q) {
         Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
         Delay(clock_server_tid, 100);
@@ -311,11 +309,7 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  if (last_calibrated_train > 0) {
-    for (int i = 0; i < num_active_trains; i++) {
-      log_calibration_data(active_trains[i]);
-    } 
-  }
+  log_calibration_data(t1train);
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);

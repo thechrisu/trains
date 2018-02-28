@@ -97,5 +97,4 @@ void automated_velocity_calibrator() {
   }
 
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE, 1, "Automatic velocity calibration finished", HIDE_CURSOR_TO_EOL) == 0);
-  set_train_speed(tx_server_tid, track_state_controller_tid, train, 0);
 }
