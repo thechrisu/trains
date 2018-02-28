@@ -33,10 +33,11 @@ void sensor_interpreter() {
       case MESSAGE_SENSORSRECEIVED: {
         get_leading_edge(current_sensors, received.msg.sensors, leading_edge);
 
+        int current_time = Time(clock_server_tid);
+
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
             unsigned int last = last_sensor[t1train];
-            int current_time = Time(clock_server_tid);
 
             if (last == NO_DATA_RECEIVED) {
               last_sensor[t1train] = sensor;
@@ -52,7 +53,7 @@ void sensor_interpreter() {
               int last_time = time_at_last_sensor_hit[t1train];
               int time_speed_last_changed = reply.msg.tr_data.time_speed_last_changed;
 
-              if (time_speed_last_changed < last_time && last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
+              if (last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
                 int time_elapsed = current_time - last_time;
 
                 update_constant_velocity_model(track_state_controller_tid, t1train, current_speed, last, sensor, time_elapsed);
