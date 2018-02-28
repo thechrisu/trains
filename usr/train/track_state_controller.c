@@ -134,7 +134,13 @@ void track_state_controller() {
         uint32_t v = received.msg.usdm.value;
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
-        track.stopping_distance[t][s] = v;
+        if (track.stopping_distance[t][s] == 0) {
+          track.stopping_distance[t][s] = v;
+        } else {
+          track.stopping_distance[t][s] *= 9;
+          track.stopping_distance[t][s] += v;
+          track.stopping_distance[t][s] /= 10;
+        }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       }
@@ -154,7 +160,13 @@ void track_state_controller() {
         uint32_t v = received.msg.ustm.value;
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
-        track.stopping_time_mus[t][s] = v;
+        if (track.stopping_time_mus[t][s] == 0) {
+          track.stopping_time_mus[t][s] = v;
+        } else {
+          track.stopping_time_mus[t][s] *= 9;
+          track.stopping_time_mus[t][s] += v;
+          track.stopping_time_mus[t][s] /= 10;
+        }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       }
