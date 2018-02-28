@@ -179,6 +179,8 @@ void log_calibration_data(int train) {
 void project_first_user_task() {
   EnableCaches(true);
 
+  init_parameters();
+
   int my_priority = MyPriority();
 #ifdef E2ETESTING
   ns_tid = Create(my_priority + 2, &nameserver_main);

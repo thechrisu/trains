@@ -24,8 +24,6 @@ void sensor_interpreter() {
   int terminal_tx_server = WhoIs("TerminalTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
 
-  int train = 74;
-
   RegisterAs("SensorInterpreter");
 
   while (1) {
@@ -37,14 +35,14 @@ void sensor_interpreter() {
 
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
-            unsigned int last = last_sensor[train];
+            unsigned int last = last_sensor[t1train];
             int current_time = Time(clock_server_tid);
-            int last_time = time_at_last_sensor_hit[train];
+            int last_time = time_at_last_sensor_hit[t1train];
 
             if (last != NO_DATA_RECEIVED && sensor_is_followed_by(&track, last, sensor)) {
               message send, reply;
               send.type = MESSAGE_GETTRAIN;
-              send.msg.tr_data.train = train;
+              send.msg.tr_data.train = t1train;
               Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
 
               int current_speed = reply.msg.tr_data.should_speed;
@@ -54,7 +52,7 @@ void sensor_interpreter() {
               if (time_speed_last_changed < last_time && last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
                 int time_elapsed = current_time - last_time;
 
-                update_constant_velocity_model(track_state_controller_tid, train, current_speed, last, sensor, time_elapsed);
+                update_constant_velocity_model(track_state_controller_tid, t1train, current_speed, last, sensor, time_elapsed);
 
                 char start_bank = sensor_bank(last);
                 unsigned int start_index = sensor_index(last);
@@ -63,14 +61,14 @@ void sensor_interpreter() {
 
                 Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%c%d%s%c%d%s%d%s",
                               ESC, CALIB_LINE, 1,
-                              "Train ", train, " took ", time_elapsed, " ticks to go between sensors ",
+                              "Train ", t1train, " took ", time_elapsed, " ticks to go between sensors ",
                               start_bank, start_index, " and ", end_bank, end_index, " at speed ", current_speed,
                               HIDE_CURSOR_TO_EOL) == 0);
               }
             }
 
-            last_sensor[train] = sensor;
-            time_at_last_sensor_hit[train] = current_time;
+            last_sensor[t1train] = sensor;
+            time_at_last_sensor_hit[t1train] = current_time;
           }
         }
         break;
