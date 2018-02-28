@@ -135,21 +135,26 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
       char param_name[10];
-      unsigned int i = 0;
-      while (i < ibuf->elems - 4 && i < 10 && ibuf->data[i + 4] && ibuf->data[i + 4] != ' ') {
-        param_name[i] = ibuf->data[i + 4];
-        i += 1;
+      unsigned int param_name_index = 0;
+      unsigned int buffer_index = 4;
+
+      // Copy all characters up to the first space or the end of one of the buffers into param_name
+      while (buffer_index < ibuf->elems && param_name_index < 9 && ibuf->data[buffer_index] != ' ') {
+        param_name[param_name_index] = ibuf->data[buffer_index];
+        param_name_index += 1;
+        buffer_index += 1;
       }
-      param_name[i] = '\0';
-      i += 1;
+
+      param_name[param_name_index] = '\0';
 
       if (tstrcmp(param_name, "t1train")) {
-        if (i < ibuf->elems - 4) {
-          int n = is_valid_number(ibuf, i + 4);
+        buffer_index += 1; // Index of first digit of number after t1train
+        if (buffer_index < ibuf->elems) {
+          int n = is_valid_number(ibuf, buffer_index);
           if (n >= 0 && ibuf->elems >= (unsigned int)n) {
             cmd->type = USER_CMD_SET;
             cmd->data[0] = SET_T1TRAIN;
-            cmd->data[1] = parse_two_digit_number(ibuf->data + i + 4);
+            cmd->data[1] = parse_two_digit_number(ibuf->data + buffer_index);
           }
         }
       }
