@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Attributes sensor data to the correct train and runs constant velocity calibration
+ */
 #ifndef SENSOR_INTERPRETER_H
 #define SENSOR_INTERPRETER_H
 
