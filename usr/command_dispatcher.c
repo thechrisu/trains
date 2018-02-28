@@ -83,6 +83,7 @@ void command_dispatcher_server() {
                 Assert(0);
                 break;
             }
+            break;
           default:
             Assert(0);
             break; // Invalid command.

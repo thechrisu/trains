@@ -135,20 +135,21 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
       char param_name[10];
-      unsigned int i = 4;
-      while (i < ibuf->elems && i < 13 && ibuf->data[i]) {
-        param_name[i] = ibuf->data[i];
+      unsigned int i = 0;
+      while (i < ibuf->elems - 4 && i < 10 && ibuf->data[i + 4] && ibuf->data[i + 4] != ' ') {
+        param_name[i] = ibuf->data[i + 4];
         i += 1;
       }
       param_name[i] = '\0';
+      i += 1;
 
       if (tstrcmp(param_name, "t1train")) {
-        if (i < ibuf->elems) {
-          int n = is_valid_number(ibuf, i);
+        if (i < ibuf->elems - 4) {
+          int n = is_valid_number(ibuf, i + 4);
           if (n >= 0 && ibuf->elems >= (unsigned int)n) {
             cmd->type = USER_CMD_SET;
             cmd->data[0] = SET_T1TRAIN;
-            cmd->data[1] = parse_two_digit_number(ibuf->data + i);
+            cmd->data[1] = parse_two_digit_number(ibuf->data + i + 4);
           }
         }
       }
