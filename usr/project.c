@@ -275,7 +275,6 @@ void project_first_user_task() {
   Assert(Create(my_priority, &turnout_view) > 0);
 #endif /* E2ETESTING */
 
-  int t1train = -1;
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);

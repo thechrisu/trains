@@ -1279,21 +1279,21 @@ void init_track(track_state *global_track) {
   };
 
   default_value default_stopping_times[] = {
-    { .train = 24, .speed = 0, .value = 1 },
-    { .train = 24, .speed = 1, .value = 1 },
-    { .train = 24, .speed = 2, .value = 1 },
-    { .train = 24, .speed = 3, .value = 1 },
-    { .train = 24, .speed = 4, .value = 1 },
-    { .train = 24, .speed = 5, .value = 1 },
-    { .train = 24, .speed = 6, .value = 1 },
-    { .train = 24, .speed = 7, .value = 1 },
-    { .train = 24, .speed = 8, .value = 1 },
-    { .train = 24, .speed = 9, .value = 1 },
-    { .train = 24, .speed = 10, .value = 1 },
-    { .train = 24, .speed = 11, .value = 1 },
-    { .train = 24, .speed = 12, .value = 1 },
-    { .train = 24, .speed = 13, .value = 1 },
-    { .train = 24, .speed = 14, .value = 1 },
+    { .train = 24, .speed = 0, .value = 0 },
+    { .train = 24, .speed = 1, .value = 0 },
+    { .train = 24, .speed = 2, .value = 0 },
+    { .train = 24, .speed = 3, .value = 0 },
+    { .train = 24, .speed = 4, .value = 0 },
+    { .train = 24, .speed = 5, .value = 0 },
+    { .train = 24, .speed = 6, .value = 0 },
+    { .train = 24, .speed = 7, .value = 0 },
+    { .train = 24, .speed = 8, .value = 0 },
+    { .train = 24, .speed = 9, .value = 0 },
+    { .train = 24, .speed = 10, .value = 0 },
+    { .train = 24, .speed = 11, .value = 0 },
+    { .train = 24, .speed = 12, .value = 0 },
+    { .train = 24, .speed = 13, .value = 0 },
+    { .train = 24, .speed = 14, .value = 0 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 0 },
     { .train = 74, .speed = 2, .value = 0 },
@@ -1313,7 +1313,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_times[15] = {
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
   };
 
   setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);

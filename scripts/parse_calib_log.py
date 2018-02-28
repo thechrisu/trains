@@ -22,7 +22,7 @@ def print_default_value_dict(data, name):
     out += ',\n'.join(def_array) + '\n  };\n\n'
     out += '  uint32_t super_' + name + '[15] = {\n    '
     for i in range(0, 15):
-        out += repr(int(mean(super_vals[i]))) + ', '
+        out += repr(int(mean(super_vals[i])) if len(super_vals[i]) > 0 else 0) + ', '
     out += '\n  };\n'
     print(out)
 

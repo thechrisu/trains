@@ -38,7 +38,6 @@ void test_stopping_distance_model() {
 
   update_stopping_distance_model(track_state_controller_tid, 1, 14, 133700);
   get_stopping_distance_model(track_state_controller_tid, 1, &receive);
-  bwprintf("%d\n\r", receive.msg.train_distances[14]);
   assert_in_bounds(receive.msg.train_distances[14], 133700, 20000);
 
   Assert(Kill(track_state_controller_tid) == 0);
