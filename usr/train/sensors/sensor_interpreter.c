@@ -40,7 +40,7 @@ void sensor_interpreter() {
             unsigned int last = last_sensor[train];
             int current_time = Time(clock_server_tid);
 
-            if (last == NO_DATA_RECEIVED) {
+            if (last == NO_DATA_RECEIVED || sensors_are_paired(&track, last, sensor)) {
               last_sensor[train] = sensor;
               time_at_last_sensor_hit[train] = current_time;
             } else if (sensor_is_followed_by(&track, last, sensor)) {

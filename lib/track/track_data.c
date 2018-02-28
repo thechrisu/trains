@@ -1413,3 +1413,7 @@ bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end)
   track_node *start_node = find_sensor(t, start);
   return start_node->type == NODE_SENSOR && sensor_is_followed_by_helper(start_node->edge[DIR_AHEAD].dest, find_sensor(t, end), 5);
 }
+
+bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second) {
+  return find_sensor(t, first)->reverse == find_sensor(t, second);
+}
