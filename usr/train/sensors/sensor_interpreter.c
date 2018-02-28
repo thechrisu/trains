@@ -51,7 +51,7 @@ void sensor_interpreter() {
               int last_speed = reply.msg.tr_data.last_speed;
               int time_speed_last_changed = reply.msg.tr_data.time_speed_last_changed;
 
-              if (time_speed_last_changed < last_time && current_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
+              if (time_speed_last_changed < last_time && last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
                 int time_elapsed = current_time - last_time;
 
                 char start_bank = sensor_bank(last);
