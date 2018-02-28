@@ -7,7 +7,7 @@
 
 #include "tstdlib.h"
 
- // velocity: in 1/100th mm/s
+ // velocity in 1/100th mm/s
  // stopping distance in 1/100th mm
  // stopping time in microseconds
 typedef struct {
