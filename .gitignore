@@ -15,5 +15,5 @@ src/track/diagrams/
 *.pyc
 __pycache__
 *.out
-
+*.ipynb_checkpoints
 *.gch
