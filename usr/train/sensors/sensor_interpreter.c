@@ -39,9 +39,11 @@ void sensor_interpreter() {
           if (is_sensor_triggered(leading_edge, sensor)) {
             unsigned int last = last_sensor[train];
             int current_time = Time(clock_server_tid);
-            int last_time = time_at_last_sensor_hit[train];
 
-            if (last != NO_DATA_RECEIVED && sensor_is_followed_by(&track, last, sensor)) {
+            if (last == NO_DATA_RECEIVED) {
+              last_sensor[train] = sensor;
+              time_at_last_sensor_hit[train] = current_time;
+            } else if (sensor_is_followed_by(&track, last, sensor)) {
               message send, reply;
               send.type = MESSAGE_GETTRAIN;
               send.msg.tr_data.train = train;
@@ -49,6 +51,7 @@ void sensor_interpreter() {
 
               int current_speed = reply.msg.tr_data.should_speed;
               int last_speed = reply.msg.tr_data.last_speed;
+              int last_time = time_at_last_sensor_hit[train];
               int time_speed_last_changed = reply.msg.tr_data.time_speed_last_changed;
 
               if (time_speed_last_changed < last_time && last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
@@ -66,11 +69,12 @@ void sensor_interpreter() {
                               "Train ", train, " took ", time_elapsed, " ticks to go between sensors ",
                               start_bank, start_index, " and ", end_bank, end_index, " at speed ", current_speed,
                               HIDE_CURSOR_TO_EOL) == 0);
-              }
-            }
 
-            last_sensor[train] = sensor;
-            time_at_last_sensor_hit[train] = current_time;
+              }
+
+              last_sensor[train] = sensor;
+              time_at_last_sensor_hit[train] = current_time;
+            }
           }
         }
         break;
