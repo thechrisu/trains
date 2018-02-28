@@ -16,7 +16,8 @@ def print_default_value_dict(data, name):
             def_array.append(
                 '    { .train = %d, .speed = %d, .value = %d }'
                 % (train, speed, data[train][speed]))
-            super_vals[speed].append(data[train][speed])
+            if speed == 0 or data[train][speed] != 0:
+              super_vals[speed].append(data[train][speed])
     def_array.append('    { .train = 1337, .speed = 1337, .value = 1337 }')
     out += ',\n'.join(def_array) + '\n  };\n\n'
     out += '  uint32_t super_' + name + '[15] = {\n    '
