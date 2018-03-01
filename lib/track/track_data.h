@@ -80,4 +80,12 @@ bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end)
  */
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second);
 
+/**
+ * @param   t      A track state.
+ * @param   start  The start sensor.
+ * @param   end    The end sensor.
+ * @returns Whether or not the end sensor might be triggered after the start if there is a dead sensor.
+ */
+bool sensor_may_be_seen_after(track_state *t, unsigned int start, unsigned int end);
+
 #endif /* TRACK_DATA_H */

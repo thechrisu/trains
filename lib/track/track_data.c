@@ -1444,3 +1444,35 @@ bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end)
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second) {
   return find_sensor(t, first)->reverse == find_sensor(t, second);
 }
+
+uint32_t sensor_is_two_ahead(track_node *start, track_node *end, int limit, bool passed) {
+  if (start == end) {
+    return passed;
+  } else if (limit == 0) {
+    return false;
+  }
+
+  switch (start->type) {
+    case NODE_SENSOR:
+      return !passed && sensor_is_two_ahead(start->edge[DIR_AHEAD].dest, end, limit - 1, true);
+    case NODE_MERGE:
+      return sensor_is_two_ahead(start->edge[DIR_AHEAD].dest, end, limit - 1, passed);
+    case NODE_BRANCH: {
+      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
+      track_node *curved_node = start->edge[DIR_CURVED].dest;
+      return sensor_is_two_ahead(straight_node, end, limit - 1, passed) || sensor_is_two_ahead(curved_node, end, limit - 1, passed);
+    }
+    default:
+      return false;
+  }
+}
+
+bool sensor_may_be_seen_after(track_state *t, unsigned int start, unsigned int end) {
+  track_node *start_node = find_sensor(t, start);
+  track_node *end_node = find_sensor(t, end);
+  return sensors_are_paired(t, start, end) ||
+         sensor_is_two_ahead(start_node->edge[DIR_AHEAD].dest, end_node, 2 * FIND_LIMIT, false) ||
+         sensor_is_followed_by_helper(end_node, start_node->reverse, FIND_LIMIT) ||
+         sensor_is_followed_by_helper(start_node->reverse, end_node, FIND_LIMIT) ||
+         sensor_is_two_ahead(start_node->reverse->edge[DIR_AHEAD].dest, end_node, 2 * FIND_LIMIT, false);
+}
