@@ -11,3 +11,7 @@ class TestModel(unittest.TestCase):
     def test_distance_between_sensors(self):
         ret = qemu_oneshot_test('test_distance_between_sensors', '', TIMEOUT)
         self.assertEqual(ret, 'Success.\n\r')
+
+    def test_sensors_are_paired(self):
+        ret = qemu_oneshot_test('test_sensors_are_paired', '', TIMEOUT)
+        self.assertEqual(ret, 'Success.\n\r')

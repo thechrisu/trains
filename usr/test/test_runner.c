@@ -276,6 +276,11 @@ void test_runner() {
       .code = &test_distance_between_sensors,
       .prio = 5
     },
+    {
+      .name = "test_sensors_are_paired",
+      .code = &test_sensors_are_paired,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
