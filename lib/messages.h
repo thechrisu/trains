@@ -59,6 +59,7 @@ enum message_type {
   MESSAGE_CANCEL_ROUTE,
   REPLY_CANCEL_ROUTE_OK,
   REPLY_CANCEL_ROUTE_NO_ROUTE,
+  MESSAGE_READY,
 };
 
 typedef struct {
