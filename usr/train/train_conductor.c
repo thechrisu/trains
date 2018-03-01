@@ -17,6 +17,7 @@ void train_conductor() {
   d.time_speed_last_changed = Time(clock_server);
    
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
+  Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
   Assert(received.msg.train > 0 && received.msg.train <= 80);
   d.train = received.msg.train;
 
@@ -44,12 +45,14 @@ void train_conductor() {
                                    track_state_controller, d.train);
             break;
           default:
+            logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);
             Assert(0);
             break;
         }
         Assert(Send(cmd_dispatcher, &ready, sizeof(ready), EMPTY_MESSAGE, 0) == 0);
         break;
       default:
+        logprintf("Got user cmd message of type %d\n\r", received.type);
         Assert(0);
         break;
     }
