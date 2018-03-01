@@ -1,6 +1,7 @@
 #include "project.h"
 
 #define CMD_MAX_SZ 32
+#define GET_PADDING(i) (i >= 10 ? (i >= 100 ? (i >= 1000 ? (i >= 10000 ? (i >= 100000 ? (i >= 1000 * 1000 ? (i >= 10 * 1000 * 1000 ? " " : "  ") : "   ") : "    ") : "     ") : "      ") : "       ") : "        ")
 
 void char_buffer_clear(char_buffer *b) {
   for (unsigned int i = 0; i < b->elems; i++) {
@@ -192,15 +193,29 @@ void log_calibration_data(int train) {
   int track_state_controller_tid = WhoIs("TrackStateController");
   Assert(track_state_controller_tid > 0);
 
-  message send, reply;
-  send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
-  send.msg.train = train;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  message reply;
+  get_constant_velocity_model(track_state_controller_tid, train, &reply);
 
   logprintf("Train %d velocity calibration data\n\r", train);
   logprintf("Speed | Velocity\n\r");
   for (int i = 0; i <= 14; i += 1) {
-    logprintf("%d%s | %d\n\r", i, i >= 10 ? "   " : "    ", reply.msg.train_speeds[i]);
+    logprintf("%d%s | %d\n\r", i, GET_PADDING(i), reply.msg.train_speeds[i]);
+  }
+
+  get_stopping_distance_model(track_state_controller_tid, train, &reply);
+
+  logprintf("Train %d stopping distance data\n\r", train);
+  logprintf("Speed | Distance\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, GET_PADDING(i), reply.msg.train_distances[i]);
+  }
+
+  get_stopping_time_model(track_state_controller_tid, train, &reply);
+
+  logprintf("Train %d stopping time data\n\r", train);
+  logprintf("Speed | Time\n\r");
+  for (int i = 0; i <= 14; i += 1) {
+    logprintf("%d%s | %d\n\r", i, GET_PADDING(i), reply.msg.train_times[i]);
   }
 }
 
@@ -257,7 +272,6 @@ void project_first_user_task() {
   Assert(Create(my_priority, &turnout_view) > 0);
 #endif /* E2ETESTING */
 
-  int last_calibrated_train = 0;
   while (true) {
     int c = Getc(terminal_rx_server, TERMINAL);
     Assert(c >= 0);
@@ -277,8 +291,6 @@ void project_first_user_task() {
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
-      if (current_cmd.type == USER_CMD_V)
-        last_calibrated_train = current_cmd.data[0];
       if (current_cmd.type == USER_CMD_Q) {
         Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
         Delay(clock_server_tid, 100);
@@ -293,9 +305,7 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  if (last_calibrated_train > 0) {
-    log_calibration_data(last_calibrated_train);
-  }
+  log_calibration_data(t1train);
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);

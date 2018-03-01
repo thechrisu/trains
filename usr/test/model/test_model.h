@@ -14,6 +14,8 @@
 #include "../train/track_state_controller.h"
 
 void test_constant_velocity_model();
+void test_stopping_distance_model();
+void test_stopping_time_model();
 void test_distance_between_sensors();
 void test_sensors_are_paired();
 

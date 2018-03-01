@@ -102,7 +102,6 @@ void track_state_controller() {
           Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
           break;
         }
-
         // Distance is in 10^-3 m, one tick is 10^-2 s -> distance per tick is in 10^-1 m/s.
         // We want 10^-5 m/s = 1/100 mm/s -> multiply by 10^4 = 10,000.
         uint32_t velocity = distance * 10000 / received.msg.ucsm.ticks;
@@ -115,6 +114,58 @@ void track_state_controller() {
           track.speed_to_velocity[t][s] *= 9;
           track.speed_to_velocity[t][s] += velocity;
           track.speed_to_velocity[t][s] /= 10;
+        }
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      }
+      case MESSAGE_GETSTOPPINGDISTANCEMODEL: {
+        int t = received.msg.train;
+        Assert(t >= 1 && t <= 80);
+        reply.type = REPLY_GETSTOPPINGDISTANCEMODEL;
+        for (int i = 0; i < 15; i++) {
+          reply.msg.train_distances[i] = track.stopping_distance[t][i];
+        }
+        Reply(sender_tid, &reply, sizeof(reply));
+        break;
+      }
+      case MESSAGE_UPDATESTOPPINGDISTANCEMODEL: {
+        int t = received.msg.usdm.train;
+        int s = received.msg.usdm.speed;
+        uint32_t v = received.msg.usdm.value;
+        Assert(t >= 1 && t <= 80);
+        Assert(s >= 0 && s <= 14);
+        if (track.stopping_distance[t][s] == 0) {
+          track.stopping_distance[t][s] = v;
+        } else {
+          track.stopping_distance[t][s] *= 9;
+          track.stopping_distance[t][s] += v;
+          track.stopping_distance[t][s] /= 10;
+        }
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      }
+      case MESSAGE_GETSTOPPINGTIMEMODEL: {
+        int t = received.msg.train;
+        Assert(t >= 1 && t <= 80);
+        reply.type = REPLY_GETSTOPPINGTIMEMODEL;
+        for (int i = 0; i < 15; i++) {
+          reply.msg.train_times[i] = track.stopping_time_mus[t][i];
+        }
+        Reply(sender_tid, &reply, sizeof(reply));
+        break;
+      }
+      case MESSAGE_UPDATESTOPPINGTIMEMODEL: {
+        int t = received.msg.ustm.train;
+        int s = received.msg.ustm.speed;
+        uint32_t v = received.msg.ustm.value;
+        Assert(t >= 1 && t <= 80);
+        Assert(s >= 0 && s <= 14);
+        if (track.stopping_time_mus[t][s] == 0) {
+          track.stopping_time_mus[t][s] = v;
+        } else {
+          track.stopping_time_mus[t][s] *= 9;
+          track.stopping_time_mus[t][s] += v;
+          track.stopping_time_mus[t][s] /= 10;
         }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;

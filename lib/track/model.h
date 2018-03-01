@@ -12,12 +12,11 @@
 #define DEFINITE_MAX_CM_PER_SEC 70
 
 /**
- * Initializes the speed->velocity map passed by the first argument.
+ * Initializes a default value map passed by the first argument.
  *
- * @param map            Map from train speeds to velocities.
- * @param defaults       An array of default values (special guard element defined in default_speeds) for each train.
- * @param super_defaults If a certain train has no default for a speed, this array defines the global default values.
+ * @param map            Map from train speeds to values.
+ * @param defaults       An array of default values (special guard element defined in default_values) for each train.
+ * @param super_defaults If a certain train has no default for a value, this array defines the global default values.
  */
-void setup_speed_to_velocity_map(uint32_t map[81][15], default_speed defaults[], uint32_t super_defaults[15]);
-
+void setup_default_map(uint32_t map[81][15], default_value defaults[], uint32_t super_defaults[15]);
 #endif /* TRAIN_MODEL_H */

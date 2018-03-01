@@ -63,8 +63,10 @@ typedef enum {
 typedef struct {
   turnout_state turnouts[NUM_TURNOUTS]; // offset 18-21 map to 153-156
   train_data train[81];
-  uint32_t speed_to_velocity[81][15]; // 1 here is 1/100 mm/s
   track_node track[TRACK_MAX];
+  uint32_t speed_to_velocity[81][15]; // 1 here is 1/100 mm/s
+  uint32_t stopping_distance[81][15]; // 1 here is 1/100 mm
+  uint32_t stopping_time_mus[81][15]; // 1 here is 1 microsecond
 } track_state;
 
 #endif /* TRACK_NODE_H */
