@@ -4,33 +4,39 @@
 
 typedef struct {
   int t;
-  int tid, msgs_available, msgs_i;
+  int tid, msgs_available, msgs_i, msgs_o;
   bool rdy;
   message msgs[TR_Q_LEN];
 } conductor_data;
 
 void send_if_rdy(message *m, conductor_data *c) {
+  if (c->msgs_available >= TR_Q_LEN)
+    logprintf("Message queue for train %d full.\n\r", c->t);
+  Assert(sizeof(c->msgs[c->msgs_i]) == sizeof(*m));
+  memcpy(c->msgs + c->msgs_i, m, sizeof(*m));
+  c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
+  c->msgs_available++;
   if (c->rdy) {
-    Assert(Send(c->tid, m, sizeof(*m), EMPTY_MESSAGE, 0));
-    c->rdy = false;
-  } else {
-    if (c->msgs_available >= TR_Q_LEN)
-      logprintf("Message queue for train %d full.\n\r", c->t);
-    Assert(sizeof(c->msgs[c->msgs_i]) == sizeof(*m));
-    memcpy(c->msgs + c->msgs_i, m, sizeof(*m));
-    c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
+    Assert(c->msgs[c->msgs_o].type < NULL_USER_CMD);
+    Assert(Send(c->tid, c->msgs + c->msgs_o, sizeof(c->msgs[c->msgs_i]),
+           EMPTY_MESSAGE, 0) == 0);
+    c->msgs_o = c->msgs_o < TR_Q_LEN - 1 ? c->msgs_o + 1 : 0;
     c->msgs_available--;
+    c->rdy = false;
   }
 }
 
 void conductor_ready(conductor_data *c) {
   if (c->msgs_available) {
-    Assert(Send(c->tid, c->msgs + c->msgs_i, sizeof(c->msgs + c->msgs_i),
+    logprintf("conductor ready, before message\n\r");
+    Assert(Send(c->tid, c->msgs + c->msgs_o, sizeof(c->msgs[c->msgs_o]),
            EMPTY_MESSAGE, 0) == 0);
-    c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
-    c->msgs_available++;
+    logprintf("conductor ready, after message\n\r");
+    c->msgs_o = c->msgs_o < TR_Q_LEN - 1 ? c->msgs_o + 1 : 0;
+    c->msgs_available--;
     c->rdy = false;
   } else {
+    logprintf("conductor !ready\n\r");
     c->rdy = true;
   }
 }
@@ -55,8 +61,16 @@ void command_dispatcher_server() {
     conductors[t].t = t;
     conductors[t].tid = Create(my_priority + 1, &train_conductor);
     Assert(conductors[t].tid > 0);
+    message train_to_look_after_msg;
+    train_to_look_after_msg.type = 1337;
+    train_to_look_after_msg.msg.train = t;
+    logprintf("Before assigning train %d\n\r", t);
+    Assert(Send(conductors[t].tid, &train_to_look_after_msg,
+                sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
+    logprintf("After assigning train %d\n\r", t);
     conductors[t].rdy = true;
     conductors[t].msgs_i = 0;
+    conductors[t].msgs_o = 0;
     conductors[t].msgs_available = 0;
 }
 
@@ -74,9 +88,20 @@ while (true) {
           Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
           break;
         case USER_CMD_RV: // "block" on command
-        case USER_CMD_TR:
-          send_if_rdy(&received, conductors + received.msg.cmd.data[0]);
+        case USER_CMD_TR: {
+          int there = 0;
+          for (int i = 0; i < num_active_trains; i++) {
+            if (active_trains[i] == received.msg.cmd.data[0]) {
+              there = active_trains[i];
+              break;
+            }
+          }
+          if (there) {
+            Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
+            send_if_rdy(&received, conductors + received.msg.cmd.data[0]);
+          }
           break;
+        }
         case USER_CMD_SW: {
           int turnout_num = (int)received.msg.cmd.data[0];
           int curved = received.msg.cmd.data[1] == 'C';
