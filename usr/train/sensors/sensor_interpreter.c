@@ -39,7 +39,7 @@ void sensor_interpreter() {
           if (is_sensor_triggered(leading_edge, sensor)) {
             unsigned int last = last_sensor[t1train];
 
-            if (last == NO_DATA_RECEIVED) {
+            if (last == NO_DATA_RECEIVED || sensors_are_paired(&track, last, sensor)) {
               last_sensor[t1train] = sensor;
               time_at_last_sensor_hit[t1train] = current_time;
             } else if (sensor_is_followed_by(&track, last, sensor)) {

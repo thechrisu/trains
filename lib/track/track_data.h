@@ -72,4 +72,12 @@ uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned i
  */
 bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end);
 
+/**
+ * @param   t      A track state.
+ * @param   first  The first sensor.
+ * @param   second The second sensor.
+ * @returns Whether or not the two sensors are the two directions of one physical sensor.
+ */
+bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second);
+
 #endif /* TRACK_DATA_H */
