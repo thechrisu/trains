@@ -81,6 +81,21 @@ bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end)
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second);
 
 /**
+ * Consider three sequential sensor pairs: A, B, and C. B1 and or B2 may be dead.
+ * Given this setup, here are the cases this function considers.
+ *
+ * - A train hits A1, B1 (dead), and C1. A1 and C1 are triggered.
+ * - A train hits A1, reverses, touches B1 (dead), then hits A2. A1 and A2 are triggered.
+ *   (This is already covered by `sensors_are_paired`).
+ * - A train hits A1, reverses, hits B1 (dead), hits B2, then hits A2. A1, B2, and A2 are triggered.
+ * - A train hits A1, reverses, hits B1, hits B2 (dead), then hits A2. A1, B1, and A2 are triggered.
+ * - A train hits A1, hits B1 (dead), reverses, touches C1, hits B2, then hits A2.
+ *   A1, C1, B2 and A2 are triggered. A1 -> C1 and C1 -> B2 are both handled by this function.
+ * - A train hits A1, hits B1, reverses, touches C1, hits B2 (dead), then hits A2.
+ *   A1, B1, C1, and A2 are triggered. C1 -> A2 is handled by this function.
+ * - A train hits A1, hits B1, reverses, hits C1, C2, B2, and then A2. This function handles the
+ *   cases where B1 and/or B2 are dead.
+ *
  * @param   t      A track state.
  * @param   start  The start sensor.
  * @param   end    The end sensor.
