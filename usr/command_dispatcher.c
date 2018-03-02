@@ -13,12 +13,12 @@ void send_if_rdy(message *m, conductor_data *c) {
   if (c->msgs_available >= TR_Q_LEN)
     logprintf("Message queue for train %d full.\n\r", c->t);
   Assert(sizeof(c->msgs[c->msgs_i]) == sizeof(*m));
-  memcpy(c->msgs + c->msgs_i, m, sizeof(*m));
+  memcpy(&c->msgs[c->msgs_i], m, sizeof(*m));
   c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
   c->msgs_available++;
   if (c->rdy) {
-    Assert(c->msgs[c->msgs_o].type < NULL_USER_CMD);
-    Assert(Send(c->tid, c->msgs + c->msgs_o, sizeof(c->msgs[c->msgs_i]),
+    Assert(c->msgs[c->msgs_o].msg.cmd.type < NULL_USER_CMD);
+    Assert(Send(c->tid, &c->msgs[c->msgs_o], sizeof(c->msgs[c->msgs_i]),
            EMPTY_MESSAGE, 0) == 0);
     c->msgs_o = c->msgs_o < TR_Q_LEN - 1 ? c->msgs_o + 1 : 0;
     c->msgs_available--;
@@ -98,7 +98,7 @@ while (true) {
           }
           if (there) {
             Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
-            send_if_rdy(&received, conductors + received.msg.cmd.data[0]);
+            send_if_rdy(&received, &conductors[received.msg.cmd.data[0]]);
           }
           break;
         }
@@ -154,7 +154,6 @@ while (true) {
         break;
       }
       case MESSAGE_READY:
-        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         conductor_ready(conductors + received.msg.train);
         // TODO send back a new command immediately, instead of waiting.
         break;
