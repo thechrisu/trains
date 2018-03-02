@@ -20,7 +20,7 @@ void attribute_sensor(unsigned int sensor, int current_time) {
 
 /**
  * If the train is moving at speed 1, give it 100 seconds to find itself.
- * Otherwise, give it 42/speed seconds (e.g. 24 for speed 2, 3 for speed 14).
+ * Otherwise, give it 42/`speed` seconds (e.g. 21 for speed 2, 3 for speed 14).
  *
  * @param   speed           The current speed of the train.
  * @param   time_difference The time since the last sensor read attributed to the train.
