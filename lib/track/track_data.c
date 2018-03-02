@@ -1457,7 +1457,7 @@ bool sensor_reachable_helper(track_node *start, track_node *end, int limit, bool
     case NODE_SENSOR:
       return !seen_dead_sensor && (
         sensor_reachable_helper(AHEAD(start), end, limit - 1, reversed, true) ||
-        (!reversed && sensor_reachable_helper(start->reverse, end, limit - 1, true, true))
+        (!reversed && sensor_reachable_helper(AHEAD(start->reverse), end, limit - 1, true, true))
       );
     case NODE_MERGE:
       return (

@@ -66,6 +66,7 @@ TEST(TrackDataTest, test_sensor_reachable) {
   // The pair of the current sensor
   EXPECT_TRUE(sensor_reachable(&t, sensor_offset('A', 1), sensor_offset('A', 2)));
   EXPECT_TRUE(sensor_reachable(&t, sensor_offset('B', 10), sensor_offset('B', 9)));
+  EXPECT_TRUE(sensor_reachable(&t, sensor_offset('B', 15), sensor_offset('B', 16)));
 
   // Two sequential sensors
   EXPECT_TRUE(sensor_reachable(&t, sensor_offset('B', 9), sensor_offset('A', 5)));
