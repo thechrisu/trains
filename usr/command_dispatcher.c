@@ -5,27 +5,41 @@
 typedef struct {
   int t;
   int tid, msgs_available, msgs_i, msgs_o;
-  bool rdy;
+  bool rdy, auto_mode;
   message msgs[TR_Q_LEN];
 } conductor_data;
+
+bool is_auto_cmd(user_command *cmd) {
+  return cmd->type == USER_CMD_SD;
+}
 
 /**
  * Adds m to the conductors' buffer, sends the next message in the buffer
  * if the conductor is ready. If the conductor is not ready,
  * add the message to the buffer anyway.
  *
- * @param m         Message that we just received.
- * @param c         struct of the train conductor, contains messages.
+ * @param m                   Message that we just received.
+ * @param c                   Struct of the train conductor, contains messages.
+ * @param terminal_tx_server  Tid of the terminal transmit server to print
+ *                            error message if in automode.
  */
-void send_if_rdy(message *m, conductor_data *c) {
-  if (c->msgs_available >= TR_Q_LEN)
+void send_if_rdy(message *m, conductor_data *c, int terminal_tx_server) {
+  if (c->auto_mode) {
+    Assert(Printf(terminal_tx_server, "%s%s%s%sAUTOMODE        %s%s",
+                  RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR,
+                  CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+    return;
+  }
+  if (c->msgs_available >= TR_Q_LEN) {
     logprintf("Message queue for train %d full.\n\r", c->t);
+  }
   Assert(sizeof(c->msgs[c->msgs_i]) == sizeof(*m));
   memcpy(&c->msgs[c->msgs_i], m, sizeof(*m));
   c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
   c->msgs_available++;
   if (c->rdy) {
     Assert(c->msgs[c->msgs_o].msg.cmd.type < NULL_USER_CMD);
+    c->auto_mode = is_auto_cmd(&c->msgs[c->msgs_o].msg.cmd);
     Assert(Send(c->tid, &c->msgs[c->msgs_o], sizeof(c->msgs[c->msgs_i]),
            EMPTY_MESSAGE, 0) == 0);
     c->msgs_o = c->msgs_o < TR_Q_LEN - 1 ? c->msgs_o + 1 : 0;
@@ -47,16 +61,15 @@ void send_if_rdy(message *m, conductor_data *c) {
  */
 void conductor_ready(conductor_data *c) {
   if (c->msgs_available) {
-    logprintf("conductor ready, before message\n\r");
+    c->auto_mode = is_auto_cmd(&c->msgs[c->msgs_o].msg.cmd);
     Assert(Send(c->tid, c->msgs + c->msgs_o, sizeof(c->msgs[c->msgs_o]),
            EMPTY_MESSAGE, 0) == 0);
-    logprintf("conductor ready, after message\n\r");
     c->msgs_o = c->msgs_o < TR_Q_LEN - 1 ? c->msgs_o + 1 : 0;
     c->msgs_available--;
     c->rdy = false;
   } else {
-    logprintf("conductor !ready\n\r");
     c->rdy = true;
+    c->auto_mode = false;
   }
 }
 
@@ -67,6 +80,7 @@ void command_dispatcher_server() {
   message received;
   Assert(RegisterAs("CommandDispatcher") == 0);
   int train_tx_server = WhoIs("TrainTxServer");
+  int terminal_tx_server = WhoIs("TerminalTxServer");
   int clock_server = WhoIs("ClockServer");
   int track_state_controller = WhoIs("TrackStateController");
   int my_priority = MyPriority();
@@ -83,86 +97,76 @@ void command_dispatcher_server() {
     message train_to_look_after_msg;
     train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
     train_to_look_after_msg.msg.train = t;
-    logprintf("Before assigning train %d\n\r", t);
     Assert(Send(conductors[t].tid, &train_to_look_after_msg,
                 sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
-    logprintf("After assigning train %d\n\r", t);
     conductors[t].rdy = true;
     conductors[t].msgs_i = 0;
     conductors[t].msgs_o = 0;
     conductors[t].msgs_available = 0;
-}
+    conductors[t].auto_mode = false;
+  }
 
-while (true) {
-  Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
-  Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
-  switch (received.type) {
-    case MESSAGE_USER: {
-      switch (received.msg.cmd.type) {
-        case USER_CMD_GO:
-          Assert(Putc(train_tx_server, TRAIN, CMD_GO) == 0);
-          break;
-        case USER_CMD_STOP:
-        case USER_CMD_Q:
-          Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
-          break;
-        case USER_CMD_RV: // "block" on command
-        case USER_CMD_TR: {
-          int there = 0;
-          for (int i = 0; i < num_active_trains; i++) {
-            if (active_trains[i] == received.msg.cmd.data[0]) {
-              there = active_trains[i];
-              break;
+  while (true) {
+    Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
+    Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+    switch (received.type) {
+      case MESSAGE_USER: {
+        switch (received.msg.cmd.type) {
+          case USER_CMD_GO:
+            Assert(Putc(train_tx_server, TRAIN, CMD_GO) == 0);
+            break;
+          case USER_CMD_STOP:
+          case USER_CMD_Q:
+            Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
+            break;
+          case USER_CMD_SD:
+          case USER_CMD_RV: // "block" on command
+          case USER_CMD_TR: {
+            int there = 0;
+            for (int i = 0; i < num_active_trains; i++) {
+              if (active_trains[i] == received.msg.cmd.data[0]) {
+                there = active_trains[i];
+                break;
+              }
             }
+            if (there) {
+              Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
+              send_if_rdy(&received, &conductors[received.msg.cmd.data[0]], terminal_tx_server);
+            }
+            break;
           }
-          if (there) {
-            Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
-            send_if_rdy(&received, &conductors[received.msg.cmd.data[0]]);
+          case USER_CMD_SW: {
+            int turnout_num = (int)received.msg.cmd.data[0];
+            int curved = received.msg.cmd.data[1] == 'C';
+
+            message send;
+            send.type = MESSAGE_SWITCH;
+            send.msg.switch_params.clock_server_tid = clock_server;
+            send.msg.switch_params.tx_server_tid = train_tx_server;
+            send.msg.switch_params.turnout_num = turnout_num;
+            send.msg.switch_params.curved = curved;
+
+            int switcher_tid = Create(MyPriority() + 7, &switcher);
+            Assert(switcher_tid > 0);
+            Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+            break;
           }
-          break;
-        }
-        case USER_CMD_SW: {
-          int turnout_num = (int)received.msg.cmd.data[0];
-          int curved = received.msg.cmd.data[1] == 'C';
+          case USER_CMD_V: {
+            message send;
+            send.type = MESSAGE_CALIB_V;
+            send.msg.calib_v_params.train = (int)received.msg.cmd.data[0];
 
-          message send;
-          send.type = MESSAGE_SWITCH;
-          send.msg.switch_params.clock_server_tid = clock_server;
-          send.msg.switch_params.tx_server_tid = train_tx_server;
-          send.msg.switch_params.turnout_num = turnout_num;
-          send.msg.switch_params.curved = curved;
-
-          int switcher_tid = Create(MyPriority() + 7, &switcher);
-          Assert(switcher_tid > 0);
-          Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-          break;
+            int child_tid = Create(my_priority + 7, &automated_velocity_calibrator);
+            Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+            break;
         }
-        case USER_CMD_SD: {
-          message send;
-          send.type = MESSAGE_CALIB_SD;
-          send.msg.calib_sd_params.train = (int)received.msg.cmd.data[0];
-          send.msg.calib_sd_params.speed = (int)received.msg.cmd.data[1];
-
-          int child_tid = Create(my_priority + 7, &stopping_distance_calibrator);
-          Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-          break;
-        }
-        case USER_CMD_V: {
-          message send;
-          send.type = MESSAGE_CALIB_V;
-          send.msg.calib_v_params.train = (int)received.msg.cmd.data[0];
-
-          int child_tid = Create(my_priority + 7, &automated_velocity_calibrator);
-          Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-          break;
-        }
-        case USER_CMD_SET:
-          switch (received.msg.cmd.data[0]) {
-            case SET_T1TRAIN:
-              t1train = received.msg.cmd.data[1];
-              break;
-            default:
-              Assert(0);
+          case USER_CMD_SET:
+            switch (received.msg.cmd.data[0]) {
+              case SET_T1TRAIN:
+                t1train = received.msg.cmd.data[1];
+                break;
+              default:
+                Assert(0);
                 break;
             }
             break;

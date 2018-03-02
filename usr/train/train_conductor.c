@@ -29,11 +29,11 @@ void train_conductor() {
   Assert(clock_server > 0);
   Assert(track_state_controller > 0);
   Assert(cmd_dispatcher > 0);
-  
+
   train_data d;
   d.last_speed = 0;
   d.time_speed_last_changed = Time(clock_server);
-   
+
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
   Assert(received.msg.train > 0 && received.msg.train <= 80);
@@ -48,6 +48,10 @@ void train_conductor() {
     switch (received.type) {
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
+          case USER_CMD_SD:
+            logprintf("NotYetImplemented(SD for train %d)\n\r", d.train);
+            Delay(clock_server, 10000); // Just to test automode/manual mode, you can remove this later.
+            break;
           case USER_CMD_TR:
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_setspeed(train_tx_server, track_state_controller, clock_server,
