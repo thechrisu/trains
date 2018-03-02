@@ -65,12 +65,14 @@ TEST(TrackDataTest, test_sensor_may_be_seen_after) {
 
   // The pair of the current sensor
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('A', 2)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 10), sensor_offset('B', 9)));
 
   // Two sequential sensors
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 5)));
 
   // The pair of the sensor ahead
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 6)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('A', 7), sensor_offset('B', 11)));
 
   // The sensor two sensors ahead
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('C', 7)));
@@ -79,6 +81,7 @@ TEST(TrackDataTest, test_sensor_may_be_seen_after) {
 
   // The sensor behind in the opposite direction
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 14), sensor_offset('B', 2)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 10), sensor_offset('A', 5)));
 
   // The sensor two sensors behind in the opposite direction
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 2), sensor_offset('B', 4)));

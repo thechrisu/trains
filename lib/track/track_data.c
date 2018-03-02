@@ -1491,6 +1491,10 @@ bool sensor_may_be_seen_after_helper(track_node *start, track_node *end, int lim
         sensor_may_be_seen_after_helper(CURVED(start), end, limit - 1, reversed, seen_dead_sensor) ||
         (!reversed && sensor_may_be_seen_after_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
       );
+    case NODE_ENTER:
+      return sensor_may_be_seen_after_helper(AHEAD(start), end, limit - 1, reversed, seen_dead_sensor);
+    case NODE_EXIT:
+      return !reversed && sensor_may_be_seen_after_helper(start->reverse, end, limit - 1, true, seen_dead_sensor);
     default:
       return false;
   }
