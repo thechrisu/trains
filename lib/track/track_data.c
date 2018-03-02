@@ -1446,27 +1446,6 @@ bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second)
   return find_sensor(t, first)->reverse == find_sensor(t, second);
 }
 
-uint32_t sensor_is_two_ahead(track_node *start, track_node *end, int limit, bool passed) {
-  if (start == end) {
-    return passed;
-  } else if (limit == 0) {
-    return false;
-  }
-
-  switch (start->type) {
-    case NODE_SENSOR:
-      return !passed && sensor_is_two_ahead(AHEAD(start), end, limit - 1, true);
-    case NODE_MERGE:
-      return sensor_is_two_ahead(AHEAD(start), end, limit - 1, passed);
-    case NODE_BRANCH: {
-      return sensor_is_two_ahead(STRAIGHT(start), end, limit - 1, passed) ||
-             sensor_is_two_ahead(CURVED(start), end, limit - 1, passed);
-    }
-    default:
-      return false;
-  }
-}
-
 bool sensor_may_be_seen_after_helper(track_node *start, track_node *end, int limit, bool reversed, bool seen_dead_sensor) {
   if (start == end) {
     return true;
