@@ -1,5 +1,23 @@
 #include "train_conductor.h"
 
+void conductor_setspeed(int train_tx_server, int track_state_controller, int clock_server,
+                        train_data *d, int speed) {
+  d->last_speed = d->should_speed;
+  d->time_speed_last_changed = Time(clock_server);
+  d->should_speed = speed;
+  set_train_speed(train_tx_server, track_state_controller,
+                  d->train, d->should_speed);
+}
+
+void conductor_reverse(int train_tx_server, int track_state_controller, int clock_server,
+                       train_data *d) {
+  d->last_speed = d->should_speed;
+  d->direction = !d->direction;
+  stop_and_reverse_train(clock_server, train_tx_server,
+                         track_state_controller, d->train);
+  d->time_speed_last_changed = Time(clock_server);
+}
+
 void train_conductor() {
   int sender_tid;
   message received, ready;
@@ -31,18 +49,12 @@ void train_conductor() {
         switch (received.msg.cmd.type) {
           case USER_CMD_TR:
             Assert(received.msg.cmd.data[0] == d.train);
-            d.last_speed = d.should_speed;
-            d.time_speed_last_changed = Time(clock_server);
-            d.should_speed = received.msg.cmd.data[1];
-            set_train_speed(train_tx_server, track_state_controller, 
-                            d.train, d.should_speed);
+            conductor_setspeed(train_tx_server, track_state_controller, clock_server,
+                               &d, received.msg.cmd.data[1]);
             break;
           case USER_CMD_RV:
             Assert(received.msg.cmd.data[0] == d.train);
-            d.last_speed = d.should_speed;
-            d.direction = !d.direction;
-            stop_and_reverse_train(clock_server, train_tx_server,
-                                   track_state_controller, d.train);
+            conductor_reverse(train_tx_server, track_state_controller, clock_server, &d);
             break;
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);
