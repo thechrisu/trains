@@ -165,7 +165,7 @@ void command_dispatcher_server() {
             int child_tid = Create(my_priority + 7, &automated_velocity_calibrator);
             Assert(Send(child_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
             break;
-        }
+          }
           case USER_CMD_SET:
             switch (received.msg.cmd.data[0]) {
               case SET_T1TRAIN:
