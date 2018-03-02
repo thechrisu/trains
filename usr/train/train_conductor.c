@@ -24,7 +24,7 @@ void train_conductor() {
   ready.msg.train = d.train;
   ready.type = MESSAGE_READY;
   while (true) {
-    Assert(Receive(&sender_tid, &received, sizeof(received) >= 0));
+    Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
     switch (received.type) {
       case MESSAGE_USER:
