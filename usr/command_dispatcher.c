@@ -184,7 +184,6 @@ void command_dispatcher_server() {
       }
       case MESSAGE_READY:
         conductor_ready(conductors + received.msg.train);
-        // TODO send back a new command immediately, instead of waiting.
         break;
       default:
         Assert(0); // :(
