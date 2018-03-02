@@ -9,6 +9,14 @@ typedef struct {
   message msgs[TR_Q_LEN];
 } conductor_data;
 
+/**
+ * Adds m to the conductors' buffer, sends the next message in the buffer
+ * if the conductor is ready. If the conductor is not ready,
+ * add the message to the buffer anyway.
+ *
+ * @param m         Message that we just received.
+ * @param c         struct of the train conductor, contains messages.
+ */
 void send_if_rdy(message *m, conductor_data *c) {
   if (c->msgs_available >= TR_Q_LEN)
     logprintf("Message queue for train %d full.\n\r", c->t);
@@ -26,6 +34,17 @@ void send_if_rdy(message *m, conductor_data *c) {
   }
 }
 
+/**
+ * To be called after a `MESSAGE_READY` message has been received by the
+ * train conductor, indicating that the current command has finished.
+ * If we don't have a message, we indicate that we are able to send a message,
+ * the next time we have a message to send (it would be sent via sent_if_rdy()).
+ * If we DO have a message, we send it immediately; In this case, the
+ * train conductor can't receive any more messages until `MESSAGE_READY` has
+ * been received, at some later point in the future.
+ *
+ * @param c Train conductor to be readied/from which message is to be sent.
+ */
 void conductor_ready(conductor_data *c) {
   if (c->msgs_available) {
     logprintf("conductor ready, before message\n\r");
