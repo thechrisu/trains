@@ -9,6 +9,12 @@ typedef struct {
   message msgs[TR_Q_LEN];
 } conductor_data;
 
+/**
+ * Determines if a user command is an automode-command.
+ *
+ * @param cmd Command
+ * @return true if it's an automode command, false if manual mode.
+ */
 bool is_auto_cmd(user_command *cmd) {
   return cmd->type == USER_CMD_SD;
 }
@@ -27,7 +33,8 @@ void send_if_rdy(message *m, conductor_data *c, int terminal_tx_server) {
   if (c->auto_mode) {
     Assert(Printf(terminal_tx_server, "%s%s%s%sAUTOMODE        %s%s",
                   RED_TEXT, HIDE_CURSOR_TO_EOL, HIDE_CURSOR,
-                  CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+                  CURSOR_ROW_COL(CMD_LINE, 1), HIDE_CURSOR_TO_EOL,
+                  RESET_TEXT) == 0);
     return;
   }
   if (c->msgs_available >= TR_Q_LEN) {
@@ -131,7 +138,8 @@ void command_dispatcher_server() {
             }
             if (there) {
               Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
-              send_if_rdy(&received, &conductors[received.msg.cmd.data[0]], terminal_tx_server);
+              send_if_rdy(&received, &conductors[received.msg.cmd.data[0]],
+                          terminal_tx_server);
             }
             break;
           }
