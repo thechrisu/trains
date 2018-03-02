@@ -2,6 +2,10 @@
 
 #define FIND_LIMIT 5
 
+#define AHEAD(node)    (node)->edge[DIR_AHEAD].dest
+#define STRAIGHT(node) (node)->edge[DIR_STRAIGHT].dest
+#define CURVED(node)   (node)->edge[DIR_CURVED].dest
+
 void init_track(track_state *global_track) {
   track_node *track = global_track->track;
   turnout_state *turnouts = global_track->turnouts;
@@ -1239,7 +1243,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_speeds[15] = {
-    0, 925, 7228, 12474, 17242, 21788, 26782, 33389, 36229, 43665, 48005, 55209, 56802, 61212, 60563, 
+    0, 925, 7228, 12474, 17242, 21788, 26782, 33389, 36229, 43665, 48005, 55209, 56802, 61212, 60563,
   };
 
   default_value default_stopping_distances[] = {
@@ -1277,7 +1281,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_distances[15] = {
-    0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 80220, 102330, 142342, 
+    0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 80220, 102330, 142342,
   };
 
   default_value default_stopping_times[] = {
@@ -1315,7 +1319,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_times[15] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   };
 
   setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
@@ -1386,21 +1390,18 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uin
   switch (start->type) {
     case NODE_SENSOR:
     case NODE_MERGE: {
-      track_node *next_node = start->edge[DIR_AHEAD].dest;
       uint32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
-      return distance_between_sensors_helper(next_node, end, new_total_distance, limit - 1);
+      return distance_between_sensors_helper(AHEAD(start), end, new_total_distance, limit - 1);
     }
     case NODE_BRANCH: {
-      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
       uint32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
-      uint32_t result = distance_between_sensors_helper(straight_node, end, straight_total_distance, limit - 1);
+      uint32_t result = distance_between_sensors_helper(STRAIGHT(start), end, straight_total_distance, limit - 1);
       if (result != 0) {
         return result;
       }
 
-      track_node *curved_node = start->edge[DIR_CURVED].dest;
       uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
-      return distance_between_sensors_helper(curved_node, end, curved_total_distance, limit - 1);
+      return distance_between_sensors_helper(CURVED(start), end, curved_total_distance, limit - 1);
     }
     default:
       return 0;
@@ -1425,11 +1426,10 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 
   switch (start->type) {
     case NODE_MERGE:
-      return sensor_is_followed_by_helper(start->edge[DIR_AHEAD].dest, end, limit - 1);
+      return sensor_is_followed_by_helper(AHEAD(start), end, limit - 1);
     case NODE_BRANCH: {
-      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
-      track_node *curved_node = start->edge[DIR_CURVED].dest;
-      return sensor_is_followed_by_helper(straight_node, end, limit - 1) || sensor_is_followed_by_helper(curved_node, end, limit - 1);
+      return sensor_is_followed_by_helper(STRAIGHT(start), end, limit - 1) ||
+             sensor_is_followed_by_helper(CURVED(start), end, limit - 1);
     }
     default:
       return false;
@@ -1438,7 +1438,8 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 
 bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end) {
   track_node *start_node = find_sensor(t, start);
-  return start_node->type == NODE_SENSOR && sensor_is_followed_by_helper(start_node->edge[DIR_AHEAD].dest, find_sensor(t, end), FIND_LIMIT);
+  return start_node->type == NODE_SENSOR &&
+         sensor_is_followed_by_helper(AHEAD(start_node), find_sensor(t, end), FIND_LIMIT);
 }
 
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second) {
@@ -1454,13 +1455,12 @@ uint32_t sensor_is_two_ahead(track_node *start, track_node *end, int limit, bool
 
   switch (start->type) {
     case NODE_SENSOR:
-      return !passed && sensor_is_two_ahead(start->edge[DIR_AHEAD].dest, end, limit - 1, true);
+      return !passed && sensor_is_two_ahead(AHEAD(start), end, limit - 1, true);
     case NODE_MERGE:
-      return sensor_is_two_ahead(start->edge[DIR_AHEAD].dest, end, limit - 1, passed);
+      return sensor_is_two_ahead(AHEAD(start), end, limit - 1, passed);
     case NODE_BRANCH: {
-      track_node *straight_node = start->edge[DIR_STRAIGHT].dest;
-      track_node *curved_node = start->edge[DIR_CURVED].dest;
-      return sensor_is_two_ahead(straight_node, end, limit - 1, passed) || sensor_is_two_ahead(curved_node, end, limit - 1, passed);
+      return sensor_is_two_ahead(STRAIGHT(start), end, limit - 1, passed) ||
+             sensor_is_two_ahead(CURVED(start), end, limit - 1, passed);
     }
     default:
       return false;
@@ -1471,8 +1471,8 @@ bool sensor_may_be_seen_after(track_state *t, unsigned int start, unsigned int e
   track_node *start_node = find_sensor(t, start);
   track_node *end_node = find_sensor(t, end);
   return sensors_are_paired(t, start, end) ||
-         sensor_is_two_ahead(start_node->edge[DIR_AHEAD].dest, end_node, 2 * FIND_LIMIT, false) ||
+         sensor_is_two_ahead(AHEAD(start_node), end_node, 2 * FIND_LIMIT, false) ||
          sensor_is_followed_by_helper(end_node, start_node->reverse, FIND_LIMIT) ||
          sensor_is_followed_by_helper(start_node->reverse, end_node, FIND_LIMIT) ||
-         sensor_is_two_ahead(start_node->reverse->edge[DIR_AHEAD].dest, end_node, 2 * FIND_LIMIT, false);
+         sensor_is_two_ahead(AHEAD(start_node->reverse), end_node, 2 * FIND_LIMIT, false);
 }
