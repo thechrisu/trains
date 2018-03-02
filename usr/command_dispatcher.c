@@ -39,7 +39,6 @@ void send_if_rdy(message *m, conductor_data *c, int terminal_tx_server) {
   if (c->msgs_available >= TR_Q_LEN) {
     logprintf("Message queue for train %d full.\n\r", c->t);
   }
-  Assert(sizeof(c->msgs[c->msgs_i]) == sizeof(*m));
   memcpy(&c->msgs[c->msgs_i], m, sizeof(*m));
   c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
   c->msgs_available++;
