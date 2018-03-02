@@ -47,7 +47,7 @@ void sensor_interpreter() {
                             ESC, CALIB_LINE, 1,
                             "Train ", t1train, " is at sensor ", sensor_bank(sensor), sensor_index(sensor),
                             HIDE_CURSOR_TO_EOL) == 0);
-            } else if (sensor_may_be_seen_after(&track, last, sensor)) {
+            } else if (sensor_reachable(&track, last, sensor)) {
               if (sensor_is_followed_by(&track, last, sensor)) {
                 message send, reply;
                 send.type = MESSAGE_GETTRAIN;
