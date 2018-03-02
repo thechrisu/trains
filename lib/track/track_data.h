@@ -80,4 +80,15 @@ bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end)
  */
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second);
 
+/**
+ * Checks whether `end` could be triggered right after `start`, given that the train
+ * might reverse once during the trip and there might be one dead sensor along the way.
+ *
+ * @param   t      A track state.
+ * @param   start  The start sensor.
+ * @param   end    The end sensor.
+ * @returns Whether or not the end sensor is reachable from the start one.
+ */
+bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
+
 #endif /* TRACK_DATA_H */

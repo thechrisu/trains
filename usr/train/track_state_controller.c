@@ -107,6 +107,9 @@ void track_state_controller() {
         uint32_t velocity = distance * 10000 / received.msg.ucsm.ticks;
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
+        if (velocity >= DEFINITE_MAX_CM_PER_SEC * 10 * 100) {
+          logprintf("Got a velocity of %d 1/100 mm/s\n\r in track state controller\n\r", velocity);
+        }
         Assert(velocity < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
         if (track.speed_to_velocity[t][s] == 0) {
           track.speed_to_velocity[t][s] = velocity;
