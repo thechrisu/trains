@@ -86,7 +86,6 @@ bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second)
  *
  * - A train hits A1, B1 (dead), and C1. A1 and C1 are triggered.
  * - A train hits A1, reverses, touches B1 (dead), then hits A2. A1 and A2 are triggered.
- *   (This is already covered by `sensors_are_paired`).
  * - A train hits A1, reverses, hits B1 (dead), hits B2, then hits A2. A1, B2, and A2 are triggered.
  * - A train hits A1, reverses, hits B1, hits B2 (dead), then hits A2. A1, B1, and A2 are triggered.
  * - A train hits A1, hits B1 (dead), reverses, touches C1, hits B2, then hits A2.

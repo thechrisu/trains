@@ -59,6 +59,22 @@ TEST(TrackDataTest, test_offset_to_bank_and_index_and_back) {
   }
 }
 
+TEST(TrackDataTest, test_sensor_may_be_seen_after) {
+  track_state t;
+  init_track(&t);
+
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('A', 1)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('A', 2)));
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 5)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 6)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('C', 7)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 14), sensor_offset('B', 2)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 3), sensor_offset('D', 2)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 2), sensor_offset('B', 4)));
+  // TODO change this function so that this test passes
+  // EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 7)));
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

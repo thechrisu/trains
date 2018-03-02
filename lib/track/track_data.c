@@ -1472,7 +1472,7 @@ bool sensor_may_be_seen_after(track_state *t, unsigned int start, unsigned int e
   track_node *end_node = find_sensor(t, end);
   return sensors_are_paired(t, start, end) ||
          sensor_is_two_ahead(AHEAD(start_node), end_node, 2 * FIND_LIMIT, false) ||
-         sensor_is_followed_by_helper(end_node, start_node->reverse, FIND_LIMIT) ||
-         sensor_is_followed_by_helper(start_node->reverse, end_node, FIND_LIMIT) ||
+         sensor_is_followed_by_helper(AHEAD(end_node), start_node->reverse, FIND_LIMIT) ||
+         sensor_is_followed_by_helper(AHEAD(start_node->reverse), end_node, FIND_LIMIT) ||
          sensor_is_two_ahead(AHEAD(start_node->reverse), end_node, 2 * FIND_LIMIT, false);
 }
