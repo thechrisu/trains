@@ -1467,12 +1467,38 @@ uint32_t sensor_is_two_ahead(track_node *start, track_node *end, int limit, bool
   }
 }
 
+bool sensor_may_be_seen_after_helper(track_node *start, track_node *end, int limit, bool reversed, bool seen_dead_sensor) {
+  if (start == end) {
+    return true;
+  } else if (limit == 0) {
+    return false;
+  }
+
+  switch (start->type) {
+    case NODE_SENSOR:
+      return !seen_dead_sensor && (
+        sensor_may_be_seen_after_helper(AHEAD(start), end, limit - 1, reversed, true) ||
+        (!reversed && sensor_may_be_seen_after_helper(start->reverse, end, limit - 1, true, true))
+      );
+    case NODE_MERGE:
+      return (
+        sensor_may_be_seen_after_helper(AHEAD(start), end, limit - 1, reversed, seen_dead_sensor) ||
+        (!reversed && sensor_may_be_seen_after_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
+      );
+    case NODE_BRANCH:
+      return (
+        sensor_may_be_seen_after_helper(STRAIGHT(start), end, limit - 1, reversed, seen_dead_sensor) ||
+        sensor_may_be_seen_after_helper(CURVED(start), end, limit - 1, reversed, seen_dead_sensor) ||
+        (!reversed && sensor_may_be_seen_after_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
+      );
+    default:
+      return false;
+  }
+}
+
 bool sensor_may_be_seen_after(track_state *t, unsigned int start, unsigned int end) {
-  track_node *start_node = find_sensor(t, start);
-  track_node *end_node = find_sensor(t, end);
-  return sensors_are_paired(t, start, end) ||
-         sensor_is_two_ahead(AHEAD(start_node), end_node, 2 * FIND_LIMIT, false) ||
-         sensor_is_followed_by_helper(AHEAD(end_node), start_node->reverse, FIND_LIMIT) ||
-         sensor_is_followed_by_helper(AHEAD(start_node->reverse), end_node, FIND_LIMIT) ||
-         sensor_is_two_ahead(AHEAD(start_node->reverse), end_node, 2 * FIND_LIMIT, false);
+  track_node *start_n = find_sensor(t, start);
+  track_node *end_n = find_sensor(t, end);
+  return sensor_may_be_seen_after_helper(AHEAD(start_n), end_n, 2 * FIND_LIMIT, false, false) ||
+         sensor_may_be_seen_after_helper(AHEAD(start_n->reverse), end_n, 2 * FIND_LIMIT, true, false);
 }

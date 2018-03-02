@@ -63,16 +63,40 @@ TEST(TrackDataTest, test_sensor_may_be_seen_after) {
   track_state t;
   init_track(&t);
 
-  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('A', 1)));
+  // The pair of the current sensor
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('A', 2)));
-  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 5)));
+
+  // Two sequential sensors
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 5)));
+
+  // The pair of the sensor ahead
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 6)));
+
+  // The sensor two sensors ahead
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('C', 7)));
-  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 14), sensor_offset('B', 2)));
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 3), sensor_offset('D', 2)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 16), sensor_offset('B', 3)));
+
+  // The sensor behind in the opposite direction
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 14), sensor_offset('B', 2)));
+
+  // The sensor two sensors behind in the opposite direction
   EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('D', 2), sensor_offset('B', 4)));
-  // TODO change this function so that this test passes
-  // EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 7)));
+
+  // Reversing around a corner
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 7)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 9)));
+  EXPECT_TRUE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 12)));
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 8)));
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 10)));
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('B', 9), sensor_offset('A', 11)));
+
+  // A sensor shouldn't be triggered twice in a row
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('A', 1)));
+
+  // Distant sensors shouldn't be triggered in a row
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('B', 16), sensor_offset('C', 2)));
+  EXPECT_FALSE(sensor_may_be_seen_after(&t, sensor_offset('A', 1), sensor_offset('C', 3)));
 }
 
 #ifndef ALLTESTS
