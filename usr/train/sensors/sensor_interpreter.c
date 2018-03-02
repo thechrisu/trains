@@ -42,6 +42,11 @@ void sensor_interpreter() {
             if (last == NO_DATA_RECEIVED) {
               last_sensor[t1train] = sensor;
               time_at_last_sensor_hit[t1train] = current_time;
+
+              Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%c%d%s",
+                            ESC, CALIB_LINE, 1,
+                            "Train ", t1train, " is at sensor ", sensor_bank(sensor), sensor_index(sensor),
+                            HIDE_CURSOR_TO_EOL) == 0);
             } else if (sensor_may_be_seen_after(&track, last, sensor)) {
               if (sensor_is_followed_by(&track, last, sensor)) {
                 message send, reply;
@@ -65,7 +70,7 @@ void sensor_interpreter() {
                   unsigned int end_index = sensor_index(sensor);
 
                   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%c%d%s%c%d%s%d%s",
-                                ESC, CALIB_LINE, 1,
+                                ESC, CALIB_LINE + 1, 1,
                                 "Train ", t1train, " took ", time_elapsed, " ticks to go between sensors ",
                                 start_bank, start_index, " and ", end_bank, end_index, " at speed ", current_speed,
                                 HIDE_CURSOR_TO_EOL) == 0);
@@ -75,6 +80,11 @@ void sensor_interpreter() {
 
               last_sensor[t1train] = sensor;
               time_at_last_sensor_hit[t1train] = current_time;
+
+              Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%c%d%s",
+                            ESC, CALIB_LINE, 1,
+                            "Train ", t1train, " is at sensor ", sensor_bank(sensor), sensor_index(sensor),
+                            HIDE_CURSOR_TO_EOL) == 0);
             }
           }
         }
