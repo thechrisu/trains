@@ -37,6 +37,7 @@ void train_conductor() {
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
   Assert(received.msg.train > 0 && received.msg.train <= 80);
+  Assert(received.type == MESSAGE_CONDUCTOR_SETTRAIN);
   d.train = received.msg.train;
 
   ready.msg.train = d.train;
