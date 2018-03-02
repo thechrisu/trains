@@ -81,7 +81,7 @@ void command_dispatcher_server() {
     conductors[t].tid = Create(my_priority + 1, &train_conductor);
     Assert(conductors[t].tid > 0);
     message train_to_look_after_msg;
-    train_to_look_after_msg.type = 1337;
+    train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
     train_to_look_after_msg.msg.train = t;
     logprintf("Before assigning train %d\n\r", t);
     Assert(Send(conductors[t].tid, &train_to_look_after_msg,
