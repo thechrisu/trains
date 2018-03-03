@@ -1,12 +1,27 @@
 #include "router.h"
 
-reservation res[MAX_RESERVATIONS];
+void plan_route(location *start, location *end, uint32_t velocity, int current_time, reservation reservations[MAX_RESERVATIONS], reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
+  (void)start;
+  (void)end;
+  (void)velocity;
+  (void)current_time;
+  (void)reservations;
+  (void)reservation_lists;
+  (void)route;
+
+  // Do Dijkstra's
+  // Walk backwards along shortest path, creating reservations and adding them to lists
+}
 
 void router() {
   RegisterAs("Router");
 
+  int clock_server_tid = WhoIs("ClockServer");
+  int track_state_controller_tid = WhoIs("TrackStateController");
+
+  reservation reservations[MAX_RESERVATIONS];
   for (int i = 0; i < MAX_RESERVATIONS; i += 1) {
-    res[i].train = 0;
+    reservations[i].train = 0;
   }
 
   bool has_made_reservation[80];
@@ -14,8 +29,13 @@ void router() {
     has_made_reservation[i] = false;
   }
 
+  reservation *reservation_lists[TRACK_MAX];
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    reservation_lists[i] = NULL_RESERVATION;
+  }
+
   int sender_tid;
-  message received, reply;
+  message send, received, reply;
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
@@ -27,14 +47,23 @@ void router() {
         if (has_made_reservation[train]) {
           reply.type = REPLY_GET_ROUTE_EXISTING_ROUTE;
         } else {
+          location *start = &received.msg.get_route_params.start;
+          location *end = &received.msg.get_route_params.end;
           reservation route[MAX_ROUTE_LENGTH];
 
-          // TODO find and reserve route
-          // Look up velocity of given train
-          // Do Dijkstra's with weights as times since start of route
-          // If we can't go to a node because it's reserved, increase weight to take into
-          // account required waiting time
-          // Return the shortest path given these constraints
+          send.type = MESSAGE_GETTRAIN;
+          send.msg.tr_data.train = train;
+          Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+
+          int speed = reply.msg.tr_data.should_speed;
+
+          send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
+          send.msg.train = train;
+          Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+
+          uint32_t velocity = reply.msg.train_speeds[speed];
+          int current_time = Time(clock_server_tid);
+          plan_route(start, end, velocity, current_time, reservations, reservation_lists, route);
 
           has_made_reservation[train] = true;
           reply.type = REPLY_GET_ROUTE_OK;
@@ -49,11 +78,7 @@ void router() {
         Assert(train > 0 && train <= 80);
 
         if (has_made_reservation[train]) {
-          for (int i = 0; i < MAX_RESERVATIONS; i += 1) {
-            if (res[i].train == train) {
-              res[i].train = 0;
-            }
-          }
+          // TODO remove reservations
           has_made_reservation[train] = false;
           reply.type = REPLY_CANCEL_ROUTE_OK;
         } else {

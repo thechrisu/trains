@@ -4,10 +4,11 @@
 #include "codes.h"
 #include "messages.h"
 #include "myio.h"
+#include "../lib/search_node_queue.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
-#define MAX_ROUTE_LENGTH 100
+#define MAX_ROUTE_LENGTH SEARCH_NODE_QUEUE_SIZE
 #define MAX_RESERVATIONS 500
 
 /**
