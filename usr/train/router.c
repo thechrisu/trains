@@ -12,8 +12,10 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
   }
 }
 
-void plan_route(track_state *t, location *start, location *end, uint32_t velocity, int current_time, reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
+void plan_route(track_state *t, int train, location *start, location *end, uint32_t velocity, int current_time, reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
   // TODO worry about offsets in locations
+  track_node *start_node = find_sensor(t, start->sensor);
+  track_node *end_node = find_sensor(t, end->sensor);
 
   search_node_queue q;
   search_node_queue_init(&q);
@@ -22,7 +24,7 @@ void plan_route(track_state *t, location *start, location *end, uint32_t velocit
     search_node node;
     track_node *t_node = &(t->track[i]);
     node.node = t_node;
-    node.ticks = t_node == find_sensor(t, start->sensor) ? current_time : INFINITE_TICKS;
+    node.ticks = t_node == start_node ? current_time : INFINITE_TICKS;
     node.prev = NULL_SEARCH_NODE;
     search_node_queue_enqueue(&q, &node);
   }
@@ -54,11 +56,32 @@ void plan_route(track_state *t, location *start, location *end, uint32_t velocit
     }
   }
 
-  (void)end;
-  (void)reservation_lists;
-  (void)route;
+  search_node *end_node_after_search;
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    search_node *n = &dequeued_nodes[i];
+    if (n->node == end_node) {
+      end_node_after_search = n;
+    }
+  }
 
-  // TODO walk backwards along shortest path, creating reservations in route and adding them to lists
+  int path_length = 0;
+  search_node *current = end_node_after_search;
+  while (current != &dequeued_nodes[0]) {
+    path_length += 1;
+  }
+
+  route[path_length].train = 0;
+  current = end_node_after_search;
+  for (int i = path_length - 1; i >= 0; i -= 1) {
+    route[i].train = train;
+    route[i].node = current->node;
+    route[i].ticks_start = 0; // TODO
+    route[i].ticks_end = 0; // TODO
+    // TODO insert reservation into list for node
+    current = current->prev;
+  }
+
+  (void)reservation_lists;
 }
 
 void router() {
@@ -113,7 +136,7 @@ void router() {
 
           uint32_t velocity = reply.msg.train_speeds[speed];
           int current_time = Time(clock_server_tid);
-          plan_route(&track, start, end, velocity, current_time, reservation_lists, reservations[train]);
+          plan_route(&track, train, start, end, velocity, current_time, reservation_lists, reservations[train]);
 
           has_made_reservation[train] = true;
           reply.type = REPLY_GET_ROUTE_OK;
