@@ -17,3 +17,13 @@ void search_node_copy(search_node *from, search_node *to) {
 #undef ELEMENT_TYPE
 #undef ELEMENT_COPY
 #undef ELEMENT_VALUE
+
+search_node *search_node_queue_find_by_node(search_node_queue *q, track_node *tn) {
+  for (unsigned int i = 0; i < q->size; i += 1) {
+    search_node *current = &(q->elts[i]);
+    if (current->node == tn) {
+      return current;
+    }
+  }
+  return NULL_SEARCH_NODE;
+}

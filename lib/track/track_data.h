@@ -54,6 +54,8 @@ unsigned int sensor_data_mask(unsigned int offset);
  */
 unsigned int sensor_offset(char bank, unsigned int index);
 
+track_node *find_sensor(track_state *t, unsigned int offset);
+
 /**
  * Returns the distance between two sequential sensors.
  *

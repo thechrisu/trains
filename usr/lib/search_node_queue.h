@@ -6,6 +6,7 @@
 #define SEARCH_NODE_QUEUE_H
 
 #include "track_node.h"
+#include "track_state_controller.h"
 #include "tstdlib.h"
 
 /**
@@ -64,5 +65,23 @@ int search_node_queue_dequeue(search_node_queue *q, search_node *e);
  * @returns NULL_SEARCH_NODE if the queue is empty and the first record otherwise.
  */
 search_node *search_node_queue_peek(search_node_queue *q);
+
+/**
+ * Restores the heap invariant in a search node queue.
+ *
+ * Call this method after modifying the priorities of any of the nodes in the queue.
+ * @param q A search node queue.
+ */
+void search_node_queue_heapify(search_node_queue *q);
+
+
+/**
+ * Finds the search node in a queue that points to
+ *
+ * @param   q  A search node queue.
+ * @param   tn The track node to search by.
+ * @returns The search node, or NULL_SEARCH_NODE if no such node could be found.
+ */
+search_node *search_node_queue_find_by_node(search_node_queue *q, track_node *tn);
 
 #endif /* SEARCH_NODE_QUEUE_H */

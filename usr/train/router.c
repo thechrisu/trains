@@ -1,15 +1,64 @@
 #include "router.h"
 
-void plan_route(location *start, location *end, uint32_t velocity, int current_time, reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
-  (void)start;
+#define INFINITE_TICKS 1E8
+
+void update_search_node(search_node_queue *q, search_node *current, int direction, uint32_t velocity) {
+  track_edge *edge_in_direction = &current->node->edge[direction];
+  search_node *node_in_direction = search_node_queue_find_by_node(q, edge_in_direction->dest);
+  int updated_ticks = current->ticks + edge_in_direction->dist * 10000 / velocity;
+  if (node_in_direction->ticks > updated_ticks) {
+    node_in_direction->ticks = updated_ticks;
+    node_in_direction->prev = current;
+  }
+}
+
+void plan_route(track_state *t, location *start, location *end, uint32_t velocity, int current_time, reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
+  // TODO worry about offsets in locations
+
+  search_node_queue q;
+  search_node_queue_init(&q);
+
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    search_node node;
+    track_node *t_node = &(t->track[i]);
+    node.node = t_node;
+    node.ticks = t_node == find_sensor(t, start->sensor) ? current_time : INFINITE_TICKS;
+    node.prev = NULL_SEARCH_NODE;
+    search_node_queue_enqueue(&q, &node);
+  }
+
+  search_node dequeued_nodes[TRACK_MAX];
+  int i = 0;
+  while (search_node_queue_peek(&q) != NULL_SEARCH_NODE) {
+    search_node *current = &dequeued_nodes[i];
+    search_node_queue_dequeue(&q, current);
+
+    track_node *t_node = current->node;
+    switch (t_node->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+      case NODE_ENTER:
+        update_search_node(&q, current, DIR_AHEAD, velocity);
+        search_node_queue_heapify(&q);
+        break;
+      case NODE_BRANCH:
+        update_search_node(&q, current, DIR_STRAIGHT, velocity);
+        update_search_node(&q, current, DIR_CURVED, velocity);
+        search_node_queue_heapify(&q);
+        break;
+      case NODE_EXIT:
+        break;
+      default:
+        logprintf("Unknown node type %d in plan_route\n\r", t_node->type);
+        break;
+    }
+  }
+
   (void)end;
-  (void)velocity;
-  (void)current_time;
   (void)reservation_lists;
   (void)route;
 
-  // Do Dijkstra's
-  // Walk backwards along shortest path, creating reservations and adding them to lists
+  // TODO walk backwards along shortest path, creating reservations in route and adding them to lists
 }
 
 void router() {
@@ -64,7 +113,7 @@ void router() {
 
           uint32_t velocity = reply.msg.train_speeds[speed];
           int current_time = Time(clock_server_tid);
-          plan_route(start, end, velocity, current_time, reservation_lists, reservations[train]);
+          plan_route(&track, start, end, velocity, current_time, reservation_lists, reservations[train]);
 
           has_made_reservation[train] = true;
           reply.type = REPLY_GET_ROUTE_OK;

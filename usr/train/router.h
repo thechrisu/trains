@@ -5,6 +5,7 @@
 #include "messages.h"
 #include "myio.h"
 #include "../lib/search_node_queue.h"
+#include "track_data.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
