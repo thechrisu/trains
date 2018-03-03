@@ -69,4 +69,16 @@ typedef struct {
   uint32_t stopping_time_mus[81][15]; // 1 here is 1 microsecond
 } track_state;
 
+typedef struct {
+  unsigned int sensor;
+  uint32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
+} location;
+
+typedef struct {
+  int train;
+  track_node *node;
+  int ticks_start;
+  int ticks_end;
+} reservation;
+
 #endif /* TRACK_NODE_H */

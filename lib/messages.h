@@ -52,6 +52,12 @@ enum message_type {
   MESSAGE_GETSTOPPINGTIMEMODEL,
   REPLY_GETSTOPPINGTIMEMODEL,
   MESSAGE_UPDATESTOPPINGTIMEMODEL,
+  MESSAGE_GET_ROUTE,
+  REPLY_GET_ROUTE_OK,
+  REPLY_GET_ROUTE_EXISTING_ROUTE,
+  MESSAGE_CANCEL_ROUTE,
+  REPLY_CANCEL_ROUTE_OK,
+  REPLY_CANCEL_ROUTE_NO_ROUTE,
 };
 
 typedef struct {
@@ -101,6 +107,12 @@ typedef struct {
 } message_ucsm_params;
 
 typedef struct {
+  int train;
+  location start;
+  location end;
+} message_get_route_params;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -127,6 +139,8 @@ typedef struct {
     message_ucsm_params ucsm;
     default_value usdm;
     default_value ustm;
+    message_get_route_params get_route_params;
+    reservation *route;
   } msg;
 } message;
 
