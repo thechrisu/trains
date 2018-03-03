@@ -35,15 +35,15 @@ typedef struct {
 /**
  * Initializes a search node queue.
  *
- * @param search_node_queue A search node queue.
+ * @param q A search node queue.
  */
 void search_node_queue_init(search_node_queue *q);
 
 /**
  * Adds a search node record to the given search node queue.
  *
- * @param   search_node_queue A search node queue.
- * @param   search_node       A search node to add to the queue.
+ * @param   q A search node queue.
+ * @param   e A search node to add to the queue.
  * @returns -1 if the queue is full and 0 otherwise.
  */
 int search_node_queue_enqueue(search_node_queue *q, search_node *e);
@@ -51,8 +51,8 @@ int search_node_queue_enqueue(search_node_queue *q, search_node *e);
 /**
  * Removes a search node record from the given search node queue.
  *
- * @param   search_node_queue A search node queue.
- * @param   search_node       The removed element is copied into this argument.
+ * @param   q A search node queue.
+ * @param   e The removed element is copied into this argument.
  * @returns -1 if the queue is empty and 0 otherwise
  */
 int search_node_queue_dequeue(search_node_queue *q, search_node *e);
@@ -60,7 +60,7 @@ int search_node_queue_dequeue(search_node_queue *q, search_node *e);
 /**
  * Returns a pointer to the first search node record on the queue.
  *
- * @param   search_node_queue A search node queue.
+ * @param   q A search node queue.
  * @returns NULL_SEARCH_NODE if the queue is empty and the first record otherwise.
  */
 search_node *search_node_queue_peek(search_node_queue *q);
