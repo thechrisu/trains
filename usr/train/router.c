@@ -1,11 +1,10 @@
 #include "router.h"
 
-void plan_route(location *start, location *end, uint32_t velocity, int current_time, reservation reservations[MAX_RESERVATIONS], reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
+void plan_route(location *start, location *end, uint32_t velocity, int current_time, reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
   (void)start;
   (void)end;
   (void)velocity;
   (void)current_time;
-  (void)reservations;
   (void)reservation_lists;
   (void)route;
 
@@ -19,14 +18,16 @@ void router() {
   int clock_server_tid = WhoIs("ClockServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
 
-  reservation reservations[MAX_RESERVATIONS];
-  for (int i = 0; i < MAX_RESERVATIONS; i += 1) {
-    reservations[i].train = 0;
-  }
-
   bool has_made_reservation[80];
   for (int i = 0; i < 80; i += 1) {
     has_made_reservation[i] = false;
+  }
+
+  reservation reservations[80][MAX_ROUTE_LENGTH];
+  for (int i = 0; i < 80; i += 1) {
+    for (int j = 0; j < MAX_ROUTE_LENGTH; j += 1) {
+      reservations[i][j].train = 0;
+    }
   }
 
   reservation *reservation_lists[TRACK_MAX];
@@ -63,7 +64,7 @@ void router() {
 
           uint32_t velocity = reply.msg.train_speeds[speed];
           int current_time = Time(clock_server_tid);
-          plan_route(start, end, velocity, current_time, reservations, reservation_lists, route);
+          plan_route(start, end, velocity, current_time, reservation_lists, reservations[train]);
 
           has_made_reservation[train] = true;
           reply.type = REPLY_GET_ROUTE_OK;

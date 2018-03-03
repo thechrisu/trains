@@ -9,7 +9,6 @@
 #include "tstdlib.h"
 
 #define MAX_ROUTE_LENGTH SEARCH_NODE_QUEUE_SIZE
-#define MAX_RESERVATIONS 500
 
 /**
  * Task that plans routes between different points on the track.
