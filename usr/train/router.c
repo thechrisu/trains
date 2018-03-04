@@ -5,10 +5,12 @@
 void update_search_node(search_node_queue *q, search_node *current, int direction, uint32_t velocity) {
   track_edge *edge_in_direction = &current->node->edge[direction];
   search_node *node_in_direction = search_node_queue_find_by_node(q, edge_in_direction->dest);
-  int updated_ticks = current->ticks + edge_in_direction->dist * 10000 / velocity;
-  if (node_in_direction->ticks > updated_ticks) {
-    node_in_direction->ticks = updated_ticks;
-    node_in_direction->prev = current;
+  if (node_in_direction != NULL_SEARCH_NODE) {
+    int updated_ticks = current->ticks + edge_in_direction->dist * 10000 / velocity;
+    if (updated_ticks < node_in_direction->ticks) {
+      node_in_direction->ticks = updated_ticks;
+      node_in_direction->prev = current;
+    }
   }
 }
 
@@ -54,6 +56,8 @@ void plan_route(track_state *t, int train, location *start, location *end, uint3
         logprintf("Unknown node type %d in plan_route\n\r", t_node->type);
         break;
     }
+
+    i += 1;
   }
 
   search_node *end_node_after_search;
@@ -68,11 +72,12 @@ void plan_route(track_state *t, int train, location *start, location *end, uint3
   search_node *current = end_node_after_search;
   while (current != &dequeued_nodes[0]) {
     path_length += 1;
+    current = current->prev;
   }
 
-  route[path_length].train = 0;
+  route[path_length + 1].train = 0;
   current = end_node_after_search;
-  for (int i = path_length - 1; i >= 0; i -= 1) {
+  for (int i = path_length; i >= 0; i -= 1) {
     route[i].train = train;
     route[i].node = current->node;
 
@@ -117,11 +122,9 @@ void router() {
         if (has_made_reservation[train]) {
           reply.type = REPLY_GET_ROUTE_EXISTING_ROUTE;
         } else {
+          int speed = received.msg.get_route_params.speed;
           location *start = &received.msg.get_route_params.start;
           location *end = &received.msg.get_route_params.end;
-          reservation route[MAX_ROUTE_LENGTH];
-
-          int speed = received.msg.get_route_params.speed;
 
           send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
           send.msg.train = train;
@@ -133,10 +136,10 @@ void router() {
 
           has_made_reservation[train] = true;
           reply.type = REPLY_GET_ROUTE_OK;
-          reply.msg.route = route;
+          reply.msg.route = reservations[train];
         }
 
-        Assert(Reply(sender_tid, &reply, sizeof(reply)) == sizeof(reply));
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
       }
       case MESSAGE_CANCEL_ROUTE: {
@@ -177,7 +180,7 @@ int get_route(int train, int speed, location *start, location *end, reservation 
 
   switch (reply.type) {
     case REPLY_GET_ROUTE_OK:
-      memcpy(route, reply.msg.route, MAX_ROUTE_LENGTH * sizeof(reservation));
+      tmemcpy(route, reply.msg.route, MAX_ROUTE_LENGTH * sizeof(reservation));
       return 0;
     case REPLY_GET_ROUTE_EXISTING_ROUTE:
       return -1;
