@@ -15,7 +15,6 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
 }
 
 void plan_route(track_state *t, int train, location *start, location *end, uint32_t velocity, int current_time, reservation route[MAX_ROUTE_LENGTH]) {
-  // TODO worry about offsets in locations
   track_node *start_node = find_sensor(t, start->sensor);
   track_node *end_node = find_sensor(t, end->sensor);
 
@@ -147,7 +146,6 @@ void router() {
         Assert(train > 0 && train <= 80);
 
         if (has_made_reservation[train]) {
-          // TODO remove reservations
           has_made_reservation[train] = false;
           reply.type = REPLY_CANCEL_ROUTE_OK;
         } else {
