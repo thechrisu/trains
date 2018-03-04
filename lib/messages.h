@@ -108,6 +108,7 @@ typedef struct {
 
 typedef struct {
   int train;
+  int speed;
   location start;
   location end;
 } message_get_route_params;

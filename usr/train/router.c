@@ -111,7 +111,7 @@ void router() {
     Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
     switch (received.type) {
       case MESSAGE_GET_ROUTE: {
-        int train = received.msg.train;
+        int train = received.msg.get_route_params.train;
         Assert(train > 0 && train <= 80);
 
         if (has_made_reservation[train]) {
@@ -121,11 +121,7 @@ void router() {
           location *end = &received.msg.get_route_params.end;
           reservation route[MAX_ROUTE_LENGTH];
 
-          send.type = MESSAGE_GETTRAIN;
-          send.msg.tr_data.train = train;
-          Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-
-          int speed = reply.msg.tr_data.should_speed;
+          int speed = received.msg.get_route_params.speed;
 
           send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
           send.msg.train = train;
@@ -168,10 +164,11 @@ void router() {
   Assert(0);
 }
 
-int get_route(int train, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]) {
+int get_route(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]) {
   message send, reply;
   send.type = MESSAGE_GET_ROUTE;
   send.msg.get_route_params.train = train;
+  send.msg.get_route_params.speed = speed;
   send.msg.get_route_params.start.sensor = start->sensor;
   send.msg.get_route_params.start.offset = start->offset;
   send.msg.get_route_params.end.sensor = end->sensor;

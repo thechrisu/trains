@@ -26,7 +26,7 @@ void router();
  * @returns 0 on success.
  * @returns -1 if there is already a reserved route for the train.
  */
-int get_route(int train, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
+int get_route(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
 
 /**
  * Cancels the route reserved by the given train.
