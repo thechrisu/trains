@@ -57,6 +57,29 @@ unsigned int sensor_offset(char bank, unsigned int index);
 track_node *find_sensor(track_state *t, unsigned int offset);
 
 /**
+ * Returns the track node element of a sensor, given a track.
+ *
+ * @param t       Track state object.
+ * @param offset  Offset of the sensor in the track.
+ * @return The trackstate pointer to the sensor.
+ */
+track_node *find_sensor(track_state *t, unsigned int offset);
+
+/**
+ * Returns the distance between two sequential sensors -- aborts after exceeding limit.
+ * The implementation of distance_between_sensors.
+ *
+ * @param   start             The track node of the sensor to start at.
+ * @param   end               The track node of the sensor to finish at.
+ * @param   total_distance    Accumulated parameter of the total distance so far.
+ * @param   limit             The maximum depth to use to find a sensor.
+ * @returns The distance between the two sensors.
+ */
+uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
+                                         uint32_t total_distance,
+                                         int limit);
+
+/**
  * Returns the distance between two sequential sensors.
  *
  * @param   t     The track to base the distance calculation off of.

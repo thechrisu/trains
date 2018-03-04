@@ -1380,7 +1380,9 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
   return 0;
 }
 
-uint32_t distance_between_sensors_helper(track_node *start, track_node *end, uint32_t total_distance, int limit) {
+uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
+                                         uint32_t total_distance,
+                                         int limit) {
   if (start == end) {
     return total_distance;
   } else if (limit == 0) {

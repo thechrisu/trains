@@ -9,19 +9,28 @@ void conductor_setspeed(int train_tx_server, int track_state_controller, int clo
                   d->train, d->should_speed);
 }
 
-void conductor_reverse(int train_tx_server, int track_state_controller, int clock_server,
-                       train_data *d) {
+void conductor_reverse_to_speed(int train_tx_server,
+                                int track_state_controller, int clock_server,
+                                train_data *d, int speed) {
   d->last_speed = d->should_speed;
   d->direction = !d->direction;
-  stop_and_reverse_train(clock_server, train_tx_server,
-                         track_state_controller, d->train);
+  stop_and_reverse_train_to_speed(clock_server, train_tx_server,
+                                  track_state_controller, d->train, speed);
+  d->should_speed = speed;
   d->time_speed_last_changed = Time(clock_server);
 }
 
 // Only performs one iteration of calibration
 void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller,
                                  int clock_server, train_data *d, int speed) {
-  // TODO precompute distance from D9 to B10
+  message velocity_model, stopping_distance_model, stopping_time_model;
+  get_constant_velocity_model(track_state_controller, d->train,
+                              &velocity_model);
+  get_stopping_distance_model(track_state_controller, d->train,
+                              &stopping_distance_model);
+  get_stopping_time_model(track_state_controller, d->train,
+                          &stopping_time_model);
+
   set_train_speed_and_headlights(train_tx_server, track_state_controller,
                                  d->train, 0, true);
   unsigned int start_sensor, goal_sensor;
@@ -38,28 +47,60 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     start_sensor = sensor_offset('C', 8);
     goal_sensor = sensor_offset('B', 10);
   }
-  int d = 100 * distance_between_sensors_helper(find_sensor(start_sensor),
-                                                find_sensor(goal_sensor),
-                                                0, 15);
-  // sensor_offset('D' 9), sensor_offset('B', 10)
-  // go back twice stopping distance (once: until start sensor)
-  // then decelarate
-  // then reverse + accelerate to speed
-  // poll until we hit the start sensor D9
-  // compute (distance_to_b10 - estimated_stopping_distance)
-  // compute stopping time, as well
-  // then wait a while
-  // poll B10?
-  // if B10 hit, compute diff (time), new stopping distance = old * 0.9 + diff * c
-  // if no B10 hit, crawl forward at speed 1 until we hit it, record time.
-  // update stopping distance/time estimate
+  int dist = 99 * distance_between_sensors_helper(find_sensor(&track, start_sensor),
+                                                  find_sensor(&track, goal_sensor),
+                                                  0, 15);
+  // First, go back until we hit the start sensor
+  conductor_reverse_to_speed(train_tx_server, track_state_controller,
+                             clock_server, d, 10);
+  // TODO(culshoefer) pick reverse sensor
+  poll_until_sensor_triggered(clock_server, track_state_controller,
+                              start_sensor);
+  conductor_reverse_to_speed(train_tx_server, track_state_controller,
+                             clock_server, d, speed);
+  poll_until_sensor_triggered(clock_server, track_state_controller,
+                              start_sensor);
+  int before_stopping = Time(clock_server);
+  while (dist - stopping_distance_model.msg.train_distances[speed] > 0) {
+    Delay(clock_server, 1);
+    dist -= velocity_model.msg.train_speeds[speed] *
+            (Time(clock_server) - before_stopping) / 100; // divide by 100 to get seconds
+  }
+  int stop_start = Time(clock_server);
+  conductor_setspeed(train_tx_server, track_state_controller, clock_server,
+                     d, 0);
+  int did_hit_sensor = !poll_until_sensor_triggered_with_timeout(
+                                              clock_server,
+                                              track_state_controller,
+                                              goal_sensor,
+                                              speed * 50);
+  int ticks_after_poll = Time(clock_server);
+  if (did_hit_sensor) {
+    int ticks_to_stop = ticks_after_poll - stop_start;
+    stopping_distance_model.msg.train_distances[speed]
+      -= stopping_time_model.msg.train_times[speed] - ticks_to_stop;
+    update_stopping_distance_model(track_state_controller, d->train, speed,
+                                   stopping_distance_model.msg.train_distances[speed]);
+    update_stopping_time_model(track_state_controller, d->train, speed,
+                               ticks_to_stop * 10000);
+  } else {
+    conductor_setspeed(train_tx_server, track_state_controller, clock_server,
+                       d, 1);
+    poll_until_sensor_triggered(clock_server, track_state_controller, goal_sensor);
+    conductor_setspeed(train_tx_server, track_state_controller, clock_server,
+                       d, 0);
+    int distance_off = velocity_model.msg.train_speeds[speed]
+                         * (Time(clock_server) - ticks_after_poll) / 100;
+    update_stopping_distance_model(track_state_controller, d->train, speed,
+                                   stopping_distance_model.msg.train_distances[speed] + distance_off);
+  }
 }
 
 void conductor_calib_sd(int train_tx_server, int track_state_controller,
                         int clock_server, train_data *d, int speed) {
   switch_turnout(clock_server, train_tx_server, track_state_controller, 3, false);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 5, true);
-  switch_turnout(clock_server, train_tx_server, track_state_controller, 7, true);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 7, speed >= 10);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 8, false);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 9, false);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 11, false);
@@ -112,7 +153,8 @@ void train_conductor() {
             break;
           case USER_CMD_RV:
             Assert(received.msg.cmd.data[0] == d.train);
-            conductor_reverse(train_tx_server, track_state_controller, clock_server, &d);
+            conductor_reverse_to_speed(train_tx_server, track_state_controller,
+                                       clock_server, &d, d.should_speed);
             break;
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);

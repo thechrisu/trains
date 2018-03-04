@@ -8,6 +8,8 @@
 #include "codes.h"
 #include "commands.h"
 #include "track_node.h"
+#include "train_util.h"
+#include "track_state_controller.h"
 
 /**
  * The train conductor works by receiving messges from the command dispatcher,
