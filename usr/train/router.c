@@ -59,7 +59,7 @@ bool plan_route(track_state *t, int train, location *start, location *end, uint3
     i += 1;
   }
 
-  search_node *end_node_after_search;
+  search_node *end_node_after_search = NULL_SEARCH_NODE;
   for (int i = 0; i < TRACK_MAX; i += 1) {
     search_node *n = &dequeued_nodes[i];
     if (n->node == end_node) {
@@ -67,7 +67,9 @@ bool plan_route(track_state *t, int train, location *start, location *end, uint3
     }
   }
 
-  if (end_node_after_search->prev == NULL_SEARCH_NODE && end_node_after_search != &dequeued_nodes[0]) {
+  if (end_node_after_search == NULL_SEARCH_NODE ||
+      (end_node_after_search->prev == NULL_SEARCH_NODE &&
+       end_node_after_search != &dequeued_nodes[0])) {
     return false;
   }
 
