@@ -74,9 +74,8 @@ search_node *search_node_queue_peek(search_node_queue *q);
  */
 void search_node_queue_heapify(search_node_queue *q);
 
-
 /**
- * Finds the search node in a queue that points to
+ * Finds the search node in a queue that points to the given track node.
  *
  * @param   q  A search node queue.
  * @param   tn The track node to search by.
