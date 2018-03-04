@@ -103,6 +103,28 @@ TEST(TrackDataTest, test_sensor_reachable) {
   EXPECT_FALSE(sensor_reachable(&t, sensor_offset('A', 1), sensor_offset('C', 3)));
 }
 
+TEST(TrackDataTest, test_location_reverse) {
+  track_state t;
+  init_track(&t);
+
+  location loc, result;
+
+  loc = { .sensor = sensor_offset('A', 1), .offset = 0};
+  location_reverse(&t, &result, &loc);
+  EXPECT_EQ(sensor_offset('A', 2), result.sensor);
+  EXPECT_EQ(0, result.offset);
+
+  loc = { .sensor = sensor_offset('B', 12), .offset = 5};
+  location_reverse(&t, &result, &loc);
+  EXPECT_EQ(sensor_offset('B', 11), result.sensor);
+  EXPECT_EQ(-5, result.offset);
+
+  loc = { .sensor = sensor_offset('E', 16), .offset = -53};
+  location_reverse(&t, &result, &loc);
+  EXPECT_EQ(sensor_offset('E', 15), result.sensor);
+  EXPECT_EQ(53, result.offset);
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
