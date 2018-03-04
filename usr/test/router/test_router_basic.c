@@ -31,19 +31,17 @@ void test_router_basic() {
 
   Assert(length == 5);
 
-  Assert(tstrcmp(route[0].node->name, "C8"));
-  Assert(tstrcmp(route[1].node->name, "BR3"));
-  Assert(tstrcmp(route[2].node->name, "BR2"));
-  Assert(tstrcmp(route[3].node->name, "A7"));
-  Assert(tstrcmp(route[4].node->name, "B12"));
+  char *expected_sensors[] = { "C8", "BR3", "BR2", "A7", "B12" };
+  for (int i = 0; i < length; i += 1) {
+    Assert(tstrcmp((char *)route[i].node->name, expected_sensors[i]));
+  }
 
   int reservation_length = route[0].ticks_end - route[0].ticks_start;
-  Assert(route[1].ticks_end - route[1].ticks_start == reservation_length);
-  Assert(route[2].ticks_end - route[2].ticks_start == reservation_length);
-  Assert(route[3].ticks_end - route[3].ticks_start == reservation_length);
-  Assert(route[4].ticks_end - route[4].ticks_start == reservation_length);
+  for (int i = 1; i < length; i += 1) {
+    Assert(route[i].ticks_end - route[i].ticks_start == reservation_length);
+  }
 
-  Assert(route[4].ticks_end < 500);
+  Assert(route[length - 1].ticks_end < 500);
 
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
 
