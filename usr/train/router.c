@@ -75,8 +75,13 @@ void plan_route(track_state *t, int train, location *start, location *end, uint3
   for (int i = path_length - 1; i >= 0; i -= 1) {
     route[i].train = train;
     route[i].node = current->node;
-    route[i].ticks_start = 0; // TODO
-    route[i].ticks_end = 0; // TODO
+
+    // Time in ticks to travel 30 cm at current velocity
+    // 30 * 10 * 100 mm/100 / velocity mm/100/s * 100 ticks/s
+    uint32_t train_length_travel_time = 30 * 10 * 100 * 100 / velocity;
+    route[i].ticks_start = current->ticks - train_length_travel_time;
+    route[i].ticks_end = current->ticks + train_length_travel_time;
+
     current = current->prev;
   }
 }
