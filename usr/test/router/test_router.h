@@ -21,5 +21,6 @@ void router_test_teardown();
 void test_router_basic();
 void test_router_sensor_pair();
 void test_router_errors();
+void test_router_same_sensor();
 
 #endif /* TEST_ROUTER_H */
