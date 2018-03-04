@@ -16,5 +16,6 @@
 #include "track_node.h"
 
 void test_router_basic();
+void test_router_sensor_pair();
 
 #endif /* TEST_ROUTER_H */

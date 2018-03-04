@@ -14,7 +14,7 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
   }
 }
 
-void plan_route(track_state *t, int train, location *start, location *end, uint32_t velocity, int current_time, reservation route[MAX_ROUTE_LENGTH]) {
+bool plan_route(track_state *t, int train, location *start, location *end, uint32_t velocity, int current_time, reservation route[MAX_ROUTE_LENGTH]) {
   track_node *start_node = find_sensor(t, start->sensor);
   track_node *end_node = find_sensor(t, end->sensor);
 
@@ -67,6 +67,10 @@ void plan_route(track_state *t, int train, location *start, location *end, uint3
     }
   }
 
+  if (end_node_after_search->prev == NULL_SEARCH_NODE) {
+    return false;
+  }
+
   int path_length = 0;
   search_node *current = end_node_after_search;
   while (current != &dequeued_nodes[0]) {
@@ -88,6 +92,16 @@ void plan_route(track_state *t, int train, location *start, location *end, uint3
 
     current = current->prev;
   }
+
+  return true;
+}
+
+int route_length(reservation route[MAX_ROUTE_LENGTH]) {
+  int result = 0;
+  while (result < MAX_ROUTE_LENGTH && route[result].train != 0) {
+    result += 1;
+  }
+  return result;
 }
 
 void router() {
@@ -131,11 +145,31 @@ void router() {
 
           uint32_t velocity = reply.msg.train_speeds[speed];
           int current_time = Time(clock_server_tid);
-          plan_route(&track, train, start, end, velocity, current_time, reservations[train]);
 
-          has_made_reservation[train] = true;
-          reply.type = REPLY_GET_ROUTE_OK;
-          reply.msg.route = reservations[train];
+          reservation forwards[MAX_ROUTE_LENGTH];
+          bool forwards_success = plan_route(&track, train, start, end, velocity, current_time, forwards);
+
+          location end_backwards;
+          location_reverse(&track, &end_backwards, end);
+
+          reservation backwards[MAX_ROUTE_LENGTH];
+          bool backwards_success = plan_route(&track, train, start, &end_backwards, velocity, current_time, backwards);
+
+          if (!forwards_success && !backwards_success) {
+            reply.type = REPLY_GET_ROUTE_ERROR;
+          } else {
+            if (forwards_success && backwards_success) {
+              tmemcpy(reservations[train],
+                      route_length(forwards) < route_length(backwards) ? forwards : backwards,
+                      MAX_ROUTE_LENGTH * sizeof(reservation));
+            } else {
+              tmemcpy(reservations[train], forwards_success ? forwards : backwards, MAX_ROUTE_LENGTH * sizeof(reservation));
+            }
+
+            has_made_reservation[train] = true;
+            reply.type = REPLY_GET_ROUTE_OK;
+            reply.msg.route = reservations[train];
+          }
         }
 
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
@@ -182,6 +216,8 @@ int get_route(int train, int speed, location *start, location *end, reservation 
       return 0;
     case REPLY_GET_ROUTE_EXISTING_ROUTE:
       return -1;
+    case REPLY_GET_ROUTE_ERROR:
+      return -2;
     default:
       logprintf("Router responded to get request with message of type %d\n\r", reply.type);
       Assert(0);

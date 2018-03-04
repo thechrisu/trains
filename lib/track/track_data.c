@@ -1485,3 +1485,12 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end) {
   return sensor_reachable_helper(AHEAD(start_n), end_n, 2 * FIND_LIMIT, false, false) ||
          sensor_reachable_helper(AHEAD(start_n->reverse), end_n, 2 * FIND_LIMIT, true, false);
 }
+
+unsigned int sensor_pair(track_state *t, unsigned int offset) {
+  return find_sensor(t, offset)->reverse->num;
+}
+
+void location_reverse(track_state *t, location *destination, location *source) {
+  destination->sensor = sensor_pair(t, source->sensor);
+  destination->offset = -source->offset;
+}
