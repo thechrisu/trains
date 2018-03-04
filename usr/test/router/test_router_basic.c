@@ -1,19 +1,7 @@
 #include "test_router.h"
 
 void test_router_basic() {
-  int my_priority = MyPriority();
-
-  ns_tid = Create(my_priority + 1, &nameserver_main);
-  Assert(ns_tid > 0);
-
-  int clock_server_tid = Create(my_priority + 2, &clock_server);
-  Assert(clock_server_tid > 0);
-
-  int track_state_controller_tid = Create(my_priority + 1, &track_state_controller);
-  Assert(track_state_controller_tid > 0);
-
-  int router_tid = Create(my_priority + 1, &router);
-  Assert(router_tid > 0);
+  router_test_setup();
 
   location start = { .sensor = sensor_offset('C', 8), .offset = 0 };
   location end = { .sensor = sensor_offset('B', 12), .offset = 0 };
@@ -43,7 +31,7 @@ void test_router_basic() {
 
   Assert(route[length - 1].ticks_end < 500);
 
-  Assert(Kill(WhoIs("ClockNotifier")) == 0);
+  router_test_teardown();
 
   bwprintf("Success.\n\r");
 }
