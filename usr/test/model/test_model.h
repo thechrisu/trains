@@ -11,7 +11,7 @@
 #include "track_data.h"
 #include "./nameserver/ns_tid.h"
 #include "../train/commands.h"
-#include "../train/track_state_controller.h"
+#include "../train/global_track_state.h"
 
 void test_constant_velocity_model();
 void test_stopping_distance_model();

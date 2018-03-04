@@ -11,7 +11,7 @@
 #include "parameters.h"
 #include "terminal.h"
 #include "track_data.h"
-#include "track_state_controller.h"
+#include "global_track_state.h"
 #include "train_util.h"
 #include "tstdlib.h"
 

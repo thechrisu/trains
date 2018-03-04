@@ -6,7 +6,7 @@
 #define SEARCH_NODE_QUEUE_H
 
 #include "track_node.h"
-#include "track_state_controller.h"
+#include "global_track_state.h"
 #include "tstdlib.h"
 
 /**
