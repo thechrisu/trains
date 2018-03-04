@@ -124,6 +124,28 @@ TEST(ClockWaitQueueTest, peek_returns_null_clock_wait_if_queue_is_empty) {
   ASSERT_EQ(NULL_CLOCK_WAIT, clock_wait_queue_peek(&q));
 }
 
+TEST(ClockWaitQueueTest, heapify_restores_heap_invariant_after_changes_to_elements) {
+  clock_wait_queue q;
+  clock_wait_queue_init(&q);
+
+  populate_queue(&q);
+
+  q.elts[0].ticks = 10000;
+  q.elts[3].ticks = 40;
+  q.elts[5].ticks = 23456;
+  clock_wait_queue_heapify(&q);
+
+  clock_wait cw;
+  clock_wait_queue_dequeue(&q, &cw);
+  int last_ticks = cw.ticks;
+
+  for (int i = 1; i < CLOCK_WAIT_QUEUE_SIZE; i += 1) {
+    clock_wait_queue_dequeue(&q, &cw);
+    EXPECT_LT(last_ticks, cw.ticks);
+    last_ticks = cw.ticks;
+  }
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
   ::testing::InitGoogleTest(&argc, argv);
