@@ -15,6 +15,9 @@
 #include "track_data.h"
 #include "track_node.h"
 
+void router_test_setup();
+void router_test_teardown();
+
 void test_router_basic();
 void test_router_sensor_pair();
 void test_router_errors();
