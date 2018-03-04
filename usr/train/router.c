@@ -12,7 +12,7 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
   }
 }
 
-void plan_route(track_state *t, int train, location *start, location *end, uint32_t velocity, int current_time, reservation *reservation_lists[TRACK_MAX], reservation route[MAX_ROUTE_LENGTH]) {
+void plan_route(track_state *t, int train, location *start, location *end, uint32_t velocity, int current_time, reservation route[MAX_ROUTE_LENGTH]) {
   // TODO worry about offsets in locations
   track_node *start_node = find_sensor(t, start->sensor);
   track_node *end_node = find_sensor(t, end->sensor);
@@ -77,11 +77,8 @@ void plan_route(track_state *t, int train, location *start, location *end, uint3
     route[i].node = current->node;
     route[i].ticks_start = 0; // TODO
     route[i].ticks_end = 0; // TODO
-    // TODO insert reservation into list for node
     current = current->prev;
   }
-
-  (void)reservation_lists;
 }
 
 void router() {
@@ -100,11 +97,6 @@ void router() {
     for (int j = 0; j < MAX_ROUTE_LENGTH; j += 1) {
       reservations[i][j].train = 0;
     }
-  }
-
-  reservation *reservation_lists[TRACK_MAX];
-  for (int i = 0; i < TRACK_MAX; i += 1) {
-    reservation_lists[i] = NULL_RESERVATION;
   }
 
   int sender_tid;
@@ -136,7 +128,7 @@ void router() {
 
           uint32_t velocity = reply.msg.train_speeds[speed];
           int current_time = Time(clock_server_tid);
-          plan_route(&track, train, start, end, velocity, current_time, reservation_lists, reservations[train]);
+          plan_route(&track, train, start, end, velocity, current_time, reservations[train]);
 
           has_made_reservation[train] = true;
           reply.type = REPLY_GET_ROUTE_OK;
