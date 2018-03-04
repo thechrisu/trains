@@ -301,6 +301,11 @@ void test_runner() {
       .code = &test_router_sensor_pair,
       .prio = 5
     },
+    {
+      .name = "router_errors",
+      .code = &test_router_errors,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 

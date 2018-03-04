@@ -17,5 +17,6 @@
 
 void test_router_basic();
 void test_router_sensor_pair();
+void test_router_errors();
 
 #endif /* TEST_ROUTER_H */

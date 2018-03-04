@@ -186,7 +186,7 @@ void router() {
           reply.type = REPLY_CANCEL_ROUTE_NO_ROUTE;
         }
 
-        Assert(Reply(sender_tid, &reply, sizeof(reply)) == sizeof(reply));
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
       }
       default:
