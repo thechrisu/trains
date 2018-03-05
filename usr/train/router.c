@@ -165,7 +165,9 @@ void router() {
                       route_length(forwards) < route_length(backwards) ? forwards : backwards,
                       MAX_ROUTE_LENGTH * sizeof(reservation));
             } else {
-              tmemcpy(reservations[train], forwards_success ? forwards : backwards, MAX_ROUTE_LENGTH * sizeof(reservation));
+              tmemcpy(reservations[train],
+                      forwards_success ? forwards : backwards,
+                      MAX_ROUTE_LENGTH * sizeof(reservation));
             }
 
             has_made_reservation[train] = true;
