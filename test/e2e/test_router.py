@@ -21,5 +21,5 @@ class TestRouter(unittest.TestCase):
         self.assertEqual(ret, 'Success.\n\r')
 
     def test_router_complete(self):
-        ret = qemu_oneshot_test('router_complete', '', 20, timer_interrupts_on = True)
+        ret = qemu_oneshot_test('router_complete', '', 30, timer_interrupts_on = True)
         self.assertEqual(ret, 'Success.\n\r')
