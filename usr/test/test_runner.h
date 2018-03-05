@@ -27,6 +27,7 @@
 #include "./model/test_model.h"
 #include "clock/test_clock.h"
 #include "destroy/test_destroy.h"
+#include "router/test_router.h"
 #include "myio.h"
 #include "tstdlib.h"
 

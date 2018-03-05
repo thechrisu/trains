@@ -1446,7 +1446,7 @@ bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second)
   return find_sensor(t, first)->reverse == find_sensor(t, second);
 }
 
-bool sensor_reachable_helper(track_node *start, track_node *end, int limit, bool reversed, bool seen_dead_sensor) {
+bool sensor_may_be_seen_next_helper(track_node *start, track_node *end, int limit, bool reversed, bool seen_dead_sensor) {
   if (start == end) {
     return true;
   } else if (limit == 0) {
@@ -1456,24 +1456,51 @@ bool sensor_reachable_helper(track_node *start, track_node *end, int limit, bool
   switch (start->type) {
     case NODE_SENSOR:
       return !seen_dead_sensor && (
-        sensor_reachable_helper(AHEAD(start), end, limit - 1, reversed, true) ||
-        (!reversed && sensor_reachable_helper(AHEAD(start->reverse), end, limit - 1, true, true))
+        sensor_may_be_seen_next_helper(AHEAD(start), end, limit - 1, reversed, true) ||
+        (!reversed && sensor_may_be_seen_next_helper(AHEAD(start->reverse), end, limit - 1, true, true))
       );
     case NODE_MERGE:
       return (
-        sensor_reachable_helper(AHEAD(start), end, limit - 1, reversed, seen_dead_sensor) ||
-        (!reversed && sensor_reachable_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
+        sensor_may_be_seen_next_helper(AHEAD(start), end, limit - 1, reversed, seen_dead_sensor) ||
+        (!reversed && sensor_may_be_seen_next_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
       );
     case NODE_BRANCH:
       return (
-        sensor_reachable_helper(STRAIGHT(start), end, limit - 1, reversed, seen_dead_sensor) ||
-        sensor_reachable_helper(CURVED(start), end, limit - 1, reversed, seen_dead_sensor) ||
-        (!reversed && sensor_reachable_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
+        sensor_may_be_seen_next_helper(STRAIGHT(start), end, limit - 1, reversed, seen_dead_sensor) ||
+        sensor_may_be_seen_next_helper(CURVED(start), end, limit - 1, reversed, seen_dead_sensor) ||
+        (!reversed && sensor_may_be_seen_next_helper(start->reverse, end, limit - 1, true, seen_dead_sensor))
       );
     case NODE_ENTER:
-      return sensor_reachable_helper(AHEAD(start), end, limit - 1, reversed, seen_dead_sensor);
+      return sensor_may_be_seen_next_helper(AHEAD(start), end, limit - 1, reversed, seen_dead_sensor);
     case NODE_EXIT:
-      return !reversed && sensor_reachable_helper(start->reverse, end, limit - 1, true, seen_dead_sensor);
+      return !reversed && sensor_may_be_seen_next_helper(start->reverse, end, limit - 1, true, seen_dead_sensor);
+    default:
+      return false;
+  }
+}
+
+bool sensor_may_be_seen_next(track_state *t, unsigned int start, unsigned int end) {
+  track_node *start_n = find_sensor(t, start);
+  track_node *end_n = find_sensor(t, end);
+  return sensor_may_be_seen_next_helper(AHEAD(start_n), end_n, 2 * FIND_LIMIT, false, false) ||
+         sensor_may_be_seen_next_helper(AHEAD(start_n->reverse), end_n, 2 * FIND_LIMIT, true, false);
+}
+
+bool sensor_reachable_helper(track_node *start, track_node *end, int limit) {
+  if (start == end) {
+    return true;
+  } else if (limit == 0) {
+    return false;
+  }
+
+  switch (start->type) {
+    case NODE_ENTER:
+    case NODE_SENSOR:
+    case NODE_MERGE:
+      return sensor_reachable_helper(AHEAD(start), end, limit - 1);
+    case NODE_BRANCH:
+      return sensor_reachable_helper(STRAIGHT(start), end, limit - 1) ||
+             sensor_reachable_helper(CURVED(start), end, limit - 1);
     default:
       return false;
   }
@@ -1482,6 +1509,14 @@ bool sensor_reachable_helper(track_node *start, track_node *end, int limit, bool
 bool sensor_reachable(track_state *t, unsigned int start, unsigned int end) {
   track_node *start_n = find_sensor(t, start);
   track_node *end_n = find_sensor(t, end);
-  return sensor_reachable_helper(AHEAD(start_n), end_n, 2 * FIND_LIMIT, false, false) ||
-         sensor_reachable_helper(AHEAD(start_n->reverse), end_n, 2 * FIND_LIMIT, true, false);
+  return start == end || sensor_reachable_helper(AHEAD(start_n), end_n, 50);
+}
+
+unsigned int sensor_pair(track_state *t, unsigned int offset) {
+  return find_sensor(t, offset)->reverse->num;
+}
+
+void location_reverse(track_state *t, location *destination, location *source) {
+  destination->sensor = sensor_pair(t, source->sensor);
+  destination->offset = -source->offset;
 }

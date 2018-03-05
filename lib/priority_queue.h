@@ -12,6 +12,7 @@
 
 #define INIT(T)            CONCAT(T, _init)
 #define SWAP(T)            CONCAT(T, _swap)
+#define SINK(T)            CONCAT(T, _sink)
 #define HEAPIFY(T)         CONCAT(T, _heapify)
 #define ENQUEUE(T)         CONCAT(T, _enqueue)
 #define DEQUEUE(T)         CONCAT(T, _dequeue)
@@ -36,8 +37,8 @@ void SWAP(QUEUE_TYPE)(QUEUE_TYPE *q, uint32_t i1, uint32_t i2) {
   ELEMENT_COPY(&e, AT(q, i2));
 }
 
-void HEAPIFY(QUEUE_TYPE)(QUEUE_TYPE *q) {
-  uint32_t index = 0, smallest, left, right;
+void SINK(QUEUE_TYPE)(QUEUE_TYPE *q, uint32_t start_index) {
+  uint32_t index = start_index, smallest, left, right;
 
   while (true) {
     smallest = index;
@@ -58,6 +59,12 @@ void HEAPIFY(QUEUE_TYPE)(QUEUE_TYPE *q) {
       SWAP(QUEUE_TYPE)(q, index, smallest);
       index = smallest;
     }
+  }
+}
+
+void HEAPIFY(QUEUE_TYPE)(QUEUE_TYPE *q) {
+  for (uint32_t i = q->size; i > 0; i -= 1) {
+    SINK(QUEUE_TYPE)(q, i - 1);
   }
 }
 
@@ -89,7 +96,7 @@ int DEQUEUE(QUEUE_TYPE)(QUEUE_TYPE *q, ELEMENT_TYPE *e) {
   SWAP(QUEUE_TYPE)(q, 0, q->size - 1);
   ELEMENT_COPY(AT(q, q->size - 1), e);
   q->size -= 1;
-  HEAPIFY(QUEUE_TYPE)(q);
+  SINK(QUEUE_TYPE)(q, 0);
 
   return 0;
 }

@@ -67,4 +67,12 @@ int clock_wait_queue_dequeue(clock_wait_queue *q, clock_wait *e);
  */
 clock_wait *clock_wait_queue_peek(clock_wait_queue *q);
 
+/**
+ * Restores the heap invariant in a clock wait queue.
+ *
+ * Call this method after modifying the priorities of any of the clock waits in the queue.
+ * @param q A clock wait queue.
+ */
+void clock_wait_queue_heapify(clock_wait_queue *q);
+
 #endif /* CLOCK_WAIT_QUEUE_H */

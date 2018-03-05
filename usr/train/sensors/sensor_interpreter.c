@@ -75,7 +75,7 @@ void sensor_interpreter() {
 
             if (last == NO_DATA_RECEIVED) {
               attribute_sensor(sensor, current_time);
-            } else if (sensor_reachable(&track, last, sensor)) {
+            } else if (sensor_may_be_seen_next(&track, last, sensor)) {
               if (sensor_is_followed_by(&track, last, sensor)) {
                 if (last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
                   int time_elapsed = current_time - last_time;

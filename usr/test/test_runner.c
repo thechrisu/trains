@@ -291,6 +291,31 @@ void test_runner() {
       .code = &test_sensors_are_paired,
       .prio = 5
     },
+    {
+      .name = "router_basic",
+      .code = &test_router_basic,
+      .prio = 5
+    },
+    {
+      .name = "router_sensor_pair",
+      .code = &test_router_sensor_pair,
+      .prio = 5
+    },
+    {
+      .name = "router_errors",
+      .code = &test_router_errors,
+      .prio = 5
+    },
+    {
+      .name = "router_same_sensor",
+      .code = &test_router_same_sensor,
+      .prio = 5
+    },
+    {
+      .name = "router_complete",
+      .code = &test_router_complete,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 

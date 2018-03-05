@@ -54,6 +54,8 @@ unsigned int sensor_data_mask(unsigned int offset);
  */
 unsigned int sensor_offset(char bank, unsigned int index);
 
+track_node *find_sensor(track_state *t, unsigned int offset);
+
 /**
  * Returns the distance between two sequential sensors.
  *
@@ -87,8 +89,30 @@ bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second)
  * @param   t      A track state.
  * @param   start  The start sensor.
  * @param   end    The end sensor.
+ * @returns Whether or not the end sensor may be seen after the start one.
+ */
+bool sensor_may_be_seen_next(track_state *t, unsigned int start, unsigned int end);
+
+/**
+ * Checks whether it's possible to reach `end` from `start` without reversing.
+ *
+ * @param   t      A track state.
+ * @param   start  The start sensor.
+ * @param   end    The end sensor.
  * @returns Whether or not the end sensor is reachable from the start one.
  */
 bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
+
+/**
+ * Stores the reverse of a location in the given location.
+ *
+ * The reverse of a location is based on the pair of the location's sensor, with an
+ * offset equal to the negative of the location's offset. A location and its reverse
+ * are in the same real-world position on the track.
+ * @param t           A track state.
+ * @param destination The location to copy the reverse into.
+ * @param source      The location to base the reverse off of.
+ */
+void location_reverse(track_state *t, location *destination, location *source);
 
 #endif /* TRACK_DATA_H */
