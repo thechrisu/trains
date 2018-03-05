@@ -7,6 +7,7 @@
 
 #include "clock.h"
 #include "codes.h"
+#include "global_track_state.h"
 #include "messages.h"
 #include "nameserver.h"
 #include "../nameserver/ns_tid.h"
@@ -22,5 +23,6 @@ void test_router_basic();
 void test_router_sensor_pair();
 void test_router_errors();
 void test_router_same_sensor();
+void test_router_complete();
 
 #endif /* TEST_ROUTER_H */

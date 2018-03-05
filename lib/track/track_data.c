@@ -1486,6 +1486,32 @@ bool sensor_may_be_seen_next(track_state *t, unsigned int start, unsigned int en
          sensor_may_be_seen_next_helper(AHEAD(start_n->reverse), end_n, 2 * FIND_LIMIT, true, false);
 }
 
+bool sensor_reachable_helper(track_node *start, track_node *end, int limit) {
+  if (start == end) {
+    return true;
+  } else if (limit == 0) {
+    return false;
+  }
+
+  switch (start->type) {
+    case NODE_ENTER:
+    case NODE_SENSOR:
+    case NODE_MERGE:
+      return sensor_reachable_helper(AHEAD(start), end, limit - 1);
+    case NODE_BRANCH:
+      return sensor_reachable_helper(STRAIGHT(start), end, limit - 1) ||
+             sensor_reachable_helper(CURVED(start), end, limit - 1);
+    default:
+      return false;
+  }
+}
+
+bool sensor_reachable(track_state *t, unsigned int start, unsigned int end) {
+  track_node *start_n = find_sensor(t, start);
+  track_node *end_n = find_sensor(t, end);
+  return start == end || sensor_reachable_helper(AHEAD(start_n), end_n, 50);
+}
+
 unsigned int sensor_pair(track_state *t, unsigned int offset) {
   return find_sensor(t, offset)->reverse->num;
 }
