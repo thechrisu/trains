@@ -74,15 +74,12 @@ typedef struct {
   int32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
 } location;
 
-struct res {
+typedef struct {
   int train;
   track_node *node;
   int ticks_start;
   int ticks_end;
-  struct res *next;
-  struct res *prev;
-};
-typedef struct res reservation;
+} reservation;
 
 #define NULL_RESERVATION (reservation *)0
 
