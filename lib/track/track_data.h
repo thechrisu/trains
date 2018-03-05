@@ -89,9 +89,9 @@ bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second)
  * @param   t      A track state.
  * @param   start  The start sensor.
  * @param   end    The end sensor.
- * @returns Whether or not the end sensor is reachable from the start one.
+ * @returns Whether or not the end sensor may be seen after the start one.
  */
-bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
+bool sensor_may_be_seen_next(track_state *t, unsigned int start, unsigned int end);
 
 /**
  * Stores the reverse of a location in the given location.
