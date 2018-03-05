@@ -1,5 +1,7 @@
 #include "train_conductor.h"
 
+#define CONDUCTOR_STOP_CHECK_INTERVAL 5
+
 void conductor_setspeed(int train_tx_server, int track_state_controller, int clock_server,
                         train_data *d, int speed) {
   d->last_speed = d->should_speed;
@@ -18,6 +20,42 @@ void conductor_reverse_to_speed(int train_tx_server,
                                   track_state_controller, d->train, speed);
   d->should_speed = speed;
   d->time_speed_last_changed = Time(clock_server);
+}
+
+/**
+ * Returns the distance we travelled since we last hit a sensor.
+ *
+ * @param clock_server           Tid of the clock server.
+ * @param ticks_at_last_sensor   The time in ticks at the point when we last hit a sensor.
+ * @param velocity               The train's velocity (in 1/100th mm/s).
+ *
+ * @return The distance in 1/100th mm that we have travelled.
+ */
+int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
+                          uint32_t velocity) {
+  int c_time = Time(clock_server);
+  return velocity * (c_time - ticks_at_last_sensor) / 100;
+}
+
+/**
+ * Blocks until the train has travelled dist.
+ *
+ * @param clock_server             Tid of the clock server.
+ * @param terminal_tx_server       Tid of the terminal transmit server.
+ * @param dist                     Distance to travel ('1' is 1/100thm).
+ * @param velocity                 Velocity of the train (1/100thmm/s).
+ */
+void poll_until_at_dist(int clock_server, int terminal_tx_server,
+                  int dist, int velocity) {
+  int last_stopping = Time(clock_server);
+  int start_dist = dist;
+  while (dist > 0) {
+    Delay(clock_server, CONDUCTOR_STOP_CHECK_INTERVAL);
+    int diff = dist_from_last_sensor(clock_server, last_stopping, velocity);
+    dist = start_dist - diff;
+    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC, CALIB_LINE, 1,
+      dist, diff, HIDE_CURSOR_TO_EOL) == 0);
+  }
 }
 
 // Only performs one iteration of calibration
@@ -58,7 +96,7 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
                              clock_server, d, 10);
   poll_until_sensor_triggered(clock_server, track_state_controller,
                               reverse_start_sensor);
-  Delay(clock_server, 50 * speed);
+  Delay(clock_server, 30 * speed);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE, 1,
     "Calibrating stopping distance for train ", d->train, " and speed ", speed,
     " now back to sensor...", HIDE_CURSOR_TO_EOL) == 0);
@@ -69,40 +107,35 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%d%s", ESC, CALIB_LINE, 1,
     "Calibrating stopping distance for train ", d->train, " and speed ", speed,
     " now waiting until we are close ...", velocity_model.msg.train_speeds[speed], HIDE_CURSOR_TO_EOL) == 0);
-  int last_stopping = Time(clock_server);
-  int start_dist = dist;
-  while (dist - stopping_distance_model.msg.train_distances[speed] > 0) {
-    Delay(clock_server, 5);
-    int c_time = Time(clock_server);
-    int diff = velocity_model.msg.train_speeds[speed] *
-                 (c_time - last_stopping) / 100;
-    dist = start_dist - diff;
-    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d of %d left - step %d)%s", ESC, CALIB_LINE, 1,
-      dist, stopping_distance_model.msg.train_distances[speed], diff, HIDE_CURSOR_TO_EOL) == 0);
-  }
+  poll_until_at_dist(clock_server, terminal_tx_server,
+               dist - stopping_distance_model.msg.train_distances[speed],
+               velocity_model.msg.train_speeds[speed]);
   int stop_start = Time(clock_server);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE, 1,
     "Calibrating stopping distance for train ", d->train, " and speed ", speed,
     " now stopping...", HIDE_CURSOR_TO_EOL) == 0);
   conductor_setspeed(train_tx_server, track_state_controller, clock_server,
                      d, 0);
-  int did_hit_sensor = !poll_until_sensor_triggered_with_timeout(
-                                              clock_server,
-                                              track_state_controller,
-                                              goal_sensor,
-                                              speed * 50);
+  bool did_hit_sensor = !poll_until_sensor_triggered_with_timeout(
+                                               clock_server,
+                                               track_state_controller,
+                                               goal_sensor,
+                                               speed * 50);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s%d", ESC, CALIB_LINE, 1,
     "Calibrating stopping distance for train ", d->train, " and speed ", speed,
-    " stopped - dit hit sensor: ", did_hit_sensor, HIDE_CURSOR_TO_EOL) == 0);
+    " stopped - dit hit sensor: ", did_hit_sensor ? 1 : 0, HIDE_CURSOR_TO_EOL) == 0);
   int ticks_after_poll = Time(clock_server);
   if (did_hit_sensor) {
     int ticks_to_stop = ticks_after_poll - stop_start;
+    int distance_off = -((int)stopping_time_model.msg.train_times[speed] - ticks_to_stop);
     stopping_distance_model.msg.train_distances[speed]
-      -= stopping_time_model.msg.train_times[speed] - ticks_to_stop;
+      = (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] + 500);
     update_stopping_distance_model(track_state_controller, d->train, speed,
                                    stopping_distance_model.msg.train_distances[speed]);
     update_stopping_time_model(track_state_controller, d->train, speed,
                                ticks_to_stop * 10000);
+    Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance %s",
+                  ESC, CALIB_LINE, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else {
     conductor_setspeed(train_tx_server, track_state_controller, clock_server,
                        d, 1);
@@ -110,9 +143,11 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     conductor_setspeed(train_tx_server, track_state_controller, clock_server,
                        d, 0);
     int distance_off = velocity_model.msg.train_speeds[speed]
-                         * (Time(clock_server) - ticks_after_poll) / 100;
+                         * (Time(clock_server) - ticks_after_poll) / 1000;
+    Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance by %d%s",
+                  ESC, CALIB_LINE, 1, distance_off, HIDE_CURSOR_TO_EOL) == 0);
     update_stopping_distance_model(track_state_controller, d->train, speed,
-                                   stopping_distance_model.msg.train_distances[speed] + distance_off);
+                                   (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] - distance_off));
   }
   conductor_setspeed(train_tx_server, track_state_controller, clock_server,
                      d, 0);
@@ -131,7 +166,7 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
   switch_turnout(clock_server, train_tx_server, track_state_controller, 15, false);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 18, false);
 
-  for (int i = 0; i < 1; i++) {
+  for (int i = 0; i < 3; i++) {
     conductor_calib_sd_one_iter(train_tx_server, track_state_controller,
                                 clock_server, terminal_tx_server, d, speed);
   }

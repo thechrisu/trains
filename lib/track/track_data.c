@@ -1208,22 +1208,38 @@ void init_track(track_state *global_track) {
     global_track->train[i].should_speed = 0;
   }
 
+
   default_value default_speeds[] = {
     { .train = 24, .speed = 0, .value = 0 },
-    { .train = 24, .speed = 1, .value = 927 },
-    { .train = 24, .speed = 2, .value = 7232 },
-    { .train = 24, .speed = 3, .value = 12487 },
-    { .train = 24, .speed = 4, .value = 17264 },
-    { .train = 24, .speed = 5, .value = 21792 },
-    { .train = 24, .speed = 6, .value = 26829 },
-    { .train = 24, .speed = 7, .value = 33375 },
-    { .train = 24, .speed = 8, .value = 36168 },
-    { .train = 24, .speed = 9, .value = 43879 },
-    { .train = 24, .speed = 10, .value = 47806 },
-    { .train = 24, .speed = 11, .value = 55389 },
-    { .train = 24, .speed = 12, .value = 56570 },
-    { .train = 24, .speed = 13, .value = 61212 },
-    { .train = 24, .speed = 14, .value = 60798 },
+    { .train = 24, .speed = 1, .value = 1073 },
+    { .train = 24, .speed = 2, .value = 4367 },
+    { .train = 24, .speed = 3, .value = 4903 },
+    { .train = 24, .speed = 4, .value = 7938 },
+    { .train = 24, .speed = 5, .value = 12503 },
+    { .train = 24, .speed = 6, .value = 15245 },
+    { .train = 24, .speed = 7, .value = 20752 },
+    { .train = 24, .speed = 8, .value = 24998 },
+    { .train = 24, .speed = 9, .value = 31250 },
+    { .train = 24, .speed = 10, .value = 37512 },
+    { .train = 24, .speed = 11, .value = 44852 },
+    { .train = 24, .speed = 12, .value = 50635 },
+    { .train = 24, .speed = 13, .value = 57227 },
+    { .train = 24, .speed = 14, .value = 61691 },
+    { .train = 58, .speed = 0, .value = 0 },
+    { .train = 58, .speed = 1, .value = 998 },
+    { .train = 58, .speed = 2, .value = 5796 },
+    { .train = 58, .speed = 3, .value = 8682 },
+    { .train = 58, .speed = 4, .value = 12579 },
+    { .train = 58, .speed = 5, .value = 17143 },
+    { .train = 58, .speed = 6, .value = 20990 },
+    { .train = 58, .speed = 7, .value = 27078 },
+    { .train = 58, .speed = 8, .value = 30644 },
+    { .train = 58, .speed = 9, .value = 37350 },
+    { .train = 58, .speed = 10, .value = 37081 },
+    { .train = 58, .speed = 11, .value = 40804 },
+    { .train = 58, .speed = 12, .value = 46467 },
+    { .train = 58, .speed = 13, .value = 53600 },
+    { .train = 58, .speed = 14, .value = 58272 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 923 },
     { .train = 74, .speed = 2, .value = 7225 },
@@ -1243,7 +1259,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_speeds[15] = {
-    0, 925, 7228, 12474, 17242, 21788, 26782, 33389, 36229, 43665, 48005, 55209, 56802, 61212, 60563,
+    0, 998, 5796, 8682, 12579, 17143, 20990, 27078, 30644, 37350, 40932, 46895, 51378, 57346, 60097,
   };
 
   default_value default_stopping_distances[] = {
@@ -1260,8 +1276,23 @@ void init_track(track_state *global_track) {
     { .train = 24, .speed = 10, .value = 43640 },
     { .train = 24, .speed = 11, .value = 60160 },
     { .train = 24, .speed = 12, .value = 80220 },
-    { .train = 24, .speed = 13, .value = 102330 },
-    { .train = 24, .speed = 14, .value = 142342 },
+    { .train = 24, .speed = 13, .value = 98971 },
+    { .train = 24, .speed = 14, .value = 134319 },
+    { .train = 58, .speed = 0, .value = 0 },
+    { .train = 58, .speed = 1, .value = 110 },
+    { .train = 58, .speed = 2, .value = 350 },
+    { .train = 58, .speed = 3, .value = 740 },
+    { .train = 58, .speed = 4, .value = 1960 },
+    { .train = 58, .speed = 5, .value = 3980 },
+    { .train = 58, .speed = 6, .value = 7440 },
+    { .train = 58, .speed = 7, .value = 12790 },
+    { .train = 58, .speed = 8, .value = 20090 },
+    { .train = 58, .speed = 9, .value = 30670 },
+    { .train = 58, .speed = 10, .value = 43640 },
+    { .train = 58, .speed = 11, .value = 60160 },
+    { .train = 58, .speed = 12, .value = 71839 },
+    { .train = 58, .speed = 13, .value = 93992 },
+    { .train = 58, .speed = 14, .value = 134989 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 110 },
     { .train = 74, .speed = 2, .value = 350 },
@@ -1281,7 +1312,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_distances[15] = {
-    0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 80220, 102330, 142342,
+    0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 77426, 98431, 139891,
   };
 
   default_value default_stopping_times[] = {
@@ -1298,8 +1329,23 @@ void init_track(track_state *global_track) {
     { .train = 24, .speed = 10, .value = 0 },
     { .train = 24, .speed = 11, .value = 0 },
     { .train = 24, .speed = 12, .value = 0 },
-    { .train = 24, .speed = 13, .value = 0 },
-    { .train = 24, .speed = 14, .value = 0 },
+    { .train = 24, .speed = 13, .value = 3466000 },
+    { .train = 24, .speed = 14, .value = 3189498 },
+    { .train = 58, .speed = 0, .value = 0 },
+    { .train = 58, .speed = 1, .value = 0 },
+    { .train = 58, .speed = 2, .value = 0 },
+    { .train = 58, .speed = 3, .value = 0 },
+    { .train = 58, .speed = 4, .value = 0 },
+    { .train = 58, .speed = 5, .value = 0 },
+    { .train = 58, .speed = 6, .value = 0 },
+    { .train = 58, .speed = 7, .value = 0 },
+    { .train = 58, .speed = 8, .value = 0 },
+    { .train = 58, .speed = 9, .value = 0 },
+    { .train = 58, .speed = 10, .value = 0 },
+    { .train = 58, .speed = 11, .value = 0 },
+    { .train = 58, .speed = 12, .value = 2710000 },
+    { .train = 58, .speed = 13, .value = 3466000 },
+    { .train = 58, .speed = 14, .value = 3294723 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 0 },
     { .train = 74, .speed = 2, .value = 0 },
@@ -1319,7 +1365,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_times[15] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2710000, 3466000, 3242110,
   };
 
   setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
