@@ -69,6 +69,13 @@ typedef struct {
   uint32_t stopping_time_mus[81][15]; // 1 here is 1 microsecond
 } track_state;
 
+/**
+ * For example, the locations (D11, 5) and (D12, -5) are both here:
+ * ================= D11 <- =================
+ * ================= -> D12 =================
+ *     ^
+ *     |---- 5 cm ----|
+ */
 typedef struct {
   unsigned int sensor;
   int32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
