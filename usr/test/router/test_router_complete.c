@@ -17,6 +17,8 @@ void test_router_complete() {
         start.sensor = start_sensor;
         end.sensor = end_sensor;
         Assert(get_route(58, 12, &start, &end, route) == 0);
+        Assert(route_length(route) > 0);
+        Assert(route_length(route) <= 50);
         Assert(cancel_route(58) == 0);
       }
     }

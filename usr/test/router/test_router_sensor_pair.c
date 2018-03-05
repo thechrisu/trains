@@ -9,19 +9,13 @@ void test_router_sensor_pair() {
 
   Assert(get_route(24, 5, &start, &end, route) == 0);
 
-  reservation *current = route;
-  int length = 0;
-  while (current->train != 0) {
-    Assert(current->train == 24);
-    current += 1;
-    length += 1;
-  }
-
+  int length = route_length(route);
   Assert(length == 8);
 
   char *expected_sensors[] = { "B16", "BR15", "C10", "BR16", "B1", "D14", "MR17", "E14" };
   for (int i = 0; i < length; i += 1) {
     Assert(tstrcmp((char *)route[i].node->name, expected_sensors[i]));
+    Assert(route[i].train == 24);
   }
 
   int reservation_length = route[0].ticks_end - route[0].ticks_start;

@@ -9,18 +9,12 @@ void test_router_basic() {
 
   Assert(get_route(71, 10, &start, &end, route) == 0);
 
-  reservation *current = route;
-  int length = 0;
-  while (current->train != 0) {
-    Assert(current->train == 71);
-    current += 1;
-    length += 1;
-  }
-
+  int length = route_length(route);
   Assert(length == 5);
 
   char *expected_sensors[] = { "C8", "BR3", "BR2", "A7", "B12" };
   for (int i = 0; i < length; i += 1) {
+    Assert(route[i].train == 71);
     Assert(tstrcmp((char *)route[i].node->name, expected_sensors[i]));
   }
 

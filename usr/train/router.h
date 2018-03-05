@@ -37,4 +37,11 @@ int get_route(int train, int speed, location *start, location *end, reservation 
  */
 int cancel_route(int train);
 
+/**
+ * @param   route An array of reservations, terminated with a reservation with `train`
+ *                equal to zero.
+ * @returns The length of the route.
+ */
+int route_length(reservation route[MAX_ROUTE_LENGTH]);
+
 #endif /* ROUTER_H */
