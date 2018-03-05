@@ -19,3 +19,7 @@ class TestRouter(unittest.TestCase):
     def test_router_same_sensor(self):
         ret = qemu_oneshot_test('router_same_sensor', '', TIMEOUT, timer_interrupts_on = True)
         self.assertEqual(ret, 'Success.\n\r')
+
+    def test_router_complete(self):
+        ret = qemu_oneshot_test('router_complete', '', TIMEOUT, timer_interrupts_on = True)
+        self.assertEqual(ret, 'Success.\n\r')
