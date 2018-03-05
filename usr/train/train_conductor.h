@@ -7,9 +7,9 @@
 
 #include "codes.h"
 #include "commands.h"
+#include "global_track_state.h"
 #include "track_node.h"
 #include "train_util.h"
-#include "track_state_controller.h"
 
 /**
  * The train conductor works by receiving messges from the command dispatcher,
@@ -23,12 +23,11 @@ void train_conductor();
  *
  * train_tx_server          Train Transmit Server.
  * track_state_controller   Task administering the global state.
- * clock_serer              Clock server
- * d                        Train data
+ * train                    Train number
  * speed                    Speed to set train to.
  */
-void conductor_setspeed(int train_tx_server, int track_state_controller, int clock_server,
-                        train_data *d, int speed);
+void conductor_setspeed(int train_tx_server, int track_state_controller, int train,
+                        int speed);
 
 /**
  * Reverses the train.
@@ -36,9 +35,9 @@ void conductor_setspeed(int train_tx_server, int track_state_controller, int clo
  * train_tx_server          Train Transmit Server.
  * track_state_controller   Task administering the global state.
  * clock_serer              Clock server
- * d                        Train data
+ * train                    Train number
  */
 void conductor_reverse(int train_tx_server, int track_state_controller, int clock_server,
-                       train_data *d);
+                       int train);
 
 #endif /* TRAIN_CONDUCTOR_H */

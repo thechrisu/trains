@@ -31,8 +31,8 @@ bool is_auto_cmd(user_command *cmd) {
  */
 void send_if_rdy(message *m, conductor_data *c, int terminal_tx_server) {
   if (c->auto_mode) {
-    Assert(Printf(terminal_tx_server, "%s%s%s%sAUTOMODE        %s%s",
-                  CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR, 
+    Assert(Printf(terminal_tx_server, "%s%s%sAUTOMODE        %s%s",
+                  CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
                   HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
     return;
   }
