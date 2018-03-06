@@ -213,6 +213,11 @@ void train_conductor() {
             stop_and_reverse_train(clock_server, train_tx_server,
                                    track_state_controller, d.train);
             break;
+          case USER_CMD_R:
+            /* TODO route */
+            /*route_to_sensor(clock_server, train_tx_server, track_state_controller,
+                            received.msg.cmd.data[0] */
+            break;
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);
             Assert(0);

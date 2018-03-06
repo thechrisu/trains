@@ -56,6 +56,12 @@ void user_command_print(int server_tid, user_command *cmd) {
                     CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
                     get_parameter_name(cmd->data[0]), cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_R:
+      Assert(Printf(server_tid, "%s%s%sR %d %c%d %d          %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    cmd->data[0], sensor_bank(cmd->data[1]), sensor_index(cmd->data[1]),
+                    cmd->data[2], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
@@ -133,6 +139,29 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
         cmd->type = USER_CMD_V;
         cmd->data[0] = address;
         cmd->data[1] = 0;
+      }
+    } else if (string_starts_with(ibuf->data, "r ", ibuf->elems)) {
+      int nParse = is_valid_number(ibuf, 2);
+      if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
+        int address = parse_two_digit_number(ibuf->data + 2);
+        if (address > 0 && address <= 80) {
+          char sensor_bank = ibuf->data[nParse];
+          int nParseSensorIndex = is_valid_number(ibuf, nParse + 1);
+          if (sensor_bank >= 'A' && sensor_bank <= 'E'
+               && nParseSensorIndex >= 0 && ibuf->elems >= (unsigned int) nParseSensorIndex) {
+            int sensor_index = parse_two_digit_number(ibuf->data + nParse + 1);
+            if (sensor_index > 0 && sensor_index <= 16) {
+              int nParseOffset = is_valid_number(ibuf, nParseSensorIndex);
+              if (nParseOffset >= 0 && ibuf->elems >= (unsigned int) nParseOffset) {
+                int offset = parse_number(ibuf, nParseSensorIndex);
+                cmd->type = USER_CMD_R;
+                cmd->data[0] = address;
+                cmd->data[1] = sensor_offset(sensor_bank, sensor_index);
+                cmd->data[2] = offset;
+              }
+            }
+          }
+        }
       }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
       char param_name[10];
@@ -288,6 +317,7 @@ void project_first_user_task() {
         cmd_msg.msg.cmd.type = current_cmd.type;
         cmd_msg.msg.cmd.data[0] = current_cmd.data[0];
         cmd_msg.msg.cmd.data[1] = current_cmd.data[1];
+        cmd_msg.msg.cmd.data[2] = current_cmd.data[2];
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
