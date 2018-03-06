@@ -7,7 +7,7 @@ void test_stopping_time_model() {
   Assert(track_state_controller_tid > 0);
   message receive;
   get_stopping_time_model(track_state_controller_tid, 1, &receive);
-  for (int i = 0; i < 15; i++) {
+  for (int i = 0; i < 12; i++) {
     Assert(receive.msg.train_times[i] == 0);
   }
 
