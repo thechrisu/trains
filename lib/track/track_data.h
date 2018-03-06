@@ -57,6 +57,15 @@ unsigned int sensor_offset(char bank, unsigned int index);
 track_node *find_sensor(track_state *t, unsigned int offset);
 
 /**
+ * Returns the other sensor in the sensor pair.
+ *
+ * @param  t                 Track state data structure.
+ * @param  offset            Offset of the >one< sensor of the pair.
+ * @return The offset of the >other< sensor of the pair.
+ */
+unsigned int sensor_pair(track_state *t, unsigned int offset);
+
+/**
  * Returns the track node element of a sensor, given a track.
  *
  * @param t       Track state object.

@@ -46,8 +46,8 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
     Delay(clock_server, CONDUCTOR_STOP_CHECK_INTERVAL);
     int diff = dist_from_last_sensor(clock_server, last_stopping, velocity);
     dist = start_dist - diff;
-    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC, CALIB_LINE, 1,
-      dist, diff, HIDE_CURSOR_TO_EOL) == 0);
+    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
+      CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
   }
 }
 
@@ -82,30 +82,32 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
   int dist = 100 * distance_between_sensors_helper(find_sensor(&track, start_sensor),
                                                    find_sensor(&track, goal_sensor),
                                                    0, 15);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%d%s", ESC, CALIB_LINE, 1,
-    "Calibrating stopping distance for train ", train, " and speed ", speed,
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%d%s", ESC, CALIB_LINE + 2,
+    1, "Calibrating stopping distance for train ", train, " and speed ", speed,
     " distance between sensors is: ", dist, HIDE_CURSOR_TO_EOL) == 0);
   conductor_reverse_to_speed(train_tx_server, track_state_controller,
                              clock_server, train, 10);
   poll_until_sensor_triggered(clock_server, track_state_controller,
                               reverse_start_sensor);
   Delay(clock_server, 30 * speed);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE, 1,
-    "Calibrating stopping distance for train ", train, " and speed ", speed,
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE + 2,
+    1,"Calibrating stopping distance for train ", train, " and speed ", speed,
     " now back to sensor...", HIDE_CURSOR_TO_EOL) == 0);
   conductor_reverse_to_speed(train_tx_server, track_state_controller,
                              clock_server, train, speed);
   poll_until_sensor_triggered(clock_server, track_state_controller,
                               start_sensor);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%d%s", ESC, CALIB_LINE, 1,
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%d%s", ESC,
+    CALIB_LINE + 2, 1,
     "Calibrating stopping distance for train ", train, " and speed ", speed,
-    " now waiting until we are close ...", velocity_model.msg.train_speeds[speed], HIDE_CURSOR_TO_EOL) == 0);
+    " now waiting until we are close ...", velocity_model.msg.train_speeds[speed],
+    HIDE_CURSOR_TO_EOL) == 0);
   poll_until_at_dist(clock_server, terminal_tx_server,
                dist - stopping_distance_model.msg.train_distances[speed],
                velocity_model.msg.train_speeds[speed]);
   int stop_start = Time(clock_server);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE, 1,
-    "Calibrating stopping distance for train ", train, " and speed ", speed,
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE + 2,
+    1, "Calibrating stopping distance for train ", train, " and speed ", speed,
     " now stopping...", HIDE_CURSOR_TO_EOL) == 0);
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
   bool did_hit_sensor = !poll_until_sensor_triggered_with_timeout(
@@ -113,28 +115,33 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
                                                track_state_controller,
                                                goal_sensor,
                                                speed * 50);
-  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s%d", ESC, CALIB_LINE, 1,
-    "Calibrating stopping distance for train ", train, " and speed ", speed,
+  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s%d", ESC, CALIB_LINE + 2,
+    1, "Calibrating stopping distance for train ", train, " and speed ", speed,
     " stopped - dit hit sensor: ", did_hit_sensor ? 1 : 0, HIDE_CURSOR_TO_EOL) == 0);
   int ticks_after_poll = Time(clock_server);
   if (did_hit_sensor) {
     int ticks_to_stop = ticks_after_poll - stop_start;
+    int ticks_off = ticks_to_stop - (int)stopping_time_model.msg.train_times[speed]/ 10000;
+    int distance_off = ((int)velocity_model.msg.train_speeds[speed]) * ticks_off / 10000;
+    if (stopping_time_model.msg.train_times[speed] == 0) distance_off = 2500;
+    // logprintf("Hit sensor, off by %d\n\r", distance_off);
     stopping_distance_model.msg.train_distances[speed]
-      = (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] + 500);
+      = (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] + distance_off);
     update_stopping_distance_model(track_state_controller, train, speed,
                                    stopping_distance_model.msg.train_distances[speed]);
     update_stopping_time_model(track_state_controller, train, speed,
                                ticks_to_stop * 10000);
-    Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance %s",
-                  ESC, CALIB_LINE, 1, HIDE_CURSOR_TO_EOL) == 0);
+    Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance by %d%s",
+                  ESC, CALIB_LINE + 2, 1, distance_off, HIDE_CURSOR_TO_EOL) == 0);
   } else {
     conductor_setspeed(train_tx_server, track_state_controller, train, 1);
     poll_until_sensor_triggered(clock_server, track_state_controller, goal_sensor);
     conductor_setspeed(train_tx_server, track_state_controller, train, 0);
-    int distance_off = velocity_model.msg.train_speeds[speed]
-                         * (Time(clock_server) - ticks_after_poll) / 1000;
+    int distance_off = ((int)velocity_model.msg.train_speeds[speed])
+                         * (Time(clock_server) - ticks_after_poll) / 10000;
+    // logprintf("%d, did not hit sensor\n\r", distance_off);
     Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance by %d%s",
-                  ESC, CALIB_LINE, 1, distance_off, HIDE_CURSOR_TO_EOL) == 0);
+                  ESC, CALIB_LINE + 2, 1, distance_off, HIDE_CURSOR_TO_EOL) == 0);
     update_stopping_distance_model(track_state_controller, train, speed,
                                    (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] - distance_off));
   }
