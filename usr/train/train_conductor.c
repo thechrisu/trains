@@ -137,8 +137,8 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     conductor_setspeed(train_tx_server, track_state_controller, train, 1);
     poll_until_sensor_triggered(clock_server, track_state_controller, goal_sensor);
     conductor_setspeed(train_tx_server, track_state_controller, train, 0);
-    int distance_off = ((int)velocity_model.msg.train_speeds[speed])
-                         * (Time(clock_server) - ticks_after_poll) / 10000;
+    int distance_off = ((int)velocity_model.msg.train_speeds[1])
+                         * (Time(clock_server) - ticks_after_poll) / 100;
     // logprintf("%d, did not hit sensor\n\r", distance_off);
     Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance by %d%s",
                   ESC, CALIB_LINE + 2, 1, distance_off, HIDE_CURSOR_TO_EOL) == 0);
