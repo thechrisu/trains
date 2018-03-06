@@ -1,5 +1,7 @@
 #include "train_location_view.h"
 
+#define NO_LAST_SENSOR 0x1EADBEEF
+
 void train_location_view() {
   message send, reply;
 
@@ -16,9 +18,10 @@ void train_location_view() {
   Assert(sensor_interpreter_tid > 0);
 
   train_data tr_data;
-  unsigned int last_sensor = 1337;
-  int time_last_sensor_hit = 1337;
-  int expected_time_next_sensor_hit;
+  unsigned int last_sensor;
+  int time_last_sensor_hit;
+  int expected_time_last_sensor_hit;
+  int expected_time_next_sensor_hit = NO_LAST_SENSOR;
   int loops = 0;
 
   send.type = MESSAGE_GET_LAST_SENSOR_HIT;
@@ -41,7 +44,7 @@ void train_location_view() {
     Assert(Send(sensor_interpreter_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
     Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
 
-    if (last_sensor != reply.msg.last_sensor.sensor) {
+    if (last_sensor != reply.msg.last_sensor.sensor && reply.msg.last_sensor.sensor != NO_DATA_RECEIVED) {
       last_sensor = reply.msg.last_sensor.sensor;
       time_last_sensor_hit = reply.msg.last_sensor.time;
 
@@ -55,6 +58,8 @@ void train_location_view() {
         Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo next sensor because at end of siding%s",
                       TRAIN_LOCATION_LINE, 1, HIDE_CURSOR_TO_EOL) == 0);
       } else {
+        expected_time_last_sensor_hit = expected_time_next_sensor_hit;
+
         send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
         send.msg.train = t1train;
         Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
@@ -74,6 +79,16 @@ void train_location_view() {
                       sensor_bank(next_sensor), sensor_index(next_sensor),
                       minutes, seconds >= 10 ? "" : "0", seconds, deciseconds,
                       HIDE_CURSOR_TO_EOL) == 0);
+
+        if (expected_time_last_sensor_hit != NO_LAST_SENSOR) {
+          int time_diff = time_last_sensor_hit - expected_time_last_sensor_hit;
+          int distance_diff = velocity * time_diff / 10000;
+          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTime diff: %d.%d s - Distance diff: %d mm%s",
+                        TRAIN_LOCATION_LINE, 1,
+                        time_diff / 10, time_diff % 10,
+                        distance_diff,
+                        HIDE_CURSOR_TO_EOL) == 0);
+        }
       }
     }
 

@@ -1,7 +1,5 @@
 #include "sensor_interpreter.h"
 
-#define NO_DATA_RECEIVED 0xDEDEDEDE
-
 #define ABS(x) ((x) > 0 ? (x) : -(x))
 
 static unsigned int last_sensor[80];
