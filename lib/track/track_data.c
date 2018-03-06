@@ -1564,6 +1564,29 @@ unsigned int sensor_pair(track_state *t, unsigned int offset) {
   return find_sensor(t, offset)->reverse->num;
 }
 
+unsigned int sensor_next(track_state *t, unsigned int start,
+                         turnout_state turnout_states[NUM_TURNOUTS]) {
+  track_node *current = AHEAD(find_sensor(t, start));
+
+  while (true) {
+    switch (current->type) {
+      case NODE_SENSOR:
+        return current->num;
+      case NODE_MERGE:
+        current = AHEAD(current);
+        break;
+      case NODE_BRANCH: {
+        unsigned int index = turnout_num_to_map_offset(current->num);
+        // Default to curved, since that seems to be a popular initial state
+        current = turnout_states[index] == TURNOUT_STRAIGHT ? STRAIGHT(current) : CURVED(current);
+        break;
+      }
+      default:
+        return 1337;
+    }
+  }
+}
+
 void location_reverse(track_state *t, location *destination, location *source) {
   destination->sensor = sensor_pair(t, source->sensor);
   destination->offset = -source->offset;

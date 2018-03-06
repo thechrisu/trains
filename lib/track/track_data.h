@@ -147,4 +147,7 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
  */
 void location_reverse(track_state *t, location *destination, location *source);
 
+unsigned int sensor_next(track_state *t, unsigned int start,
+                         turnout_state turnout_states[NUM_TURNOUTS]);
+
 #endif /* TRACK_DATA_H */
