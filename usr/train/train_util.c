@@ -41,3 +41,7 @@ void poll_until_sensor_triggered(int clock_server_tid,
                                            track_state_controller_tid,
                                            offset, 100 * 60 * 20);
 }
+
+int stopping_dist_remaining_dist(int speed, int ticks_left) {
+  return 0.5 + (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left / 0.5;
+}
