@@ -20,6 +20,22 @@ void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t 
 bool is_sensor_triggered(int16_t sensors[10], unsigned int offset);
 
 /**
+ * Poll the track state controller for sensor data until either
+ * 1) the given sensor has been triggered or
+ * 2) the number of ticks spent polling exceed the timeout.
+ *
+ * @param clock_server_tid           The task ID of the clock server.
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param offset                     The offset of a sensor within the sensor data bitmap.
+ * @param timeout_ticks              Ticks until we return.
+ * @return                           1 if it timed out, 0 if the sensor was received.
+ */
+int poll_until_sensor_triggered_with_timeout(int clock_server_tid,
+                                             int track_state_controller_tid,
+                                             unsigned int offset,
+                                             int timeout_ticks);
+
+/**
  * Poll the track state controller for sensor data until the given sensor has been triggered.
  *
  * @param clock_server_tid           The task ID of the clock server.

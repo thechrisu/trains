@@ -10,10 +10,12 @@
 #include "messages.h"
 #include "parameters.h"
 #include "track_node.h"
+#include "tstdlib.h"
 #include "user_command.h"
 #include "train/commands.h"
 #include "train/reverser.h"
 #include "train/switcher.h"
+#include "train/train_conductor.h"
 #include "train/calibration/stopping_distance_calibrator.h"
 #include "train/calibration/velocity_calibrator.h"
 

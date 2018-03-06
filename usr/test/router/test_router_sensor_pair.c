@@ -23,7 +23,7 @@ void test_router_sensor_pair() {
     Assert(route[i].ticks_end - route[i].ticks_start == reservation_length);
   }
 
-  Assert(route[length - 1].ticks_end < 1000);
+  Assert(route[length - 1].ticks_end < 1400);
 
   router_test_teardown();
 
