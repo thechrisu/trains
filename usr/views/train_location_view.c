@@ -17,6 +17,9 @@ void train_location_view() {
   int sensor_interpreter_tid = WhoIs("SensorInterpreter");
   Assert(sensor_interpreter_tid > 0);
 
+  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s%s",
+                TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
+
   train_data tr_data;
   unsigned int last_sensor;
   int time_last_sensor_hit;
@@ -56,7 +59,7 @@ void train_location_view() {
 
       if (next_sensor == 1337) {
         Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo next sensor because at end of siding%s",
-                      TRAIN_LOCATION_LINE, 1, HIDE_CURSOR_TO_EOL) == 0);
+                      TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
       } else {
         expected_time_last_sensor_hit = expected_time_next_sensor_hit;
 
@@ -74,7 +77,7 @@ void train_location_view() {
         uint32_t deciseconds = (expected_time_next_sensor_hit / 10) % 10;
 
         Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNext sensor: %s%c%d - Expected time: %d:%s%d.%d%s",
-                      TRAIN_LOCATION_LINE, 1,
+                      TRAIN_LOCATION_LINE + 1, 1,
                       sensor_index(next_sensor) >= 10 ? "" : " ",
                       sensor_bank(next_sensor), sensor_index(next_sensor),
                       minutes, seconds >= 10 ? "" : "0", seconds, deciseconds,
@@ -84,7 +87,7 @@ void train_location_view() {
           int time_diff = time_last_sensor_hit - expected_time_last_sensor_hit;
           int distance_diff = velocity * time_diff / 10000;
           Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTime diff: %d.%d s - Distance diff: %d mm%s",
-                        TRAIN_LOCATION_LINE, 1,
+                        TRAIN_LOCATION_LINE + 2, 1,
                         time_diff / 10, time_diff % 10,
                         distance_diff,
                         HIDE_CURSOR_TO_EOL) == 0);

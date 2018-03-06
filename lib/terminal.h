@@ -14,8 +14,8 @@
 #define TURNOUTS_COLUMN       12
 #define CALIB_LINE            19
 #define TRAIN_LOCATION_LINE   23
-#define CMD_LINE              26
-#define PROMPT_LINE           27
+#define CMD_LINE              27
+#define PROMPT_LINE           28
 
 #define RESET_TEXT "\033[0m"
 #define BOLD_TEXT "\033[1m"
@@ -37,5 +37,7 @@
 #define HIDE_CURSOR "\033[?25l"
 #define SHOW_CURSOR "\033[?25h"
 #define HIDE_CURSOR_TO_EOL "\033[K"
+
+#define TRADEMARK "\xE2\x84\xA2"
 
 #endif /* TERMINAL_H */
