@@ -15,12 +15,13 @@ enum user_command_type {
   USER_CMD_SD,
   USER_CMD_V,
   USER_CMD_SET,
+  USER_CMD_R,
   NULL_USER_CMD
 };
 
 typedef struct {
   enum user_command_type type;
-  int data[2];
+  int data[3];
 } user_command;
 
 /**

@@ -126,6 +126,7 @@ void command_dispatcher_server() {
             break;
           case USER_CMD_SD:
           case USER_CMD_RV: // "block" on command
+          case USER_CMD_R:
           case USER_CMD_TR: {
             int there = 0;
             for (int i = 0; i < num_active_trains; i++) {
