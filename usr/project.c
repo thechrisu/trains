@@ -175,7 +175,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
         if (second_num_parse >= 0 && ibuf->elems >= (unsigned int) second_num_parse) {
           int address = parse_two_digit_number(ibuf->data + 5);
           int speed = parse_two_digit_number(ibuf->data + first_num_parse);
-          if (speed >= 0 && speed <= 14) {
+          if (speed > 0 && speed <= 14) {
             cmd->type = USER_CMD_LOOP;
             cmd->data[0] = address;
             cmd->data[1] = speed;
