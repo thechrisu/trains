@@ -47,8 +47,9 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
     Delay(clock_server, CONDUCTOR_STOP_CHECK_INTERVAL);
     int diff = dist_from_last_sensor(clock_server, last_stopping, velocity);
     dist = start_dist - diff;
-    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
-      CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
+    if (terminal_tx_server > 0)
+      Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
+        CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
   }
 }
 
@@ -190,17 +191,71 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
   current->offset = velocity * (Time(clock_server) - last_record->ticks) / 100;
 }
 
-void get_next_two_sensors(reservation *remaining_route, unsigned int next_two_sensors[2]) {
+int get_remaining_dist_in_route(reservation *remaining_route) {
+  int dist_remaining_100th_mm = 0;
+  reservation *c = remaining_route;
+  while (c->train != 0) {
+    switch (c->node->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+      case NODE_ENTER:
+        dist_remaining_100th_mm += c->node->edge[DIR_AHEAD].dist * 100;
+        break;
+      case NODE_BRANCH:
+        if ((c + 1) == (reservation *)STRAIGHT(c->node)) {
+          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
+        } else {
+          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
+        }
+        break;
+      default:
+        logprintf("Invalid node type when getting remaining distance of route: %d\n\r", c->node->type);
+        break;
+    }
+    c += 1;
+  }
+  return dist_remaining_100th_mm;
+}
+
+// TODO comment
+void get_next_two_sensors(reservation *remaining_route, reservation *next_two_sensors[2]) {
   int n_sensors_found;
   reservation *c = remaining_route;
-  next_two_sensors[0] = NO_NEXT_SENSOR; next_two_sensors[1] = NO_NEXT_SENSOR;
+  next_two_sensors[0] = (reservation *)NULL_RESERVATION;
+  next_two_sensors[1] = (reservation *)NULL_RESERVATION;
   while (n_sensors_found < 2 && c->train != 0) {
     if (c->node->type == NODE_SENSOR) {
-      next_two_sensors[n_sensors_found] = c->node->num;
+      next_two_sensors[n_sensors_found] = c;
       n_sensors_found += 1;
     }
     c += 1;
   }
+}
+
+int get_dist_between_reservations(reservation *start, reservation *end) {
+  int dist_remaining_100th_mm = 0;
+  reservation *c = start;
+  while (c->train != 0 || c != end) {
+    switch (c->node->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+      case NODE_ENTER:
+        dist_remaining_100th_mm += c->node->edge[DIR_AHEAD].dist * 100;
+        break;
+      case NODE_BRANCH:
+        if ((c + 1) == (reservation *)STRAIGHT(c->node)) {
+          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
+        } else {
+          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
+        }
+        break;
+      default:
+        logprintf("Invalid node type when getting distance between nodes: %d\n\r", c->node->type);
+        break;
+    }
+    c += 1;
+  }
+  return dist_remaining_100th_mm;
 }
 
 /**
@@ -243,10 +298,21 @@ void conductor_route_to(int clock_server, int train_tx_server,
     conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
     while (c->train != 0) {
       get_sensors(track_state_controller, &sensor_message);
-      unsigned int next_two_sensors[2];
+
+      reservation *next_two_sensors[2];
       get_next_two_sensors(c, next_two_sensors);
-      if (next_two_sensors[0] == NO_NEXT_SENSOR) { // TODO no sensor left -> you're on your own, buddy.
-      } else if (next_two_sensors[1] == NO_NEXT_SENSOR) { // TODO if this sensor fails, you're also on your own.
+      int dist_left = get_remaining_dist_in_route(c)
+              - dist_from_last_sensor(clock_server, last_record.ticks,
+                        velocity_model.msg.train_speeds[speed]);
+      int dist_to_second_sensor_ahead = next_two_sensors[1] == NULL_RESERVATION ?
+              1E5 : get_dist_between_reservations(c, next_two_sensors[1]);
+      int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+      if (dist_left - dist_to_second_sensor_ahead < stopping_distance) {
+        poll_until_at_dist(clock_server, 0,
+            dist_left - stopping_distance,
+            (int)velocity_model.msg.train_speeds[speed]);
+        conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+        break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure
         reply_get_last_sensor_hit sensor_hit_polling_result;
         while (last_record.sensor == sensor_hit_polling_result.sensor) {
@@ -255,7 +321,10 @@ void conductor_route_to(int clock_server, int train_tx_server,
         }
         last_record.sensor = sensor_hit_polling_result.sensor;
         last_record.ticks = sensor_hit_polling_result.ticks;
-        if (last_record.sensor != next_two_sensors[0] && last_record.sensor != next_two_sensors[1]) {
+        if (next_two_sensors[0] != NULL_RESERVATION
+            && next_two_sensors[1] != NULL_RESERVATION
+            && last_record.sensor != (unsigned int)next_two_sensors[0]->node->num
+            && last_record.sensor != (unsigned int)next_two_sensors[1]->node->num) {
           got_error = true; // Oh no! We are lost and we should reroute.
           break;
         }

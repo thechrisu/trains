@@ -2,10 +2,6 @@
 
 #define FIND_LIMIT 5
 
-#define AHEAD(node)    (node)->edge[DIR_AHEAD].dest
-#define STRAIGHT(node) (node)->edge[DIR_STRAIGHT].dest
-#define CURVED(node)   (node)->edge[DIR_CURVED].dest
-
 void init_track(track_state *global_track) {
   track_node *track = global_track->track;
   turnout_state *turnouts = global_track->turnouts;
