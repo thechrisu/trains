@@ -273,6 +273,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &track_state_controller) > 0);
   Assert(Create(my_priority + 2, &sensor_interpreter) > 0);
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
+  Assert(Create(my_priority + 2, &router) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
@@ -340,6 +341,7 @@ void project_first_user_task() {
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
+  Assert(Kill(WhoIs("Router")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
 #ifdef E2ETESTING
   Assert(Kill(ns_tid) == 0);

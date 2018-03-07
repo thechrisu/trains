@@ -162,6 +162,88 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
   }
 }
 
+void route_switch_turnouts(int clock_server, int train_tx_server,
+                           int track_state_controller, reservation *route) {
+  reservation *c = route;
+  while (c->train != 0) {
+    if (c->node->type == NODE_BRANCH) {
+      if ((c + 1)->node->train != 0) {
+        if (c->node->edge[DIR_STRAIGHT] == (c + 1)->node) {
+          switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, false);
+        } else if (c->node->edge[DIR_CURVED] == (c + 1)->node) {
+          switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, true);
+        } else {
+          logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
+                    c->node->num, (c + 1)->node->num);
+        }
+      }
+    }
+    c += 1;
+  }
+}
+
+void get_next_two_sensors(reservation *remaining_route, int next_two_sensors[2]) {
+  int n_sensors_found;
+  reservation *c = remaining_route
+  next_two_sensors[0] = -1; next_two_sensors[1] = -1;
+  while (n_sensors_found < 2 && c->train != 0) {
+    if (c->node->type == NODE_SENSOR) {
+      next_two_sensors[n_sensors_found] = c->node->num;
+      n_sensors_found += 1;
+    }
+    c += 1;
+  }
+}
+
+/**
+ * Routes a train to a sensor.
+ *
+ * @param clock_server                 Tid of the clock server.
+ * @param train_tx_server              Transmit server of the train.
+ * @param track_state_controller       Track state controller.
+ * @param train                        Train number to route.
+ * @param speed                        Train speed to route.
+ * @param sensor_offset                Offset of sensor (1-80)
+ * @param goal_offset                  Offset from goal sensor (in 1/100mm)
+ */
+void conductor_route_to(int clock_server, int train_tx_server,
+                        int track_state_controller, int train, int speed,
+                        int sensor_offset, int goal_offset) {
+  location current, end;
+  message sensor_message;
+  int current_speed = speed;
+  start.sensor = -1;
+  start.offset = -1;
+  end.sensor = sensor_offset;
+  end.offset = goal_offset;
+  reservation route[MAX_ROUTE_LENGTH];
+  bool got_error = false;
+  do { got_error = false; Assert(get_route(train, speed, &start, &end, route) == 0); // TODO fix for T2
+    reservation *c = (reservation *)route;
+    route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
+                          route); // TODO maybe do this via switchers?
+    conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
+    while (c->train != 0) {
+      get_sensors(track_state_controller, &sensor_message);
+      int next_two_sensors[2];
+      get_next_two_sensors(c, next_two_sensors);
+      if (next_two_sensors[0] == -1); // TODO no sensor left -> you're on your own, buddy.
+      else if (next_two_sensors[1] == -1); // TODO if this sensor fails, you're also on your own.
+      else ; // We're comfortable and can endure at least one sensor failure
+      switch (c->node->type) {
+        case NODE_SENSOR:
+          // TODO poll with timeout until at that sensor OR the sensor after that.
+          break;
+        case NODE_BRANCH:
+          // TODO take into account broken turnouts
+        default:
+          logprintf("Unknown route node type %d in conductor_route_to_sensor\n\r",
+                    c->node->type);
+      }
+    }
+  } while (got_error);
+}
+
 void train_conductor() {
   int sender_tid;
   message received, ready;
@@ -209,9 +291,10 @@ void train_conductor() {
                                    track_state_controller, d.train);
             break;
           case USER_CMD_R:
-            /* TODO route */
-            /*route_to_sensor(clock_server, train_tx_server, track_state_controller,
-                            received.msg.cmd.data[0] */
+            Assert(received.msg.cmd.data[0] == d.train);
+            conductor_route_to_sensor(clock_server, train_tx_server,
+                            track_state_controller, d.train, d.should_speed,
+                            received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
             break;
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);

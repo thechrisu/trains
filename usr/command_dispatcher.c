@@ -16,7 +16,7 @@ typedef struct {
  * @return true if it's an automode command, false if manual mode.
  */
 bool is_auto_cmd(user_command *cmd) {
-  return cmd->type == USER_CMD_SD;
+  return cmd->type == USER_CMD_SD || cmd->type == USER_CMD_R;
 }
 
 /**
