@@ -87,10 +87,10 @@ void train_location_view() {
         if (expected_last_sensor == last_sensor && expected_time_last_sensor_hit != NO_LAST_SENSOR) {
           int time_diff = time_last_sensor_hit - expected_time_last_sensor_hit;
           int distance_diff = velocity * time_diff / 10000;
-          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTime diff: %d.%d s - Distance diff: %d mm%s",
+          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTime diff: %c%u.%u s - Distance diff: %c%u.%u mm%s",
                         TRAIN_LOCATION_LINE + 2, 1,
-                        time_diff / 10, time_diff % 10,
-                        distance_diff,
+                        time_diff < 0 ? '-' : ' ', time_diff / 100, (time_diff / 10) % 10,
+                        distance_diff < 0 ? '-' : ' ', distance_diff / 10, distance_diff % 10,
                         HIDE_CURSOR_TO_EOL) == 0);
         } else {
           Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs because saw unexpected sensor%s",
