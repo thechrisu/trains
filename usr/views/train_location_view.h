@@ -6,6 +6,7 @@
 #define TRAIN_LOCATION_VIEW_H
 
 #include "codes.h"
+#include "commands.h"
 #include "global_track_state.h"
 #include "messages.h"
 #include "parameters.h"

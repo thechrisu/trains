@@ -137,4 +137,12 @@ void get_stopping_time_model(int track_state_controller_tid, int train, message 
  * @param time                          Stopping time to be set (In microseconds).
  */
 void update_stopping_time_model(int track_state_controller_tid, int train, int speed, uint32_t time);
+
+/**
+ * @param sensor_interpreter_tid Task ID of the sensor interpreter.
+ * @param train                  Train number
+ * @param reply                  Message to put the reply in.
+ */
+void get_last_sensor_hit(int sensor_interpreter_tid, int train, message *reply);
+
 #endif /* TRAIN_COMMANDS_H */

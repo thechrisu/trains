@@ -30,11 +30,7 @@ void train_location_view() {
   int expected_time_next_sensor_hit = NO_LAST_SENSOR;
   int loops = 0;
 
-  send.type = MESSAGE_GET_LAST_SENSOR_HIT;
-  send.msg.train = t1train;
-  Assert(Send(sensor_interpreter_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-  Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
-
+  get_last_sensor_hit(sensor_interpreter_tid, t1train, &reply);
   last_sensor = reply.msg.last_sensor.sensor;
   time_last_sensor_hit = reply.msg.last_sensor.time;
 
@@ -45,13 +41,11 @@ void train_location_view() {
     Assert(reply.type == REPLY_GETTRAIN);
     tmemcpy(&tr_data, &reply.msg.tr_data, sizeof(tr_data));
 
-    send.type = MESSAGE_GET_LAST_SENSOR_HIT;
-    send.msg.train = t1train;
-    Assert(Send(sensor_interpreter_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-    Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
+    get_last_sensor_hit(sensor_interpreter_tid, t1train, &reply);
+    int seen_sensor = reply.msg.last_sensor.sensor;
 
-    if (last_sensor != reply.msg.last_sensor.sensor && reply.msg.last_sensor.sensor != NO_DATA_RECEIVED) {
-      last_sensor = reply.msg.last_sensor.sensor;
+    if (last_sensor != seen_sensor && seen_sensor != NO_DATA_RECEIVED) {
+      last_sensor = seen_sensor;
       time_last_sensor_hit = reply.msg.last_sensor.time;
 
       send.type = MESSAGE_GETTURNOUTS;
@@ -61,7 +55,7 @@ void train_location_view() {
       unsigned int next_sensor = sensor_next(&track, last_sensor, reply.msg.turnout_states);
 
       if (next_sensor == 1337) {
-        Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo next sensor because at end of siding%s",
+        Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                       TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
       } else {
         expected_time_last_sensor_hit = expected_time_next_sensor_hit;
@@ -97,7 +91,7 @@ void train_location_view() {
                         ABS(distance_diff) / 10, ABS(distance_diff) % 10,
                         HIDE_CURSOR_TO_EOL) == 0);
         } else {
-          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs because saw unexpected sensor%s",
+          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
                         TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
         }
       }

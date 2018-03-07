@@ -164,3 +164,11 @@ void update_stopping_time_model(int track_state_controller_tid, int train, int s
   send.msg.ustm.value = time;
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
+
+void get_last_sensor_hit(int sensor_interpreter_tid, int train, message *reply) {
+  message send;
+  send.type = MESSAGE_GET_LAST_SENSOR_HIT;
+  send.msg.train = train;
+  Assert(Send(sensor_interpreter_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
+  Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
+}
