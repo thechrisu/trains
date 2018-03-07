@@ -24,7 +24,7 @@ void train_location_view() {
 
   train_data tr_data;
   unsigned int last_sensor;
-  unsigned int expected_last_sensor;
+  unsigned int expected_last_sensor = NO_LAST_SENSOR;
   int time_last_sensor_hit;
   int expected_time_last_sensor_hit;
   int expected_time_next_sensor_hit = NO_LAST_SENSOR;
