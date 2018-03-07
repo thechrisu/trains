@@ -16,7 +16,9 @@ typedef struct {
  * @return true if it's an automode command, false if manual mode.
  */
 bool is_auto_cmd(user_command *cmd) {
-  return cmd->type == USER_CMD_SD;
+  return cmd->type == USER_CMD_SD ||
+         cmd->type == USER_CMD_R ||
+         cmd->type == USER_CMD_LOOP;
 }
 
 /**
@@ -125,6 +127,7 @@ void command_dispatcher_server() {
             Assert(Putc(train_tx_server, TRAIN, CMD_STOP) == 0);
             break;
           case USER_CMD_SD:
+          case USER_CMD_LOOP:
           case USER_CMD_RV: // "block" on command
           case USER_CMD_R:
           case USER_CMD_TR: {

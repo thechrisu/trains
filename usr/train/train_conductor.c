@@ -162,6 +162,17 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
   }
 }
 
+void conductor_loop(int train_tx_server, int track_state_controller,
+                    int clock_server, int terminal_tx_server,
+                    int train, int speed) {
+  (void)train_tx_server;
+  (void)track_state_controller;
+  (void)clock_server;
+  (void)terminal_tx_server;
+  (void)train;
+  (void)speed;
+}
+
 void train_conductor() {
   int sender_tid;
   message received, ready;
@@ -198,6 +209,10 @@ void train_conductor() {
                                clock_server, terminal_tx_server,
                                d.train, received.msg.cmd.data[1]);
             break;
+          case USER_CMD_LOOP:
+            conductor_loop(train_tx_server, track_state_controller,
+                           clock_server, terminal_tx_server,
+                           d.train, received.msg.cmd.data[1]);
           case USER_CMD_TR:
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_setspeed(train_tx_server, track_state_controller, d.train,
