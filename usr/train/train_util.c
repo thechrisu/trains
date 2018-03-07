@@ -42,6 +42,14 @@ void poll_until_sensor_triggered(int clock_server_tid,
                                            offset, 100 * 60 * 20);
 }
 
-int stopping_dist_remaining_dist(int speed, int ticks_left) {
-  return 0.5 + (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left / 0.5;
+float get_fudged_stopping_distance_factor(int train) {
+  return 0.33333
+    * ((track.stopping_distance[train][12] / track.stopping_distance[74][12])
+    + (track.stopping_distance[train][13] / track.stopping_distance[74][13])
+    + (track.stopping_distance[train][14] / track.stopping_distance[74][14])
+    );
+}
+
+int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
+  return 0.5 + (1 / get_fudged_stopping_distance_factor(train)) * (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left / 0.5;
 }
