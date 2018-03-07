@@ -15,6 +15,8 @@
 #include "train_util.h"
 #include "tstdlib.h"
 
+#define NO_DATA_RECEIVED 0xDEDEDEDE
+
 void sensor_interpreter();
 
 #endif /* SENSOR_INTERPRETER_H */

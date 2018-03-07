@@ -1,7 +1,5 @@
 #include "sensor_interpreter.h"
 
-#define NO_DATA_RECEIVED 0xDEDEDEDE
-
 #define ABS(x) ((x) > 0 ? (x) : -(x))
 
 static unsigned int last_sensor[80];
@@ -32,7 +30,7 @@ bool train_is_lost(int speed, int time_difference) {
 
 void sensor_interpreter() {
   int sender_tid;
-  message received;
+  message received, reply;
 
   for (int i = 0; i < 80; i += 1) {
     last_sensor[i] = NO_DATA_RECEIVED;
@@ -102,6 +100,19 @@ void sensor_interpreter() {
             }
           }
         }
+
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      }
+      case MESSAGE_GET_LAST_SENSOR_HIT: {
+        int train = received.msg.train;
+        Assert(train > 0 && train <= 80);
+
+        reply.type = REPLY_GET_LAST_SENSOR_HIT;
+        reply.msg.last_sensor.sensor = last_sensor[train];
+        reply.msg.last_sensor.ticks = time_at_last_sensor_hit[train];
+
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
       }
       default:
@@ -109,6 +120,5 @@ void sensor_interpreter() {
         break;
     }
 
-    Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
   }
 }

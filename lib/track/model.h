@@ -9,7 +9,7 @@
 #include "model_data.h"
 #include "tstdlib.h"
 
-#define DEFINITE_MAX_CM_PER_SEC 70
+#define DEFINITE_MAX_CM_PER_SEC 80
 
 /**
  * Initializes a default value map passed by the first argument.

@@ -125,6 +125,46 @@ TEST(TrackDataTest, test_location_reverse) {
   EXPECT_EQ(53, result.offset);
 }
 
+TEST(TrackDataTest, test_sensor_next) {
+  track_state t;
+  init_track(&t);
+
+  turnout_state turnouts[NUM_TURNOUTS];
+  for (unsigned int i = 0; i < NUM_TURNOUTS; i += 1) {
+    unsigned int turnout_num = map_offset_to_turnout(i);
+    turnouts[i] = (turnout_num == 153 || turnout_num == 155) ? TURNOUT_STRAIGHT : TURNOUT_CURVED;
+  }
+
+  EXPECT_EQ(sensor_offset('A', 5), sensor_next(&t, sensor_offset('B', 9), turnouts));
+  EXPECT_EQ(sensor_offset('D', 14), sensor_next(&t, sensor_offset('B', 1), turnouts));
+  EXPECT_EQ(sensor_offset('C', 7), sensor_next(&t, sensor_offset('A', 8), turnouts));
+  EXPECT_EQ(sensor_offset('B', 3), sensor_next(&t, sensor_offset('C', 10), turnouts));
+
+  // Dead ends
+  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('B', 8), turnouts));
+  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('C', 3), turnouts));
+
+  // Four-way switch
+  EXPECT_EQ(sensor_offset('E', 2), sensor_next(&t, sensor_offset('C', 2), turnouts));
+  EXPECT_EQ(sensor_offset('E', 2), sensor_next(&t, sensor_offset('B', 13), turnouts));
+  EXPECT_EQ(sensor_offset('B', 14), sensor_next(&t, sensor_offset('D', 1), turnouts));
+  EXPECT_EQ(sensor_offset('B', 14), sensor_next(&t, sensor_offset('E', 1), turnouts));
+
+  // Going straight over a single turnout
+  turnouts[turnout_num_to_map_offset(16)] = TURNOUT_STRAIGHT;
+  EXPECT_EQ(sensor_offset('B', 1), sensor_next(&t, sensor_offset('C', 10), turnouts));
+
+  // Four-way switch with two sequential switches straight
+  turnouts[turnout_num_to_map_offset(153)] = TURNOUT_CURVED;
+  turnouts[turnout_num_to_map_offset(154)] = TURNOUT_STRAIGHT;
+  turnouts[turnout_num_to_map_offset(155)] = TURNOUT_STRAIGHT;
+  turnouts[turnout_num_to_map_offset(156)] = TURNOUT_STRAIGHT;
+  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('C', 2), turnouts));
+  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('B', 13), turnouts));
+  EXPECT_EQ(sensor_offset('C', 1), sensor_next(&t, sensor_offset('D', 1), turnouts));
+  EXPECT_EQ(sensor_offset('C', 1), sensor_next(&t, sensor_offset('E', 1), turnouts));
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);

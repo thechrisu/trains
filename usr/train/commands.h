@@ -8,6 +8,7 @@
 #include "a0codes.h"
 #include "codes.h"
 #include "messages.h"
+#include "tstdlib.h"
 #include "track_data.h"
 
 /**
@@ -73,11 +74,28 @@ void stop_and_reverse_train(int clock_server_tid, int train_tx_server_tid, int t
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved);
 
 /**
+ * Queries the track state controller for train data.
+ *
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param train                      The train to get data for.
+ * @param tr_data                    A location in which to store the train data.
+ */
+void get_train(int track_state_controller_tid, int train, train_data *tr_data);
+
+/**
  * Queries the track state controller for sensor data.
  * @param track_state_controller_tid The task ID of the track state controller.
  * @param reply                      A message in which to store the sensor data, coming from the track state controller's reply.
  */
 void get_sensors(int track_state_controller_tid, message *reply);
+
+/**
+ * Queries the track state controller for turnout state.
+ *
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param turnout_states             A location in which to store the turnout state.
+ */
+void get_turnouts(int track_state_controller_tid, turnout_state turnout_states[NUM_TURNOUTS]);
 
 /**
  * Gets the speed -> velocity mapping for a train in the track state controller.
@@ -137,4 +155,12 @@ void get_stopping_time_model(int track_state_controller_tid, int train, message 
  * @param time                          Stopping time to be set (In microseconds).
  */
 void update_stopping_time_model(int track_state_controller_tid, int train, int speed, uint32_t time);
+
+/**
+ * @param sensor_interpreter_tid Task ID of the sensor interpreter.
+ * @param train                  Train number.
+ * @param reply                  Location to put the reply in.
+ */
+void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_sensor_hit *last_sensor);
+
 #endif /* TRAIN_COMMANDS_H */

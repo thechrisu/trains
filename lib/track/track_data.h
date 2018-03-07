@@ -9,6 +9,8 @@
 #include "track_node.h"
 #include "tstdlib.h"
 
+#define NO_NEXT_SENSOR 1337
+
 void init_track(track_state *global_track);
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout);
@@ -146,5 +148,17 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
  * @param source      The location to base the reverse off of.
  */
 void location_reverse(track_state *t, location *destination, location *source);
+
+/**
+ * @param   t              A track state.
+ * @param   start          The sensor to start from.
+ * @param   turnout_states A list of turnout states. This is provided separately
+ *                         from the track state to ensure the turnout states can't
+ *                         be changed partway through the function.
+ * @returns The next sensor after `start`, taking into account the turnouts' states,
+ *          or NO_NEXT_SENSOR if there is no such sensor.
+ */
+unsigned int sensor_next(track_state *t, unsigned int start,
+                         turnout_state turnout_states[NUM_TURNOUTS]);
 
 #endif /* TRACK_DATA_H */

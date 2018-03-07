@@ -26,6 +26,7 @@
 #include "train/track_state_controller.h"
 #include "views/clock_view.h"
 #include "views/sensor_view.h"
+#include "views/train_location_view.h"
 #include "views/turnout_view.h"
 
 void project_first_user_task();

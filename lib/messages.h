@@ -61,6 +61,8 @@ enum message_type {
   REPLY_CANCEL_ROUTE_NO_ROUTE,
   MESSAGE_READY,
   MESSAGE_CONDUCTOR_SETTRAIN,
+  MESSAGE_GET_LAST_SENSOR_HIT,
+  REPLY_GET_LAST_SENSOR_HIT,
 };
 
 typedef struct {
@@ -117,6 +119,11 @@ typedef struct {
 } message_get_route_params;
 
 typedef struct {
+  unsigned int sensor;
+  int ticks;
+} reply_get_last_sensor_hit;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -145,6 +152,7 @@ typedef struct {
     default_value ustm;
     message_get_route_params get_route_params;
     reservation *route;
+    reply_get_last_sensor_hit last_sensor;
   } msg;
 } message;
 
