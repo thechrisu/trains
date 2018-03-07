@@ -168,10 +168,10 @@ void route_switch_turnouts(int clock_server, int train_tx_server,
   reservation *c = route;
   while (c->train != 0) {
     if (c->node->type == NODE_BRANCH) {
-      if ((c + 1)->node->train != 0) {
-        if (c->node->edge[DIR_STRAIGHT] == (c + 1)->node) {
+      if ((c + 1)->train != 0) {
+        if (c->node->edge[DIR_STRAIGHT].dest == (c + 1)->node) {
           switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, false);
-        } else if (c->node->edge[DIR_CURVED] == (c + 1)->node) {
+        } else if (c->node->edge[DIR_CURVED].dest == (c + 1)->node) {
           switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, true);
         } else {
           logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
@@ -186,14 +186,14 @@ void route_switch_turnouts(int clock_server, int train_tx_server,
 void get_location_from_last_sensor_hit(int clock_server, int velocity,
                                        reply_get_last_sensor_hit *last_record,
                                        location *current) {
-  current.sensor = last_record.sensor;
-  current.offset = velocity * (Time(clock_server) - last_record.ticks) / 100;
+  current->sensor = last_record->sensor;
+  current->offset = velocity * (Time(clock_server) - last_record->ticks) / 100;
 }
 
-void get_next_two_sensors(reservation *remaining_route, int next_two_sensors[2]) {
+void get_next_two_sensors(reservation *remaining_route, unsigned int next_two_sensors[2]) {
   int n_sensors_found;
-  reservation *c = remaining_route
-  next_two_sensors[0] = -1; next_two_sensors[1] = -1;
+  reservation *c = remaining_route;
+  next_two_sensors[0] = NO_NEXT_SENSOR; next_two_sensors[1] = NO_NEXT_SENSOR;
   while (n_sensors_found < 2 && c->train != 0) {
     if (c->node->type == NODE_SENSOR) {
       next_two_sensors[n_sensors_found] = c->node->num;
@@ -221,27 +221,32 @@ void conductor_route_to(int clock_server, int train_tx_server,
   location start, end;
   reply_get_last_sensor_hit last_record;
   message sensor_message;
+  message velocity_model, stopping_distance_model;
+  get_constant_velocity_model(track_state_controller, train,
+                              &velocity_model);
+  get_stopping_distance_model(track_state_controller, train,
+                              &stopping_distance_model);
   int current_speed = speed;
   end.sensor = sensor_offset;
   end.offset = goal_offset;
   reservation route[MAX_ROUTE_LENGTH];
   bool got_error = false;
-  get_last_sensor_hit(sensor_interpreter, train, last_record); // TODO retur error if no last sensor hit.
+  get_last_sensor_hit(sensor_interpreter, train, &last_record); // TODO retur error if no last sensor hit.
   do {
     got_error = false;
-    get_location_from_last_sensor_hit(clock_server, velocity, &last_record, &start);
-    Assert(get_route(train, speed, &start, &end, route) == 0); // TODO fix for T2
+    get_location_from_last_sensor_hit(clock_server,
+            (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
+    Assert(get_route(train, speed, &start, &end, route) == 0);
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
     conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
     while (c->train != 0) {
       get_sensors(track_state_controller, &sensor_message);
-      int ticks_exp_at_next_sensor = Time(clock_server) + c->ticks_end;
-      int next_two_sensors[2];
+      unsigned int next_two_sensors[2];
       get_next_two_sensors(c, next_two_sensors);
-      if (next_two_sensors[0] == -1) { // TODO no sensor left -> you're on your own, buddy.
-      } else if (next_two_sensors[1] == -1) { // TODO if this sensor fails, you're also on your own.
+      if (next_two_sensors[0] == NO_NEXT_SENSOR) { // TODO no sensor left -> you're on your own, buddy.
+      } else if (next_two_sensors[1] == NO_NEXT_SENSOR) { // TODO if this sensor fails, you're also on your own.
       } else { // We're comfortable and can endure at least one sensor failure
         reply_get_last_sensor_hit sensor_hit_polling_result;
         while (last_record.sensor == sensor_hit_polling_result.sensor) {
@@ -267,6 +272,7 @@ void train_conductor() {
   int clock_server = WhoIs("ClockServer");
   int track_state_controller = WhoIs("TrackStateController");
   int cmd_dispatcher = WhoIs("CommandDispatcher");
+  int sensor_interpreter = WhoIs("SensorInterpreter");
   Assert(train_tx_server > 0);
   Assert(clock_server > 0);
   Assert(track_state_controller > 0);
@@ -274,6 +280,7 @@ void train_conductor() {
 
   train_data d;
   d.last_speed = 0;
+  d.should_speed = 14;
   d.time_speed_last_changed = Time(clock_server);
 
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -307,8 +314,9 @@ void train_conductor() {
             break;
           case USER_CMD_R:
             Assert(received.msg.cmd.data[0] == d.train);
-            conductor_route_to_sensor(clock_server, train_tx_server,
-                            track_state_controller, d.train, d.should_speed,
+            conductor_route_to(clock_server, train_tx_server,
+                            track_state_controller, sensor_interpreter,
+                            d.train, d.should_speed,
                             received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
             break;
           default:
