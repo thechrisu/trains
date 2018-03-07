@@ -120,7 +120,7 @@ typedef struct {
 
 typedef struct {
   unsigned int sensor;
-  int time;
+  int ticks;
 } reply_get_last_sensor_hit;
 
 typedef struct {

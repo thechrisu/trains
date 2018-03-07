@@ -110,7 +110,7 @@ void sensor_interpreter() {
 
         reply.type = REPLY_GET_LAST_SENSOR_HIT;
         reply.msg.last_sensor.sensor = last_sensor[train];
-        reply.msg.last_sensor.time = time_at_last_sensor_hit[train];
+        reply.msg.last_sensor.ticks = time_at_last_sensor_hit[train];
 
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
