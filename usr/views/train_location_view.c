@@ -17,7 +17,7 @@ void train_location_view() {
   int sensor_interpreter_tid = WhoIs("SensorInterpreter");
   Assert(sensor_interpreter_tid > 0);
 
-  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s%s",
+  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot:%s%s",
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
   train_data tr_data;
