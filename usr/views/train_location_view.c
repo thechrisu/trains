@@ -47,6 +47,7 @@ void train_location_view() {
     if (last_sensor != seen_sensor && seen_sensor != NO_DATA_RECEIVED) {
       last_sensor = seen_sensor;
       time_last_sensor_hit = reply.msg.last_sensor.time;
+      expected_time_last_sensor_hit = expected_time_next_sensor_hit;
 
       send.type = MESSAGE_GETTURNOUTS;
       Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
@@ -54,18 +55,13 @@ void train_location_view() {
 
       unsigned int next_sensor = sensor_next(&track, last_sensor, reply.msg.turnout_states);
 
+      get_constant_velocity_model(track_state_controller_tid, t1train, &reply);
+      int velocity = reply.msg.train_speeds[tr_data.should_speed];
+
       if (next_sensor == 1337) {
         Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                       TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
       } else {
-        expected_time_last_sensor_hit = expected_time_next_sensor_hit;
-
-        send.type = MESSAGE_GETCONSTANTSPEEDMODEL;
-        send.msg.train = t1train;
-        Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-        Assert(reply.type == REPLY_GETCONSTANTSPEEDMODEL);
-
-        int velocity = reply.msg.train_speeds[tr_data.should_speed];
         int time_to_next_sensor = distance_between_sensors(&track, last_sensor, next_sensor) * 10000 / velocity;
         expected_time_next_sensor_hit = time_last_sensor_hit + time_to_next_sensor;
 
@@ -79,21 +75,21 @@ void train_location_view() {
                       sensor_bank(next_sensor), sensor_index(next_sensor),
                       minutes, seconds >= 10 ? "" : "0", seconds, deciseconds,
                       HIDE_CURSOR_TO_EOL) == 0);
+      }
 
-        if (expected_last_sensor == last_sensor && expected_time_last_sensor_hit != NO_LAST_SENSOR) {
-          int time_diff = time_last_sensor_hit - expected_time_last_sensor_hit;
-          int distance_diff = velocity * time_diff / 10000;
-          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTime diff: %c%u.%u%u s - Distance diff: %c%u.%u cm%s",
-                        TRAIN_LOCATION_LINE + 2, 1,
-                        time_diff < 0 ? '-' : ' ',
-                        ABS(time_diff) / 100, ABS(time_diff / 10) % 10, ABS(time_diff) % 10,
-                        distance_diff < 0 ? '-' : ' ',
-                        ABS(distance_diff) / 10, ABS(distance_diff) % 10,
-                        HIDE_CURSOR_TO_EOL) == 0);
-        } else {
-          Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
-                        TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
-        }
+      if (expected_time_last_sensor_hit == NO_LAST_SENSOR || expected_last_sensor != last_sensor) {
+        Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
+                      TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
+      } else {
+        int time_diff = time_last_sensor_hit - expected_time_last_sensor_hit;
+        int distance_diff = velocity * time_diff / 10000;
+        Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTime diff: %c%u.%u%u s - Distance diff: %c%u.%u cm%s",
+                      TRAIN_LOCATION_LINE + 2, 1,
+                      time_diff < 0 ? '-' : ' ',
+                      ABS(time_diff) / 100, ABS(time_diff / 10) % 10, ABS(time_diff) % 10,
+                      distance_diff < 0 ? '-' : ' ',
+                      ABS(distance_diff) / 10, ABS(distance_diff) % 10,
+                      HIDE_CURSOR_TO_EOL) == 0);
       }
 
       expected_last_sensor = next_sensor;
