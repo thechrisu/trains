@@ -73,11 +73,27 @@ void stop_and_reverse_train(int clock_server_tid, int train_tx_server_tid, int t
 void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved);
 
 /**
+ * Queries the track state controller for train data.
+ *
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param reply                      A message in which to store the train data.
+ */
+void get_sensors(int track_state_controller_tid, message *reply);
+
+/**
  * Queries the track state controller for sensor data.
  * @param track_state_controller_tid The task ID of the track state controller.
  * @param reply                      A message in which to store the sensor data, coming from the track state controller's reply.
  */
 void get_sensors(int track_state_controller_tid, message *reply);
+
+/**
+ * Queries the track state controller for turnout state.
+ *
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param reply                      A message in which to store the turnout state.
+ */
+void get_turnouts(int track_state_controller_tid, message *reply);
 
 /**
  * Gets the speed -> velocity mapping for a train in the track state controller.

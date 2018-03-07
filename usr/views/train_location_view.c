@@ -35,10 +35,7 @@ void train_location_view() {
   time_last_sensor_hit = reply.msg.last_sensor.time;
 
   while (true) {
-    send.type = MESSAGE_GETTRAIN;
-    send.msg.tr_data.train = t1train;
-    Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-    Assert(reply.type == REPLY_GETTRAIN);
+    get_train(track_state_controller_tid, t1train, &reply);
     tmemcpy(&tr_data, &reply.msg.tr_data, sizeof(tr_data));
 
     get_last_sensor_hit(sensor_interpreter_tid, t1train, &reply);
@@ -49,10 +46,7 @@ void train_location_view() {
       time_last_sensor_hit = reply.msg.last_sensor.time;
       expected_time_last_sensor_hit = expected_time_next_sensor_hit;
 
-      send.type = MESSAGE_GETTURNOUTS;
-      Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-      Assert(reply.type == REPLY_GETTURNOUTS);
-
+      get_turnouts(track_state_controller_tid, &reply);
       unsigned int next_sensor = sensor_next(&track, last_sensor, reply.msg.turnout_states);
 
       get_constant_velocity_model(track_state_controller_tid, t1train, &reply);
