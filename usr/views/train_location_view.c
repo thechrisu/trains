@@ -55,8 +55,6 @@ void print_diffs(int terminal_tx_server_tid,
 }
 
 void train_location_view() {
-  message reply;
-
   int clock_server_tid = WhoIs("ClockServer");
   Assert(clock_server_tid > 0);
 
@@ -73,6 +71,9 @@ void train_location_view() {
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
   train_data tr_data;
+  reply_get_last_sensor_hit seen_sensor;
+  turnout_state turnout_states[NUM_TURNOUTS];
+
   unsigned int last_sensor;
   unsigned int expected_last_sensor = NO_LAST_SENSOR;
   int ticks_last_sensor_hit;
@@ -80,25 +81,23 @@ void train_location_view() {
   int expected_ticks_next_sensor_hit = NO_LAST_SENSOR;
   int loops = 0;
 
-  get_last_sensor_hit(sensor_interpreter_tid, t1train, &reply);
-  last_sensor = reply.msg.last_sensor.sensor;
-  ticks_last_sensor_hit = reply.msg.last_sensor.ticks;
+  get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
+  last_sensor = seen_sensor.sensor;
+  ticks_last_sensor_hit = seen_sensor.ticks;
 
   while (true) {
-    get_train(track_state_controller_tid, t1train, &reply);
-    tmemcpy(&tr_data, &reply.msg.tr_data, sizeof(tr_data));
+    get_train(track_state_controller_tid, t1train, &tr_data);
+    get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
 
-    get_last_sensor_hit(sensor_interpreter_tid, t1train, &reply);
-    unsigned int seen_sensor = reply.msg.last_sensor.sensor;
-
-    if (last_sensor != seen_sensor && seen_sensor != NO_DATA_RECEIVED) {
-      last_sensor = seen_sensor;
-      ticks_last_sensor_hit = reply.msg.last_sensor.ticks;
+    if (last_sensor != seen_sensor.sensor && seen_sensor.sensor != NO_DATA_RECEIVED) {
+      last_sensor = seen_sensor.sensor;
+      ticks_last_sensor_hit = seen_sensor.ticks;
       expected_ticks_last_sensor_hit = expected_ticks_next_sensor_hit;
 
-      get_turnouts(track_state_controller_tid, &reply);
-      unsigned int next_sensor = sensor_next(&track, last_sensor, reply.msg.turnout_states);
+      get_turnouts(track_state_controller_tid, turnout_states);
+      unsigned int next_sensor = sensor_next(&track, last_sensor, turnout_states);
 
+      message reply;
       get_constant_velocity_model(track_state_controller_tid, t1train, &reply);
       int velocity = reply.msg.train_speeds[tr_data.should_speed];
 

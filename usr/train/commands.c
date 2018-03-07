@@ -105,12 +105,13 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   Putc(train_tx_server_tid, TRAIN, (char)0x20);
 }
 
-void get_train(int track_state_controller_tid, int train, message *reply) {
-  message send;
+void get_train(int track_state_controller_tid, int train, train_data *tr_data) {
+  message send, reply;
   send.type = MESSAGE_GETTRAIN;
   send.msg.tr_data.train = train;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
-  Assert(reply->type == REPLY_GETTRAIN);
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_GETTRAIN);
+  tmemcpy(tr_data, &reply.msg.tr_data, sizeof(*tr_data));
 }
 
 void get_sensors(int track_state_controller_tid, message *reply) {
@@ -120,11 +121,12 @@ void get_sensors(int track_state_controller_tid, message *reply) {
   Assert(reply->type == REPLY_GETSENSORS);
 }
 
-void get_turnouts(int track_state_controller_tid, message *reply) {
-  message send;
+void get_turnouts(int track_state_controller_tid, turnout_state turnout_states[NUM_TURNOUTS]) {
+  message send, reply;
   send.type = MESSAGE_GETTURNOUTS;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
-  Assert(reply->type == REPLY_GETTURNOUTS);
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_GETTURNOUTS);
+  tmemcpy(turnout_states, &reply.msg.turnout_states, NUM_TURNOUTS * sizeof(turnout_state));
 }
 
 void get_constant_velocity_model(int track_state_controller_tid, int train, message *reply) {
@@ -180,10 +182,11 @@ void update_stopping_time_model(int track_state_controller_tid, int train, int s
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
-void get_last_sensor_hit(int sensor_interpreter_tid, int train, message *reply) {
-  message send;
+void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_sensor_hit *last_sensor) {
+  message send, reply;
   send.type = MESSAGE_GET_LAST_SENSOR_HIT;
   send.msg.train = train;
-  Assert(Send(sensor_interpreter_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
-  Assert(reply->type == REPLY_GET_LAST_SENSOR_HIT);
+  Assert(Send(sensor_interpreter_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
+  tmemcpy(last_sensor, &reply.msg.last_sensor, sizeof(*last_sensor));
 }

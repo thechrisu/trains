@@ -76,9 +76,10 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
  * Queries the track state controller for train data.
  *
  * @param track_state_controller_tid The task ID of the track state controller.
- * @param reply                      A message in which to store the train data.
+ * @param train                      The train to get data for.
+ * @param tr_data                    A location in which to store the train data.
  */
-void get_train(int track_state_controller_tid, int train, message *reply);
+void get_train(int track_state_controller_tid, int train, train_data *tr_data);
 
 /**
  * Queries the track state controller for sensor data.
@@ -91,9 +92,9 @@ void get_sensors(int track_state_controller_tid, message *reply);
  * Queries the track state controller for turnout state.
  *
  * @param track_state_controller_tid The task ID of the track state controller.
- * @param reply                      A message in which to store the turnout state.
+ * @param turnout_states             A location in which to store the turnout state.
  */
-void get_turnouts(int track_state_controller_tid, message *reply);
+void get_turnouts(int track_state_controller_tid, turnout_state turnout_states[NUM_TURNOUTS]);
 
 /**
  * Gets the speed -> velocity mapping for a train in the track state controller.
@@ -156,9 +157,9 @@ void update_stopping_time_model(int track_state_controller_tid, int train, int s
 
 /**
  * @param sensor_interpreter_tid Task ID of the sensor interpreter.
- * @param train                  Train number
- * @param reply                  Message to put the reply in.
+ * @param train                  Train number.
+ * @param reply                  Location to put the reply in.
  */
-void get_last_sensor_hit(int sensor_interpreter_tid, int train, message *reply);
+void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_sensor_hit *last_sensor);
 
 #endif /* TRAIN_COMMANDS_H */
