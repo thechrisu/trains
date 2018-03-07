@@ -213,6 +213,7 @@ void train_conductor() {
             conductor_loop(train_tx_server, track_state_controller,
                            clock_server, terminal_tx_server,
                            d.train, received.msg.cmd.data[1]);
+            break;
           case USER_CMD_TR:
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_setspeed(train_tx_server, track_state_controller, d.train,
