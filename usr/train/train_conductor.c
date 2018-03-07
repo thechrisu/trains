@@ -167,10 +167,11 @@ void conductor_loop(int train_tx_server, int track_state_controller,
                     int train, int speed) {
   (void)train_tx_server;
   (void)track_state_controller;
-  (void)clock_server;
   (void)terminal_tx_server;
   (void)train;
   (void)speed;
+
+  Delay(clock_server, 1000);
 }
 
 void train_conductor() {
