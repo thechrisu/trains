@@ -1,6 +1,7 @@
 #include "train_conductor.h"
 
 #define CONDUCTOR_STOP_CHECK_INTERVAL 5
+#define CONDUCTOR_SENSOR_CHECK_INTERVAL 2
 
 void conductor_setspeed(int train_tx_server, int track_state_controller,
                         int train, int speed) {
@@ -182,6 +183,13 @@ void route_switch_turnouts(int clock_server, int train_tx_server,
   }
 }
 
+void get_location_from_last_sensor_hit(int clock_server, int velocity,
+                                       reply_get_last_sensor_hit *last_record,
+                                       location *current) {
+  current.sensor = last_record.sensor;
+  current.offset = velocity * (Time(clock_server) - last_record.ticks) / 100;
+}
+
 void get_next_two_sensors(reservation *remaining_route, int next_two_sensors[2]) {
   int n_sensors_found;
   reservation *c = remaining_route
@@ -207,38 +215,45 @@ void get_next_two_sensors(reservation *remaining_route, int next_two_sensors[2])
  * @param goal_offset                  Offset from goal sensor (in 1/100mm)
  */
 void conductor_route_to(int clock_server, int train_tx_server,
-                        int track_state_controller, int train, int speed,
+                        int track_state_controller, int sensor_interpreter,
+                        int train, int speed,
                         int sensor_offset, int goal_offset) {
-  location current, end;
+  location start, end;
+  reply_get_last_sensor_hit last_record;
   message sensor_message;
   int current_speed = speed;
-  start.sensor = -1;
-  start.offset = -1;
   end.sensor = sensor_offset;
   end.offset = goal_offset;
   reservation route[MAX_ROUTE_LENGTH];
   bool got_error = false;
-  do { got_error = false; Assert(get_route(train, speed, &start, &end, route) == 0); // TODO fix for T2
+  get_last_sensor_hit(sensor_interpreter, train, last_record); // TODO retur error if no last sensor hit.
+  do {
+    got_error = false;
+    get_location_from_last_sensor_hit(clock_server, velocity, &last_record, &start);
+    Assert(get_route(train, speed, &start, &end, route) == 0); // TODO fix for T2
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
     conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
     while (c->train != 0) {
       get_sensors(track_state_controller, &sensor_message);
+      int ticks_exp_at_next_sensor = Time(clock_server) + c->ticks_end;
       int next_two_sensors[2];
       get_next_two_sensors(c, next_two_sensors);
-      if (next_two_sensors[0] == -1); // TODO no sensor left -> you're on your own, buddy.
-      else if (next_two_sensors[1] == -1); // TODO if this sensor fails, you're also on your own.
-      else ; // We're comfortable and can endure at least one sensor failure
-      switch (c->node->type) {
-        case NODE_SENSOR:
-          // TODO poll with timeout until at that sensor OR the sensor after that.
+      if (next_two_sensors[0] == -1) { // TODO no sensor left -> you're on your own, buddy.
+      } else if (next_two_sensors[1] == -1) { // TODO if this sensor fails, you're also on your own.
+      } else { // We're comfortable and can endure at least one sensor failure
+        reply_get_last_sensor_hit sensor_hit_polling_result;
+        while (last_record.sensor == sensor_hit_polling_result.sensor) {
+          get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
+          Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
+        }
+        last_record.sensor = sensor_hit_polling_result.sensor;
+        last_record.ticks = sensor_hit_polling_result.ticks;
+        if (last_record.sensor != next_two_sensors[0] && last_record.sensor != next_two_sensors[1]) {
+          got_error = true; // Oh no! We are lost and we should reroute.
           break;
-        case NODE_BRANCH:
-          // TODO take into account broken turnouts
-        default:
-          logprintf("Unknown route node type %d in conductor_route_to_sensor\n\r",
-                    c->node->type);
+        }
       }
     }
   } while (got_error);
