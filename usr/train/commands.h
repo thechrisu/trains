@@ -78,7 +78,7 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
  * @param track_state_controller_tid The task ID of the track state controller.
  * @param reply                      A message in which to store the train data.
  */
-void get_sensors(int track_state_controller_tid, message *reply);
+void get_train(int track_state_controller_tid, message *reply);
 
 /**
  * Queries the track state controller for sensor data.

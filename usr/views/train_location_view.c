@@ -5,7 +5,7 @@
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
 void train_location_view() {
-  message send, reply;
+  message reply;
 
   int clock_server_tid = WhoIs("ClockServer");
   Assert(clock_server_tid > 0);
