@@ -1578,7 +1578,7 @@ unsigned int sensor_next(track_state *t, unsigned int start,
       case NODE_BRANCH: {
         unsigned int index = turnout_num_to_map_offset(current->num);
         // Default to curved, since that seems to be a popular initial state
-        current = turnout_states[index] == TURNOUT_STRAIGHT ? STRAIGHT(current) : CURVED(current);
+        current = (turnout_states[index] == TURNOUT_STRAIGHT) ? STRAIGHT(current) : CURVED(current);
         break;
       }
       default:
