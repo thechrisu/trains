@@ -42,7 +42,7 @@ void train_location_view() {
     tmemcpy(&tr_data, &reply.msg.tr_data, sizeof(tr_data));
 
     get_last_sensor_hit(sensor_interpreter_tid, t1train, &reply);
-    int seen_sensor = reply.msg.last_sensor.sensor;
+    unsigned int seen_sensor = reply.msg.last_sensor.sensor;
 
     if (last_sensor != seen_sensor && seen_sensor != NO_DATA_RECEIVED) {
       last_sensor = seen_sensor;

@@ -170,5 +170,5 @@ void get_last_sensor_hit(int sensor_interpreter_tid, int train, message *reply) 
   send.type = MESSAGE_GET_LAST_SENSOR_HIT;
   send.msg.train = train;
   Assert(Send(sensor_interpreter_tid, &send, sizeof(send), reply, sizeof(*reply)) == sizeof(*reply));
-  Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
+  Assert(reply->type == REPLY_GET_LAST_SENSOR_HIT);
 }
