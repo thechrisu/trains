@@ -2,6 +2,7 @@
 #define TRAIN_UTIL_H
 
 #include "commands.h"
+#include "global_track_state.h"
 #include "terminal.h"
 #include "tstdlib.h"
 
@@ -43,5 +44,15 @@ int poll_until_sensor_triggered_with_timeout(int clock_server_tid,
  * @param offset                     The offset of a sensor within the sensor data bitmap.
  */
 void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, unsigned int offset);
+
+/**
+ * When stopping, get the remaining distance (1/100mm) until we have stopped.
+ *
+ * @param speed                     Speed of the train (0-14).
+ * @param train                     Train number (1-80).
+ * @param ticks_left                Estimate of when we will stop.
+ * @return Remaining distance until we have stopped.
+ */
+int stopping_dist_remaining_dist(int train, int speed, int ticks_left);
 
 #endif /* TRAIN_UTIL_H */
