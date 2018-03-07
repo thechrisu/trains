@@ -10,6 +10,12 @@ void print_next_sensor_prediction(int terminal_tx_server_tid,
   if (next_sensor == NO_NEXT_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                   TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
+  } else if (expected_ticks_next_sensor_hit == NO_LAST_SENSOR) {
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNext sensor: %s%c%d%s",
+                  TRAIN_LOCATION_LINE + 1, 1,
+                  sensor_index(next_sensor) >= 10 ? "" : " ",
+                  sensor_bank(next_sensor), sensor_index(next_sensor),
+                  HIDE_CURSOR_TO_EOL) == 0);
   } else {
     uint32_t minutes = expected_ticks_next_sensor_hit / 100 / 60;
     uint32_t seconds = (expected_ticks_next_sensor_hit / 100) % 60;
@@ -41,9 +47,9 @@ void print_diffs(int terminal_tx_server_tid,
                   HIDE_CURSOR_TO_EOL) == 0);
   } else {
     int ticks_diff = ticks_last_sensor_hit - expected_ticks_last_sensor_hit;
-    int distance_diff = velocity * ticks_diff / 10000;
+    int distance_diff = (int32_t)velocity * ticks_diff / 10000;
     Assert(Printf(terminal_tx_server_tid,
-                  "\033[%d;%dHTime diff: %c%u.%u%u s - Distance diff: %c%u.%u cm%s",
+                  "\033[%d;%dHTime diff: %c%d.%d%d s - Distance diff: %c%d.%d cm%s",
                   TRAIN_LOCATION_LINE + 2, 1,
                   ticks_diff < 0 ? '-' : ' ',
                   ABS(ticks_diff) / 100, ABS(ticks_diff / 10) % 10, ABS(ticks_diff) % 10,
@@ -100,7 +106,7 @@ void train_location_view() {
       get_constant_velocity_model(track_state_controller_tid, t1train, &reply);
       int velocity = reply.msg.train_speeds[tr_data.should_speed];
 
-      if (next_sensor != NO_NEXT_SENSOR) {
+      if (next_sensor != NO_NEXT_SENSOR && velocity != 0) {
         int distance_to_next_sensor = distance_between_sensors(&track, last_sensor, next_sensor);
         int ticks_to_next_sensor = distance_to_next_sensor * 10000 / velocity;
         expected_ticks_next_sensor_hit = ticks_last_sensor_hit + ticks_to_next_sensor;
