@@ -28,7 +28,7 @@ void conductor_reverse_to_speed(int train_tx_server,
 int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
                           uint32_t velocity) {
   int c_time = Time(clock_server);
-  return velocity * (c_time - ticks_at_last_sensor) / 100;
+  return (int)velocity * (c_time - ticks_at_last_sensor) / 100;
 }
 
 /**
@@ -47,9 +47,8 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
     Delay(clock_server, CONDUCTOR_STOP_CHECK_INTERVAL);
     int diff = dist_from_last_sensor(clock_server, last_stopping, velocity);
     dist = start_dist - diff;
-    if (terminal_tx_server > 0)
-      Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
-        CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
+    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
+      CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
   }
 }
 
@@ -307,18 +306,14 @@ void conductor_route_to(int clock_server, int train_tx_server,
       int dist_to_second_sensor_ahead = next_two_sensors[1] == NULL_RESERVATION ?
               1E5 : get_dist_between_reservations(c, next_two_sensors[1]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
-      if (dist_left - dist_to_second_sensor_ahead < stopping_distance) {
-        poll_until_at_dist(clock_server, 0,
-            dist_left - stopping_distance,
-            (int)velocity_model.msg.train_speeds[speed]);
+      logprintf("Last sensor: %d, dist left: %d, stopping distance: %d\n\r", last_record.sensor, dist_left, stopping_distance);
+      if (dist_left < stopping_distance) {
         conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+        cancel_route(train);
         break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure
         reply_get_last_sensor_hit sensor_hit_polling_result;
-        while (last_record.sensor == sensor_hit_polling_result.sensor) {
-          get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
-          Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
-        }
+        get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
         last_record.sensor = sensor_hit_polling_result.sensor;
         last_record.ticks = sensor_hit_polling_result.ticks;
         if (next_two_sensors[0] != NULL_RESERVATION
