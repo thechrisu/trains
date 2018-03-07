@@ -51,5 +51,5 @@ float get_fudged_stopping_distance_factor(int train) {
 }
 
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
-  return 0.5 + (1 / get_fudged_stopping_distance_factor(train)) * (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left / 0.5;
+  return 0.5 + (1 / get_fudged_stopping_distance_factor(train)) * (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left * 0.5;
 }
