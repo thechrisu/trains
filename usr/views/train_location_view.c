@@ -7,7 +7,7 @@
 void print_next_sensor_prediction(int terminal_tx_server_tid,
                                   unsigned int next_sensor,
                                   int expected_ticks_next_sensor_hit) {
-  if (next_sensor == 1337) {
+  if (next_sensor == NO_NEXT_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                   TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else {
@@ -102,7 +102,7 @@ void train_location_view() {
       get_constant_velocity_model(track_state_controller_tid, t1train, &reply);
       int velocity = reply.msg.train_speeds[tr_data.should_speed];
 
-      if (next_sensor != 1337) {
+      if (next_sensor != NO_NEXT_SENSOR) {
         int distance_to_next_sensor = distance_between_sensors(&track, last_sensor, next_sensor);
         int ticks_to_next_sensor = distance_to_next_sensor * 10000 / velocity;
         expected_ticks_next_sensor_hit = ticks_last_sensor_hit + ticks_to_next_sensor;

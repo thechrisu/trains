@@ -1582,7 +1582,7 @@ unsigned int sensor_next(track_state *t, unsigned int start,
         break;
       }
       default:
-        return 1337;
+        return NO_NEXT_SENSOR;
     }
   }
 }
