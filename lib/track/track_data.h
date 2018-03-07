@@ -147,6 +147,15 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
  */
 void location_reverse(track_state *t, location *destination, location *source);
 
+/**
+ * @param   t              A track state.
+ * @param   start          The sensor to start from.
+ * @param   turnout_states A list of turnout states. This is provided separately
+ *                         from the track state to ensure the turnout states can't
+ *                         be changed partway through the function.
+ * @returns The next sensor after `start`, taking into account the turnouts' states,
+ *          or 1337 if there is no such sensor.
+ */
 unsigned int sensor_next(track_state *t, unsigned int start,
                          turnout_state turnout_states[NUM_TURNOUTS]);
 
