@@ -11,7 +11,6 @@ void print_next_sensor_prediction(int terminal_tx_server_tid,
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                   TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else {
-
     uint32_t minutes = expected_ticks_next_sensor_hit / 100 / 60;
     uint32_t seconds = (expected_ticks_next_sensor_hit / 100) % 60;
     uint32_t deciseconds = (expected_ticks_next_sensor_hit / 10) % 10;
