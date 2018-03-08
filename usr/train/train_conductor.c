@@ -226,6 +226,7 @@ reservation *get_next_of_type(reservation *remaining_route, node_type type) {
       logprintf("get_next_of_type: returning %s\n\r", c->node->name);
       return c;
     }
+    c += 1;
   }
   logprintf("get_next_of_type: returning NULL_RESERVATION\n\r");
   return NULL_RESERVATION;
