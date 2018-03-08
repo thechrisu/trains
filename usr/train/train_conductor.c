@@ -375,13 +375,13 @@ void conductor_loop(int clock_server, int train_tx_server,
   // Important to get these sensors switched ASAP
   switch_turnout(clock_server, train_tx_server, track_state_controller, 8, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 10, false);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 17, false);
 
   switch_turnout(clock_server, train_tx_server, track_state_controller, 9, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 13, false);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 14, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 15, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 16, false);
-  switch_turnout(clock_server, train_tx_server, track_state_controller, 17, false);
 }
 
 void train_conductor() {
