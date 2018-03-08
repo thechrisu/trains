@@ -254,18 +254,22 @@ int get_dist_between_reservations(reservation *start, reservation *end) {
 
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int sensor_interpreter,
-                                       int train, int speed,
-                                       int sensor_offset, int goal_offset) {
+                                       int train, int sensor_offset, int goal_offset) {
   int s = Time(clock_server);
   location start, end;
   reply_get_last_sensor_hit last_record;
   message sensor_message;
+
   message velocity_model, stopping_distance_model;
   get_constant_velocity_model(track_state_controller, train,
                               &velocity_model);
   get_stopping_distance_model(track_state_controller, train,
                               &stopping_distance_model);
-  int current_speed = speed;
+
+  train_data tr_data;
+  get_train(track_state_controller, train, &tr_data);
+  int speed = tr_data.should_speed;
+
   end.sensor = sensor_offset;
   end.offset = goal_offset;
   reservation route[MAX_ROUTE_LENGTH];
@@ -282,9 +286,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
 
-    int route_result = get_route_next(train, speed, &start, &end, route)
+    int route_result = get_route_next(train, speed, &start, &end, route);
     if (route_result < 0) {
-      logprintf("Tried to route to %c%d but couldn't get a route\n\r"
+      logprintf("Tried to route from %c%d to %c%d but couldn't get a route\n\r",
+                sensor_bank(start.sensor), sensor_index(start.sensor),
                 sensor_bank(end.sensor), sensor_index(end.sensor));
       return;
     }
@@ -292,7 +297,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
-    conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
+
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
       get_sensors(track_state_controller, &sensor_message);
@@ -333,20 +338,16 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
  * @param train_tx_server              Transmit server of the train.
  * @param track_state_controller       Track state controller.
  * @param train                        Train number to route.
- * @param speed                        Train speed to route.
  * @param sensor_offset                Offset of sensor (1-80)
  * @param goal_offset                  Offset from goal sensor (in 1/100mm)
  */
 void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int sensor_interpreter,
-                        int train, int speed,
-                        int sensor_offset, int goal_offset) {
+                        int train, int sensor_offset, int goal_offset) {
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, sensor_interpreter,
-                                    train, speed,
-                                    sensor_offset, goal_offset);
+                                    train, sensor_offset, goal_offset);
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
-  Delay(clock_server, 50 * speed);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
@@ -357,7 +358,7 @@ void conductor_loop(int clock_server, int train_tx_server,
   conductor_setspeed(train_tx_server, track_state_controller, train, speed);
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, sensor_interpreter,
-                                    train, speed, D5, 0);
+                                    train, D5, 0);
 
   bool timed_out = poll_until_sensor_pair_triggered_with_timeout(
     clock_server,
@@ -397,7 +398,6 @@ void train_conductor() {
   Assert(track_state_controller > 0);
   Assert(cmd_dispatcher > 0);
 
-  int last_nonzero_speed = 14;
   train_data d;
   d.last_speed = 0;
   d.should_speed = 0;
@@ -431,8 +431,6 @@ void train_conductor() {
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_setspeed(train_tx_server, track_state_controller, d.train,
                                received.msg.cmd.data[1]);
-            if (received.msg.cmd.data[1] > 0)
-              last_nonzero_speed = received.msg.cmd.data[1];
             break;
           case USER_CMD_RV:
             Assert(received.msg.cmd.data[0] == d.train);
@@ -443,8 +441,7 @@ void train_conductor() {
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_route_to(clock_server, train_tx_server,
                             track_state_controller, sensor_interpreter,
-                            d.train, d.should_speed > 0 ? d.should_speed : last_nonzero_speed,
-                            received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
+                            d.train, received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
             break;
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);
