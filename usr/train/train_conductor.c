@@ -217,7 +217,7 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
 
 // TODO comment
 reservation *get_next_of_type(reservation *remaining_route, node_type type) {
-  reservation *c = remaining_route;
+  reservation *c = remaining_route + 1;
   while (c->train != 0) {
     if (c->node->type == type) {
       return c;
