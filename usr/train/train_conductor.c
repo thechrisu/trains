@@ -281,7 +281,14 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     got_error = false;
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
-    Assert(get_route_next(train, speed, &start, &end, route) == 0);
+
+    int route_result = get_route_next(train, speed, &start, &end, route)
+    if (route_result < 0) {
+      logprintf("Tried to route to %c%d but couldn't get a route\n\r"
+                sensor_bank(end.sensor), sensor_index(end.sensor));
+      return;
+    }
+
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
