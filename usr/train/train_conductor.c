@@ -309,7 +309,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
-    bool is_first_sensor = true;
+    Assert(c->node->num >= 0 && c->node->num < 80);
+    poll_until_sensor_triggered_with_timeout(clock_server, track_state_controller, c->node->num, 10 * 100 * 30);
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
@@ -336,10 +337,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
           reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
           logprintf("next_sensor is null: %s\n\r", next_sensor == NULL_RESERVATION ? "yes" : "no");
           if (next_sensor != NULL_RESERVATION) {
-            if (last_record.sensor == (unsigned int)next_sensor->node->num || is_first_sensor) {
+            if (last_record.sensor == (unsigned int)next_sensor->node->num) {
               logprintf("Updated c to %s\n\r", next_sensor->node->name);
               c = next_sensor;
-              is_first_sensor = false;
             } else {
               logprintf("Expected to be at sensor %s but were at %c%d\n\r",
                   next_sensor->node->name,
