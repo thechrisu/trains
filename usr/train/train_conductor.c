@@ -217,12 +217,17 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
 
 // TODO comment
 reservation *get_next_of_type(reservation *remaining_route, node_type type) {
+  logprintf("get_next_of_type: remaining route starts at %s\n\r", remaining_route->node->name);
+  logprintf("get_next_of_type: type to look for is %d\n\r", type);
   reservation *c = remaining_route + 1;
   while (c->train != 0) {
+    logprintf("get_next_of_type: looking at %s of type %d\n\r", c->node->name, c->node->type);
     if (c->node->type == type) {
+      logprintf("get_next_of_type: returning %s\n\r", c->node->name);
       return c;
     }
   }
+  logprintf("get_next_of_type: returning NULL_RESERVATION\n\r");
   return NULL_RESERVATION;
 }
 
@@ -313,7 +318,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                             velocity_model.msg.train_speeds[speed]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
 
-      logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
+      // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
 
       if (dist_left < stopping_distance) {
         break; // TODO add delay to only return once we have stopped??
@@ -322,15 +327,23 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
 
         if (sensor_hit_polling_result.sensor != last_record.sensor) {
+          logprintf("New sensor data: %c%d\n\r",
+              sensor_bank(sensor_hit_polling_result.sensor),
+              sensor_index(sensor_hit_polling_result.sensor));
           last_record.sensor = sensor_hit_polling_result.sensor;
           last_record.ticks = sensor_hit_polling_result.ticks;
 
           reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
+          logprintf("next_sensor is null: %s\n\r", next_sensor == NULL_RESERVATION ? "yes" : "no");
           if (next_sensor != NULL_RESERVATION) {
             if (last_record.sensor == (unsigned int)next_sensor->node->num || is_first_sensor) {
+              logprintf("Updated c to %s\n\r", next_sensor->node->name);
               c = next_sensor;
               is_first_sensor = false;
             } else {
+              logprintf("Expected to be at sensor %s but were at %c%d\n\r",
+                  next_sensor->node->name,
+                  sensor_bank(last_record.sensor), sensor_index(last_record.sensor));
               got_error = true; // Oh no! We are lost and we should reroute.
               break;
             }
@@ -342,6 +355,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     }
 
     cancel_route(train);
+
+    Assert(!got_error);
   } while (got_error);
 }
 
