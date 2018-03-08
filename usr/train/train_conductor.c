@@ -304,20 +304,26 @@ void conductor_route_to(int clock_server, int train_tx_server,
       logprintf("Last sensor: %d, dist left: %d, stopping distance: %d\n\r", last_record.sensor, dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
         conductor_setspeed(train_tx_server, track_state_controller, train, 0);
-        cancel_route(train);
         break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure
         reply_get_last_sensor_hit sensor_hit_polling_result;
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
-        last_record.sensor = sensor_hit_polling_result.sensor;
-        last_record.ticks = sensor_hit_polling_result.ticks;
-        if (next_sensor != NULL_RESERVATION
-            && last_record.sensor != (unsigned int)next_sensor->node->num) {
-          got_error = true; // Oh no! We are lost and we should reroute.
-          break;
+        if (sensor_hit_polling_result.sensor != last_record.sensor) {
+          last_record.sensor = sensor_hit_polling_result.sensor;
+          last_record.ticks = sensor_hit_polling_result.ticks;
+          if (next_sensor != NULL_RESERVATION) {
+            if (last_record.sensor != (unsigned int)next_sensor->node->num) {
+              got_error = true; // Oh no! We are lost and we should reroute.
+              break;
+            } else {
+              c = next_sensor;
+            }
+          }
         }
       }
+      Delay(clock_server, 1);
     }
+    cancel_route(train);
   } while (got_error);
 }
 
