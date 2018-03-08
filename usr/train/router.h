@@ -28,6 +28,8 @@ void router();
  */
 int get_route(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
 
+int get_route_next(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
+
 /**
  * Cancels the route reserved by the given train.
  *

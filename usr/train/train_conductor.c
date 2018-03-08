@@ -1,7 +1,7 @@
 #include "train_conductor.h"
 
-#define CONDUCTOR_STOP_CHECK_INTERVAL 5
-#define CONDUCTOR_SENSOR_CHECK_INTERVAL 2
+#define CONDUCTOR_STOP_CHECK_INTERVAL 2
+#define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
 void conductor_setspeed(int train_tx_server, int track_state_controller,
                         int train, int speed) {
@@ -218,10 +218,10 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
 }
 
 // TODO comment
-reservation *get_next_sensor(reservation *remaining_route) {
+reservation *get_next_of_type(reservation *remaining_route, node_type type) {
   reservation *c = remaining_route;
   while ((c + 1)->train != 0) {
-    if (c->node->type == NODE_SENSOR) {
+    if (c->node->type == type) {
       return c;
     }
   }
@@ -288,7 +288,7 @@ void conductor_route_to(int clock_server, int train_tx_server,
     got_error = false;
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
-    Assert(get_route(train, speed, &start, &end, route) == 0);
+    Assert(get_route_next(train, speed, &start, &end, route) == 0);
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
@@ -297,14 +297,14 @@ void conductor_route_to(int clock_server, int train_tx_server,
       if (Time(clock_server) - s > 100 * 50) Assert(0);
       get_sensors(track_state_controller, &sensor_message);
 
-      reservation *next_sensor = get_next_sensor(c);
+      reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
       int dist_left = get_remaining_dist_in_route(c)
               - dist_from_last_sensor(clock_server, last_record.ticks,
                         velocity_model.msg.train_speeds[speed]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
       logprintf("Last sensor: %d, dist left: %d, stopping distance: %d\n\r", last_record.sensor, dist_left, stopping_distance);
       if (dist_left < stopping_distance || next_sensor == NULL_RESERVATION) {
-        poll_until_at_dist(clock_server, 0, dist_left - stopping_distance, (int)velocity_model.msg.train_speeds[speed]);
+        poll_until_at_dist(clock_server, 0, end.offset + dist_left - stopping_distance, (int)velocity_model.msg.train_speeds[speed]);
         conductor_setspeed(train_tx_server, track_state_controller, train, 0);
         break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure

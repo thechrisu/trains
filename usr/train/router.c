@@ -203,6 +203,15 @@ void router() {
   Assert(0);
 }
 
+int get_route_next(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]) {
+  turnout_state turnouts[NUM_TURNOUTS];
+  get_turnouts(WhoIs("TrackStateController"), turnouts);
+  location next = { .sensor = sensor_next(&track, start->sensor, turnouts),
+                    .offset = start->offset // TODO do something more useful with offset
+  };
+  return get_route(train, speed, &next, end, route);
+}
+
 int get_route(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]) {
   message send, reply;
   send.type = MESSAGE_GET_ROUTE;
