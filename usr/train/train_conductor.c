@@ -305,7 +305,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
-
+    bool is_first_sensor = true;
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
       get_sensors(track_state_controller, &sensor_message);
@@ -325,11 +325,12 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
           last_record.sensor = sensor_hit_polling_result.sensor;
           last_record.ticks = sensor_hit_polling_result.ticks;
           if (next_sensor != NULL_RESERVATION) {
-            if (last_record.sensor != (unsigned int)next_sensor->node->num) {
+            if (last_record.sensor != (unsigned int)next_sensor->node->num && !is_first_sensor) {
               got_error = true; // Oh no! We are lost and we should reroute.
               break;
             } else {
               c = next_sensor;
+              is_first_sensor = false;
             }
           }
         }
