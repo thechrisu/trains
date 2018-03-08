@@ -281,10 +281,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
     Assert(get_route(train, speed, &start, &end, route) == 0);
-    logprintf("Routed successfully\n\r");
-    for (int i = 0; i < route_length(route); i += 1) {
-      logprintf("%s\n\r", route[i].node->name);
-    }
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
@@ -298,7 +294,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
               - dist_from_last_sensor(clock_server, last_record.ticks,
                         velocity_model.msg.train_speeds[speed]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
-      logprintf("Last sensor: %d, dist left: %d, stopping distance: %d\n\r", last_record.sensor, dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
         break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure
@@ -356,12 +351,28 @@ void conductor_loop(int clock_server, int train_tx_server,
                                     track_state_controller, sensor_interpreter,
                                     train, speed, D5, 0);
 
-  poll_until_sensor_triggered(clock_server, track_state_controller, D5);
+  bool timed_out = poll_until_sensor_pair_triggered_with_timeout(
+    clock_server,
+    track_state_controller,
+    D5,
+    100 * 10
+  );
+
+  if (timed_out) {
+    conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+    return;
+  }
+
+  // Important to get these sensors switched ASAP
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 8, true);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 10, false);
 
   switch_turnout(clock_server, train_tx_server, track_state_controller, 9, true);
-  switch_turnout(clock_server, train_tx_server, track_state_controller, 10, false);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 13, false);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 14, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 15, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 16, false);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 17, false);
 }
 
 void train_conductor() {

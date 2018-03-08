@@ -37,6 +37,23 @@ int poll_until_sensor_triggered_with_timeout(int clock_server_tid,
                                              int timeout_ticks);
 
 /**
+ * Poll the track state controller for sensor data until either
+ * 1) the given sensor has been triggered,
+ * 2) the pair of the given sensor has been triggered, or
+ * 3) the number of ticks spent polling exceed the timeout.
+ *
+ * @param clock_server_tid           The task ID of the clock server.
+ * @param track_state_controller_tid The task ID of the track state controller.
+ * @param offset                     The offset of a sensor within the sensor data bitmap.
+ * @param timeout_ticks              Ticks until we return.
+ * @return                           `true` if it timed out, `false` if the sensor was received.
+ */
+bool poll_until_sensor_pair_triggered_with_timeout(int clock_server_tid,
+                                                   int track_state_controller_tid,
+                                                   unsigned int offset,
+                                                   int timeout_ticks);
+
+/**
  * Poll the track state controller for sensor data until the given sensor has been triggered.
  *
  * @param clock_server_tid           The task ID of the clock server.
