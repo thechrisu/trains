@@ -14,6 +14,7 @@ enum user_command_type {
   USER_CMD_Q,
   USER_CMD_SD,
   USER_CMD_V,
+  USER_CMD_LOOP,
   USER_CMD_SET,
   USER_CMD_R,
   NULL_USER_CMD

@@ -34,6 +34,30 @@ int poll_until_sensor_triggered_with_timeout(int clock_server_tid,
   return current_ticks > timeout_ticks;
 }
 
+bool poll_until_sensor_pair_triggered_with_timeout(int clock_server_tid,
+                                                   int track_state_controller_tid,
+                                                   unsigned int offset,
+                                                   int timeout_ticks) {
+  message reply;
+  int16_t current_sensors[10], leading_edge[10];
+
+  for (int i = 0; i < 10; i += 1) {
+    current_sensors[i] = 0;
+  }
+
+  int current_ticks = 0;
+
+  do {
+    Assert(Delay(clock_server_tid, REFRESH_PERIOD) == 0);
+    get_sensors(track_state_controller_tid, &reply);
+    get_leading_edge(current_sensors, reply.msg.sensors, leading_edge);
+    current_ticks += REFRESH_PERIOD;
+  } while (!is_sensor_triggered(leading_edge, offset) &&
+           !is_sensor_triggered(leading_edge, sensor_pair(&track, offset)) &&
+           current_ticks <= timeout_ticks);
+  return current_ticks > timeout_ticks;
+}
+
 void poll_until_sensor_triggered(int clock_server_tid,
                                  int track_state_controller_tid,
                                  unsigned int offset) {

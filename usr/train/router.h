@@ -2,6 +2,7 @@
 #define ROUTER_H
 
 #include "codes.h"
+#include "commands.h"
 #include "messages.h"
 #include "myio.h"
 #include "../lib/search_node_queue.h"
