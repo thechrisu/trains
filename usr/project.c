@@ -51,6 +51,11 @@ void user_command_print(int server_tid, user_command *cmd) {
                     CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
                     cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_LOOP:
+      Assert(Printf(server_tid, "%s%s%sLOOP %d %d         %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case USER_CMD_SET:
       Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
@@ -160,6 +165,20 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
                 cmd->data[2] = offset;
               }
             }
+          }
+        }
+      }
+    } else if (string_starts_with(ibuf->data, "loop ", ibuf->elems)) {
+      int first_num_parse = is_valid_number(ibuf, 5);
+      if (first_num_parse >= 0) {
+        int second_num_parse = is_valid_number(ibuf, first_num_parse);
+        if (second_num_parse >= 0 && ibuf->elems >= (unsigned int) second_num_parse) {
+          int address = parse_two_digit_number(ibuf->data + 5);
+          int speed = parse_two_digit_number(ibuf->data + first_num_parse);
+          if (speed > 0 && speed <= 14) {
+            cmd->type = USER_CMD_LOOP;
+            cmd->data[0] = address;
+            cmd->data[1] = speed;
           }
         }
       }
@@ -273,6 +292,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &track_state_controller) > 0);
   Assert(Create(my_priority + 2, &sensor_interpreter) > 0);
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
+  Assert(Create(my_priority + 2, &router) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
@@ -340,6 +360,7 @@ void project_first_user_task() {
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
+  Assert(Kill(WhoIs("Router")) == 0);
   Assert(Kill(WhoIs("ClockNotifier")) == 0);
 #ifdef E2ETESTING
   Assert(Kill(ns_tid) == 0);

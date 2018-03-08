@@ -2,6 +2,7 @@
 #define ROUTER_H
 
 #include "codes.h"
+#include "commands.h"
 #include "messages.h"
 #include "myio.h"
 #include "../lib/search_node_queue.h"
@@ -27,6 +28,8 @@ void router();
  * @returns -1 if there is already a reserved route for the train.
  */
 int get_route(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
+
+int get_route_next(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
 
 /**
  * Cancels the route reserved by the given train.

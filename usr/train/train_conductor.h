@@ -8,9 +8,11 @@
 #include "codes.h"
 #include "commands.h"
 #include "global_track_state.h"
+#include "router.h"
 #include "track_data.h"
 #include "track_node.h"
 #include "train_util.h"
+#include "sensors/sensor_interpreter.h"
 
 /**
  * The train conductor works by receiving messges from the command dispatcher,
