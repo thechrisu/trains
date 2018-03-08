@@ -284,13 +284,14 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_last_sensor_hit(sensor_interpreter, train, &last_record);
   }
+  if (start.sensor == end.sensor) Delay(clock_server, 200);
+  get_last_sensor_hit(sensor_interpreter, train, &last_record);
 
   do {
     got_error = false;
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
-
-    int route_result = get_route_next(train, speed, &start, &end, route);
+    int route_result = get_route(train, speed, &start, &end, route);
     if (route_result < 0) {
       logprintf("Tried to route from %c%d to %c%d but couldn't get a route\n\r",
                 sensor_bank(start.sensor), sensor_index(start.sensor),
@@ -310,7 +311,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
     Assert(c->node->num >= 0 && c->node->num < 80);
-    poll_until_sensor_triggered_with_timeout(clock_server, track_state_controller, c->node->num, 10 * 100 * 30);
+    // poll_until_sensor_triggered_with_timeout(clock_server, track_state_controller, c->node->num, 10 * 100 * 30);
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
@@ -320,21 +321,24 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
 
       // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
-
+      bool got_first = false;
       if (dist_left < stopping_distance) {
         break; // TODO add delay to only return once we have stopped??
       } else {
         reply_get_last_sensor_hit sensor_hit_polling_result;
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
 
+        reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
         if (sensor_hit_polling_result.sensor != last_record.sensor) {
           logprintf("New sensor data: %c%d\n\r",
               sensor_bank(sensor_hit_polling_result.sensor),
               sensor_index(sensor_hit_polling_result.sensor));
           last_record.sensor = sensor_hit_polling_result.sensor;
           last_record.ticks = sensor_hit_polling_result.ticks;
-
-          reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
+          /*if (!got_first) {
+            got_first = true;
+            continue;
+          }*/
           logprintf("next_sensor is null: %s\n\r", next_sensor == NULL_RESERVATION ? "yes" : "no");
           if (next_sensor != NULL_RESERVATION) {
             if (last_record.sensor == (unsigned int)next_sensor->node->num) {
