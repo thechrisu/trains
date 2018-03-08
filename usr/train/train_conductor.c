@@ -166,7 +166,7 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
 void route_switch_turnouts(int clock_server, int train_tx_server,
                            int track_state_controller, reservation *route) {
   reservation *c = route;
-  while (c->train != 0) {
+  while ((c + 1)->train != 0) {
     if (c->node->type == NODE_BRANCH) {
       if ((c + 1)->train != 0) {
         if (c->node->edge[DIR_STRAIGHT].dest == (c + 1)->node) {
@@ -193,7 +193,7 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
 int get_remaining_dist_in_route(reservation *remaining_route) {
   int dist_remaining_100th_mm = 0;
   reservation *c = remaining_route;
-  while (c->train != 0) {
+  while ((c + 1)->train != 0) {
     switch (c->node->type) {
       case NODE_SENSOR:
       case NODE_MERGE:
@@ -201,10 +201,10 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
         dist_remaining_100th_mm += c->node->edge[DIR_AHEAD].dist * 100;
         break;
       case NODE_BRANCH:
-        if ((c + 1) == (reservation *)STRAIGHT(c->node)) {
+        if ((c + 1)->node == STRAIGHT(c->node)) {
           dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
         } else {
-          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
+          dist_remaining_100th_mm += c->node->edge[DIR_CURVED].dist * 100;
         }
         break;
       default:
@@ -217,18 +217,14 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
 }
 
 // TODO comment
-void get_next_two_sensors(reservation *remaining_route, reservation *next_two_sensors[2]) {
-  int n_sensors_found;
+reservation *get_next_sensor(reservation *remaining_route) {
   reservation *c = remaining_route;
-  next_two_sensors[0] = (reservation *)NULL_RESERVATION;
-  next_two_sensors[1] = (reservation *)NULL_RESERVATION;
-  while (n_sensors_found < 2 && c->train != 0) {
+  while ((c + 1)->train != 0) {
     if (c->node->type == NODE_SENSOR) {
-      next_two_sensors[n_sensors_found] = c;
-      n_sensors_found += 1;
+      return c;
     }
-    c += 1;
   }
+  return c;
 }
 
 int get_dist_between_reservations(reservation *start, reservation *end) {
@@ -242,10 +238,10 @@ int get_dist_between_reservations(reservation *start, reservation *end) {
         dist_remaining_100th_mm += c->node->edge[DIR_AHEAD].dist * 100;
         break;
       case NODE_BRANCH:
-        if ((c + 1) == (reservation *)STRAIGHT(c->node)) {
+        if ((c + 1)->node == STRAIGHT(c->node)) {
           dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
         } else {
-          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
+          dist_remaining_100th_mm += c->node->edge[DIR_CURVED].dist * 100;
         }
         break;
       default:
@@ -272,6 +268,7 @@ void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int sensor_interpreter,
                         int train, int speed,
                         int sensor_offset, int goal_offset) {
+  int s = Time(clock_server);
   location start, end;
   reply_get_last_sensor_hit last_record;
   message sensor_message;
@@ -296,15 +293,13 @@ void conductor_route_to(int clock_server, int train_tx_server,
                           route); // TODO maybe do this via switchers?
     conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
     while (c->train != 0) {
+      if (Time(clock_server) - s > 100 * 30) Assert(0);
       get_sensors(track_state_controller, &sensor_message);
 
-      reservation *next_two_sensors[2];
-      get_next_two_sensors(c, next_two_sensors);
+      reservation *next_sensor = get_next_sensor(c);
       int dist_left = get_remaining_dist_in_route(c)
               - dist_from_last_sensor(clock_server, last_record.ticks,
                         velocity_model.msg.train_speeds[speed]);
-      int dist_to_second_sensor_ahead = next_two_sensors[1] == NULL_RESERVATION ?
-              1E5 : get_dist_between_reservations(c, next_two_sensors[1]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
       logprintf("Last sensor: %d, dist left: %d, stopping distance: %d\n\r", last_record.sensor, dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
@@ -316,10 +311,8 @@ void conductor_route_to(int clock_server, int train_tx_server,
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
         last_record.sensor = sensor_hit_polling_result.sensor;
         last_record.ticks = sensor_hit_polling_result.ticks;
-        if (next_two_sensors[0] != NULL_RESERVATION
-            && next_two_sensors[1] != NULL_RESERVATION
-            && last_record.sensor != (unsigned int)next_two_sensors[0]->node->num
-            && last_record.sensor != (unsigned int)next_two_sensors[1]->node->num) {
+        if (next_sensor != NULL_RESERVATION
+            && last_record.sensor != (unsigned int)next_sensor->node->num) {
           got_error = true; // Oh no! We are lost and we should reroute.
           break;
         }
@@ -342,9 +335,10 @@ void train_conductor() {
   Assert(track_state_controller > 0);
   Assert(cmd_dispatcher > 0);
 
+  int last_nonzero_speed = 14;
   train_data d;
   d.last_speed = 0;
-  d.should_speed = 14;
+  d.should_speed = 0;
   d.time_speed_last_changed = Time(clock_server);
 
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -370,6 +364,8 @@ void train_conductor() {
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_setspeed(train_tx_server, track_state_controller, d.train,
                                received.msg.cmd.data[1]);
+            if (received.msg.cmd.data[1] > 0)
+              last_nonzero_speed = received.msg.cmd.data[1];
             break;
           case USER_CMD_RV:
             Assert(received.msg.cmd.data[0] == d.train);
@@ -380,7 +376,7 @@ void train_conductor() {
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_route_to(clock_server, train_tx_server,
                             track_state_controller, sensor_interpreter,
-                            d.train, d.should_speed,
+                            d.train, d.should_speed > 0 ? d.should_speed : last_nonzero_speed,
                             received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
             break;
           default:
