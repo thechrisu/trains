@@ -294,6 +294,14 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       return;
     }
 
+    logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
+        sensor_bank(start.sensor), sensor_index(start.sensor),
+        sensor_bank(end.sensor), sensor_index(end.sensor),
+        route_length(route));
+    for (int i = 0; i < route_length(route); i += 1) {
+      logprintf("%s\n\r", route[i].node->name);
+    }
+
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
@@ -307,6 +315,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
               - dist_from_last_sensor(clock_server, last_record.ticks,
                         velocity_model.msg.train_speeds[speed]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+      logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
         break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure
