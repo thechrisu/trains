@@ -217,13 +217,13 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
 
 // TODO comment
 reservation *get_next_of_type(reservation *remaining_route, node_type type) {
-  reservation *c = remaining_route;
-  while ((c + 1)->train != 0) {
+  reservation *c = remaining_route + 1;
+  while (c->train != 0) {
     if (c->node->type == type) {
       return c;
     }
   }
-  return c;
+  return NULL_RESERVATION;
 }
 
 int get_dist_between_reservations(reservation *start, reservation *end) {
@@ -258,7 +258,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   int s = Time(clock_server);
   location start, end;
   reply_get_last_sensor_hit last_record;
-  message sensor_message;
 
   message velocity_model, stopping_distance_model;
   get_constant_velocity_model(track_state_controller, train,
@@ -308,35 +307,40 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     bool is_first_sensor = true;
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
-      get_sensors(track_state_controller, &sensor_message);
 
-      reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
-      int dist_left = get_remaining_dist_in_route(c)
-              - dist_from_last_sensor(clock_server, last_record.ticks,
-                        velocity_model.msg.train_speeds[speed]);
+      int dist_left = get_remaining_dist_in_route(c) -
+                      dist_from_last_sensor(clock_server, last_record.ticks,
+                                            velocity_model.msg.train_speeds[speed]);
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+
       logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
+
       if (dist_left < stopping_distance) {
         break; // TODO add delay to only return once we have stopped??
-      } else { // We're comfortable and can endure at least one sensor failure
+      } else {
         reply_get_last_sensor_hit sensor_hit_polling_result;
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
+
         if (sensor_hit_polling_result.sensor != last_record.sensor) {
           last_record.sensor = sensor_hit_polling_result.sensor;
           last_record.ticks = sensor_hit_polling_result.ticks;
+
+          reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
           if (next_sensor != NULL_RESERVATION) {
-            if (last_record.sensor != (unsigned int)next_sensor->node->num && !is_first_sensor) {
-              got_error = true; // Oh no! We are lost and we should reroute.
-              break;
-            } else {
+            if (last_record.sensor == (unsigned int)next_sensor->node->num || is_first_sensor) {
               c = next_sensor;
               is_first_sensor = false;
+            } else {
+              got_error = true; // Oh no! We are lost and we should reroute.
+              break;
             }
           }
         }
       }
+
       Delay(clock_server, 1);
     }
+
     cancel_route(train);
   } while (got_error);
 }
