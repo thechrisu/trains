@@ -309,8 +309,11 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
+
     Assert(c->node->num >= 0 && c->node->num < 80);
-    poll_until_sensor_triggered_with_timeout(clock_server, track_state_controller, c->node->num, 10 * 100 * 30);
+    poll_until_sensor_triggered_with_timeout(clock_server, track_state_controller,
+                                             c->node->num, 30 * 100);
+
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
