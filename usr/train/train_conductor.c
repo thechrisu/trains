@@ -314,6 +314,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     poll_until_sensor_triggered_with_timeout(clock_server, track_state_controller,
                                              c->node->num, 30 * 100);
 
+    get_last_sensor_hit(sensor_interpreter, train, &last_record);
+
     while (c->train != 0) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
@@ -358,8 +360,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     }
 
     cancel_route(train);
-
-    Assert(!got_error);
   } while (got_error);
 }
 
