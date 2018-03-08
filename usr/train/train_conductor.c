@@ -268,7 +268,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   train_data tr_data;
   get_train(track_state_controller, train, &tr_data);
-  int speed = tr_data.should_speed;
+  int speed = tr_data.should_speed == 0 ? tr_data.last_speed : tr_data.should_speed;
 
   end.sensor = sensor_offset;
   end.offset = goal_offset;
