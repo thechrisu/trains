@@ -168,15 +168,13 @@ void route_switch_turnouts(int clock_server, int train_tx_server,
   reservation *c = route;
   while ((c + 1)->train != 0) {
     if (c->node->type == NODE_BRANCH) {
-      if ((c + 1)->train != 0) {
-        if (c->node->edge[DIR_STRAIGHT].dest == (c + 1)->node) {
-          switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, false);
-        } else if (c->node->edge[DIR_CURVED].dest == (c + 1)->node) {
-          switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, true);
-        } else {
-          logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
-                    c->node->num, (c + 1)->node->num);
-        }
+      if ((c + 1)->node == STRAIGHT(c->node)) {
+        switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, false);
+      } else if ((c + 1)->node == CURVED(c->node)) {
+        switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, true);
+      } else {
+        logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
+                  c->node->num, (c + 1)->node->num);
       }
     }
     c += 1;
@@ -221,7 +219,7 @@ reservation *get_next_sensor(reservation *remaining_route) {
   reservation *c = remaining_route;
   while ((c + 1)->train != 0) {
     if (c->node->type == NODE_SENSOR) {
-      return c;
+      break;
     }
   }
   return c;
@@ -230,7 +228,7 @@ reservation *get_next_sensor(reservation *remaining_route) {
 int get_dist_between_reservations(reservation *start, reservation *end) {
   int dist_remaining_100th_mm = 0;
   reservation *c = start;
-  while (c->train != 0 || c != end) {
+  while ((c + 1)->train != 0 || c != end) {
     switch (c->node->type) {
       case NODE_SENSOR:
       case NODE_MERGE:
@@ -253,21 +251,10 @@ int get_dist_between_reservations(reservation *start, reservation *end) {
   return dist_remaining_100th_mm;
 }
 
-/**
- * Routes a train to a sensor.
- *
- * @param clock_server                 Tid of the clock server.
- * @param train_tx_server              Transmit server of the train.
- * @param track_state_controller       Track state controller.
- * @param train                        Train number to route.
- * @param speed                        Train speed to route.
- * @param sensor_offset                Offset of sensor (1-80)
- * @param goal_offset                  Offset from goal sensor (in 1/100mm)
- */
-void conductor_route_to(int clock_server, int train_tx_server,
-                        int track_state_controller, int sensor_interpreter,
-                        int train, int speed,
-                        int sensor_offset, int goal_offset) {
+void route_to_within_stopping_distance(int clock_server, int train_tx_server,
+                                       int track_state_controller, int sensor_interpreter,
+                                       int train, int speed,
+                                       int sensor_offset, int goal_offset) {
   int s = Time(clock_server);
   location start, end;
   reply_get_last_sensor_hit last_record;
@@ -282,12 +269,22 @@ void conductor_route_to(int clock_server, int train_tx_server,
   end.offset = goal_offset;
   reservation route[MAX_ROUTE_LENGTH];
   bool got_error = false;
-  get_last_sensor_hit(sensor_interpreter, train, &last_record); // TODO retur error if no last sensor hit.
+
+  get_last_sensor_hit(sensor_interpreter, train, &last_record);
+  while (last_record.sensor == NO_DATA_RECEIVED) {
+    Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
+    get_last_sensor_hit(sensor_interpreter, train, &last_record);
+  }
+
   do {
     got_error = false;
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
     Assert(get_route(train, speed, &start, &end, route) == 0);
+    logprintf("Routed successfully\n\r");
+    for (int i = 0; i < route_length(route); i += 1) {
+      logprintf("%s\n\r", route[i].node->name);
+    }
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
@@ -303,7 +300,6 @@ void conductor_route_to(int clock_server, int train_tx_server,
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
       logprintf("Last sensor: %d, dist left: %d, stopping distance: %d\n\r", last_record.sensor, dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
-        conductor_setspeed(train_tx_server, track_state_controller, train, 0);
         break; // TODO add delay to only return once we have stopped??
       } else { // We're comfortable and can endure at least one sensor failure
         reply_get_last_sensor_hit sensor_hit_polling_result;
@@ -327,16 +323,45 @@ void conductor_route_to(int clock_server, int train_tx_server,
   } while (got_error);
 }
 
-void conductor_loop(int train_tx_server, int track_state_controller,
-                    int clock_server, int terminal_tx_server,
-                    int train, int speed) {
-  (void)train_tx_server;
-  (void)track_state_controller;
-  (void)terminal_tx_server;
-  (void)train;
-  (void)speed;
+/**
+ * Routes a train to a sensor.
+ *
+ * @param clock_server                 Tid of the clock server.
+ * @param train_tx_server              Transmit server of the train.
+ * @param track_state_controller       Track state controller.
+ * @param train                        Train number to route.
+ * @param speed                        Train speed to route.
+ * @param sensor_offset                Offset of sensor (1-80)
+ * @param goal_offset                  Offset from goal sensor (in 1/100mm)
+ */
+void conductor_route_to(int clock_server, int train_tx_server,
+                        int track_state_controller, int sensor_interpreter,
+                        int train, int speed,
+                        int sensor_offset, int goal_offset) {
+  route_to_within_stopping_distance(clock_server, train_tx_server,
+                                    track_state_controller, sensor_interpreter,
+                                    train, speed,
+                                    sensor_offset, goal_offset);
+  conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+  Delay(clock_server, 50 * speed);
+}
 
-  Delay(clock_server, 1000);
+void conductor_loop(int clock_server, int train_tx_server,
+                    int track_state_controller, int sensor_interpreter,
+                    int train, int speed) {
+  unsigned int D5 = sensor_offset('D', 5);
+
+  conductor_setspeed(train_tx_server, track_state_controller, train, speed);
+  route_to_within_stopping_distance(clock_server, train_tx_server,
+                                    track_state_controller, sensor_interpreter,
+                                    train, speed, D5, 0);
+
+  poll_until_sensor_triggered(clock_server, track_state_controller, D5);
+
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 9, true);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 10, false);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 15, true);
+  switch_turnout(clock_server, train_tx_server, track_state_controller, 16, false);
 }
 
 void train_conductor() {
@@ -379,8 +404,8 @@ void train_conductor() {
                                d.train, received.msg.cmd.data[1]);
             break;
           case USER_CMD_LOOP:
-            conductor_loop(train_tx_server, track_state_controller,
-                           clock_server, terminal_tx_server,
+            conductor_loop(clock_server, train_tx_server,
+                           track_state_controller, sensor_interpreter,
                            d.train, received.msg.cmd.data[1]);
             break;
           case USER_CMD_TR:

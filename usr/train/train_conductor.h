@@ -12,6 +12,7 @@
 #include "track_data.h"
 #include "track_node.h"
 #include "train_util.h"
+#include "sensors/sensor_interpreter.h"
 
 /**
  * The train conductor works by receiving messges from the command dispatcher,
