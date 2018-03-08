@@ -1,7 +1,7 @@
 #include "train_conductor.h"
 
-#define CONDUCTOR_STOP_CHECK_INTERVAL 5
-#define CONDUCTOR_SENSOR_CHECK_INTERVAL 2
+#define CONDUCTOR_STOP_CHECK_INTERVAL 2
+#define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
 void conductor_setspeed(int train_tx_server, int track_state_controller,
                         int train, int speed) {
@@ -47,8 +47,9 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
     Delay(clock_server, CONDUCTOR_STOP_CHECK_INTERVAL);
     int diff = dist_from_last_sensor(clock_server, last_stopping, velocity);
     dist = start_dist - diff;
-    Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
-      CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
+    if (terminal_tx_server > 0)
+      Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
+        CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
   }
 }
 
@@ -215,11 +216,11 @@ int get_remaining_dist_in_route(reservation *remaining_route) {
 }
 
 // TODO comment
-reservation *get_next_sensor(reservation *remaining_route) {
+reservation *get_next_of_type(reservation *remaining_route, node_type type) {
   reservation *c = remaining_route;
   while ((c + 1)->train != 0) {
-    if (c->node->type == NODE_SENSOR) {
-      break;
+    if (c->node->type == type) {
+      return c;
     }
   }
   return c;
@@ -280,16 +281,16 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     got_error = false;
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
-    Assert(get_route(train, speed, &start, &end, route) == 0);
+    Assert(get_route_next(train, speed, &start, &end, route) == 0);
     reservation *c = (reservation *)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
     conductor_setspeed(train_tx_server, track_state_controller, train, current_speed);
     while (c->train != 0) {
-      if (Time(clock_server) - s > 100 * 30) Assert(0);
+      if (Time(clock_server) - s > 100 * 50) Assert(0);
       get_sensors(track_state_controller, &sensor_message);
 
-      reservation *next_sensor = get_next_sensor(c);
+      reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
       int dist_left = get_remaining_dist_in_route(c)
               - dist_from_last_sensor(clock_server, last_record.ticks,
                         velocity_model.msg.train_speeds[speed]);
