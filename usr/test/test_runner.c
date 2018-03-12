@@ -302,11 +302,6 @@ void test_runner() {
       .prio = 5
     },
     {
-      .name = "router_errors",
-      .code = &test_router_errors,
-      .prio = 5
-    },
-    {
       .name = "router_same_sensor",
       .code = &test_router_same_sensor,
       .prio = 5

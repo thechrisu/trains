@@ -18,33 +18,33 @@
 void router();
 
 /**
- * Reserves a route between two locations and returns it to the caller.
+ * Finds a route between two locations.
  *
  * @param   train The train to reserve the route for.
  * @param   start The start of the route.
  * @param   end   The end of the route.
- * @param   res   An array of reservations into which the resulting route is placed.
+ * @param   res   An array into which the resulting route is placed.
  * @returns 0 on success.
- * @returns -1 if there is already a reserved route for the train.
+ *          -1 if no route could be found.
  */
-int get_route(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
-
-int get_route_next(int train, int speed, location *start, location *end, reservation route[MAX_ROUTE_LENGTH]);
+int get_route(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]);
 
 /**
- * Cancels the route reserved by the given train.
+ * Reserves a route between the sensor after the start location and the end location.
  *
- * @param   train The train to cancel the route of.
+ * @param   train The train to reserve the route for.
+ * @param   start The location before the sensor at the start of the route.
+ * @param   end   The end of the route.
+ * @param   res   An array into which the resulting route is placed.
  * @returns 0 on success.
- *          -1 if the given train does not have a reserved route.
+ *          -1 if no route could be found.
  */
-int cancel_route(int train);
+int get_route_next(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]);
 
 /**
- * @param   route An array of reservations, terminated with a reservation with `train`
- *                equal to zero.
+ * @param   A route.
  * @returns The length of the route.
  */
-int route_length(reservation route[MAX_ROUTE_LENGTH]);
+int route_length(track_node *route[MAX_ROUTE_LENGTH]);
 
 #endif /* ROUTER_H */
