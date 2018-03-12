@@ -9,11 +9,11 @@ void test_router_complete() {
 
   for (int start_sensor = 0; start_sensor < 80; start_sensor += 1) {
     for (int end_sensor = 0; end_sensor < 80; end_sensor += 1) {
-      location end_reverse;
-      location_reverse(&track, &end_reverse, &end);
-
       start.sensor = start_sensor;
       end.sensor = end_sensor;
+
+      location end_reverse;
+      location_reverse(&track, &end_reverse, &end);
 
       if (sensor_reachable(&track, start_sensor, end_sensor) ||
           sensor_reachable(&track, start_sensor, end_reverse.sensor)) {
