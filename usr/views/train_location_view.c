@@ -38,13 +38,17 @@ void print_diffs(int terminal_tx_server_tid,
   if (expected_ticks_last_sensor_hit == NO_LAST_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
                   TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
-  } else if (expected_last_sensor != last_sensor) {
+  } else if (expected_last_sensor != last_sensor && expected_last_sensor != NO_NEXT_SENSOR) {
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dHExpected to hit %c%d but hit %c%d instead%s",
                   TRAIN_LOCATION_LINE + 2, 1,
                   sensor_bank(expected_last_sensor), sensor_index(expected_last_sensor),
                   sensor_bank(last_sensor), sensor_index(last_sensor),
                   HIDE_CURSOR_TO_EOL) == 0);
+  } else if (expected_last_sensor == NO_NEXT_SENSOR) {
+    Assert(Printf(terminal_tx_server_tid,
+                  "\033[%d;%dH%s",
+                  TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else {
     int ticks_diff = ticks_last_sensor_hit - expected_ticks_last_sensor_hit;
     int distance_diff = (int32_t)velocity * ticks_diff / 10000;
