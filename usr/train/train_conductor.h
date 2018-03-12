@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "commands.h"
 #include "global_track_state.h"
+#include "prediction.h"
 #include "router.h"
 #include "track_data.h"
 #include "track_node.h"

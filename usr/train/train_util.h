@@ -3,6 +3,7 @@
 
 #include "commands.h"
 #include "global_track_state.h"
+#include "prediction.h"
 #include "terminal.h"
 #include "tstdlib.h"
 
@@ -63,6 +64,28 @@ bool poll_until_sensor_pair_triggered_with_timeout(int clock_server_tid,
 void poll_until_sensor_triggered(int clock_server_tid, int track_state_controller_tid, unsigned int offset);
 
 /**
+ * Blocks until the train has travelled dist.
+ *
+ * @param clock_server             Tid of the clock server.
+ * @param terminal_tx_server       Tid of the terminal transmit server.
+ * @param dist                     Distance to travel ('1' is 1/100thm).
+ * @param velocity                 Velocity of the train (1/100thmm/s).
+ */
+void poll_until_at_dist(int clock_server, int terminal_tx_server,
+                  int dist, int velocity);
+
+/**
+ * Given a route, switches all switches in the route (blocking).
+ *
+ * @param clock_server            Tid of the clock server.
+ * @param train_tx_server         Tid of the train tx server to send sw commands.
+ * @param track_state_controller  Tid of the track state controller.
+ * @param route                   Route on which switches should be set.
+ */
+void route_switch_turnouts(int clock_server, int train_tx_server,
+                           int track_state_controller, reservation *route);
+
+/**
  * When stopping, get the remaining distance (1/100mm) until we have stopped.
  *
  * @param speed                     Speed of the train (0-14).
@@ -72,4 +95,34 @@ void poll_until_sensor_triggered(int clock_server_tid, int track_state_controlle
  */
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left);
 
+/**
+ * Iterates through the route until the end.
+ *
+ * @param remaining_route             Suffix of some route.
+ * @return The remaining distance in 1/100mm.
+ */
+int get_remaining_dist_in_route(reservation *remaining_route);
+
+/**
+ * Given a route, returns either
+ * the first node in the suffix of the route that is of a certain type
+ * (e.g. NODE_SENSOR), or will return NULL_RESERVATION, if none found.
+ *
+ * @param remaining_route      Suffix of the route.
+ * @param type                 e.g. NODE_SENSOR.
+ * @return next node of type, or NULL_RESERVATION if no such node exists.
+ */
+reservation *get_next_of_type(reservation *remaining_route, node_type type);
+
+/**
+ * Given two reservations that are linked via the same route, return the distance
+ * (1/100mm) between those two. Note: If start->end are not part of the same route,
+ * with <code>start</code> occurring before <code>end</code>,
+ * the function will return gibberish.
+ *
+ * @param start                     From where to search.
+ * @param end                       To where to search.
+ * @return distance (1/100mm) between the two reservations/nodes.
+ */
+int get_dist_between_reservations(reservation *start, reservation *end);
 #endif /* TRAIN_UTIL_H */

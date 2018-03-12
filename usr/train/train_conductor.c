@@ -16,43 +16,6 @@ void conductor_reverse_to_speed(int train_tx_server,
                                   track_state_controller, train, speed);
 }
 
-/**
- * Returns the distance we travelled since we last hit a sensor.
- *
- * @param clock_server           Tid of the clock server.
- * @param ticks_at_last_sensor   The time in ticks at the point when we last hit a sensor.
- * @param velocity               The train's velocity (in 1/100th mm/s).
- *
- * @return The distance in 1/100th mm that we have travelled.
- */
-int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
-                          uint32_t velocity) {
-  int c_time = Time(clock_server);
-  return (int)velocity * (c_time - ticks_at_last_sensor) / 100;
-}
-
-/**
- * Blocks until the train has travelled dist.
- *
- * @param clock_server             Tid of the clock server.
- * @param terminal_tx_server       Tid of the terminal transmit server.
- * @param dist                     Distance to travel ('1' is 1/100thm).
- * @param velocity                 Velocity of the train (1/100thmm/s).
- */
-void poll_until_at_dist(int clock_server, int terminal_tx_server,
-                  int dist, int velocity) {
-  int last_stopping = Time(clock_server);
-  int start_dist = dist;
-  while (dist > 0) {
-    Delay(clock_server, CONDUCTOR_STOP_CHECK_INTERVAL);
-    int diff = dist_from_last_sensor(clock_server, last_stopping, velocity);
-    dist = start_dist - diff;
-    if (terminal_tx_server > 0)
-      Assert(Printf(terminal_tx_server, "%s%d;%dH(%d left - step %d)%s", ESC,
-        CALIB_LINE + 2, 1, dist, diff, HIDE_CURSOR_TO_EOL) == 0);
-  }
-}
-
 // Only performs one iteration of calibration
 void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller,
                                  int clock_server, int terminal_tx_server,
@@ -164,100 +127,6 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
   }
 }
 
-void route_switch_turnouts(int clock_server, int train_tx_server,
-                           int track_state_controller, reservation *route) {
-  reservation *c = route;
-  while ((c + 1)->train != 0) {
-    if (c->node->type == NODE_BRANCH) {
-      if ((c + 1)->node == STRAIGHT(c->node)) {
-        switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, false);
-      } else if ((c + 1)->node == CURVED(c->node)) {
-        switch_turnout(clock_server, train_tx_server, track_state_controller, c->node->num, true);
-      } else {
-        logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
-                  c->node->num, (c + 1)->node->num);
-      }
-    }
-    c += 1;
-  }
-}
-
-void get_location_from_last_sensor_hit(int clock_server, int velocity,
-                                       reply_get_last_sensor_hit *last_record,
-                                       location *current) {
-  current->sensor = last_record->sensor;
-  current->offset = velocity * (Time(clock_server) - last_record->ticks) / 100;
-}
-
-int get_remaining_dist_in_route(reservation *remaining_route) {
-  int dist_remaining_100th_mm = 0;
-  reservation *c = remaining_route;
-  while ((c + 1)->train != 0) {
-    switch (c->node->type) {
-      case NODE_SENSOR:
-      case NODE_MERGE:
-      case NODE_ENTER:
-        dist_remaining_100th_mm += c->node->edge[DIR_AHEAD].dist * 100;
-        break;
-      case NODE_BRANCH:
-        if ((c + 1)->node == STRAIGHT(c->node)) {
-          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
-        } else {
-          dist_remaining_100th_mm += c->node->edge[DIR_CURVED].dist * 100;
-        }
-        break;
-      default:
-        logprintf("Invalid node type when getting remaining distance of route: %d\n\r", c->node->type);
-        break;
-    }
-    c += 1;
-  }
-  return dist_remaining_100th_mm;
-}
-
-// TODO comment
-reservation *get_next_of_type(reservation *remaining_route, node_type type) {
-  logprintf("get_next_of_type: remaining route starts at %s\n\r", remaining_route->node->name);
-  logprintf("get_next_of_type: type to look for is %d\n\r", type);
-  reservation *c = remaining_route + 1;
-  while (c->train != 0) {
-    logprintf("get_next_of_type: looking at %s of type %d\n\r", c->node->name, c->node->type);
-    if (c->node->type == type) {
-      logprintf("get_next_of_type: returning %s\n\r", c->node->name);
-      return c;
-    }
-    c += 1;
-  }
-  logprintf("get_next_of_type: returning NULL_RESERVATION\n\r");
-  return NULL_RESERVATION;
-}
-
-int get_dist_between_reservations(reservation *start, reservation *end) {
-  int dist_remaining_100th_mm = 0;
-  reservation *c = start;
-  while ((c + 1)->train != 0 || c != end) {
-    switch (c->node->type) {
-      case NODE_SENSOR:
-      case NODE_MERGE:
-      case NODE_ENTER:
-        dist_remaining_100th_mm += c->node->edge[DIR_AHEAD].dist * 100;
-        break;
-      case NODE_BRANCH:
-        if ((c + 1)->node == STRAIGHT(c->node)) {
-          dist_remaining_100th_mm += c->node->edge[DIR_STRAIGHT].dist * 100;
-        } else {
-          dist_remaining_100th_mm += c->node->edge[DIR_CURVED].dist * 100;
-        }
-        break;
-      default:
-        logprintf("Invalid node type when getting distance between nodes: %d\n\r", c->node->type);
-        break;
-    }
-    c += 1;
-  }
-  return dist_remaining_100th_mm;
-}
-
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int sensor_interpreter,
                                        int train, int sensor_offset, int goal_offset) {
@@ -323,7 +192,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
 
       // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
-      bool got_first = false;
       if (dist_left < stopping_distance) {
         break; // TODO add delay to only return once we have stopped??
       } else {
