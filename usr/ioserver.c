@@ -245,6 +245,9 @@ void train_tx_server() {
 }
 
 void train_rx_server() {
+  char c;
+  rawgetc(TRAIN, &c);
+
   Assert(RegisterAs("TrainRxServer") == 0);
   Assert(WhoIs("TrainRxServer") == MyTid());
   Assert(Create(MyPriority() + 1, &train_rx_notifier) >= 0);
