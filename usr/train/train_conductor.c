@@ -188,19 +188,23 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
       int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+
+      int dist_left = get_remaining_dist_in_route(c);
+      int from_last_sensor = dist_from_last_sensor(clock_server, last_record.ticks,
+                                                   velocity_model.msg.train_speeds[speed]);
+      if (from_last_sensor < 2 * 1000 * 100) {
+        dist_left -= from_last_sensor;
+      }
+
       if (loops % 10 == 0) {
         int switch_up_to_distance = MAX(stopping_distance + switch_padding * 100,
                                         get_dist_between_reservations(c, get_next_of_type(c, NODE_SENSOR)));
+        if (from_last_sensor < 2 * 1000 * 100) {
+          switch_up_to_distance += from_last_sensor;
+        }
         switch_turnouts_within_distance(clock_server, train_tx_server,
                                         track_state_controller, c,
                                         switch_up_to_distance);
-      }
-
-      int dist_left = get_remaining_dist_in_route(c);
-      int dist_to_subtract = dist_from_last_sensor(clock_server, last_record.ticks,
-                                                   velocity_model.msg.train_speeds[speed]);
-      if (dist_to_subtract < 2 * 1000 * 100) {
-        dist_left -= dist_to_subtract;
       }
 
       // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
