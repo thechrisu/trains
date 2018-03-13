@@ -178,18 +178,24 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     }
 
     track_node **c = (track_node **)route;
-    route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
-                          route); // TODO maybe do this via switchers?
-
     Assert((*c)->num >= 0 && (*c)->num < 80);
+
+    int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+    switch_turnouts_within_distance(clock_server, train_tx_server,
+                                    track_state_controller, c,
+                                    3 * stopping_distance / 2 + 10 * 10 * 100);
+
     get_last_sensor_hit(sensor_interpreter, train, &last_record);
+
     while (*c != NULL_TRACK_NODE) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
-      int dist_left = get_remaining_dist_in_route(c) -
-                      dist_from_last_sensor(clock_server, last_record.ticks,
-                                            velocity_model.msg.train_speeds[speed]);
-      int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+      int dist_left = get_remaining_dist_in_route(c);
+      int dist_to_subtract = dist_from_last_sensor(clock_server, last_record.ticks,
+                                                   velocity_model.msg.train_speeds[speed]);
+      if (dist_to_subtract < 2 * 1000 * 100) {
+        dist_left -= dist_to_subtract;
+      }
 
       // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
@@ -214,6 +220,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             if (last_record.sensor == (unsigned int)(*next_sensor)->num) {
               logprintf("Updated c to %s\n\r", (*next_sensor)->name);
               c = next_sensor;
+              switch_turnouts_within_distance(clock_server, train_tx_server,
+                                              track_state_controller, c,
+                                              3 * stopping_distance / 2 + 10 * 10 * 100);
             } else {
               logprintf("Expected to be at sensor %s but were at %c%d\n\r",
                   (*next_sensor)->name,

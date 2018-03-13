@@ -75,15 +75,18 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
                   int dist, int velocity);
 
 /**
- * Given a route, switches all switches in the route (blocking).
+ * Given a point in a route, switches all turnouts on the route within a given
+ * distance of the point.
  *
  * @param clock_server            Tid of the clock server.
  * @param train_tx_server         Tid of the train tx server to send sw commands.
  * @param track_state_controller  Tid of the track state controller.
- * @param route                   Route on which switches should be set.
+ * @param start                   Point in route after which turnouts should be switched.
+ * @param distance                Distance inside of which turnouts should be switched.
  */
-void route_switch_turnouts(int clock_server, int train_tx_server,
-                           int track_state_controller, track_node **route);
+void switch_turnouts_within_distance(int clock_server, int train_tx_server,
+                                     int track_state_controller, track_node **start,
+                                     int distance);
 
 /**
  * When stopping, get the remaining distance (1/100mm) until we have stopped.
