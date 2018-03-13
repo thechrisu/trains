@@ -42,9 +42,9 @@ int get_route(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH
 int get_route_next(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]);
 
 /**
- * @param   A route.
- * @returns The length of the route.
+ * @param   route A route.
+ * @returns The number of nodes in the route.
  */
-int route_length(track_node *route[MAX_ROUTE_LENGTH]);
+int route_node_count(track_node *route[MAX_ROUTE_LENGTH]);
 
 #endif /* ROUTER_H */

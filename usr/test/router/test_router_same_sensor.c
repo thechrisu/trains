@@ -8,7 +8,7 @@ void test_router_same_sensor() {
 
   Assert(get_route(&loc, &loc, route) == 0);
 
-  Assert(route_length(route) == 1);
+  Assert(route_node_count(route) == 1);
   Assert(tstrcmp((char *)route[0]->name, "C8"));
 
   router_test_teardown();

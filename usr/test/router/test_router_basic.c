@@ -9,7 +9,7 @@ void test_router_basic() {
 
   Assert(get_route(&start, &end, route) == 0);
 
-  int length = route_length(route);
+  int length = route_node_count(route);
   Assert(length == 5);
 
   char *expected_sensors[] = { "C8", "BR3", "BR2", "A7", "B12" };

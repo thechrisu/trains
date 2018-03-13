@@ -90,7 +90,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
   return true;
 }
 
-int route_length(track_node *route[MAX_ROUTE_LENGTH]) {
+int route_node_count(track_node *route[MAX_ROUTE_LENGTH]) {
   int result;
   for (result = 0; route[result] != NULL_TRACK_NODE; result += 1);
   return result;
@@ -127,7 +127,7 @@ void router() {
           if (forwards_success && backwards_success) {
             tmemcpy(route,
                     // TODO update to take actual shortest path, not path with least nodes
-                    route_length(forwards) < route_length(backwards) ? forwards : backwards,
+                    route_node_count(forwards) < route_node_count(backwards) ? forwards : backwards,
                     MAX_ROUTE_LENGTH * sizeof(track_node *));
           } else {
             tmemcpy(route,

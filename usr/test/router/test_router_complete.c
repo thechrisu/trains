@@ -18,8 +18,8 @@ void test_router_complete() {
       if (sensor_reachable(&track, start_sensor, end_sensor) ||
           sensor_reachable(&track, start_sensor, end_reverse.sensor)) {
         Assert(get_route(&start, &end, route) == 0);
-        Assert(route_length(route) > 0);
-        Assert(route_length(route) <= 50);
+        Assert(route_node_count(route) > 0);
+        Assert(route_node_count(route) <= 50);
       } else {
         Assert(get_route(&start, &end, route) == -1);
       }

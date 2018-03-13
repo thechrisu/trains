@@ -172,8 +172,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
         sensor_bank(start.sensor), sensor_index(start.sensor),
         sensor_bank(end.sensor), sensor_index(end.sensor),
-        route_length(route));
-    for (int i = 0; i < route_length(route); i += 1) {
+        route_node_count(route));
+    for (int i = 0; i < route_node_count(route); i += 1) {
       logprintf("%s\n\r", route[i]->name);
     }
 
