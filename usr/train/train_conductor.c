@@ -3,6 +3,8 @@
 #define CONDUCTOR_STOP_CHECK_INTERVAL 2
 #define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
 void conductor_setspeed(int train_tx_server, int track_state_controller,
                         int train, int speed) {
   set_train_speed(train_tx_server, track_state_controller,
@@ -180,15 +182,19 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     track_node **c = (track_node **)route;
     Assert((*c)->num >= 0 && (*c)->num < 80);
 
-    int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
-    switch_turnouts_within_distance(clock_server, train_tx_server,
-                                    track_state_controller, c,
-                                    stopping_distance + switch_padding * 100);
-
     get_last_sensor_hit(sensor_interpreter, train, &last_record);
 
-    while (*c != NULL_TRACK_NODE) {
+    for (int loops = 0; *c != NULL_TRACK_NODE; loops += 1) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
+
+      int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+      if (loops % 10 == 0) {
+        int switch_up_to_distance = MAX(stopping_distance + switch_padding * 100,
+                                        get_dist_between_reservations(c, get_next_of_type(c, NODE_SENSOR)));
+        switch_turnouts_within_distance(clock_server, train_tx_server,
+                                        track_state_controller, c,
+                                        switch_up_to_distance);
+      }
 
       int dist_left = get_remaining_dist_in_route(c);
       int dist_to_subtract = dist_from_last_sensor(clock_server, last_record.ticks,
@@ -199,7 +205,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
       // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
-        break; // TODO add delay to only return once we have stopped??
+        break;
       } else {
         reply_get_last_sensor_hit sensor_hit_polling_result;
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
@@ -220,9 +226,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             if (last_record.sensor == (unsigned int)(*next_sensor)->num) {
               logprintf("Updated c to %s\n\r", (*next_sensor)->name);
               c = next_sensor;
-              switch_turnouts_within_distance(clock_server, train_tx_server,
-                                              track_state_controller, c,
-                                              stopping_distance + switch_padding * 100);
             } else {
               logprintf("Expected to be at sensor %s but were at %c%d\n\r",
                   (*next_sensor)->name,
