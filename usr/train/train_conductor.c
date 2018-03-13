@@ -187,14 +187,13 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     for (int loops = 0; *c != NULL_TRACK_NODE; loops += 1) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
-      int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
-
       int dist_left = get_remaining_dist_in_route(c);
       int from_last_sensor = dist_from_last_sensor(clock_server, last_record.ticks,
                                                    velocity_model.msg.train_speeds[speed]);
       if (from_last_sensor < 2 * 1000 * 100) {
         dist_left -= from_last_sensor;
       }
+      int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
 
       if (loops % 10 == 0) {
         int switch_up_to_distance = MAX(stopping_distance + switch_padding * 100,
