@@ -80,15 +80,23 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
   }
 }
 
-void route_switch_turnouts(int clock_server, int train_tx_server,
-                           int track_state_controller, track_node **route) {
-  for (track_node **c = route; *c != NULL_TRACK_NODE; c += 1) {
-    if ((*c)->type == NODE_BRANCH) {
-      if (*(c + 1) == STRAIGHT(*c)) {
+// TODO maybe do this via switchers?
+void switch_turnouts_within_distance(int clock_server, int train_tx_server,
+                                     int track_state_controller, track_node **start,
+                                     int distance) {
+  turnout_state turnout_states[NUM_TURNOUTS];
+  get_turnouts(track_state_controller, turnout_states);
+
+  for (track_node **c = start; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if (get_dist_between_reservations(start, c) > distance) {
+      return;
+    } else if ((*c)->type == NODE_BRANCH) {
+      int map_offset = turnout_num_to_map_offset((*c)->num);
+      if (*(c + 1) == STRAIGHT(*c) && turnout_states[map_offset] == TURNOUT_CURVED) {
         switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, false);
-      } else if (*(c + 1) == CURVED(*c)) {
+      } else if (*(c + 1) == CURVED(*c) && turnout_states[map_offset] == TURNOUT_STRAIGHT) {
         switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, true);
-      } else {
+      } else if (*(c + 1) != STRAIGHT(*c) && *(c + 1) != CURVED(*c)) {
         logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
                   (*c)->num, (*(c + 1))->num);
       }
