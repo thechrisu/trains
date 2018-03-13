@@ -45,6 +45,8 @@ struct track_node {
 
 typedef struct track_node track_node;
 
+#define NULL_TRACK_NODE (track_node *)0
+
 typedef struct {
   char train;
   bool direction; // true/positive: forward
@@ -80,14 +82,5 @@ typedef struct {
   unsigned int sensor;
   int32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
 } location;
-
-typedef struct {
-  int train;
-  track_node *node;
-  int ticks_start;
-  int ticks_end;
-} reservation;
-
-#define NULL_RESERVATION (reservation *)0
 
 #endif /* TRACK_NODE_H */

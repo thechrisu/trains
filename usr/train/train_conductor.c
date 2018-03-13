@@ -146,7 +146,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   end.sensor = sensor_offset;
   end.offset = goal_offset;
-  reservation route[MAX_ROUTE_LENGTH];
+  track_node *route[MAX_ROUTE_LENGTH];
   bool got_error = false;
 
   get_last_sensor_hit(sensor_interpreter, train, &last_record);
@@ -161,7 +161,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     got_error = false;
     get_location_from_last_sensor_hit(clock_server,
             (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
-    int route_result = get_route(train, speed, &start, &end, route);
+    int route_result = get_route(&start, &end, route);
     if (route_result < 0) {
       logprintf("Tried to route from %c%d to %c%d but couldn't get a route\n\r",
                 sensor_bank(start.sensor), sensor_index(start.sensor),
@@ -172,18 +172,18 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
         sensor_bank(start.sensor), sensor_index(start.sensor),
         sensor_bank(end.sensor), sensor_index(end.sensor),
-        route_length(route));
-    for (int i = 0; i < route_length(route); i += 1) {
-      logprintf("%s\n\r", route[i].node->name);
+        route_node_count(route));
+    for (int i = 0; i < route_node_count(route); i += 1) {
+      logprintf("%s\n\r", route[i]->name);
     }
 
-    reservation *c = (reservation *)route;
+    track_node **c = (track_node **)route;
     route_switch_turnouts(clock_server, train_tx_server, track_state_controller,
                           route); // TODO maybe do this via switchers?
 
-    Assert(c->node->num >= 0 && c->node->num < 80);
+    Assert((*c)->num >= 0 && (*c)->num < 80);
     get_last_sensor_hit(sensor_interpreter, train, &last_record);
-    while (c->train != 0) {
+    while (*c != NULL_TRACK_NODE) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
       int dist_left = get_remaining_dist_in_route(c) -
@@ -198,7 +198,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         reply_get_last_sensor_hit sensor_hit_polling_result;
         get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
 
-        reservation *next_sensor = get_next_of_type(c, NODE_SENSOR);
+        track_node **next_sensor = get_next_of_type(c, NODE_SENSOR);
         if (sensor_hit_polling_result.sensor != last_record.sensor) {
           logprintf("New sensor data: %c%d\n\r",
               sensor_bank(sensor_hit_polling_result.sensor),
@@ -209,14 +209,14 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             got_first = true;
             continue;
           }*/
-          logprintf("next_sensor is null: %s\n\r", next_sensor == NULL_RESERVATION ? "yes" : "no");
-          if (next_sensor != NULL_RESERVATION) {
-            if (last_record.sensor == (unsigned int)next_sensor->node->num) {
-              logprintf("Updated c to %s\n\r", next_sensor->node->name);
+          logprintf("next_sensor is null: %s\n\r", *next_sensor == NULL_TRACK_NODE ? "yes" : "no");
+          if (*next_sensor != NULL_TRACK_NODE) {
+            if (last_record.sensor == (unsigned int)(*next_sensor)->num) {
+              logprintf("Updated c to %s\n\r", (*next_sensor)->name);
               c = next_sensor;
             } else {
               logprintf("Expected to be at sensor %s but were at %c%d\n\r",
-                  next_sensor->node->name,
+                  (*next_sensor)->name,
                   sensor_bank(last_record.sensor), sensor_index(last_record.sensor));
               got_error = true; // Oh no! We are lost and we should reroute.
               break;
@@ -227,8 +227,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
       Delay(clock_server, 1);
     }
-
-    cancel_route(train);
   } while (got_error);
 }
 
