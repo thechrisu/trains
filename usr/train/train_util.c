@@ -110,7 +110,7 @@ int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
 
 int get_remaining_dist_in_route(track_node **remaining_route) {
   int dist_remaining_100th_mm = 0;
-  for (track_node **c = remaining_route; *c != (track_node *)0; c += 1) {
+  for (track_node **c = remaining_route; *(c + 1) != (track_node *)0; c += 1) {
     switch ((*c)->type) {
       case NODE_SENSOR:
       case NODE_MERGE:
@@ -128,7 +128,6 @@ int get_remaining_dist_in_route(track_node **remaining_route) {
         logprintf("Invalid node type when getting remaining distance of route: %d\n\r", (*c)->type);
         break;
     }
-    c += 1;
   }
   return dist_remaining_100th_mm;
 }
@@ -162,7 +161,6 @@ int get_dist_between_reservations(track_node **start, track_node **end) {
         logprintf("Invalid node type when getting distance between nodes: %d\n\r", (*c)->type);
         break;
     }
-    c += 1;
   }
   return dist_remaining_100th_mm;
 }
