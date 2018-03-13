@@ -2,6 +2,8 @@
 #include "myio.h"
 #include "syscall/syscall.h"
 
+int num_aborts;
+
 typedef enum abort_mode {
   UNDEFINED,
   PREFETCH_ABORT,
@@ -52,6 +54,9 @@ void print_proc_mode(arm_proc_mode mode) {
 }
 
 void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapframe *tf) {
+  num_aborts += 1;
+  if (num_aborts > 1) while(1);
+
   *(uint32_t *)(VIC1_BASE + VIC1_ENABLE_OFFSET) = 0x0;
   *(uint32_t *)(VIC2_BASE + VIC2_ENABLE_OFFSET) = 0x0;
   task_descriptor *current_task = get_current_task();
