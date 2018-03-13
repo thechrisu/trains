@@ -7,6 +7,12 @@
 #include "terminal.h"
 #include "tstdlib.h"
 
+enum train_mode {
+  CONSTANT_VELOCITY,
+  ACCELERATING,
+  DECELERATING
+};
+
 /**
  * @param old_sensors  The previous sensor data.
  * @param new_sensors  The current sensor data.
@@ -125,4 +131,18 @@ reservation *get_next_of_type(reservation *remaining_route, node_type type);
  * @return distance (1/100mm) between the two reservations/nodes.
  */
 int get_dist_between_reservations(reservation *start, reservation *end);
+
+/**
+ * Given the last known command and previous data, infer if the train is
+ * moving at a constant speed or accelerating/decelerating.
+ *
+ * @param track_state_controller_tid        Tid of the track state controller.
+ * @param train                             Train number.
+ * @param stopping_times                    Stopping times for each speed of
+ *                                            the given train (in us).
+ *
+ * @return CONSTANT_VELOCITY, ACCELERATING, DECELERATING, respectively.
+ */
+enum train_mode get_train_mode(int track_state_controller_tid, int train,
+                            uint32_t stopping_times[15]);
 #endif /* TRAIN_UTIL_H */

@@ -172,3 +172,17 @@ int get_dist_between_reservations(reservation *start, reservation *end) {
   }
   return dist_remaining_100th_mm;
 }
+
+enum train_mode get_train_mode(int track_state_controller_tid, int train,
+                            uint32_t stopping_times[15]) {
+  train_data tr_data;
+  get_train(track_state_controller_tid, train, &tr_data);
+  if (tr_data.time_speed_last_changed > (int)stopping_times[tr_data.should_speed] / (1000 * 10)
+        || tr_data.should_speed == tr_data.last_speed) {
+    return CONSTANT_VELOCITY;
+  } else if (tr_data.should_speed > tr_data.last_speed) {
+    return DECELERATING;
+  } else {
+    return ACCELERATING;
+  }
+}
