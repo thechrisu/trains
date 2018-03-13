@@ -1,5 +1,7 @@
 #include "train_util.h"
 
+#define ABS(a) (a < a ? -a : a)
+
 void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t leading_edge[10]) {
   for (int i = 0; i  < 10; i++) {
     leading_edge[i] = ~old_sensors[i] & new_sensors[i]; // 0 -> 1
@@ -173,16 +175,19 @@ int get_dist_between_reservations(reservation *start, reservation *end) {
   return dist_remaining_100th_mm;
 }
 
-enum train_mode get_train_mode(int track_state_controller_tid, int train,
-                            uint32_t stopping_times[15]) {
-  train_data tr_data;
-  get_train(track_state_controller_tid, train, &tr_data);
-  if (tr_data.time_speed_last_changed > (int)stopping_times[tr_data.should_speed] / (1000 * 10)
-        || tr_data.should_speed == tr_data.last_speed) {
+enum train_mode get_train_mode(train_data *tr_data, uint32_t stopping_times[15]) {
+  int speed_diff = ABS(tr_data->should_speed - tr_data->last_speed);
+  if (tr_data->time_speed_last_changed
+                  > (196 / speed_diff * speed_diff) * (int)stopping_times[tr_data->should_speed] / (1000 * 10)
+        || tr_data->should_speed == tr_data->last_speed) {
     return CONSTANT_VELOCITY;
-  } else if (tr_data.should_speed > tr_data.last_speed) {
+  } else if (tr_data->should_speed > tr_data->last_speed) {
     return DECELERATING;
   } else {
     return ACCELERATING;
   }
+}
+
+bool sensor_hit_is_equal(reply_get_last_sensor_hit *a, reply_get_last_sensor_hit *b) {
+  return a->ticks == b->ticks && a->sensor == b->sensor;
 }

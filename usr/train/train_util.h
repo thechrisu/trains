@@ -136,13 +136,20 @@ int get_dist_between_reservations(reservation *start, reservation *end);
  * Given the last known command and previous data, infer if the train is
  * moving at a constant speed or accelerating/decelerating.
  *
- * @param track_state_controller_tid        Tid of the track state controller.
- * @param train                             Train number.
+ * @param tr_data                           Last known data of the train.
  * @param stopping_times                    Stopping times for each speed of
  *                                            the given train (in us).
  *
  * @return CONSTANT_VELOCITY, ACCELERATING, DECELERATING, respectively.
  */
-enum train_mode get_train_mode(int track_state_controller_tid, int train,
-                            uint32_t stopping_times[15]);
+enum train_mode get_train_mode(train_data *tr_data, uint32_t stopping_times[15]);
+
+/**
+ * Returns true if the two last sensor hit replies are the same.
+ *
+ * @param a                     One sensor hit.
+ * @param b                     Another sensor hit.
+ * @return Whether both have the same timestamp + the same sensor.
+ */
+bool sensor_hit_is_equal(reply_get_last_sensor_hit *a, reply_get_last_sensor_hit *b);
 #endif /* TRAIN_UTIL_H */
