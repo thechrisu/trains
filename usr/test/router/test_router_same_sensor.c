@@ -11,6 +11,8 @@ void test_router_same_sensor() {
   Assert(route_node_count(route) == 1);
   Assert(tstrcmp((char *)route[0]->name, "C8"));
 
+  Assert(route_length(route) == 0);
+
   router_test_teardown();
 
   bwprintf("Success.\n\r");

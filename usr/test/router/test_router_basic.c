@@ -17,6 +17,8 @@ void test_router_basic() {
     Assert(tstrcmp((char *)route[i]->name, expected_sensors[i]));
   }
 
+  Assert(route_length(route) == 101200);
+
   router_test_teardown();
 
   bwprintf("Success.\n\r");

@@ -8,6 +8,7 @@
 #include "../lib/search_node_queue.h"
 #include "track_data.h"
 #include "track_node.h"
+#include "train_util.h"
 #include "tstdlib.h"
 
 #define MAX_ROUTE_LENGTH SEARCH_NODE_QUEUE_SIZE
@@ -46,5 +47,11 @@ int get_route_next(location *start, location *end, track_node *route[MAX_ROUTE_L
  * @returns The number of nodes in the route.
  */
 int route_node_count(track_node *route[MAX_ROUTE_LENGTH]);
+
+/**
+ * @param   route A route.
+ * @returns The length of the route in 1/100 mm.
+ */
+int route_length(track_node *route[MAX_ROUTE_LENGTH]);
 
 #endif /* ROUTER_H */

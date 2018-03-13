@@ -20,6 +20,8 @@ void test_router_complete() {
         Assert(get_route(&start, &end, route) == 0);
         Assert(route_node_count(route) > 0);
         Assert(route_node_count(route) <= 50);
+        Assert(route_length(route) >= 0);
+        Assert(route_length(route) < 11 * 1000 * 100);
       } else {
         Assert(get_route(&start, &end, route) == -1);
       }
