@@ -183,7 +183,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
     switch_turnouts_within_distance(clock_server, train_tx_server,
                                     track_state_controller, c,
-                                    3 * stopping_distance / 2 + 10 * 10 * 100);
+                                    stopping_distance + switch_padding * 100);
 
     get_last_sensor_hit(sensor_interpreter, train, &last_record);
 
@@ -222,7 +222,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
               c = next_sensor;
               switch_turnouts_within_distance(clock_server, train_tx_server,
                                               track_state_controller, c,
-                                              3 * stopping_distance / 2 + 10 * 10 * 100);
+                                              stopping_distance + switch_padding * 100);
             } else {
               logprintf("Expected to be at sensor %s but were at %c%d\n\r",
                   (*next_sensor)->name,

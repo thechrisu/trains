@@ -175,6 +175,9 @@ void command_dispatcher_server() {
               case SET_T1TRAIN:
                 t1train = received.msg.cmd.data[1];
                 break;
+              case SET_SWITCH_PADDING:
+                switch_padding = received.msg.cmd.data[1];
+                break;
               default:
                 Assert(0);
                 break;
