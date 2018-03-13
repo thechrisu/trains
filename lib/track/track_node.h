@@ -45,6 +45,8 @@ struct track_node {
 
 typedef struct track_node track_node;
 
+#define NULL_TRACK_NODE (track_node *)0
+
 typedef struct {
   char train;
   bool direction; // true/positive: forward

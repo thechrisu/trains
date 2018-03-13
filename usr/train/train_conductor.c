@@ -183,7 +183,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
     Assert((*c)->num >= 0 && (*c)->num < 80);
     get_last_sensor_hit(sensor_interpreter, train, &last_record);
-    while (*c != (track_node *)0) {
+    while (*c != NULL_TRACK_NODE) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
       int dist_left = get_remaining_dist_in_route(c) -
@@ -209,8 +209,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             got_first = true;
             continue;
           }*/
-          logprintf("next_sensor is null: %s\n\r", *next_sensor == (track_node *)0 ? "yes" : "no");
-          if (*next_sensor != (track_node *)0) {
+          logprintf("next_sensor is null: %s\n\r", *next_sensor == NULL_TRACK_NODE ? "yes" : "no");
+          if (*next_sensor != NULL_TRACK_NODE) {
             if (last_record.sensor == (unsigned int)(*next_sensor)->num) {
               logprintf("Updated c to %s\n\r", (*next_sensor)->name);
               c = next_sensor;

@@ -82,7 +82,7 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
 
 void route_switch_turnouts(int clock_server, int train_tx_server,
                            int track_state_controller, track_node **route) {
-  for (track_node **c = route; *c != (track_node *)0; c += 1) {
+  for (track_node **c = route; *c != NULL_TRACK_NODE; c += 1) {
     if ((*c)->type == NODE_BRANCH) {
       if (*(c + 1) == STRAIGHT(*c)) {
         switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, false);
@@ -110,7 +110,7 @@ int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
 
 int get_remaining_dist_in_route(track_node **remaining_route) {
   int dist_remaining_100th_mm = 0;
-  for (track_node **c = remaining_route; *(c + 1) != (track_node *)0; c += 1) {
+  for (track_node **c = remaining_route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
     switch ((*c)->type) {
       case NODE_SENSOR:
       case NODE_MERGE:
@@ -133,7 +133,7 @@ int get_remaining_dist_in_route(track_node **remaining_route) {
 }
 
 track_node **get_next_of_type(track_node **remaining_route, node_type type) {
-  for (track_node **c = remaining_route + 1; *c != (track_node *)0; c += 1) {
+  for (track_node **c = remaining_route + 1; *c != NULL_TRACK_NODE; c += 1) {
     if ((*c)->type == type) {
       return c;
     }
@@ -143,7 +143,7 @@ track_node **get_next_of_type(track_node **remaining_route, node_type type) {
 
 int get_dist_between_reservations(track_node **start, track_node **end) {
   int dist_remaining_100th_mm = 0;
-  for (track_node **c = start; *c != (track_node *)0 && c != end; c += 1) {
+  for (track_node **c = start; *c != NULL_TRACK_NODE && c != end; c += 1) {
     switch ((*c)->type) {
       case NODE_SENSOR:
       case NODE_MERGE:

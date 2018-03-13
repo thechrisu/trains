@@ -80,7 +80,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
     current = current->prev;
   }
 
-  route[path_length + 1] = (track_node *)0;
+  route[path_length + 1] = NULL_TRACK_NODE;
   current = end_node_after_search;
   for (int i = path_length; i >= 0; i -= 1) {
     route[i] = current->node;
@@ -92,7 +92,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
 
 int route_length(track_node *route[MAX_ROUTE_LENGTH]) {
   int result;
-  for (result = 0; route[result] != (track_node *)0; result += 1);
+  for (result = 0; route[result] != NULL_TRACK_NODE; result += 1);
   return result;
 }
 
