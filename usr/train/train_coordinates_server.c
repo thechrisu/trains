@@ -6,14 +6,14 @@
 void update_coordinates_helper(int now_ticks,
                                turnout_state turnout_states[NUM_TURNOUTS],
                                coordinates *c) {
-  int current_velocity = c->velocity + c->acceleration * (now_ticks - c->ticks);
+  int current_velocity = c->velocity + c->acceleration * (now_ticks - c->ticks) / 100;
   if ((c->acceleration < 0 && current_velocity < c->target_velocity) ||
       (c->acceleration > 0 && current_velocity > c->target_velocity)) {
     current_velocity = c->target_velocity;
   }
 
   if (c->loc.sensor != NO_NEXT_SENSOR) {
-    c->loc.offset += current_velocity * (now_ticks - c->ticks) -
+    c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100 -
                      ((current_velocity - c->velocity) << 2) / (2 * c->acceleration);
     location_canonicalize(&track, turnout_states, &c->loc, &c->loc);
   }

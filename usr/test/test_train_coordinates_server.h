@@ -7,6 +7,8 @@
 
 #include "clock.h"
 #include "commands.h"
+#include "idle.h"
+#include "ioserver.h"
 #include "nameserver.h"
 #include "nameserver/ns_tid.h"
 #include "track_data.h"

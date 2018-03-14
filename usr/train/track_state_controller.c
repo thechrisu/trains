@@ -65,6 +65,7 @@ void track_state_controller() {
 
         send.type = MESSAGE_UPDATE_COORDS_SPEED;
         tmemcpy(&send.msg.update_coords.tr_data, &track.train[train], sizeof(train_data));
+        send.msg.update_coords.tr_data.train = train;
         tmemcpy(&send.msg.update_coords.velocity_model,
                 track.speed_to_velocity[train],
                 15 * sizeof(uint32_t));
