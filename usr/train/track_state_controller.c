@@ -49,7 +49,7 @@ void track_state_controller() {
         }
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
-      case MESSAGE_TRAINSETSPEED:
+      case MESSAGE_TRAINSETSPEED: {
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         Assert(received.msg.tr_data.should_speed >= 0
@@ -72,17 +72,24 @@ void track_state_controller() {
 
         // TODO use acceleration model
         if (track.train[train].should_speed > track.train[train].last_speed) {
-          send.msg.update_coords.acceleration = 17000;
+          int speed = track.train[train].should_speed;
+          long long vel = track.speed_to_velocity[train][speed];
+          long long sd = track.stopping_distance[train][speed];
+          send.msg.update_coords.acceleration = (vel * vel) / (2 * sd);
         } else if (track.train[train].should_speed == track.train[train].last_speed) {
           send.msg.update_coords.acceleration = 0;
         } else {
-          send.msg.update_coords.acceleration = -17000;
+          int speed = track.train[train].last_speed;
+          long long vel = track.speed_to_velocity[train][speed];
+          long long sd = track.stopping_distance[train][speed];
+          send.msg.update_coords.acceleration = -(vel * vel) / (2 * sd);
         }
 
         Assert(Send(train_coords_server_tid,
                     &send, sizeof(send),
                     EMPTY_MESSAGE, 0) == 0);
         break;
+      }
       case MESSAGE_TRAINREVERSED:
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
