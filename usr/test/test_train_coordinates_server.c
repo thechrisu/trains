@@ -63,6 +63,7 @@ void test_train_coordinates_server() {
   Assert(c.velocity < c.target_velocity);
   Assert(c.acceleration > 0);
 
+  // Train is at full speed
   Delay(clock_server_tid, 75);
   get_coordinates(train_coords_server_tid, train, &c);
   Assert(c.loc.sensor == NO_NEXT_SENSOR);
@@ -113,6 +114,7 @@ void test_train_coordinates_server() {
   Assert(c.velocity > c.target_velocity);
   Assert(c.acceleration < 0);
 
+  // Train has come to a stop
   Delay(clock_server_tid, 75);
   get_coordinates(train_coords_server_tid, train, &c);
   Assert(c.loc.sensor == sensor_offset('B', 15));
@@ -128,6 +130,7 @@ void test_train_coordinates_server() {
   Assert(c.target_velocity == 0);
   Assert(c.acceleration == 0);
 
+  // Train is in same location after another 0.5 seconds
   Delay(clock_server_tid, 50);
   get_coordinates(train_coords_server_tid, train, &c);
   Assert(c.loc.offset == last_offset);
