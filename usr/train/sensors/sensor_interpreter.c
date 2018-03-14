@@ -112,9 +112,9 @@ void sensor_interpreter() {
 
         if (sensor_attributed) {
           message send;
-          send.type = REPLY_GET_LAST_SENSOR_HIT;
-          send.msg.last_sensor.sensor = last_sensor[t1train];
-          send.msg.last_sensor.ticks = time_at_last_sensor_hit[t1train];
+          send.type = MESSAGE_UPDATE_COORDS_SENSOR;
+          send.msg.update_coords.last_sensor.sensor = last_sensor[t1train];
+          send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[t1train];
           Assert(Send(train_coordinates_server,
                       &send, sizeof(send),
                       EMPTY_MESSAGE, 0) == 0);

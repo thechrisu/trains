@@ -6,7 +6,7 @@ void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
   int sender_tid;
   int train;
-  message received, reply;
+  message send, received, reply;
   init_track(&track);
   int16_t sensor_states[10];
   tmemset(sensor_states, 0, sizeof(sensor_states));
@@ -62,8 +62,24 @@ void track_state_controller() {
         logprintf("Track state controller: Set speed of %d to %d\n\r", train, track.train[train].should_speed);
 #endif /* DEBUG_REVERSAL */
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+        send.type = MESSAGE_UPDATE_COORDS_SPEED;
+        tmemcpy(&send.msg.update_coords.tr_data, &track.train[train], sizeof(train_data));
+        tmemcpy(&send.msg.update_coords.velocity_model,
+                track.speed_to_velocity[train],
+                15 * sizeof(uint32_t));
+
+        // TODO use acceleration model
+        if (track.train[train].should_speed > track.train[train].last_speed) {
+          send.msg.update_coords.acceleration = 17000;
+        } else if (track.train[train].should_speed == track.train[train].last_speed) {
+          send.msg.update_coords.acceleration = 0;
+        } else {
+          send.msg.update_coords.acceleration = -17000;
+        }
+
         Assert(Send(train_coordinates_server,
-                    &received, sizeof(received),
+                    &send, sizeof(send),
                     EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_TRAINREVERSED:
@@ -71,8 +87,11 @@ void track_state_controller() {
         Assert(train >= 0 && train <= 80);
         track.train[train].direction = received.msg.tr_data.direction;
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+        send.type = MESSAGE_UPDATE_COORDS_REVERSE;
+        send.msg.tr_data.train = train;
         Assert(Send(train_coordinates_server,
-                    &received, sizeof(received),
+                    &send, sizeof(send),
                     EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_TURNOUTSWITCHED: {

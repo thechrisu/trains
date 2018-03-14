@@ -7,6 +7,7 @@
 
 #include "codes.h"
 #include "messages.h"
+#include "prediction.h"
 
 void train_coordinates_server();
 

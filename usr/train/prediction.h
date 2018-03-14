@@ -6,7 +6,9 @@
 #define TRAIN_PREDICTION_H
 
 #include "codes.h"
+#include "global_track_state.h"
 #include "messages.h"
+#include "track_data.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
@@ -36,5 +38,16 @@ int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
 void get_location_from_last_sensor_hit(int clock_server, int velocity,
                                        reply_get_last_sensor_hit *last_record,
                                        location *current);
+
+void update_coordinates_after_sensor_hit(reply_get_last_sensor_hit *last_sensor_hit,
+                                         coordinates *c);
+
+void update_coordinates_after_speed_change(train_data *tr_data,
+                                           uint32_t velocity_model[15],
+                                           int acceleration, coordinates *c);
+
+void update_coordinates_after_reverse(coordinates *c);
+
+void update_coordinates_after_time_passed(int clock_server, coordinates *c);
 
 #endif /* TRAIN_PREDICTION_H */

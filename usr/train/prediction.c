@@ -1,5 +1,8 @@
 #include "prediction.h"
 
+// TODO measure pickup
+#define PICKUP_LENGTH 3 * 10 * 100
+
 int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
                           uint32_t velocity) {
   int c_time = Time(clock_server);
@@ -53,6 +56,11 @@ void update_coordinates_after_speed_change(train_data *tr_data,
 
   c->target_velocity = velocity_model[tr_data->should_speed];
   c->acceleration = acceleration;
+}
+
+void update_coordinates_after_reverse(coordinates *c) {
+  location_reverse(&track, &c->loc, &c->loc);
+  c->loc.offset += PICKUP_LENGTH;
 }
 
 void update_coordinates_after_time_passed(int clock_server, coordinates *c) {
