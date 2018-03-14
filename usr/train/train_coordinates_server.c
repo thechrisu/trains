@@ -70,8 +70,8 @@ void train_coordinates_server() {
 
   int clock_server = WhoIs("ClockServer");
 
-  coordinates coords[80];
-  for (int i = 0; i < 80; i += 1) {
+  coordinates coords[81];
+  for (int i = 0; i <= 80; i += 1) {
     coords[i].loc.sensor = NO_NEXT_SENSOR;
   }
 
