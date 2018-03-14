@@ -163,4 +163,6 @@ void update_stopping_time_model(int track_state_controller_tid, int train, int s
  */
 void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_sensor_hit *last_sensor);
 
+void get_coordinates(int train_coordinates_server, int train, coordinates *c);
+
 #endif /* TRAIN_COMMANDS_H */

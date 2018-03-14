@@ -83,4 +83,14 @@ typedef struct {
   int32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
 } location;
 
+typedef struct {
+  location loc;
+  int ticks;
+  int current_speed;
+  int last_speed;
+  int velocity;
+  int target_velocity;
+  int acceleration;
+} coordinates;
+
 #endif /* TRACK_NODE_H */

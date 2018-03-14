@@ -59,6 +59,8 @@ enum message_type {
   MESSAGE_CONDUCTOR_SETTRAIN,
   MESSAGE_GET_LAST_SENSOR_HIT,
   REPLY_GET_LAST_SENSOR_HIT,
+  MESSAGE_GET_COORDINATES,
+  REPLY_GET_COORDINATES,
 };
 
 typedef struct {
@@ -147,6 +149,7 @@ typedef struct {
     message_get_route_params get_route_params;
     track_node **route;
     reply_get_last_sensor_hit last_sensor;
+    coordinates coords;
   } msg;
 } message;
 

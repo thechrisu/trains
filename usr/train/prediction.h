@@ -10,16 +10,6 @@
 #include "track_node.h"
 #include "tstdlib.h"
 
-typedef struct {
-  location loc;
-  int ticks;
-  int current_speed;
-  int last_speed;
-  int velocity;
-  int target_velocity;
-  int acceleration;
-} coordinates;
-
 /**
  * Returns the distance we travelled since we last hit a sensor.
  *

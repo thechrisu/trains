@@ -12,6 +12,8 @@ void track_state_controller() {
   tmemset(sensor_states, 0, sizeof(sensor_states));
 
   int clock_server_tid = WhoIs("ClockServer");
+  int train_coordinates_server = WhoIs("TrainCoordinatesServer");
+  Assert(train_coordinates_server > 0);
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -60,12 +62,18 @@ void track_state_controller() {
         logprintf("Track state controller: Set speed of %d to %d\n\r", train, track.train[train].should_speed);
 #endif /* DEBUG_REVERSAL */
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+        Assert(Send(train_coordinates_server,
+                    &received, sizeof(received),
+                    EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_TRAINREVERSED:
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         track.train[train].direction = received.msg.tr_data.direction;
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+        Assert(Send(train_coordinates_server,
+                    &received, sizeof(received),
+                    EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_TURNOUTSWITCHED: {
         int turnout_num = received.msg.turnout_switched_params.turnout_num;
