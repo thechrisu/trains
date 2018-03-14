@@ -39,20 +39,4 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
                                        reply_get_last_sensor_hit *last_record,
                                        location *current);
 
-void update_coordinates_after_sensor_hit(reply_get_last_sensor_hit *last_sensor_hit,
-                                         turnout_state turnout_states[NUM_TURNOUTS],
-                                         coordinates *c);
-
-void update_coordinates_after_speed_change(train_data *tr_data,
-                                           uint32_t velocity_model[15],
-                                           int acceleration,
-                                           turnout_state turnout_states[NUM_TURNOUTS],
-                                           coordinates *c);
-
-void update_coordinates_after_reverse(coordinates *c);
-
-void update_coordinates_after_time_passed(int clock_server,
-                                          turnout_state turnout_states[NUM_TURNOUTS],
-                                          coordinates *c);
-
 #endif /* TRAIN_PREDICTION_H */
