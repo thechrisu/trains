@@ -1,8 +1,5 @@
 #include "train_coordinates_server.h"
 
-// TODO measure pickup
-#define PICKUP_LENGTH 3 * 10 * 100
-
 void update_coordinates_helper(int now_ticks,
                                turnout_state turnout_states[NUM_TURNOUTS],
                                coordinates *c) {
@@ -13,8 +10,9 @@ void update_coordinates_helper(int now_ticks,
   }
 
   if (c->loc.sensor != NO_NEXT_SENSOR) {
+    int velocity_diff = current_velocity - c->velocity;
     c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100 -
-                     ((current_velocity - c->velocity) << 2) / (2 * c->acceleration);
+                     (velocity_diff * velocity_diff) / (2 * c->acceleration);
     location_canonicalize(&track, turnout_states, &c->loc, &c->loc);
   }
 

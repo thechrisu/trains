@@ -12,6 +12,9 @@
 #define TRACK_MAX 144
 #define NUM_TURNOUTS 22
 
+// TODO measure pickup
+#define PICKUP_LENGTH 3 * 10 * 100
+
 typedef enum {
   NODE_NONE,
   NODE_SENSOR,
