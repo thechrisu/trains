@@ -154,10 +154,9 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
 void location_reverse(track_state *t, location *destination, location *source);
 
 /**
- * Changes a location so that its offset is non-positive. For example, if sensors
- * A1 and B1 are 50 cm apart, the canonical form of (A1, 25 cm) is
- * (B1, -25 cm). This is useful because locations with positive offsets can be
- * ambiguous with respect to which sensor is next.
+ * Changes a location so that its offset is smaller than the distance to the next sensor.
+ * For example, if sensors A1 and B1 are 50 cm apart, and B1 and C1 are 30 cm apart,
+ * the canonical form of (A1, 60 cm) is (B1, 10 cm).
  *
  * @param t              A track state.
  * @param turnout_states The state of the track's turnouts.
