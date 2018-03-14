@@ -100,7 +100,7 @@ void track_state_controller() {
         track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
         Reply(sender_tid, EMPTY_MESSAGE, 0);
 
-        send.type = REPLY_GETTURNOUTS;
+        send.type = MESSAGE_FORWARD_TURNOUT_STATES;
         tmemcpy(&send.msg.turnout_states, &track.turnouts,
                 NUM_TURNOUTS * sizeof(turnout_state));
         Assert(Send(train_coords_server_tid,
