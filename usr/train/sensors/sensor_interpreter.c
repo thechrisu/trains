@@ -114,6 +114,7 @@ void sensor_interpreter() {
         if (sensor_attributed) {
           message send;
           send.type = MESSAGE_UPDATE_COORDS_SENSOR;
+          send.msg.update_coords.tr_data.train = t1train;
           send.msg.update_coords.last_sensor.sensor = last_sensor[t1train];
           send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[t1train];
           Assert(Send(train_coordinates_server,
