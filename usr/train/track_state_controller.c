@@ -12,8 +12,8 @@ void track_state_controller() {
   tmemset(sensor_states, 0, sizeof(sensor_states));
 
   int clock_server_tid = WhoIs("ClockServer");
-  int train_coordinates_server = WhoIs("TrainCoordinatesServer");
-  Assert(train_coordinates_server > 0);
+  int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
+  Assert(train_coords_server_tid > 0);
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -78,7 +78,7 @@ void track_state_controller() {
           send.msg.update_coords.acceleration = -17000;
         }
 
-        Assert(Send(train_coordinates_server,
+        Assert(Send(train_coords_server_tid,
                     &send, sizeof(send),
                     EMPTY_MESSAGE, 0) == 0);
         break;
@@ -90,7 +90,7 @@ void track_state_controller() {
 
         send.type = MESSAGE_UPDATE_COORDS_REVERSE;
         send.msg.tr_data.train = train;
-        Assert(Send(train_coordinates_server,
+        Assert(Send(train_coords_server_tid,
                     &send, sizeof(send),
                     EMPTY_MESSAGE, 0) == 0);
         break;
@@ -103,7 +103,7 @@ void track_state_controller() {
         send.type = REPLY_GETTURNOUTS;
         tmemcpy(&send.msg.turnout_states, &track.turnouts,
                 NUM_TURNOUTS * sizeof(turnout_state));
-        Assert(Send(train_coordinates_server,
+        Assert(Send(train_coords_server_tid,
                &send, sizeof(send),
                EMPTY_MESSAGE, 0) == 0);
         break;
