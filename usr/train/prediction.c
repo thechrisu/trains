@@ -24,9 +24,11 @@ void update_coordinates_helper(int now_ticks, coordinates *c) {
     current_velocity = c->target_velocity;
   }
 
-  c->loc.offset += current_velocity * (now_ticks - c->ticks) -
-                   ((current_velocity - c->velocity) << 2) / (2 * c->acceleration);
-  // TODO canonicalize location
+  if (c->loc.sensor != NO_NEXT_SENSOR) {
+    c->loc.offset += current_velocity * (now_ticks - c->ticks) -
+                     ((current_velocity - c->velocity) << 2) / (2 * c->acceleration);
+    // TODO canonicalize location
+  }
 
   c->velocity = current_velocity;
   if (c->velocity == c->target_velocity) {
