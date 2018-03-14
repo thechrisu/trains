@@ -1596,7 +1596,7 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
   unsigned int next = sensor_next(t, current.sensor, turnout_states);
   int distance_to_next = distance_between_sensors(t, current.sensor, next);
 
-  while (current.offset >= distance_to_next) {
+  while (current.offset > 0) {
     current.sensor = next;
     current.offset -= distance_to_next;
 
