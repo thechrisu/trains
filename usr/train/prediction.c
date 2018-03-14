@@ -17,7 +17,9 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
                                       velocity);
 }
 
-void update_coordinates_helper(int now_ticks, coordinates *c) {
+void update_coordinates_helper(int now_ticks,
+                               turnout_state turnout_states[NUM_TURNOUTS],
+                               coordinates *c) {
   int current_velocity = c->velocity + c->acceleration * (now_ticks - c->ticks);
   if ((c->acceleration < 0 && current_velocity < c->target_velocity) ||
       (c->acceleration > 0 && current_velocity > c->target_velocity)) {
@@ -27,7 +29,7 @@ void update_coordinates_helper(int now_ticks, coordinates *c) {
   if (c->loc.sensor != NO_NEXT_SENSOR) {
     c->loc.offset += current_velocity * (now_ticks - c->ticks) -
                      ((current_velocity - c->velocity) << 2) / (2 * c->acceleration);
-    // TODO canonicalize location
+    location_canonicalize(&track, turnout_states, &c->loc, &c->loc);
   }
 
   c->velocity = current_velocity;
@@ -40,8 +42,9 @@ void update_coordinates_helper(int now_ticks, coordinates *c) {
 
 // TODO account for sensor delay?
 void update_coordinates_after_sensor_hit(reply_get_last_sensor_hit *last_sensor_hit,
+                                         turnout_state turnout_states[NUM_TURNOUTS],
                                          coordinates *c) {
-  update_coordinates_helper(last_sensor_hit->ticks, c);
+  update_coordinates_helper(last_sensor_hit->ticks, turnout_states, c);
 
   c->loc.sensor = last_sensor_hit->sensor;
   c->loc.offset = 0;
@@ -50,8 +53,10 @@ void update_coordinates_after_sensor_hit(reply_get_last_sensor_hit *last_sensor_
 // TODO account for delay in sending command to train?
 void update_coordinates_after_speed_change(train_data *tr_data,
                                            uint32_t velocity_model[15],
-                                           int acceleration, coordinates *c) {
-  update_coordinates_helper(tr_data->time_speed_last_changed, c);
+                                           int acceleration,
+                                           turnout_state turnout_states[NUM_TURNOUTS],
+                                           coordinates *c) {
+  update_coordinates_helper(tr_data->time_speed_last_changed, turnout_states, c);
 
   c->current_speed = tr_data->should_speed;
   c->last_speed = tr_data->last_speed;
@@ -65,6 +70,8 @@ void update_coordinates_after_reverse(coordinates *c) {
   c->loc.offset += PICKUP_LENGTH;
 }
 
-void update_coordinates_after_time_passed(int clock_server, coordinates *c) {
-  update_coordinates_helper(Time(clock_server), c);
+void update_coordinates_after_time_passed(int clock_server,
+                                          turnout_state turnout_states[NUM_TURNOUTS],
+                                          coordinates *c) {
+  update_coordinates_helper(Time(clock_server), turnout_states, c);
 }

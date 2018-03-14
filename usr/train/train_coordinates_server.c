@@ -13,6 +13,8 @@ void train_coordinates_server() {
     coords[i].loc.sensor = NO_NEXT_SENSOR;
   }
 
+  turnout_state turnout_states[NUM_TURNOUTS];
+
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     message_update_coords *uc = &received.msg.update_coords;
@@ -20,7 +22,8 @@ void train_coordinates_server() {
     switch (received.type) {
       case MESSAGE_UPDATE_COORDS_SPEED:
         update_coordinates_after_speed_change(&uc->tr_data, uc->velocity_model,
-                                              uc->acceleration, train_coords);
+                                              uc->acceleration, turnout_states,
+                                              train_coords);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_UPDATE_COORDS_REVERSE:
@@ -28,12 +31,18 @@ void train_coordinates_server() {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_UPDATE_COORDS_SENSOR:
-        update_coordinates_after_sensor_hit(&uc->last_sensor, train_coords);
+        update_coordinates_after_sensor_hit(&uc->last_sensor, turnout_states,
+                                            train_coords);
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      case MESSAGE_FORWARD_TURNOUT_STATES:
+        tmemcpy(turnout_states, &received.msg.turnout_states,
+                NUM_TURNOUTS * sizeof(turnout_state));
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_GET_COORDINATES: {
         coordinates *c = &coords[(int)received.msg.train];
-        update_coordinates_after_time_passed(clock_server, c);
+        update_coordinates_after_time_passed(clock_server, turnout_states, c);
         reply.type = REPLY_GET_COORDINATES;
         tmemcpy(&(reply.msg.coords), c, sizeof(coordinates));
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);

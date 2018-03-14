@@ -153,6 +153,9 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
  */
 void location_reverse(track_state *t, location *destination, location *source);
 
+void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
+                           location *destination, location *source);
+
 /**
  * @param   t              A track state.
  * @param   start          The sensor to start from.
