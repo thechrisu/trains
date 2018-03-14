@@ -1594,14 +1594,17 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
   tmemcpy(&current, source, sizeof(current));
 
   unsigned int next = sensor_next(t, current.sensor, turnout_states);
-  int distance_to_next = distance_between_sensors(t, current.sensor, next);
+  if (next != NO_NEXT_SENSOR) {
+    int distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
 
-  while (current.offset >= distance_to_next) {
-    current.sensor = next;
-    current.offset -= distance_to_next;
+    while (current.offset >= distance_to_next) {
+      current.sensor = next;
+      current.offset -= distance_to_next;
 
-    next = sensor_next(t, current.sensor, turnout_states);
-    distance_to_next = distance_between_sensors(t, current.sensor, next);
+      next = sensor_next(t, current.sensor, turnout_states);
+      if (next == NO_NEXT_SENSOR) break;
+      distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+    }
   }
 
   tmemcpy(destination, &current, sizeof(*destination));
