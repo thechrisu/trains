@@ -50,8 +50,10 @@ void update_coordinates_after_speed_change(train_data *tr_data,
 }
 
 void update_coordinates_after_reverse(coordinates *c) {
-  location_reverse(&track, &c->loc, &c->loc);
-  c->loc.offset += PICKUP_LENGTH;
+  if (c->loc.sensor != NO_NEXT_SENSOR) {
+    location_reverse(&track, &c->loc, &c->loc);
+    c->loc.offset += PICKUP_LENGTH;
+  }
 }
 
 void update_coordinates_after_time_passed(int clock_server,
