@@ -12,6 +12,8 @@
 #define TRACK_MAX 144
 #define NUM_TURNOUTS 22
 
+#define PICKUP_LENGTH 5 * 10 * 100
+
 typedef enum {
   NODE_NONE,
   NODE_SENSOR,
@@ -82,5 +84,15 @@ typedef struct {
   unsigned int sensor;
   int32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
 } location;
+
+typedef struct {
+  location loc;
+  int ticks;
+  int current_speed;
+  int last_speed;
+  int velocity;
+  int target_velocity;
+  int acceleration;
+} coordinates;
 
 #endif /* TRACK_NODE_H */

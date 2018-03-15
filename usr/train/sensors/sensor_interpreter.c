@@ -46,6 +46,9 @@ void sensor_interpreter() {
   terminal_tx_server = WhoIs("TerminalTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
 
+  int train_coordinates_server = WhoIs("TrainCoordinatesServer");
+  Assert(train_coordinates_server > 0);
+
   RegisterAs("SensorInterpreter");
 
   while (1) {
@@ -67,12 +70,15 @@ void sensor_interpreter() {
         int last_time = time_at_last_sensor_hit[t1train];
         int time_speed_last_changed = reply.msg.tr_data.time_speed_last_changed;
 
+        bool sensor_attributed = false;
+
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
             unsigned int last = last_sensor[t1train];
 
             if (last == NO_DATA_RECEIVED) {
               attribute_sensor(sensor, current_time);
+              sensor_attributed = true;
             } else if (sensor_may_be_seen_next(&track, last, sensor)) {
               if (sensor_is_followed_by(&track, last, sensor)) {
                 if (last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
@@ -95,13 +101,27 @@ void sensor_interpreter() {
               }
 
               attribute_sensor(sensor, current_time);
+              sensor_attributed = true;
             } else if (train_is_lost(current_speed, current_time - last_time)) {
               attribute_sensor(sensor, current_time);
+              sensor_attributed = true;
             }
           }
         }
 
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+
+        if (sensor_attributed) {
+          message send;
+          send.type = MESSAGE_UPDATE_COORDS_SENSOR;
+          send.msg.update_coords.tr_data.train = t1train;
+          send.msg.update_coords.last_sensor.sensor = last_sensor[t1train];
+          send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[t1train];
+          Assert(Send(train_coordinates_server,
+                      &send, sizeof(send),
+                      EMPTY_MESSAGE, 0) == 0);
+        }
+
         break;
       }
       case MESSAGE_GET_LAST_SENSOR_HIT: {

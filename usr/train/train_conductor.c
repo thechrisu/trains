@@ -88,7 +88,6 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
   int ticks_after_poll = Time(clock_server);
   if (did_hit_sensor) {
     int ticks_to_stop = ticks_after_poll - stop_start;
-    // logprintf("Hit sensor, off by %d\n\r", distance_off);
     stopping_distance_model.msg.train_distances[speed]
       = (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] + 2500);
     update_stopping_distance_model(track_state_controller, train, speed,
@@ -101,7 +100,6 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     conductor_setspeed(train_tx_server, track_state_controller, train, 0);
     int distance_off = ((int)velocity_model.msg.train_speeds[1])
                          * (Time(clock_server) - ticks_after_poll) / 100;
-    // logprintf("%d, did not hit sensor\n\r", distance_off);
     Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance by %d%s",
                   ESC, CALIB_LINE + 2, 1, distance_off, HIDE_CURSOR_TO_EOL) == 0);
     update_stopping_distance_model(track_state_controller, train, speed,
@@ -171,6 +169,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       return;
     }
 
+#if ROUTING_DEBUG
     logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
         sensor_bank(start.sensor), sensor_index(start.sensor),
         sensor_bank(end.sensor), sensor_index(end.sensor),
@@ -178,6 +177,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     for (int i = 0; i < route_node_count(route); i += 1) {
       logprintf("%s\n\r", route[i]->name);
     }
+#endif /* ROUTING_DEBUG */
 
     track_node **c = (track_node **)route;
     Assert((*c)->num >= 0 && (*c)->num < 80);
@@ -206,7 +206,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                         switch_up_to_distance);
       }
 
-      // logprintf("Last sensor: %c%d, dist left: %d, stopping distance: %d\n\r", sensor_bank(last_record.sensor), sensor_index(last_record.sensor), dist_left, stopping_distance);
       if (dist_left < stopping_distance) {
         break;
       } else {
@@ -215,24 +214,33 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
         track_node **next_sensor = get_next_of_type(c, NODE_SENSOR);
         if (sensor_hit_polling_result.sensor != last_record.sensor) {
+#if ROUTING_DEBUG
           logprintf("New sensor data: %c%d\n\r",
               sensor_bank(sensor_hit_polling_result.sensor),
               sensor_index(sensor_hit_polling_result.sensor));
+#endif /* ROUTING_DEBUG */
+
           last_record.sensor = sensor_hit_polling_result.sensor;
           last_record.ticks = sensor_hit_polling_result.ticks;
-          /*if (!got_first) {
-            got_first = true;
-            continue;
-          }*/
+
+#if ROUTING_DEBUG
           logprintf("next_sensor is null: %s\n\r", *next_sensor == NULL_TRACK_NODE ? "yes" : "no");
+#endif /* ROUTING_DEBUG */
+
           if (*next_sensor != NULL_TRACK_NODE) {
             if (last_record.sensor == (unsigned int)(*next_sensor)->num) {
+#if ROUTING_DEBUG
               logprintf("Updated c to %s\n\r", (*next_sensor)->name);
+#endif /* ROUTING_DEBUG */
+
               c = next_sensor;
             } else {
+#if ROUTING_DEBUG
               logprintf("Expected to be at sensor %s but were at %c%d\n\r",
                   (*next_sensor)->name,
                   sensor_bank(last_record.sensor), sensor_index(last_record.sensor));
+#endif /* ROUTING_DEBUG */
+
               got_error = true; // Oh no! We are lost and we should reroute.
               break;
             }

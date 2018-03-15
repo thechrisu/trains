@@ -6,7 +6,9 @@
 #define TRAIN_PREDICTION_H
 
 #include "codes.h"
+#include "global_track_state.h"
 #include "messages.h"
+#include "track_data.h"
 #include "track_node.h"
 #include "tstdlib.h"
 

@@ -59,6 +59,12 @@ enum message_type {
   MESSAGE_CONDUCTOR_SETTRAIN,
   MESSAGE_GET_LAST_SENSOR_HIT,
   REPLY_GET_LAST_SENSOR_HIT,
+  MESSAGE_UPDATE_COORDS_SPEED,
+  MESSAGE_UPDATE_COORDS_REVERSE,
+  MESSAGE_UPDATE_COORDS_SENSOR,
+  MESSAGE_FORWARD_TURNOUT_STATES,
+  MESSAGE_GET_COORDINATES,
+  REPLY_GET_COORDINATES,
 };
 
 typedef struct {
@@ -118,6 +124,13 @@ typedef struct {
 } reply_get_last_sensor_hit;
 
 typedef struct {
+  train_data tr_data;
+  uint32_t velocity_model[15];
+  int acceleration;
+  reply_get_last_sensor_hit last_sensor;
+} message_update_coords;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -147,6 +160,8 @@ typedef struct {
     message_get_route_params get_route_params;
     track_node **route;
     reply_get_last_sensor_hit last_sensor;
+    coordinates coords;
+    message_update_coords update_coords;
   } msg;
 } message;
 

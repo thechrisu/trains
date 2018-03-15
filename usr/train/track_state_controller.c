@@ -6,12 +6,14 @@ void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
   int sender_tid;
   int train;
-  message received, reply;
+  message send, received, reply;
   init_track(&track);
   int16_t sensor_states[10];
   tmemset(sensor_states, 0, sizeof(sensor_states));
 
   int clock_server_tid = WhoIs("ClockServer");
+  int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
+  Assert(train_coords_server_tid > 0);
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -47,7 +49,7 @@ void track_state_controller() {
         }
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
-      case MESSAGE_TRAINSETSPEED:
+      case MESSAGE_TRAINSETSPEED: {
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         Assert(received.msg.tr_data.should_speed >= 0
@@ -60,18 +62,58 @@ void track_state_controller() {
         logprintf("Track state controller: Set speed of %d to %d\n\r", train, track.train[train].should_speed);
 #endif /* DEBUG_REVERSAL */
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+        send.type = MESSAGE_UPDATE_COORDS_SPEED;
+        tmemcpy(&send.msg.update_coords.tr_data, &track.train[train], sizeof(train_data));
+        send.msg.update_coords.tr_data.train = train;
+        tmemcpy(&send.msg.update_coords.velocity_model,
+                track.speed_to_velocity[train],
+                15 * sizeof(uint32_t));
+
+        // TODO use acceleration model
+        if (track.train[train].should_speed > track.train[train].last_speed) {
+          int speed = track.train[train].should_speed;
+          long long vel = track.speed_to_velocity[train][speed];
+          long long sd = track.stopping_distance[train][speed];
+          send.msg.update_coords.acceleration = (vel * vel) / (2 * sd);
+        } else if (track.train[train].should_speed == track.train[train].last_speed) {
+          send.msg.update_coords.acceleration = 0;
+        } else {
+          int speed = track.train[train].last_speed;
+          long long vel = track.speed_to_velocity[train][speed];
+          long long sd = track.stopping_distance[train][speed];
+          send.msg.update_coords.acceleration = -(vel * vel) / (2 * sd);
+        }
+
+        Assert(Send(train_coords_server_tid,
+                    &send, sizeof(send),
+                    EMPTY_MESSAGE, 0) == 0);
         break;
+      }
       case MESSAGE_TRAINREVERSED:
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
         track.train[train].direction = received.msg.tr_data.direction;
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+        send.type = MESSAGE_UPDATE_COORDS_REVERSE;
+        send.msg.tr_data.train = train;
+        Assert(Send(train_coords_server_tid,
+                    &send, sizeof(send),
+                    EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_TURNOUTSWITCHED: {
         int turnout_num = received.msg.turnout_switched_params.turnout_num;
         Assert(is_valid_turnout_num(turnout_num));
         track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
         Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+        send.type = MESSAGE_FORWARD_TURNOUT_STATES;
+        tmemcpy(&send.msg.turnout_states, &track.turnouts,
+                NUM_TURNOUTS * sizeof(turnout_state));
+        Assert(Send(train_coords_server_tid,
+               &send, sizeof(send),
+               EMPTY_MESSAGE, 0) == 0);
         break;
       }
       case MESSAGE_GETCONSTANTSPEEDMODEL: {
