@@ -9,6 +9,16 @@ enum accel_state {
 
 #define NTRAINS_ARRAY 81
 
+int get_accel_ticks(reply_get_last_sensor_hit *start, reply_get_last_sensor_hit *end, int ticks_accel_sent, int v_0, int v_1) {
+  if (v_1 == v_0) return 0;
+  int d_d = distance_between_sensors(&track, end->sensor, start->sensor);
+  int d_t = end->ticks - start->ticks;
+  // TODO subtract overshoot time
+  int t_w = ticks_accel_sent - start->ticks;
+  int numerator = d_d - d_t * v_1 + t_w * v_1 - t_w * v_0;
+  return 2 * numerator / (v_0 - v_1);
+}
+
 void dynamic_acceleration_calibrator() {
   int sensor_interpreter_tid = WhoIs("SensorInterpreter");
   int track_state_controller = WhoIs("TrackStateController");
