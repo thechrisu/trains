@@ -21,6 +21,7 @@
 #include "tstring.h"
 #include "user_command.h"
 #include "train/router.h"
+#include "train/calibration/acceleration_calibrator.h"
 #include "train/sensors/sensor_secretary.h"
 #include "train/sensors/sensor_interpreter.h"
 #include "train/turnout_resetter.h"

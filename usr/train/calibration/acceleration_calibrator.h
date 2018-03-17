@@ -6,6 +6,7 @@
 #include "parameters.h"
 #include "tstdlib.h"
 #include "commands.h"
+#include "track_data.h"
 #include "train_util.h"
 
 void dynamic_acceleration_calibrator();

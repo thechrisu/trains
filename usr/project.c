@@ -293,6 +293,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &sensor_interpreter) > 0);
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
   Assert(Create(my_priority + 2, &router) > 0);
+  Assert(Create(my_priority + 2, &dynamic_acceleration_calibrator) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
