@@ -13,3 +13,14 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
   current->offset = dist_from_last_sensor(clock_server, last_record->ticks,
                                       velocity);
 }
+
+void predict_sensor_hit(int train_coordinates_server_tid,
+                        turnout_state turnout_states[NUM_TURNOUTS],
+                        int train, unsigned int sensor,
+                        coordinates *prediction) {
+  (void)train_coordinates_server_tid;
+  (void)turnout_states;
+  (void)train;
+  (void)sensor;
+  (void)prediction;
+}

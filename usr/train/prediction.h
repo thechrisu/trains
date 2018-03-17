@@ -39,4 +39,19 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
                                        reply_get_last_sensor_hit *last_record,
                                        location *current);
 
+/**
+ * Given that a train was recently at a sensor, predict when it did hit / will hit
+ * the following sensor.
+ *
+ * @param train_coordinates_server_tid Task ID of the train coordinates server.
+ * @param turnout_states               State of the track's turnouts.
+ * @param train                        Train to predict.
+ * @param sensor                       Sensor that train was recently at.
+ * @param prediction                   Place to store the prediction.
+ */
+void predict_sensor_hit(int train_coordinates_server_tid,
+                        turnout_state turnout_states[NUM_TURNOUTS],
+                        int train, unsigned int sensor,
+                        coordinates *prediction);
+
 #endif /* TRAIN_PREDICTION_H */

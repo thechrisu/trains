@@ -1609,3 +1609,9 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
 
   tmemcpy(destination, &current, sizeof(*destination));
 }
+
+int distance_diff(unsigned int sensor, location *loc) {
+  (void)sensor;
+  (void)loc;
+  return 0;
+}

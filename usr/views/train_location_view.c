@@ -98,7 +98,7 @@ void train_location_view() {
       print_diffs(terminal_tx_server_tid,
                   current_prediction.loc.sensor, last_sensor.sensor,
                   current_prediction.ticks, last_sensor.ticks,
-                  distance_diff(current_prediction.loc, last_sensor.sensor));
+                  distance_diff(last_sensor.sensor, &current_prediction.loc));
     }
 
     if (seen_sensor.sensor != last_sensor.sensor || loops % 5 == 0) {
@@ -112,7 +112,7 @@ void train_location_view() {
                          &current_prediction);
 
       if (seen_sensor.sensor != last_sensor.sensor ||
-          current_prediction.ticks != last_prediction.ticks) {
+          current_prediction.ticks / 10 != last_prediction.ticks / 10) {
         print_next_sensor_prediction(terminal_tx_server_tid,
                                      current_prediction.loc.sensor,
                                      current_prediction.ticks);

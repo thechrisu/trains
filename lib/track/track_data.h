@@ -178,4 +178,11 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
 unsigned int sensor_next(track_state *t, unsigned int start,
                          turnout_state turnout_states[NUM_TURNOUTS]);
 
+/**
+ * @param   sensor A sensor.
+ * @param   loc    A location.
+ * @returns The distance from the sensor to the location.
+ */
+int distance_diff(unsigned int sensor, location *loc);
+
 #endif /* TRACK_DATA_H */

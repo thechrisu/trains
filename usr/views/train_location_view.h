@@ -10,6 +10,7 @@
 #include "global_track_state.h"
 #include "messages.h"
 #include "parameters.h"
+#include "prediction.h"
 #include "../train/sensors/sensor_interpreter.h"
 #include "terminal.h"
 #include "tstdlib.h"
