@@ -45,7 +45,7 @@ void update_coordinates_after_speed_change(train_data *tr_data,
   c->current_speed = tr_data->should_speed;
   c->last_speed = tr_data->last_speed;
 
-  c->target_velocity = velocity_model[tr_data->should_speed];
+  c->target_velocity = (int)velocity_model[tr_data->should_speed];
   c->acceleration = acceleration;
 }
 

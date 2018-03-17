@@ -1499,20 +1499,28 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
       }
 
       uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
-      return distance_between_sensors_helper(CURVED(start), end, curved_total_distance, limit - 1);
+      return distance_between_sensors_helper(CURVED(start), end,
+                                             curved_total_distance, limit - 1);
     }
     default:
       return 0;
   }
 }
 
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+uint32_t distance_between_sensors_limit(track_state *t, unsigned int start,
+                                        unsigned int end, unsigned int limit) {
   if (start == end) return 0;
   track_node *start_node = find_sensor(t, start);
   track_node *end_node = find_sensor(t, end);
-  int result = distance_between_sensors_helper(start_node, end_node, 0, FIND_LIMIT);
+  int result = distance_between_sensors_helper(start_node, end_node, 0, limit);
   Assert(result != 0);
   return result;
+}
+
+uint32_t distance_between_sensors(track_state *t,
+                                  unsigned int start,
+                                  unsigned int end) {
+  return distance_between_sensors_limit(t, start, end, FIND_LIMIT);
 }
 
 uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int limit) {
