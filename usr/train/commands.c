@@ -190,3 +190,14 @@ void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_s
   Assert(reply.type == REPLY_GET_LAST_SENSOR_HIT);
   tmemcpy(last_sensor, &reply.msg.last_sensor, sizeof(*last_sensor));
 }
+
+void get_coordinates(int train_coordinates_server, int train, coordinates *c) {
+  message send, reply;
+  send.type = MESSAGE_GET_COORDINATES;
+  send.msg.train = train;
+  Assert(Send(train_coordinates_server,
+              &send, sizeof(send),
+              &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_GET_COORDINATES);
+  tmemcpy(c, &reply.msg.coords, sizeof(*c));
+}

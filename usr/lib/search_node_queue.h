@@ -15,7 +15,7 @@
  */
 struct sn {
   track_node *node;
-  int ticks;
+  int distance;
   struct sn *prev;
 };
 typedef struct sn search_node;

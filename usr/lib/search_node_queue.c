@@ -2,7 +2,7 @@
 
 void search_node_copy(search_node *from, search_node *to) {
   to->node = from->node;
-  to->ticks = from->ticks;
+  to->distance = from->distance;
   to->prev = from->prev;
 }
 
@@ -10,7 +10,7 @@ void search_node_copy(search_node *from, search_node *to) {
 #define QUEUE_SIZE           SEARCH_NODE_QUEUE_SIZE
 #define ELEMENT_TYPE         search_node
 #define ELEMENT_COPY         search_node_copy
-#define ELEMENT_VALUE(q)     (q->ticks)
+#define ELEMENT_VALUE(q)     (q->distance)
 #include "priority_queue.h"
 #undef QUEUE_TYPE
 #undef QUEUE_SIZE

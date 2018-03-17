@@ -33,8 +33,12 @@ trapframe main_tf;
 extern int ticks;
 extern int num_ctx_sw;
 
+extern int num_aborts;
+
 void kmain() {
   setup_io();
+
+  num_aborts = 0;
 
   log_index = 0;
 

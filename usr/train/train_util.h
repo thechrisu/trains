@@ -81,15 +81,18 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
                   int dist, int velocity);
 
 /**
- * Given a route, switches all switches in the route (blocking).
+ * Given a point in a route, switches all turnouts on the route within a given
+ * distance of the point.
  *
  * @param clock_server            Tid of the clock server.
  * @param train_tx_server         Tid of the train tx server to send sw commands.
  * @param track_state_controller  Tid of the track state controller.
- * @param route                   Route on which switches should be set.
+ * @param start                   Point in route after which turnouts should be switched.
+ * @param distance                Distance inside of which turnouts should be switched.
  */
-void route_switch_turnouts(int clock_server, int train_tx_server,
-                           int track_state_controller, reservation *route);
+void switch_turnouts_within_distance(int clock_server, int train_tx_server,
+                                     int track_state_controller, track_node **start,
+                                     int distance);
 
 /**
  * When stopping, get the remaining distance (1/100mm) until we have stopped.
@@ -107,7 +110,7 @@ int stopping_dist_remaining_dist(int train, int speed, int ticks_left);
  * @param remaining_route             Suffix of some route.
  * @return The remaining distance in 1/100mm.
  */
-int get_remaining_dist_in_route(reservation *remaining_route);
+int get_remaining_dist_in_route(track_node **remaining_route);
 
 /**
  * Given a route, returns either
@@ -118,7 +121,7 @@ int get_remaining_dist_in_route(reservation *remaining_route);
  * @param type                 e.g. NODE_SENSOR.
  * @return next node of type, or NULL_RESERVATION if no such node exists.
  */
-reservation *get_next_of_type(reservation *remaining_route, node_type type);
+track_node **get_next_of_type(track_node **remaining_route, node_type type);
 
 /**
  * Given two reservations that are linked via the same route, return the distance
@@ -130,7 +133,7 @@ reservation *get_next_of_type(reservation *remaining_route, node_type type);
  * @param end                       To where to search.
  * @return distance (1/100mm) between the two reservations/nodes.
  */
-int get_dist_between_reservations(reservation *start, reservation *end);
+int get_dist_between_reservations(track_node **start, track_node **end);
 
 /**
  * Given the last known command and previous data, infer if the train is

@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "model.h"
 #include "messages.h"
+#include "train_coordinates_server.h"
 #include "../track/track_data.h"
 #include "../track/track_node.h"
 
