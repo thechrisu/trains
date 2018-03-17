@@ -34,7 +34,7 @@ void print_next_sensor_prediction(int terminal_tx_server_tid,
 void print_diffs(int terminal_tx_server_tid,
                  unsigned int expected_last_sensor, unsigned int last_sensor,
                  int expected_ticks_last_sensor_hit, int ticks_last_sensor_hit,
-                 uint32_t velocity) {
+                 int distance_diff) {
   if (expected_ticks_last_sensor_hit == NO_LAST_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
                   TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
@@ -51,14 +51,13 @@ void print_diffs(int terminal_tx_server_tid,
                   TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else {
     int ticks_diff = ticks_last_sensor_hit - expected_ticks_last_sensor_hit;
-    int distance_diff = (int32_t)velocity * ticks_diff / 10000;
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dHTime diff: %c%d.%d%d s - Distance diff: %c%d.%d cm%s",
                   TRAIN_LOCATION_LINE + 2, 1,
                   ticks_diff < 0 ? '-' : ' ',
                   ABS(ticks_diff) / 100, ABS(ticks_diff / 10) % 10, ABS(ticks_diff) % 10,
                   distance_diff < 0 ? '-' : ' ',
-                  ABS(distance_diff) / 10, ABS(distance_diff) % 10,
+                  ABS(distance_diff / 100) / 10, ABS(distance_diff / 100) % 10,
                   HIDE_CURSOR_TO_EOL) == 0);
   }
 }
@@ -76,55 +75,48 @@ void train_location_view() {
   int sensor_interpreter_tid = WhoIs("SensorInterpreter");
   Assert(sensor_interpreter_tid > 0);
 
+  int train_coordinates_server_tid = WhoIs("TrainCoordinatesServer");
+  Assert(train_coordinates_server_tid > 0);
+
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s:%s",
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
-  train_data tr_data;
-  reply_get_last_sensor_hit seen_sensor;
+  coordinates current_prediction, last_prediction;
+  reply_get_last_sensor_hit last_sensor;
+
   turnout_state turnout_states[NUM_TURNOUTS];
 
-  unsigned int last_sensor;
-  unsigned int expected_last_sensor = NO_LAST_SENSOR;
-  int ticks_last_sensor_hit;
-  int expected_ticks_last_sensor_hit;
-  int expected_ticks_next_sensor_hit = NO_LAST_SENSOR;
   int loops = 0;
 
-  get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
-  last_sensor = seen_sensor.sensor;
-  ticks_last_sensor_hit = seen_sensor.ticks;
-
   while (true) {
-    get_train(track_state_controller_tid, t1train, &tr_data);
+    reply_get_last_sensor_hit seen_sensor;
     get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
 
-    if (last_sensor != seen_sensor.sensor && seen_sensor.sensor != NO_DATA_RECEIVED) {
-      last_sensor = seen_sensor.sensor;
-      ticks_last_sensor_hit = seen_sensor.ticks;
-      expected_ticks_last_sensor_hit = expected_ticks_next_sensor_hit;
+    if (seen_sensor.sensor != last_sensor.sensor) {
+      tmemcpy(&last_sensor, &seen_sensor, sizeof(last_sensor));
+
+      print_diffs(terminal_tx_server_tid,
+                  prediction.loc.sensor, last_sensor.sensor,
+                  prediction.ticks, last_sensor.ticks,
+                  distance_diff(prediction.loc, last_sensor.sensor));
+    }
+
+    if (seen_sensor.sensor != last_sensor.sensor || loops % 5 == 0) {
+      tmemcpy(&last_prediction, &current_prediction, sizeof(last_prediction));
 
       get_turnouts(track_state_controller_tid, turnout_states);
-      unsigned int next_sensor = sensor_next(&track, last_sensor, turnout_states);
+      predict_sensor_hit(train_coordinates_server_tid,
+                         turnout_states,
+                         train,
+                         last_sensor.sensor,
+                         &current_prediction);
 
-      message reply;
-      get_constant_velocity_model(track_state_controller_tid, t1train, &reply);
-      int velocity = reply.msg.train_speeds[tr_data.should_speed];
-
-      if (next_sensor != NO_NEXT_SENSOR && velocity != 0) {
-        int distance_to_next_sensor = distance_between_sensors(&track, last_sensor, next_sensor);
-        int ticks_to_next_sensor = distance_to_next_sensor * 10000 / velocity;
-        expected_ticks_next_sensor_hit = ticks_last_sensor_hit + ticks_to_next_sensor;
+      if (seen_sensor.sensor != last_sensor.sensor ||
+          current_prediction.ticks != last_prediction.ticks) {
+        print_next_sensor_prediction(terminal_tx_server_tid,
+                                     current_prediction.loc.sensor,
+                                     current_prediction.ticks);
       }
-
-      print_next_sensor_prediction(terminal_tx_server_tid,
-                                   next_sensor,
-                                   expected_ticks_next_sensor_hit);
-      print_diffs(terminal_tx_server_tid,
-                  expected_last_sensor, last_sensor,
-                  expected_ticks_last_sensor_hit, ticks_last_sensor_hit,
-                  velocity);
-
-      expected_last_sensor = next_sensor;
     }
 
     loops += 1;
