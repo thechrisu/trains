@@ -74,6 +74,17 @@ void poll_until_sensor_triggered(int clock_server_tid, int track_state_controlle
 void poll_until_at_dist(int clock_server, int terminal_tx_server,
                   int dist, int velocity);
 
+/**
+ * Given a point in a route, switches all turnouts on the route within a given
+ * distance of the point.
+ *
+ * @param clock_server            Tid of the clock server.
+ * @param train_tx_server         Tid of the train tx server to send sw commands.
+ * @param track_state_controller  Tid of the track state controller.
+ * @param route                   The route.
+ * @param loc                     Point in route after which turnouts should be switched.
+ * @param distance                Distance inside of which turnouts should be switched.
+ */
 void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                                      int track_state_controller,
                                      track_node *route[MAX_ROUTE_LENGTH],
@@ -90,8 +101,20 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
  */
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left);
 
+/**
+ * @param   route A route.
+ * @param   loc   A location.
+ * @returns Whether the location is on the route.
+ */
 bool on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc);
 
+/**
+  * Iterates through the route until the end.
+  *
+  * @param  route A route.
+  * @param  loc   The location to start measuring the distance from.
+  * @return The remaining distance in 1/100mm.
+  */
 int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc);
 
 /**
@@ -105,5 +128,12 @@ int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *l
  */
 track_node **get_next_of_type(track_node **remaining_route, node_type type);
 
+/**
+ * @param   route The route.
+ * @param   loc   The location to measure from.
+ * @param   end   The point on the route to measure to.
+ * @returns The distance from `loc` to `end` in 1/100 mm.
+ */
 int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_node **end);
+
 #endif /* TRAIN_UTIL_H */
