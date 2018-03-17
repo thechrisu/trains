@@ -145,7 +145,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   bool got_error = false;
 
   get_coordinates(train_coordinates_server, train, &c);
-  while (c.loc.sensor == NO_DATA_RECEIVED) {
+  while (c.loc.sensor == NO_NEXT_SENSOR) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_coordinates(train_coordinates_server, train, &c);
   }

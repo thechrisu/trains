@@ -92,6 +92,10 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
   bool passed_loc = false;
 
   for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
     if (passed_loc) {
       if (get_dist_on_route(route, loc, c) > distance) {
         return;
@@ -108,8 +112,6 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                     (*c)->num, (*(c + 1))->num);
         }
       }
-    } else if ((*c + 1)->type == NODE_SENSOR && (*c + 1)->num == (int)loc->sensor) {
-      passed_loc = true;
     }
   }
 }
@@ -140,6 +142,10 @@ int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *l
   bool passed_loc = false;
 
   for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
     if (passed_loc) {
       switch ((*c)->type) {
         case NODE_SENSOR:
@@ -158,10 +164,9 @@ int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *l
           logprintf("Invalid node type when getting remaining distance of route: %d\n\r", (*c)->type);
           break;
       }
-    } else if ((*c + 1)->type == NODE_SENSOR && (*c + 1)->num == (int)loc->sensor) {
-      passed_loc = true;
     }
   }
+
   return dist_remaining_100th_mm - loc->offset;
 }
 
@@ -179,6 +184,10 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
   bool passed_loc = false;
 
   for (track_node **c = route; *c != NULL_TRACK_NODE && c != end; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
     if (passed_loc) {
       switch ((*c)->type) {
         case NODE_SENSOR:
@@ -197,8 +206,6 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
           logprintf("Invalid node type when getting distance between nodes: %d\n\r", (*c)->type);
           break;
       }
-    } else if ((*c + 1)->type == NODE_SENSOR && (*c + 1)->num == (int)loc->sensor) {
-      passed_loc = true;
     }
   }
   return dist_remaining_100th_mm - loc->offset;
