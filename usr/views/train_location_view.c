@@ -96,9 +96,9 @@ void train_location_view() {
       tmemcpy(&last_sensor, &seen_sensor, sizeof(last_sensor));
 
       print_diffs(terminal_tx_server_tid,
-                  prediction.loc.sensor, last_sensor.sensor,
-                  prediction.ticks, last_sensor.ticks,
-                  distance_diff(prediction.loc, last_sensor.sensor));
+                  current_prediction.loc.sensor, last_sensor.sensor,
+                  current_prediction.ticks, last_sensor.ticks,
+                  distance_diff(current_prediction.loc, last_sensor.sensor));
     }
 
     if (seen_sensor.sensor != last_sensor.sensor || loops % 5 == 0) {
@@ -107,7 +107,7 @@ void train_location_view() {
       get_turnouts(track_state_controller_tid, turnout_states);
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
-                         train,
+                         t1train,
                          last_sensor.sensor,
                          &current_prediction);
 
