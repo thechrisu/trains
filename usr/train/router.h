@@ -11,8 +11,6 @@
 #include "train_util.h"
 #include "tstdlib.h"
 
-#define MAX_ROUTE_LENGTH SEARCH_NODE_QUEUE_SIZE
-
 /**
  * Task that plans routes between different points on the track.
  */

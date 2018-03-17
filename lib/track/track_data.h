@@ -6,6 +6,7 @@
 #define TRACK_DATA_H
 
 #include "model.h"
+#include "search_node_queue.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
@@ -14,6 +15,8 @@
 #define CURVED(node)   (node)->edge[DIR_CURVED].dest
 
 #define NO_NEXT_SENSOR 1337
+
+#define MAX_ROUTE_LENGTH SEARCH_NODE_QUEUE_SIZE
 
 void init_track(track_state *global_track);
 

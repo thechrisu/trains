@@ -74,18 +74,10 @@ void poll_until_sensor_triggered(int clock_server_tid, int track_state_controlle
 void poll_until_at_dist(int clock_server, int terminal_tx_server,
                   int dist, int velocity);
 
-/**
- * Given a point in a route, switches all turnouts on the route within a given
- * distance of the point.
- *
- * @param clock_server            Tid of the clock server.
- * @param train_tx_server         Tid of the train tx server to send sw commands.
- * @param track_state_controller  Tid of the track state controller.
- * @param start                   Point in route after which turnouts should be switched.
- * @param distance                Distance inside of which turnouts should be switched.
- */
 void switch_turnouts_within_distance(int clock_server, int train_tx_server,
-                                     int track_state_controller, track_node **start,
+                                     int track_state_controller,
+                                     track_node *route[MAX_ROUTE_LENGTH],
+                                     location *loc,
                                      int distance);
 
 /**
@@ -98,13 +90,9 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
  */
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left);
 
-/**
- * Iterates through the route until the end.
- *
- * @param remaining_route             Suffix of some route.
- * @return The remaining distance in 1/100mm.
- */
-int get_remaining_dist_in_route(track_node **remaining_route);
+bool on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc);
+
+int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc);
 
 /**
  * Given a route, returns either
@@ -117,15 +105,5 @@ int get_remaining_dist_in_route(track_node **remaining_route);
  */
 track_node **get_next_of_type(track_node **remaining_route, node_type type);
 
-/**
- * Given two reservations that are linked via the same route, return the distance
- * (1/100mm) between those two. Note: If start->end are not part of the same route,
- * with <code>start</code> occurring before <code>end</code>,
- * the function will return gibberish.
- *
- * @param start                     From where to search.
- * @param end                       To where to search.
- * @return distance (1/100mm) between the two reservations/nodes.
- */
-int get_dist_between_reservations(track_node **start, track_node **end);
+int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_node **end);
 #endif /* TRAIN_UTIL_H */
