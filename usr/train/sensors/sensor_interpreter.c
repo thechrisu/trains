@@ -12,7 +12,7 @@ void attribute_sensor(unsigned int sensor, int current_time) {
 
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%c%d%s",
                 ESC, CALIB_LINE, 1,
-                "Train ", t1train, " is at sensor ", sensor_bank(sensor), sensor_index(sensor),
+                "Train ", t1train, " just hit sensor ", sensor_bank(sensor), sensor_index(sensor),
                 HIDE_CURSOR_TO_EOL) == 0);
 }
 
