@@ -14,6 +14,13 @@ int offsets[]  = {  0,    18,   36,  55,  65,   8,    27,   41,   62,  79  };
 int elements[] = {  0,    2,    4,   6,   8,    1,    3,    5,    7,   9   };
 int masks[]    = {  0x80, 0x20, 0x8, 0x1, 0x40, 0x80, 0x10, 0x40, 0x2, 0x1 };
 
+void init_turnouts(turnout_state turnouts[NUM_TURNOUTS]) {
+  for (unsigned int i = 0; i < NUM_TURNOUTS; i += 1) {
+    unsigned int turnout_num = map_offset_to_turnout(i);
+    turnouts[i] = (turnout_num == 153 || turnout_num == 155) ? TURNOUT_STRAIGHT : TURNOUT_CURVED;
+  }
+}
+
 TEST(TrackDataTest, test_sensor_bank) {
   for (int i = 0; i < NUM_TESTS; i += 1) {
     ASSERT_EQ(banks[i], sensor_bank(offsets[i]));
@@ -130,10 +137,7 @@ TEST(TrackDataTest, test_sensor_next) {
   init_track(&t);
 
   turnout_state turnouts[NUM_TURNOUTS];
-  for (unsigned int i = 0; i < NUM_TURNOUTS; i += 1) {
-    unsigned int turnout_num = map_offset_to_turnout(i);
-    turnouts[i] = (turnout_num == 153 || turnout_num == 155) ? TURNOUT_STRAIGHT : TURNOUT_CURVED;
-  }
+  init_turnouts(turnouts);
 
   EXPECT_EQ(sensor_offset('A', 5), sensor_next(&t, sensor_offset('B', 9), turnouts));
   EXPECT_EQ(sensor_offset('D', 14), sensor_next(&t, sensor_offset('B', 1), turnouts));
@@ -163,6 +167,50 @@ TEST(TrackDataTest, test_sensor_next) {
   EXPECT_EQ(1337, sensor_next(&t, sensor_offset('B', 13), turnouts));
   EXPECT_EQ(sensor_offset('C', 1), sensor_next(&t, sensor_offset('D', 1), turnouts));
   EXPECT_EQ(sensor_offset('C', 1), sensor_next(&t, sensor_offset('E', 1), turnouts));
+}
+
+void test_canonicalization(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
+                       char sensor_bank, int sensor_index, int offset,
+                       char expected_sensor_bank, int expected_sensor_index,
+                       int expected_offset) {
+  location loc;
+  loc.sensor = sensor_offset(sensor_bank, sensor_index);
+  loc.offset = offset;
+
+  location_canonicalize(t, turnouts, &loc, &loc);
+
+  EXPECT_EQ(sensor_offset(expected_sensor_bank, expected_sensor_index), loc.sensor);
+  EXPECT_EQ(expected_offset, loc.offset);
+}
+
+TEST(TrackDataTest, test_location_canonicalize) {
+  track_state t;
+  init_track(&t);
+
+  turnout_state turnouts[NUM_TURNOUTS];
+  init_turnouts(turnouts);
+
+  // Basic test
+  test_canonicalization(&t, turnouts, 'A', 5, 0, 'A', 5, 0);
+
+  // No next sensor
+  test_canonicalization(&t, turnouts, 'A', 2, 400 * 100, 'A', 2, 400 * 100);
+
+  // After next sensor, which does not have a next sensor
+  turnouts[turnout_num_to_map_offset(11)] = TURNOUT_STRAIGHT;
+  turnouts[turnout_num_to_map_offset(12)] = TURNOUT_STRAIGHT;
+  test_canonicalization(&t, turnouts, 'C', 14, (43 + 188 + 231 + 100) * 100, 'A', 2, 100 * 100);
+
+  // After branch
+  test_canonicalization(&t, turnouts, 'A', 3, (43 + 333 + 50) * 100, 'C', 11, 50 * 100);
+
+  // After multiple sensors
+  test_canonicalization(&t, turnouts, 'C', 7, 1700 * 100, 'D', 10, 524 * 100);
+
+  // Through four-way switch
+  turnouts[turnout_num_to_map_offset(153)] = TURNOUT_CURVED;
+  turnouts[turnout_num_to_map_offset(154)] = TURNOUT_STRAIGHT;
+  test_canonicalization(&t, turnouts, 'E', 3, 1500 * 100, 'C', 9, 239 * 100);
 }
 
 #ifndef ALLTESTS

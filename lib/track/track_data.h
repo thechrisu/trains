@@ -154,6 +154,19 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
 void location_reverse(track_state *t, location *destination, location *source);
 
 /**
+ * Changes a location so that its offset is smaller than the distance to the next sensor.
+ * For example, if sensors A1 and B1 are 50 cm apart, and B1 and C1 are 30 cm apart,
+ * the canonical form of (A1, 60 cm) is (B1, 10 cm).
+ *
+ * @param t              A track state.
+ * @param turnout_states The state of the track's turnouts.
+ * @param destination    Where to put the canonicalized location.
+ * @param source         The location to canonicalize.
+ */
+void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
+                           location *destination, location *source);
+
+/**
  * @param   t              A track state.
  * @param   start          The sensor to start from.
  * @param   turnout_states A list of turnout states. This is provided separately

@@ -12,6 +12,8 @@
 #define TRACK_MAX 144
 #define NUM_TURNOUTS 22
 
+#define PICKUP_LENGTH 5 * 10 * 100
+
 typedef enum {
   NODE_NONE,
   NODE_SENSOR,
@@ -44,6 +46,8 @@ struct track_node {
 };
 
 typedef struct track_node track_node;
+
+#define NULL_TRACK_NODE (track_node *)0
 
 typedef struct {
   char train;
@@ -83,12 +87,13 @@ typedef struct {
 } location;
 
 typedef struct {
-  int train;
-  track_node *node;
-  int ticks_start;
-  int ticks_end;
-} reservation;
-
-#define NULL_RESERVATION (reservation *)0
+  location loc;
+  int ticks;
+  int current_speed;
+  int last_speed;
+  int velocity;
+  int target_velocity;
+  int acceleration;
+} coordinates;
 
 #endif /* TRACK_NODE_H */

@@ -1641,3 +1641,25 @@ void location_reverse(track_state *t, location *destination, location *source) {
   destination->sensor = sensor_pair(t, source->sensor);
   destination->offset = -source->offset;
 }
+
+void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
+                           location *destination, location *source) {
+  location current;
+  tmemcpy(&current, source, sizeof(current));
+
+  unsigned int next = sensor_next(t, current.sensor, turnout_states);
+  if (next != NO_NEXT_SENSOR) {
+    int distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+
+    while (current.offset >= distance_to_next) {
+      current.sensor = next;
+      current.offset -= distance_to_next;
+
+      next = sensor_next(t, current.sensor, turnout_states);
+      if (next == NO_NEXT_SENSOR) break;
+      distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+    }
+  }
+
+  tmemcpy(destination, &current, sizeof(*destination));
+}

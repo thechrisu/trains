@@ -7,12 +7,19 @@
 
 #include "tstdlib.h"
 
+#define PARAMETER_NAME_LENGTH 30
+
 typedef enum set_parameter {
   SET_T1TRAIN,
+  SET_SWITCH_PADDING,
   MAX_PARAMETER,
 } set_parameter;
 
+// Train to attribute sensors to in T1.
 extern int t1train;
+
+// Minimum distance in mm that a turnout must be switched before a train drives over it.
+extern int switch_padding;
 
 /**
  * Initializes parameters to their default values.
