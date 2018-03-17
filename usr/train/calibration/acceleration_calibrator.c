@@ -34,14 +34,11 @@ int distance_between_sensors_intermediate(unsigned long between[MAX_S_LIST],
                                           unsigned long start,
                                           unsigned long end) {
   Assert(start <= 80 && end <= 80);
-  Assert(n_between < MAX_S_LIST);
   if (n_between == 0) {
     return distance_between_sensors(&track, start, end);
   } else {
     int total = distance_between_sensors(&track, start, between[0]);
     for (int i = 0; i < n_between - 1; i++) {
-      logprintf("Intermediate: %c%d\n\r", sensor_bank(between[i]),
-                sensor_index(between[i]));
       total += distance_between_sensors(&track, between[i], between[i + 1]);
     }
     return total;
@@ -108,10 +105,22 @@ void dynamic_acceleration_calibrator() {
                 && !sensor_hit_is_equal(&query, start_sensor + train)
                 && !sensor_hit_is_equal(&query, last_sensor + train)
                 && query.sensor <= 80) {
+#if ACC_CALIB_DEBUG
         logprintf("Between: %c%d\n\r", sensor_bank(query.sensor),
                   sensor_index(query.sensor));
-        between[train][n_between[train]] = query.sensor;
-        n_between[train] += 1;
+#endif /* ACC_CALIB_DEBUG */
+        if (query.sensor == sensor_pair(&track, start_sensor[train].sensor)) {
+          accel_states[train] = WAITING_CONSTANT_SPEED;
+        } else {
+          between[train][n_between[train]] = query.sensor;
+          n_between[train] += 1;
+        }
+      }
+      if (query_snapshot.target_velocity == 0
+          && accel_states[train] != WAITING_CONSTANT_SPEED
+          && accel_states[train] != HAS_NOT_YET_ACCELERATED) {
+        n_between[train] = 0;
+        accel_states[train] = WAITING_CONSTANT_SPEED;
       }
       switch (accel_states[train]) {
         case WAITING_CONSTANT_SPEED:
@@ -121,17 +130,12 @@ void dynamic_acceleration_calibrator() {
           }
           if (query_snapshot.acceleration == 0
               && has_first_sensor[train]) {
+#if ACC_CALIB_DEBUG
             logprintf("TO CONST SPEED\n\r");
+#endif /* ACC_CALIB_DEBUG */
             accel_states[train] = HAS_NOT_YET_ACCELERATED;
-          }
-          break;
-        case HAS_NOT_YET_ACCELERATED:
-          if (query_snapshot.acceleration != 0) {
-            accel_states[train] = WAITING_BACK_TO_CONSTANT_SPEED;
-            logprintf("TO ACCELERATE\n\r");
             train_data tr_data;
             get_train(track_state_controller, train, &tr_data);
-            ticks_when_accel[train] = tr_data.time_speed_last_changed;
             is_forward_at_start[train] = tr_data.direction;
             start_velocities[train] = query_snapshot.target_velocity;
             n_between[train] = 0;
@@ -139,9 +143,23 @@ void dynamic_acceleration_calibrator() {
               memcpy(start_sensor + train, &query, sizeof(query));
           }
           break;
+        case HAS_NOT_YET_ACCELERATED:
+          if (query_snapshot.acceleration != 0) {
+            accel_states[train] = WAITING_BACK_TO_CONSTANT_SPEED;
+#if ACC_CALIB_DEBUG
+            logprintf("TO ACCELERATE\n\r");
+#endif /* ACC_CALIB_DEBUG */
+            train_data tr_data;
+            get_train(track_state_controller, train, &tr_data);
+            ticks_when_accel[train] = tr_data.time_speed_last_changed;
+            end_velocities[train] = query_snapshot.target_velocity;
+          }
+          break;
         case WAITING_BACK_TO_CONSTANT_SPEED:
           if (query_snapshot.acceleration == 0) {
+#if ACC_CALIB_DEBUG
             logprintf("TO END OF ACCELERATION\n\r");
+#endif /* ACC_CALIB_DEBUG */
             accel_states[train] = HAS_ACCELERATED;
           }
           break;
@@ -150,15 +168,23 @@ void dynamic_acceleration_calibrator() {
                   && query.sensor <= 80) {
             train_data tr_data;
             get_train(track_state_controller, train, &tr_data);
-            end_velocities[train] = query_snapshot.target_velocity;
+            int v = query_snapshot.target_velocity;
+#if ACC_CALIB_DEBUG
+            logprintf("V: %d, End: %d, n_between: %d, acc: %d\n\r", v, end_velocities[train], n_between[train], query_snapshot.acceleration);
+#endif /* ACC_CALIB_DEBUG */
             if (tr_data.direction == is_forward_at_start[train]
                 && end_velocities[train] != 0
-                && query_snapshot.acceleration == 0) {
+                && query_snapshot.acceleration == 0
+                && v == end_velocities[train]
+                && !sensor_hit_is_equal(&query, start_sensor)
+                && n_between[train] < MAX_S_LIST) {
+#if ACC_CALIB_DEBUG
               logprintf("Start: %c%d, End: %c%d\n\r",
                         sensor_bank(start_sensor[train].sensor),
                         sensor_index(start_sensor[train].sensor),
                         sensor_bank(query.sensor),
                         sensor_index(query.sensor));
+#endif /* ACC_CALIB_DEBUG */
               int accel_ticks = get_accel_ticks(start_sensor + train,
                                   &query,
                                   between[train], n_between[train],
@@ -166,13 +192,14 @@ void dynamic_acceleration_calibrator() {
                                   start_velocities[train],
                                   end_velocities[train]);
               logprintf(
-                  "%s(%d -> %d)%s%d and %d is %d.\n\r",
+                  "%s(%d -> %d)%s%c%d and %c%d is %d.\n\r",
                   "When accelerating ", start_velocities[train],
                   end_velocities[train], " ticks to accelerate ",
-                start_sensor[train].sensor, query.sensor, accel_ticks);
+                sensor_bank(start_sensor[train].sensor), sensor_index(start_sensor[train].sensor),
+                sensor_bank(query.sensor), sensor_index(query.sensor), accel_ticks);
             }
-            accel_states[train] = end_velocities[train] == 0 ?
-                WAITING_CONSTANT_SPEED : HAS_NOT_YET_ACCELERATED;
+            accel_states[train] = WAITING_CONSTANT_SPEED;
+            n_between[train] = 0;
           }
           break;
         default:

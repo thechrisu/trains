@@ -292,7 +292,7 @@ void project_first_user_task() {
 #endif /* E2ETESTING */
   int clock_server_tid = Create(my_priority + 3, &clock_server);
   Assert(clock_server_tid > 0);
-  int idle_tid = Create(my_priority - 1, &idle_task_cursor);
+  int idle_tid = Create(my_priority - 2, &idle_task_cursor);
   Assert(idle_tid > 0);
 
   spawn_ioservers();
@@ -302,7 +302,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &sensor_interpreter) > 0);
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
   Assert(Create(my_priority + 2, &router) > 0);
-  Assert(Create(my_priority + 2, &dynamic_acceleration_calibrator) > 0);
+  Assert(Create(my_priority - 1, &dynamic_acceleration_calibrator) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;

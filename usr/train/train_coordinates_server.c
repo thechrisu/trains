@@ -46,6 +46,9 @@ void update_coordinates_after_speed_change(train_data *tr_data,
   c->last_speed = tr_data->last_speed;
 
   c->target_velocity = (int)velocity_model[tr_data->should_speed];
+#if ACC_CALIB_DEBUG
+  logprintf("Target: %d\n\r", c->target_velocity);
+#endif /* ACC_CALIB_DEBUG */
   c->acceleration = acceleration;
 }
 
