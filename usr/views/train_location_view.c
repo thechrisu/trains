@@ -36,10 +36,10 @@ void print_diffs(int terminal_tx_server_tid,
                  unsigned int expected_last_sensor, unsigned int last_sensor,
                  int expected_ticks_last_sensor_hit, int ticks_last_sensor_hit,
                  int distance_diff) {
-  if (expected_ticks_last_sensor_hit == NO_LAST_SENSOR) {
+  if (expected_last_sensor == NO_DATA_RECEIVED) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
                   TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
-  } else if (expected_last_sensor != last_sensor && expected_last_sensor != NO_NEXT_SENSOR) {
+  } else if (expected_last_sensor != last_sensor) {
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dHExpected to hit %c%d but hit %c%d instead%s",
                   TRAIN_LOCATION_LINE + 2, 1,

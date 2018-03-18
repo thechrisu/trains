@@ -25,7 +25,7 @@ void predict_sensor_hit(int train_coordinates_server_tid,
   prediction->loc.sensor = next_sensor;
   prediction->loc.offset = 0;
 
-  if (current.velocity == 0) {
+  if (current.velocity == 0 || next_sensor == NO_NEXT_SENSOR) {
     prediction->ticks = INFINITE_TICKS;
   } else {
     int dist_to_next_sensor = 100 * distance_between_sensors(&track,
