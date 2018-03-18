@@ -1,5 +1,7 @@
 #include "acceleration_calibrator.h"
 
+#define ABS(a) (a < 0 ? -a : a)
+
 /**
  * WAITING_CONSTANT_SPEED
  * |
@@ -45,24 +47,25 @@ int distance_between_sensors_intermediate(unsigned long between[MAX_S_LIST],
   }
 }
 
-int get_accel_ticks(reply_get_last_sensor_hit *start,
-                    reply_get_last_sensor_hit *end,
-                    unsigned long between[MAX_S_LIST],
-                    int n_between,
-                    int ticks_accel_sent, int v_0, int v_1) {
+int get_accel_us(reply_get_last_sensor_hit *start,
+                  reply_get_last_sensor_hit *end,
+                  unsigned long between[MAX_S_LIST],
+                  int n_between,
+                  int ticks_accel_sent, int v_0, int v_1) {
   if (v_1 == v_0) return 0;
   int d_d = distance_between_sensors_intermediate(between, n_between,
                                            start->sensor, end->sensor);
   int d_t = end->ticks - start->ticks;
   // TODO subtract overshoot time
   int t_w = ticks_accel_sent - start->ticks;
+  t_w *= 10 * 1000; // to get time in 1/100ms
   int numerator = d_d - d_t * v_1 + t_w * v_1 - t_w * v_0;
-  return 2 * numerator / (v_0 - v_1);
+  return ABS(2 * numerator / (v_0 - v_1));
 }
 
 int get_acceleration(int v_0, int v_1, int t_a) {
   if (t_a == 0) return 0;
-  return (v_1 - v_0) / t_a;
+  return 1000 * 10 *(v_1 - v_0) / t_a;
 }
 
 void dynamic_acceleration_calibrator() {
@@ -185,18 +188,22 @@ void dynamic_acceleration_calibrator() {
                         sensor_bank(query.sensor),
                         sensor_index(query.sensor));
 #endif /* ACC_CALIB_DEBUG */
-              int accel_ticks = get_accel_ticks(start_sensor + train,
+              int accel_ticks = get_accel_us(start_sensor + train,
                                   &query,
                                   between[train], n_between[train],
                                   ticks_when_accel[train],
                                   start_velocities[train],
                                   end_velocities[train]);
               logprintf(
-                  "%s(%d -> %d)%s%c%d and %c%d is %d.\n\r",
+                  "%s(%d -> %d)%s%c%d and %c%d is %d. (acc: %d)\n\r",
                   "When accelerating ", start_velocities[train],
-                  end_velocities[train], " ticks to accelerate ",
-                sensor_bank(start_sensor[train].sensor), sensor_index(start_sensor[train].sensor),
-                sensor_bank(query.sensor), sensor_index(query.sensor), accel_ticks);
+                  end_velocities[train], " us to accelerate ",
+                sensor_bank(start_sensor[train].sensor),
+                sensor_index(start_sensor[train].sensor),
+                sensor_bank(query.sensor), sensor_index(query.sensor),
+                accel_ticks,
+                get_acceleration(start_velocities[train],
+                                 end_velocities[train], accel_ticks));
             }
             accel_states[train] = WAITING_CONSTANT_SPEED;
             n_between[train] = 0;
