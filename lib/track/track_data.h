@@ -15,6 +15,17 @@
 
 #define NO_NEXT_SENSOR 1337
 
+#define OVERSHOOT_TIME_US 200 * 1000
+
+#define TICKS_TO_US(t) (t * 10 * 1000)
+#define US_TO_TICKS(t) (t * 0.0001)
+
+#define S_TO_TICKS(t) (t * 100)
+#define TICKS_TO_S(t) (t * 0.01)
+
+#define S_TO_US(t) (t * 1000 * 1000)
+#define US_TO_S(t) (t * 0.000001)
+
 void init_track(track_state *global_track);
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout);
@@ -43,13 +54,15 @@ unsigned int sensor_index(unsigned int offset);
 
 /**
  * @param   offset The index of a sensor within the sensor data bitmap.
- * @returns The element of a sensor data array `sensor_data` in which the state of the sensor is found.
+ * @returns The element of a sensor data array `sensor_data` in which
+ *          the state of the sensor is found.
  */
 unsigned int sensor_data_element(unsigned int offset);
 
 /**
  * @param   offset The index of a sensor within the sensor data bitmap.
- * @returns The mask to apply to `sensor_data[sensor_data_element(offset)]` to get the sensor's state.
+ * @returns The mask to apply to `sensor_data[sensor_data_element(offset)]`
+ *          to get the sensor's state.
  */
 unsigned int sensor_data_mask(unsigned int offset);
 
@@ -81,7 +94,7 @@ unsigned int sensor_pair(track_state *t, unsigned int offset);
 track_node *find_sensor(track_state *t, unsigned int offset);
 
 /**
- * Returns the distance between two sequential sensors -- aborts after exceeding limit.
+ * Returns the distance between two sequential sensors -- aborts after exceeding limit
  * The implementation of distance_between_sensors.
  *
  * @param   start             The track node of the sensor to start at.
@@ -102,7 +115,11 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
  * @param   end   The offset of the sensor to finish at.
  * @returns The distance between the two sensors.
  */
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end);
+int32_t distance_between_sensors(track_state *t, unsigned int start,
+                                 unsigned int end);
+
+int32_t distance_between_sensors_limit(track_state *t, unsigned int start,
+                                       unsigned int end, unsigned int limit);
 
 /**
  * @param   t     The track to base the distance calculation off of.

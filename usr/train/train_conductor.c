@@ -286,7 +286,7 @@ void conductor_loop(int clock_server, int train_tx_server,
     clock_server,
     track_state_controller,
     D5,
-    60 * 100
+    S_TO_TICKS(60)
   );
 
   if (timed_out) {

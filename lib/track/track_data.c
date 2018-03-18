@@ -1311,6 +1311,26 @@ void init_track(track_state *global_track) {
     0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 77426, 98431, 139891,
   };
 
+  uint32_t default_acceleration[81] = {
+    0, // NULL
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1-10
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 21-30
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 41-50
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 61-70
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  };
+  uint32_t super_default_acceleration = 20000;
+  for (int i = 0; i < 81; i++) {
+    if (default_acceleration[i] == 0) {
+      global_track->acceleration[i] = super_default_acceleration;
+    } else {
+      global_track->acceleration[i] = default_acceleration[i];
+    }
+  }
+
   default_value default_stopping_times[] = {
     { .train = 24, .speed = 0, .value = 0 },
     { .train = 24, .speed = 1, .value = 0 },
@@ -1445,20 +1465,28 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
       }
 
       uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
-      return distance_between_sensors_helper(CURVED(start), end, curved_total_distance, limit - 1);
+      return distance_between_sensors_helper(CURVED(start), end,
+                                             curved_total_distance, limit - 1);
     }
     default:
       return 0;
   }
 }
 
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+int32_t distance_between_sensors_limit(track_state *t, unsigned int start,
+                                       unsigned int end, unsigned int limit) {
   if (start == end) return 0;
   track_node *start_node = find_sensor(t, start);
   track_node *end_node = find_sensor(t, end);
-  int result = distance_between_sensors_helper(start_node, end_node, 0, FIND_LIMIT);
-  Assert(result != 0);
+  int result = distance_between_sensors_helper(start_node, end_node, 0, limit);
+  if (result == 0 && start != end) return -1;
   return result;
+}
+
+int32_t distance_between_sensors(track_state *t,
+                                 unsigned int start,
+                                 unsigned int end) {
+  return distance_between_sensors_limit(t, start, end, FIND_LIMIT);
 }
 
 uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int limit) {
