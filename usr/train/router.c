@@ -97,7 +97,10 @@ int route_node_count(track_node *route[MAX_ROUTE_LENGTH]) {
 }
 
 int route_length(track_node *route[MAX_ROUTE_LENGTH]) {
-  return get_remaining_dist_in_route(&(route[0]));
+  coordinates c;
+  c.loc.sensor = route[0]->num;
+  c.loc.offset = 0;
+  return get_remaining_dist_in_route(route, &c.loc);
 }
 
 void router() {

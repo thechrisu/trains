@@ -128,50 +128,46 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
 }
 
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
-                                       int track_state_controller, int sensor_interpreter,
+                                       int track_state_controller, int train_coordinates_server,
                                        int train, int sensor_offset, int goal_offset) {
-  int s = Time(clock_server);
-  location start, end;
-  reply_get_last_sensor_hit last_record;
+  location end;
+  end.sensor = sensor_offset;
+  end.offset = goal_offset;
 
-  message velocity_model, stopping_distance_model;
-  get_constant_velocity_model(track_state_controller, train,
-                              &velocity_model);
+  message stopping_distance_model;
   get_stopping_distance_model(track_state_controller, train,
                               &stopping_distance_model);
 
-  train_data tr_data;
-  get_train(track_state_controller, train, &tr_data);
-  int speed = tr_data.should_speed == 0 ? tr_data.last_speed : tr_data.should_speed;
-
-  end.sensor = sensor_offset;
-  end.offset = goal_offset;
   track_node *route[MAX_ROUTE_LENGTH];
+  coordinates c;
+
+  int s = Time(clock_server);
   bool got_error = false;
 
-  get_last_sensor_hit(sensor_interpreter, train, &last_record);
-  while (last_record.sensor == NO_DATA_RECEIVED) {
+  get_coordinates(train_coordinates_server, train, &c);
+  while (c.loc.sensor == NO_NEXT_SENSOR) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
-    get_last_sensor_hit(sensor_interpreter, train, &last_record);
+    get_coordinates(train_coordinates_server, train, &c);
   }
-  if (start.sensor == end.sensor) Delay(clock_server, 200);
-  get_last_sensor_hit(sensor_interpreter, train, &last_record);
+  if (c.loc.sensor == end.sensor) {
+    Delay(clock_server, 200);
+    get_coordinates(train_coordinates_server, train, &c);
+  }
 
   do {
     got_error = false;
-    get_location_from_last_sensor_hit(clock_server,
-            (int)velocity_model.msg.train_speeds[speed], &last_record, &start);
-    int route_result = get_route(&start, &end, route);
+
+    int route_result = get_route(&c.loc, &end, route);
     if (route_result < 0) {
       logprintf("Tried to route from %c%d to %c%d but couldn't get a route\n\r",
-                sensor_bank(start.sensor), sensor_index(start.sensor),
+                sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor),
                 sensor_bank(end.sensor), sensor_index(end.sensor));
       return;
     }
 
 #if ROUTING_DEBUG
     logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
-        sensor_bank(start.sensor), sensor_index(start.sensor),
+        sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor),
         sensor_bank(end.sensor), sensor_index(end.sensor),
         route_node_count(route));
     for (int i = 0; i < route_node_count(route); i += 1) {
@@ -179,73 +175,32 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     }
 #endif /* ROUTING_DEBUG */
 
-    track_node **c = (track_node **)route;
-    Assert((*c)->num >= 0 && (*c)->num < 80);
-
-    get_last_sensor_hit(sensor_interpreter, train, &last_record);
-
-    for (int loops = 0; *c != NULL_TRACK_NODE; loops += 1) {
+    for (int loops = 0; /* forever */; loops += 1) {
       if (Time(clock_server) - s > 100 * 50) Assert(0);
 
-      int dist_left = get_remaining_dist_in_route(c);
-      int from_last_sensor = dist_from_last_sensor(clock_server, last_record.ticks,
-                                                   velocity_model.msg.train_speeds[speed]);
-      if (from_last_sensor < 2 * 1000 * 100) {
-        dist_left -= from_last_sensor;
+      get_coordinates(train_coordinates_server, train, &c);
+
+      if (!on_route(route, &c.loc)) {
+        got_error = true;
+        break;
       }
-      int stopping_distance = (int)stopping_distance_model.msg.train_distances[speed];
+
+      int dist_left = get_remaining_dist_in_route(route, &c.loc);
+
+      // TODO calculate stopping distance based on velocity
+      int stopping_distance = (int)stopping_distance_model.msg.train_distances[c.current_speed];
 
       if (loops % 10 == 0) {
-        int switch_up_to_distance = MAX(stopping_distance + switch_padding * 100,
-                                        get_dist_between_reservations(c, get_next_of_type(c, NODE_SENSOR)));
-        if (from_last_sensor < 2 * 1000 * 100) {
-          switch_up_to_distance += from_last_sensor;
-        }
         switch_turnouts_within_distance(clock_server, train_tx_server,
-                                        track_state_controller, c,
-                                        switch_up_to_distance);
+                                        track_state_controller, route, &c.loc,
+                                        stopping_distance + switch_padding * 100);
       }
 
       if (dist_left < stopping_distance) {
+        switch_turnouts_within_distance(clock_server, train_tx_server,
+                                        track_state_controller, route, &c.loc,
+                                        stopping_distance + switch_padding * 100);
         break;
-      } else {
-        reply_get_last_sensor_hit sensor_hit_polling_result;
-        get_last_sensor_hit(sensor_interpreter, train, &sensor_hit_polling_result);
-
-        track_node **next_sensor = get_next_of_type(c, NODE_SENSOR);
-        if (sensor_hit_polling_result.sensor != last_record.sensor) {
-#if ROUTING_DEBUG
-          logprintf("New sensor data: %c%d\n\r",
-              sensor_bank(sensor_hit_polling_result.sensor),
-              sensor_index(sensor_hit_polling_result.sensor));
-#endif /* ROUTING_DEBUG */
-
-          last_record.sensor = sensor_hit_polling_result.sensor;
-          last_record.ticks = sensor_hit_polling_result.ticks;
-
-#if ROUTING_DEBUG
-          logprintf("next_sensor is null: %s\n\r", *next_sensor == NULL_TRACK_NODE ? "yes" : "no");
-#endif /* ROUTING_DEBUG */
-
-          if (*next_sensor != NULL_TRACK_NODE) {
-            if (last_record.sensor == (unsigned int)(*next_sensor)->num) {
-#if ROUTING_DEBUG
-              logprintf("Updated c to %s\n\r", (*next_sensor)->name);
-#endif /* ROUTING_DEBUG */
-
-              c = next_sensor;
-            } else {
-#if ROUTING_DEBUG
-              logprintf("Expected to be at sensor %s but were at %c%d\n\r",
-                  (*next_sensor)->name,
-                  sensor_bank(last_record.sensor), sensor_index(last_record.sensor));
-#endif /* ROUTING_DEBUG */
-
-              got_error = true; // Oh no! We are lost and we should reroute.
-              break;
-            }
-          }
-        }
       }
 
       Delay(clock_server, 1);
@@ -264,22 +219,22 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
  * @param goal_offset                  Offset from goal sensor (in 1/100mm)
  */
 void conductor_route_to(int clock_server, int train_tx_server,
-                        int track_state_controller, int sensor_interpreter,
+                        int track_state_controller, int train_coordinates_server,
                         int train, int sensor_offset, int goal_offset) {
   route_to_within_stopping_distance(clock_server, train_tx_server,
-                                    track_state_controller, sensor_interpreter,
+                                    track_state_controller, train_coordinates_server,
                                     train, sensor_offset, goal_offset);
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
-                    int track_state_controller, int sensor_interpreter,
+                    int track_state_controller, int train_coordinates_server,
                     int train, int speed) {
   unsigned int D5 = sensor_offset('D', 5);
 
   conductor_setspeed(train_tx_server, track_state_controller, train, speed);
   route_to_within_stopping_distance(clock_server, train_tx_server,
-                                    track_state_controller, sensor_interpreter,
+                                    track_state_controller, train_coordinates_server,
                                     train, D5, 0);
 
   bool timed_out = poll_until_sensor_pair_triggered_with_timeout(
@@ -294,7 +249,7 @@ void conductor_loop(int clock_server, int train_tx_server,
     return;
   }
 
-  // Important to get these sensors switched ASAP
+  // Important to get these turnouts switched ASAP
   switch_turnout(clock_server, train_tx_server, track_state_controller, 8, true);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 10, false);
   switch_turnout(clock_server, train_tx_server, track_state_controller, 17, false);
@@ -314,11 +269,12 @@ void train_conductor() {
   int clock_server = WhoIs("ClockServer");
   int track_state_controller = WhoIs("TrackStateController");
   int cmd_dispatcher = WhoIs("CommandDispatcher");
-  int sensor_interpreter = WhoIs("SensorInterpreter");
+  int train_coordinates_server = WhoIs("TrainCoordinatesServer");
   Assert(train_tx_server > 0);
   Assert(clock_server > 0);
   Assert(track_state_controller > 0);
   Assert(cmd_dispatcher > 0);
+  Assert(train_coordinates_server > 0);
 
   train_data d;
   d.last_speed = 0;
@@ -346,7 +302,7 @@ void train_conductor() {
             break;
           case USER_CMD_LOOP:
             conductor_loop(clock_server, train_tx_server,
-                           track_state_controller, sensor_interpreter,
+                           track_state_controller, train_coordinates_server,
                            d.train, received.msg.cmd.data[1]);
             break;
           case USER_CMD_TR:
@@ -362,7 +318,7 @@ void train_conductor() {
           case USER_CMD_R:
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_route_to(clock_server, train_tx_server,
-                            track_state_controller, sensor_interpreter,
+                            track_state_controller, train_coordinates_server,
                             d.train, received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
             break;
           default:

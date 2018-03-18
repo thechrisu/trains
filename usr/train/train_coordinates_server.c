@@ -11,8 +11,10 @@ void update_coordinates_helper(int now_ticks,
 
   if (c->loc.sensor != NO_NEXT_SENSOR) {
     int velocity_diff = current_velocity - c->velocity;
-    c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100 -
-                     (velocity_diff * velocity_diff) / (2 * c->acceleration);
+    c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100;
+    if (c->acceleration != 0) {
+      c->loc.offset -= (velocity_diff * velocity_diff) / (2 * c->acceleration);
+    }
     location_canonicalize(&track, turnout_states, &c->loc, &c->loc);
   }
 

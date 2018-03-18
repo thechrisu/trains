@@ -81,11 +81,14 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
  * @param clock_server            Tid of the clock server.
  * @param train_tx_server         Tid of the train tx server to send sw commands.
  * @param track_state_controller  Tid of the track state controller.
- * @param start                   Point in route after which turnouts should be switched.
+ * @param route                   The route.
+ * @param loc                     Point in route after which turnouts should be switched.
  * @param distance                Distance inside of which turnouts should be switched.
  */
 void switch_turnouts_within_distance(int clock_server, int train_tx_server,
-                                     int track_state_controller, track_node **start,
+                                     int track_state_controller,
+                                     track_node *route[MAX_ROUTE_LENGTH],
+                                     location *loc,
                                      int distance);
 
 /**
@@ -99,12 +102,20 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left);
 
 /**
- * Iterates through the route until the end.
- *
- * @param remaining_route             Suffix of some route.
- * @return The remaining distance in 1/100mm.
+ * @param   route A route.
+ * @param   loc   A location.
+ * @returns Whether the location is on the route.
  */
-int get_remaining_dist_in_route(track_node **remaining_route);
+bool on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc);
+
+/**
+  * Iterates through the route until the end.
+  *
+  * @param  route A route.
+  * @param  loc   The location to start measuring the distance from.
+  * @return The remaining distance in 1/100mm.
+  */
+int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc);
 
 /**
  * Given a route, returns either
@@ -118,14 +129,11 @@ int get_remaining_dist_in_route(track_node **remaining_route);
 track_node **get_next_of_type(track_node **remaining_route, node_type type);
 
 /**
- * Given two reservations that are linked via the same route, return the distance
- * (1/100mm) between those two. Note: If start->end are not part of the same route,
- * with <code>start</code> occurring before <code>end</code>,
- * the function will return gibberish.
- *
- * @param start                     From where to search.
- * @param end                       To where to search.
- * @return distance (1/100mm) between the two reservations/nodes.
+ * @param   route The route.
+ * @param   loc   The location to measure from.
+ * @param   end   The point on the route to measure to.
+ * @returns The distance from `loc` to `end` in 1/100 mm.
  */
-int get_dist_between_reservations(track_node **start, track_node **end);
+int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_node **end);
+
 #endif /* TRAIN_UTIL_H */

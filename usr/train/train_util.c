@@ -82,23 +82,35 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
 
 // TODO maybe do this via switchers?
 void switch_turnouts_within_distance(int clock_server, int train_tx_server,
-                                     int track_state_controller, track_node **start,
+                                     int track_state_controller,
+                                     track_node *route[MAX_ROUTE_LENGTH],
+                                     location *loc,
                                      int distance) {
   turnout_state turnout_states[NUM_TURNOUTS];
   get_turnouts(track_state_controller, turnout_states);
 
-  for (track_node **c = start; *(c + 1) != NULL_TRACK_NODE; c += 1) {
-    if (get_dist_between_reservations(start, c) > distance) {
-      return;
-    } else if ((*c)->type == NODE_BRANCH) {
-      int map_offset = turnout_num_to_map_offset((*c)->num);
-      if (*(c + 1) == STRAIGHT(*c) && turnout_states[map_offset] == TURNOUT_CURVED) {
-        switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, false);
-      } else if (*(c + 1) == CURVED(*c) && turnout_states[map_offset] == TURNOUT_STRAIGHT) {
-        switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, true);
-      } else if (*(c + 1) != STRAIGHT(*c) && *(c + 1) != CURVED(*c)) {
-        logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
-                  (*c)->num, (*(c + 1))->num);
+  bool passed_loc = false;
+
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
+    if (passed_loc) {
+      if (get_dist_on_route(route, loc, c) > distance) {
+        return;
+      }
+
+      if ((*c)->type == NODE_BRANCH) {
+        int map_offset = turnout_num_to_map_offset((*c)->num);
+        if (*(c + 1) == STRAIGHT(*c) && turnout_states[map_offset] == TURNOUT_CURVED) {
+          switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, false);
+        } else if (*(c + 1) == CURVED(*c) && turnout_states[map_offset] == TURNOUT_STRAIGHT) {
+          switch_turnout(clock_server, train_tx_server, track_state_controller, (*c)->num, true);
+        } else if (*(c + 1) != STRAIGHT(*c) && *(c + 1) != CURVED(*c)) {
+          logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
+                    (*c)->num, (*(c + 1))->num);
+        }
       }
     }
   }
@@ -116,28 +128,46 @@ int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
   return 0.5 + (1 / get_fudged_stopping_distance_factor(train)) * (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left * 0.5;
 }
 
-int get_remaining_dist_in_route(track_node **remaining_route) {
-  int dist_remaining_100th_mm = 0;
-  for (track_node **c = remaining_route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
-    switch ((*c)->type) {
-      case NODE_SENSOR:
-      case NODE_MERGE:
-      case NODE_ENTER:
-        dist_remaining_100th_mm += (*c)->edge[DIR_AHEAD].dist * 100;
-        break;
-      case NODE_BRANCH:
-        if (*(c + 1) == STRAIGHT(*c)) {
-          dist_remaining_100th_mm += (*c)->edge[DIR_STRAIGHT].dist * 100;
-        } else {
-          dist_remaining_100th_mm += (*c)->edge[DIR_CURVED].dist * 100;
-        }
-        break;
-      default:
-        logprintf("Invalid node type when getting remaining distance of route: %d\n\r", (*c)->type);
-        break;
+bool on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc) {
+  for (track_node **c = route; *c != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      return true;
     }
   }
-  return dist_remaining_100th_mm;
+  return false;
+}
+
+int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc) {
+  int dist_remaining_100th_mm = 0;
+  bool passed_loc = false;
+
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
+    if (passed_loc) {
+      switch ((*c)->type) {
+        case NODE_SENSOR:
+        case NODE_MERGE:
+        case NODE_ENTER:
+          dist_remaining_100th_mm += (*c)->edge[DIR_AHEAD].dist * 100;
+          break;
+        case NODE_BRANCH:
+          if (*(c + 1) == STRAIGHT(*c)) {
+            dist_remaining_100th_mm += (*c)->edge[DIR_STRAIGHT].dist * 100;
+          } else {
+            dist_remaining_100th_mm += (*c)->edge[DIR_CURVED].dist * 100;
+          }
+          break;
+        default:
+          logprintf("Invalid node type when getting remaining distance of route: %d\n\r", (*c)->type);
+          break;
+      }
+    }
+  }
+
+  return dist_remaining_100th_mm - loc->offset;
 }
 
 track_node **get_next_of_type(track_node **remaining_route, node_type type) {
@@ -149,26 +179,34 @@ track_node **get_next_of_type(track_node **remaining_route, node_type type) {
   return (track_node **)0;
 }
 
-int get_dist_between_reservations(track_node **start, track_node **end) {
+int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_node **end) {
   int dist_remaining_100th_mm = 0;
-  for (track_node **c = start; *c != NULL_TRACK_NODE && c != end; c += 1) {
-    switch ((*c)->type) {
-      case NODE_SENSOR:
-      case NODE_MERGE:
-      case NODE_ENTER:
-        dist_remaining_100th_mm += (*c)->edge[DIR_AHEAD].dist * 100;
-        break;
-      case NODE_BRANCH:
-        if (*(c + 1) == STRAIGHT(*c)) {
-          dist_remaining_100th_mm += (*c)->edge[DIR_STRAIGHT].dist * 100;
-        } else {
-          dist_remaining_100th_mm += (*c)->edge[DIR_CURVED].dist * 100;
-        }
-        break;
-      default:
-        logprintf("Invalid node type when getting distance between nodes: %d\n\r", (*c)->type);
-        break;
+  bool passed_loc = false;
+
+  for (track_node **c = route; *c != NULL_TRACK_NODE && c != end; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
+    if (passed_loc) {
+      switch ((*c)->type) {
+        case NODE_SENSOR:
+        case NODE_MERGE:
+        case NODE_ENTER:
+          dist_remaining_100th_mm += (*c)->edge[DIR_AHEAD].dist * 100;
+          break;
+        case NODE_BRANCH:
+          if (*(c + 1) == STRAIGHT(*c)) {
+            dist_remaining_100th_mm += (*c)->edge[DIR_STRAIGHT].dist * 100;
+          } else {
+            dist_remaining_100th_mm += (*c)->edge[DIR_CURVED].dist * 100;
+          }
+          break;
+        default:
+          logprintf("Invalid node type when getting distance between nodes: %d\n\r", (*c)->type);
+          break;
+      }
     }
   }
-  return dist_remaining_100th_mm;
+  return dist_remaining_100th_mm - loc->offset;
 }
