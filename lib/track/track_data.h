@@ -104,11 +104,11 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
  * @param   end   The offset of the sensor to finish at.
  * @returns The distance between the two sensors.
  */
-uint32_t distance_between_sensors(track_state *t, unsigned int start,
-                                  unsigned int end);
+int32_t distance_between_sensors(track_state *t, unsigned int start,
+                                 unsigned int end);
 
-uint32_t distance_between_sensors_limit(track_state *t, unsigned int start,
-                                        unsigned int end, unsigned int limit);
+int32_t distance_between_sensors_limit(track_state *t, unsigned int start,
+                                       unsigned int end, unsigned int limit);
 
 /**
  * @param   t     The track to base the distance calculation off of.
