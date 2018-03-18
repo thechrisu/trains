@@ -93,12 +93,14 @@ void train_location_view() {
     get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
 
     if (seen_sensor.sensor != last_sensor.sensor) {
+      get_turnouts(track_state_controller_tid, turnout_states);
+
       print_diffs(terminal_tx_server_tid,
                   current_prediction.loc.sensor, seen_sensor.sensor,
                   current_prediction.ticks, seen_sensor.ticks,
-                  distance_diff(seen_sensor.sensor, &current_prediction.loc));
+                  distance_diff(&track, turnout_states,
+                                seen_sensor.sensor, &current_prediction.loc));
 
-      get_turnouts(track_state_controller_tid, turnout_states);
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
                          t1train, &current_prediction);

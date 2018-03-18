@@ -1610,8 +1610,13 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
   tmemcpy(destination, &current, sizeof(*destination));
 }
 
-int distance_diff(unsigned int sensor, location *loc) {
-  (void)sensor;
-  (void)loc;
+int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
+                  unsigned int sensor, location *loc) {
+  if (loc->sensor == sensor) {
+    return loc->offset;
+  } else if (sensor == sensor_next(t, loc->sensor, turnouts)) {
+    return loc->offset - distance_between_sensors(t, loc->sensor, sensor);
+  }
+
   return 0;
 }
