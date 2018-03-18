@@ -10,7 +10,8 @@ void print_next_sensor_prediction(int terminal_tx_server_tid,
   if (next_sensor == NO_NEXT_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                   TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
-  } else if (expected_ticks_next_sensor_hit == NO_LAST_SENSOR) {
+  } else if (expected_ticks_next_sensor_hit == NO_LAST_SENSOR ||
+             expected_ticks_next_sensor_hit == INFINITE_TICKS) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNext sensor: %s%c%d%s",
                   TRAIN_LOCATION_LINE + 1, 1,
                   sensor_index(next_sensor) >= 10 ? "" : " ",
@@ -82,7 +83,9 @@ void train_location_view() {
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
   coordinates current_prediction, last_prediction;
+
   reply_get_last_sensor_hit last_sensor;
+  get_last_sensor_hit(sensor_interpreter_tid, t1train, &last_sensor);
 
   turnout_state turnout_states[NUM_TURNOUTS];
 
@@ -93,15 +96,14 @@ void train_location_view() {
     get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
 
     if (seen_sensor.sensor != last_sensor.sensor) {
-      tmemcpy(&last_sensor, &seen_sensor, sizeof(last_sensor));
-
       print_diffs(terminal_tx_server_tid,
-                  current_prediction.loc.sensor, last_sensor.sensor,
-                  current_prediction.ticks, last_sensor.ticks,
-                  distance_diff(last_sensor.sensor, &current_prediction.loc));
+                  current_prediction.loc.sensor, seen_sensor.sensor,
+                  current_prediction.ticks, seen_sensor.ticks,
+                  distance_diff(seen_sensor.sensor, &current_prediction.loc));
     }
 
-    if (seen_sensor.sensor != last_sensor.sensor || loops % 5 == 0) {
+    if (seen_sensor.sensor != last_sensor.sensor ||
+        (seen_sensor.sensor != NO_DATA_RECEIVED && loops % 5 == 0)) {
       tmemcpy(&last_prediction, &current_prediction, sizeof(last_prediction));
 
       get_turnouts(track_state_controller_tid, turnout_states);
@@ -116,6 +118,8 @@ void train_location_view() {
                                      current_prediction.ticks);
       }
     }
+
+    tmemcpy(&last_sensor, &seen_sensor, sizeof(last_sensor));
 
     loops += 1;
     DelayUntil(clock_server_tid, REFRESH_PERIOD * loops);

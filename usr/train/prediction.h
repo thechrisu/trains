@@ -13,6 +13,8 @@
 #include "track_node.h"
 #include "tstdlib.h"
 
+#define INFINITE_TICKS 1E8
+
 /**
  * Returns the distance we travelled since we last hit a sensor.
  *
