@@ -107,11 +107,9 @@ void train_location_view() {
       get_turnouts(track_state_controller_tid, turnout_states);
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
-                         t1train,
-                         last_sensor.sensor,
-                         &current_prediction);
+                         t1train, &current_prediction);
 
-      if (seen_sensor.sensor != last_sensor.sensor ||
+      if (current_prediction.loc.sensor != last_prediction.loc.sensor ||
           current_prediction.ticks / 10 != last_prediction.ticks / 10) {
         print_next_sensor_prediction(terminal_tx_server_tid,
                                      current_prediction.loc.sensor,

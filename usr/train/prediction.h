@@ -6,6 +6,7 @@
 #define TRAIN_PREDICTION_H
 
 #include "codes.h"
+#include "commands.h"
 #include "global_track_state.h"
 #include "messages.h"
 #include "track_data.h"
@@ -40,18 +41,15 @@ void get_location_from_last_sensor_hit(int clock_server, int velocity,
                                        location *current);
 
 /**
- * Given that a train was recently at a sensor, predict when it did hit / will hit
- * the following sensor.
+ * Predict the coordinates of a train the next time it is at a sensor.
  *
  * @param train_coordinates_server_tid Task ID of the train coordinates server.
  * @param turnout_states               State of the track's turnouts.
- * @param train                        Train to predict.
- * @param sensor                       Sensor that train was recently at.
+ * @param train                        Train to predict for.
  * @param prediction                   Place to store the prediction.
  */
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
-                        int train, unsigned int sensor,
-                        coordinates *prediction);
+                        int train, coordinates *prediction);
 
 #endif /* TRAIN_PREDICTION_H */
