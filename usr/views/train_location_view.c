@@ -1,7 +1,5 @@
 #include "train_location_view.h"
 
-#define NO_LAST_SENSOR 0x1EADBEEF
-
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
 void print_next_sensor_prediction(int terminal_tx_server_tid,
@@ -10,8 +8,7 @@ void print_next_sensor_prediction(int terminal_tx_server_tid,
   if (next_sensor == NO_NEXT_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHAt end of track%s",
                   TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
-  } else if (expected_ticks_next_sensor_hit == NO_LAST_SENSOR ||
-             expected_ticks_next_sensor_hit == INFINITE_TICKS) {
+  } else if (expected_ticks_next_sensor_hit == INFINITE_TICKS) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNext sensor: %s%c%d%s",
                   TRAIN_LOCATION_LINE + 1, 1,
                   sensor_index(next_sensor) >= 10 ? "" : " ",
@@ -36,7 +33,7 @@ void print_diffs(int terminal_tx_server_tid,
                  unsigned int expected_last_sensor, unsigned int last_sensor,
                  int expected_ticks_last_sensor_hit, int ticks_last_sensor_hit,
                  int distance_diff) {
-  if (expected_last_sensor == NO_DATA_RECEIVED) {
+  if (expected_last_sensor == NO_NEXT_SENSOR) {
     Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHNo diffs available%s",
                   TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else if (expected_last_sensor != last_sensor) {
@@ -46,10 +43,6 @@ void print_diffs(int terminal_tx_server_tid,
                   sensor_bank(expected_last_sensor), sensor_index(expected_last_sensor),
                   sensor_bank(last_sensor), sensor_index(last_sensor),
                   HIDE_CURSOR_TO_EOL) == 0);
-  } else if (expected_last_sensor == NO_NEXT_SENSOR) {
-    Assert(Printf(terminal_tx_server_tid,
-                  "\033[%d;%dH%s",
-                  TRAIN_LOCATION_LINE + 2, 1, HIDE_CURSOR_TO_EOL) == 0);
   } else {
     int ticks_diff = ticks_last_sensor_hit - expected_ticks_last_sensor_hit;
     Assert(Printf(terminal_tx_server_tid,
@@ -83,8 +76,9 @@ void train_location_view() {
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
   turnout_state turnout_states[NUM_TURNOUTS];
-  coordinates current_prediction;
   get_turnouts(track_state_controller_tid, turnout_states);
+
+  coordinates current_prediction;
   predict_sensor_hit(train_coordinates_server_tid,
                      turnout_states,
                      t1train, &current_prediction);

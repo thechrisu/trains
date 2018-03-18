@@ -20,6 +20,11 @@ void predict_sensor_hit(int train_coordinates_server_tid,
   coordinates current;
   get_coordinates(train_coordinates_server_tid, train, &current);
 
+  if (current.loc.sensor == NO_NEXT_SENSOR) {
+    prediction->loc.sensor = NO_NEXT_SENSOR;
+    return;
+  }
+
   unsigned int next_sensor = sensor_next(&track, current.loc.sensor, turnout_states);
 
   prediction->loc.sensor = next_sensor;
