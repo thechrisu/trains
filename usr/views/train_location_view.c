@@ -82,12 +82,15 @@ void train_location_view() {
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s:%s",
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
+  turnout_state turnout_states[NUM_TURNOUTS];
   coordinates current_prediction;
+  get_turnouts(track_state_controller_tid, turnout_states);
+  predict_sensor_hit(train_coordinates_server_tid,
+                     turnout_states,
+                     t1train, &current_prediction);
 
   reply_get_last_sensor_hit last_sensor;
   get_last_sensor_hit(sensor_interpreter_tid, t1train, &last_sensor);
-
-  turnout_state turnout_states[NUM_TURNOUTS];
 
   int loops = 0;
 
