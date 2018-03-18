@@ -1311,58 +1311,25 @@ void init_track(track_state *global_track) {
     0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 77426, 98431, 139891,
   };
 
-  default_value default_acceleration[] = {
-    { .train = 24, .speed = 0, .value = 0 },
-    { .train = 24, .speed = 1, .value = 0 },
-    { .train = 24, .speed = 2, .value = 0 },
-    { .train = 24, .speed = 3, .value = 0 },
-    { .train = 24, .speed = 4, .value = 0 },
-    { .train = 24, .speed = 5, .value = 0 },
-    { .train = 24, .speed = 6, .value = 0 },
-    { .train = 24, .speed = 7, .value = 0 },
-    { .train = 24, .speed = 8, .value = 0 },
-    { .train = 24, .speed = 9, .value = 0 },
-    { .train = 24, .speed = 10, .value = 0 },
-    { .train = 24, .speed = 11, .value = 0 },
-    { .train = 24, .speed = 12, .value = 2533674 },
-    { .train = 24, .speed = 13, .value = 3279754 },
-    { .train = 24, .speed = 14, .value = 3430256 },
-    { .train = 58, .speed = 0, .value = 0 },
-    { .train = 58, .speed = 1, .value = 0 },
-    { .train = 58, .speed = 2, .value = 0 },
-    { .train = 58, .speed = 3, .value = 0 },
-    { .train = 58, .speed = 4, .value = 0 },
-    { .train = 58, .speed = 5, .value = 0 },
-    { .train = 58, .speed = 6, .value = 0 },
-    { .train = 58, .speed = 7, .value = 0 },
-    { .train = 58, .speed = 8, .value = 0 },
-    { .train = 58, .speed = 9, .value = 0 },
-    { .train = 58, .speed = 10, .value = 0 },
-    { .train = 58, .speed = 11, .value = 0 },
-    { .train = 58, .speed = 12, .value = 2382025 },
-    { .train = 58, .speed = 13, .value = 3196000 },
-    { .train = 58, .speed = 14, .value = 3344723 },
-    { .train = 74, .speed = 0, .value = 0 },
-    { .train = 74, .speed = 1, .value = 0 },
-    { .train = 74, .speed = 2, .value = 0 },
-    { .train = 74, .speed = 3, .value = 0 },
-    { .train = 74, .speed = 4, .value = 0 },
-    { .train = 74, .speed = 5, .value = 0 },
-    { .train = 74, .speed = 6, .value = 0 },
-    { .train = 74, .speed = 7, .value = 0 },
-    { .train = 74, .speed = 8, .value = 0 },
-    { .train = 74, .speed = 9, .value = 0 },
-    { .train = 74, .speed = 10, .value = 0 },
-    { .train = 74, .speed = 11, .value = 0 },
-    { .train = 74, .speed = 12, .value = 0 },
-    { .train = 74, .speed = 13, .value = 0 },
-    { .train = 74, .speed = 14, .value = 0 },
-    { .train = 1337, .speed = 1337, .value = 1337 }
+  uint32_t default_acceleration[81] = {
+    0, // NULL
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1-10
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 21-30
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 41-50
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 61-70
+    0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
   };
-
-  uint32_t super_default_acceleration[15] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  };
+  uint32_t super_default_acceleration = 20000;
+  for (int i = 0; i < 81; i++) {
+    if (default_acceleration[i] == 0) {
+      global_track->acceleration[i] = super_default_acceleration;
+    } else {
+      global_track->acceleration[i] = default_acceleration[i];
+    }
+  }
 
   default_value default_stopping_times[] = {
     { .train = 24, .speed = 0, .value = 0 },
@@ -1420,7 +1387,6 @@ void init_track(track_state *global_track) {
   setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);
   setup_default_map(global_track->stopping_distance, default_stopping_distances, super_default_stopping_distances);
   setup_default_map(global_track->stopping_time_mus, default_stopping_times, super_default_stopping_times);
-  setup_default_map(global_track->acceleration, default_acceleration, super_default_acceleration);
 }
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout) {
