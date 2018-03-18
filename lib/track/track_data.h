@@ -15,6 +15,17 @@
 
 #define NO_NEXT_SENSOR 1337
 
+#define OVERSHOOT_TIME_US 200 * 1000
+
+#define TICKS_TO_US(t) (t * 10 * 1000)
+#define US_TO_TICKS(t) (t * 0.0001)
+
+#define S_TO_TICKS(t) (t * 100)
+#define TICKS_TO_S(t) (t * 0.01)
+
+#define S_TO_US(t) (t * 1000 * 1000)
+#define US_TO_S(t) (t * 0.000001)
+
 void init_track(track_state *global_track);
 
 unsigned int turnout_num_to_map_offset(unsigned int turnout);

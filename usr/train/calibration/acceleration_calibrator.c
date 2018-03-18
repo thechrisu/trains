@@ -71,8 +71,8 @@ int get_accel_ticks(reply_get_last_sensor_hit *start,
                     int n_between,
                     int ticks_accel_sent, int v_0, int v_1) {
   if (v_1 == v_0) return 0;
-  int d_d = distance_between_sensors_intermediate(between, n_between,
-                                           start->sensor, end->sensor);
+  int d_d = (int)distance_between_sensors_intermediate(between, n_between,
+                                               start->sensor, end->sensor);
   if (d_d == -1) return -1;
   int d_t = end->ticks - start->ticks;
   // TODO subtract overshoot time
@@ -81,8 +81,11 @@ int get_accel_ticks(reply_get_last_sensor_hit *start,
   logprintf("d_d: %d, d_t: %d, t_w: %d\n\r", d_d, d_t, t_w);
 #endif /* ACC_CALIB_DEBUG */
   // Only multiplying by 100.0 to get more granularity.
-  int numerator = 100.0 * (d_d - d_t * v_1 + t_w * v_1 - t_w * v_0);
-  return ABS(2 * numerator / (100.0 * 10.0 * (v_0 - v_1)));
+  logprintf("d_t * v_1: %d, t_w * v_1: %d, t_w * v_0: %d\n\r",
+            d_t * v_1, t_w * v_1, t_w * v_0);
+  if (d_t < 0 || t_w < 0) return -1;
+  int numerator = S_TO_TICKS(d_d - TICKS_TO_S(d_t) * v_1 + TICKS_TO_S(t_w) * v_1 - TICKS_TO_S(t_w) * v_0);
+  return ABS(2 * numerator / (v_0 - v_1));
 }
 
 /**
@@ -93,7 +96,7 @@ int get_accel_ticks(reply_get_last_sensor_hit *start,
  */
 int get_acceleration(int v_0, int v_1, int t_a) {
   if (t_a == 0) return 0;
-  return 100 * (v_1 - v_0) / t_a;
+  return (v_1 - v_0) / TICKS_TO_S(t_a);
 }
 
 void dynamic_acceleration_calibrator() {
