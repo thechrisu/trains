@@ -31,18 +31,18 @@ void predict_sensor_hit(int train_coordinates_server_tid,
     int dist_to_next_sensor = 100 * distance_between_sensors(&track,
                                                              current.loc.sensor,
                                                              next_sensor) - current.loc.offset;
-    int velocity_diff = current.velocity - current.target_velocity;
-    int ticks_to_next_sensor;
+    long long velocity_diff = current.velocity - current.target_velocity;
+    long long ticks_to_next_sensor;
 
     if (current.acceleration == 0) {
       ticks_to_next_sensor = 100 * dist_to_next_sensor / current.velocity;
     } else {
-      int numerator = 2 * current.acceleration * dist_to_next_sensor +
-                      velocity_diff * velocity_diff;
+      long long numerator = 2 * current.acceleration * dist_to_next_sensor +
+                            velocity_diff * velocity_diff;
       ticks_to_next_sensor = 100 * numerator /
                              (2 * current.acceleration * current.velocity);
     }
 
-    prediction->ticks = current.ticks + ticks_to_next_sensor;
+    prediction->ticks = current.ticks + (int)ticks_to_next_sensor;
   }
 }

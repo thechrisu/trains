@@ -82,7 +82,7 @@ void train_location_view() {
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s:%s",
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
 
-  coordinates current_prediction, last_prediction;
+  coordinates current_prediction;
 
   reply_get_last_sensor_hit last_sensor;
   get_last_sensor_hit(sensor_interpreter_tid, t1train, &last_sensor);
@@ -100,22 +100,34 @@ void train_location_view() {
                   current_prediction.loc.sensor, seen_sensor.sensor,
                   current_prediction.ticks, seen_sensor.ticks,
                   distance_diff(seen_sensor.sensor, &current_prediction.loc));
-    }
-
-    if (seen_sensor.sensor != last_sensor.sensor ||
-        (seen_sensor.sensor != NO_DATA_RECEIVED && loops % 5 == 0)) {
-      tmemcpy(&last_prediction, &current_prediction, sizeof(last_prediction));
 
       get_turnouts(track_state_controller_tid, turnout_states);
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
                          t1train, &current_prediction);
 
-      if (current_prediction.loc.sensor != last_prediction.loc.sensor ||
-          current_prediction.ticks / 10 != last_prediction.ticks / 10) {
+      print_next_sensor_prediction(terminal_tx_server_tid,
+                                   current_prediction.loc.sensor,
+                                   current_prediction.ticks);
+    } else if (seen_sensor.sensor != NO_DATA_RECEIVED && loops % 3 == 0) {
+      get_turnouts(track_state_controller_tid, turnout_states);
+      coordinates tentative_prediction;
+      predict_sensor_hit(train_coordinates_server_tid,
+                         turnout_states,
+                         t1train, &tentative_prediction);
+
+      if (tentative_prediction.loc.sensor == current_prediction.loc.sensor) {
+        if (tentative_prediction.ticks / 10 != current_prediction.ticks / 10) {
+          print_next_sensor_prediction(terminal_tx_server_tid,
+                                       tentative_prediction.loc.sensor,
+                                       tentative_prediction.ticks);
+        }
+
+        tmemcpy(&current_prediction, &tentative_prediction, sizeof(current_prediction));
+      } else {
         print_next_sensor_prediction(terminal_tx_server_tid,
-                                     current_prediction.loc.sensor,
-                                     current_prediction.ticks);
+                                     tentative_prediction.loc.sensor,
+                                     tentative_prediction.ticks);
       }
     }
 
