@@ -170,4 +170,19 @@ void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_s
  */
 void get_coordinates(int train_coordinates_server, int train, coordinates *c);
 
+/**
+ * Queries the acceleration model.
+ * @param track_state_controller_tid Task ID of the track state controller.
+ * @param train                      Train (1-80).
+ * @return acceleration 1/100 m/(s^2).
+ */
+uint32_t get_acceleration(int track_state_controller_tid, int train);
+
+/**
+ * Update the acceleration model.
+ * @param track_state_controller_tid Task ID of the track state controller.
+ * @param train                      Train (1-80).
+ * @param acc                        1/100 m/(s^2).
+ */
+void update_acceleration(int track_state_controller_tid, int train, uint32_t acc);
 #endif /* TRAIN_COMMANDS_H */

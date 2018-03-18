@@ -1324,11 +1324,7 @@ void init_track(track_state *global_track) {
   };
   uint32_t super_default_acceleration = 20000;
   for (int i = 0; i < 81; i++) {
-    if (default_acceleration[i] == 0) {
-      global_track->acceleration[i] = super_default_acceleration;
-    } else {
-      global_track->acceleration[i] = default_acceleration[i];
-    }
+    global_track->acceleration[i] = default_acceleration[i];
   }
 
   default_value default_stopping_times[] = {

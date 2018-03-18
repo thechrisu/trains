@@ -201,3 +201,22 @@ void get_coordinates(int train_coordinates_server, int train, coordinates *c) {
   Assert(reply.type == REPLY_GET_COORDINATES);
   tmemcpy(c, &reply.msg.coords, sizeof(*c));
 }
+
+uint32_t get_acceleration(int track_state_controller_tid, int train) {
+  Assert(train <= 80 && train >= 1);
+  message send, reply;
+  send.type = MESSAGE_GETACCELERATIONMODEL;
+  send.msg.train = train;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+  Assert(reply.type == REPLY_GETACCELERATIONMODEL);
+  return reply.msg.acceleration;
+}
+
+void update_acceleration(int track_state_controller_tid, int train, uint32_t acc) {
+  Assert(train <= 80 && train >= 1);
+  message send;
+  send.type = MESSAGE_UPDATEACCELERATIONMODEL;
+  send.msg.uam.train = train;
+  send.msg.uam.value = acc;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+}

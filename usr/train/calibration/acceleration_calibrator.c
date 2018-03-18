@@ -1,6 +1,6 @@
 #include "acceleration_calibrator.h"
 
-#define ABS(a) (a < 0 ? -a : a)
+#define ABS(a) ((a) < 0 ? (-(a)) : (a))
 
 /**
  * WAITING_CONSTANT_SPEED
@@ -65,6 +65,9 @@ int distance_between_sensors_intermediate(unsigned long between[MAX_S_LIST],
   }
 }
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+
 int get_accel_ticks(reply_get_last_sensor_hit *start,
                     reply_get_last_sensor_hit *end,
                     unsigned long between[MAX_S_LIST],
@@ -73,19 +76,28 @@ int get_accel_ticks(reply_get_last_sensor_hit *start,
   if (v_1 == v_0) return 0;
   int d_d = (int)distance_between_sensors_intermediate(between, n_between,
                                                start->sensor, end->sensor);
-  if (d_d == -1) return -1;
+  if (d_d < 0) return -1;
   int d_t = end->ticks - start->ticks;
   // TODO subtract overshoot time
   int t_w = ticks_accel_sent - start->ticks;
+  int smaller = MIN(v_0, v_1);
+  int larger = MAX(v_0, v_1);
 #if ACC_CALIB_DEBUG
   logprintf("d_d: %d, d_t: %d, t_w: %d\n\r", d_d, d_t, t_w);
 #endif /* ACC_CALIB_DEBUG */
   // Only multiplying by 100.0 to get more granularity.
-  logprintf("d_t * v_1: %d, t_w * v_1: %d, t_w * v_0: %d\n\r",
-            d_t * v_1, t_w * v_1, t_w * v_0);
+  logprintf("d_t * v_1: %d\n\r",
+            (int)(TICKS_TO_S(d_t) * larger));
+  logprintf("d_d %d\n\r", d_d);
+  logprintf("t_w * (v_1 - v_0) %d\n\r", (int)(TICKS_TO_S(t_w) * (larger- smaller)));
   if (d_t < 0 || t_w < 0) return -1;
-  int numerator = S_TO_TICKS(d_d - TICKS_TO_S(d_t) * v_1 + TICKS_TO_S(t_w) * v_1 - TICKS_TO_S(t_w) * v_0);
-  return ABS(2 * numerator / (v_0 - v_1));
+  int numerator = S_TO_TICKS((TICKS_TO_S(d_t) * larger) - d_d
+                             - (TICKS_TO_S(t_w) * (larger - smaller)));
+#if ACC_CALIB_DEBUG
+  logprintf("Numerator: %d\n\r", numerator);
+#endif /* ACC_CALIB_DEBUG */
+  int r = ABS(2 * numerator / (v_0 - v_1));
+  return r > d_t ? - t_w (d_t - t_w) : r;
 }
 
 /**
@@ -94,7 +106,7 @@ int get_accel_ticks(reply_get_last_sensor_hit *start,
  * @param t_a               Time to accelerate between v_0, v_1 (ticks).
  * @return acceleration     1/100 mm/(s^2)
  */
-int get_acceleration(int v_0, int v_1, int t_a) {
+int calculate_acceleration(int v_0, int v_1, int t_a) {
   if (t_a == 0) return 0;
   return (v_1 - v_0) / TICKS_TO_S(t_a);
 }
@@ -236,10 +248,11 @@ void dynamic_acceleration_calibrator() {
                 // TODO don't log
                 goto cleanup; // I'm sorry.
               }
-              int ticks_0_14 = 0.5 * get_acceleration(
-                                            start_velocities[train],
-                                            end_velocities[train],
-                                            accel_ticks) * 3 * 3;
+              int acc = calculate_acceleration(
+                           start_velocities[train],
+                           end_velocities[train],
+                           accel_ticks);
+              int sd_0_14 = 0.5 * acc * 3 * 3;
               logprintf(
                   "%s(%d -> %d)%s%c%d and %c%d is %d. (acc: %d), 3s: %d\n\r",
                   "When accelerating ", start_velocities[train],
@@ -248,9 +261,11 @@ void dynamic_acceleration_calibrator() {
                   sensor_index(start_sensor[train].sensor),
                   sensor_bank(query.sensor), sensor_index(query.sensor),
                   accel_ticks,
-                  get_acceleration(start_velocities[train],
+                  calculate_acceleration(start_velocities[train],
                                    end_velocities[train], accel_ticks),
-                  ticks_0_14);
+                  sd_0_14);
+              update_acceleration(track_state_controller,
+                                  train, (uint32_t)ABS(acc));
             }
 cleanup:
             accel_states[train] = WAITING_CONSTANT_SPEED;

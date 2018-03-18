@@ -65,6 +65,9 @@ enum message_type {
   MESSAGE_FORWARD_TURNOUT_STATES,
   MESSAGE_GET_COORDINATES,
   REPLY_GET_COORDINATES,
+  MESSAGE_GETACCELERATIONMODEL,
+  REPLY_GETACCELERATIONMODEL,
+  MESSAGE_UPDATEACCELERATIONMODEL,
 };
 
 typedef struct {
@@ -157,6 +160,8 @@ typedef struct {
     message_ucsm_params ucsm;
     default_value usdm;
     default_value ustm;
+    default_value uam;
+    uint32_t acceleration;
     message_get_route_params get_route_params;
     track_node **route;
     reply_get_last_sensor_hit last_sensor;

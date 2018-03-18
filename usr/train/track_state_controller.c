@@ -215,6 +215,28 @@ void track_state_controller() {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       }
+      case MESSAGE_GETACCELERATIONMODEL: {
+        int t = (int)received.msg.train;
+        Assert(t >= 1 && t <= 80);
+        reply.type = REPLY_GETACCELERATIONMODEL;
+        reply.msg.acceleration = track.acceleration[t];
+        Reply(sender_tid, &reply, sizeof(reply));
+        break;
+      }
+      case MESSAGE_UPDATEACCELERATIONMODEL: {
+        int t = received.msg.uam.train;
+        uint32_t a = received.msg.uam.value;
+        Assert(t >= 1 && t <= 80);
+        if (track.acceleration[t] == 0) {
+          track.acceleration[t] = a;
+        } else {
+          track.acceleration[t] *= 9;
+          track.acceleration[t] += a;
+          track.acceleration[t] /= 10;
+        }
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      }
       default:
         logprintf("track_state_controller received message of type %d\n\r", received.type);
         Assert(0);
