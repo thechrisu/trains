@@ -83,6 +83,9 @@ void train_location_view() {
                      turnout_states,
                      t1train, &current_prediction);
 
+  coordinates current;
+  get_coordinates(train_coordinates_server_tid, t1train, &current);
+
   reply_get_last_sensor_hit last_sensor;
   get_last_sensor_hit(sensor_interpreter_tid, t1train, &last_sensor);
 
@@ -99,7 +102,7 @@ void train_location_view() {
                   current_prediction.loc.sensor, seen_sensor.sensor,
                   current_prediction.ticks, seen_sensor.ticks,
                   distance_diff(&track, turnout_states,
-                                seen_sensor.sensor, &current_prediction.loc));
+                                seen_sensor.sensor, &current.loc));
 
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
@@ -131,6 +134,8 @@ void train_location_view() {
     }
 
     tmemcpy(&last_sensor, &seen_sensor, sizeof(last_sensor));
+
+    get_coordinates(train_coordinates_server_tid, t1train, &current);
 
     loops += 1;
     DelayUntil(clock_server_tid, REFRESH_PERIOD * loops);
