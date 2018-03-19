@@ -58,23 +58,23 @@ void user_command_print(int server_tid, user_command *cmd) {
       break;
     case USER_CMD_SET:
       if (cmd->data[0] == SET_TRAINS) {
-        Assert(Printf(server_tid, "%s%s%sSET %s ",
+        Assert(Printf(server_tid, "%s%s%sSET %s %s",
                       CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
-                      get_parameter_name(cmd->data[0])) == 0);
+                      get_parameter_name(cmd->data[0]), RESET_TEXT) == 0);
 
         int offset = 1 + 4 + tstrlen(get_parameter_name(cmd->data[0])) + 1;
 
         for (int i = 0; i < cmd->data[1]; i += 1) {
           int train_num = cmd->data[i + 2];
-          Assert(Printf(server_tid, "\033[%d;%dH%d ",
-                        CMD_LINE, offset, train_num) == 0);
+          Assert(Printf(server_tid, "\033[%d;%dH%d %s",
+                        CMD_LINE, offset, train_num, RESET_TEXT) == 0);
 
           offset += (train_num < 10 ? 1 : 2) + 1;
         }
 
-        Assert(Printf(server_tid, "\033[%d;%dH%s%s",
+        Assert(Printf(server_tid, "\033[%d;%dH%s",
                       CMD_LINE, offset,
-                      HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+                      HIDE_CURSOR_TO_EOL) == 0);
       } else {
         Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
                       CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
