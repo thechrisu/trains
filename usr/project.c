@@ -57,9 +57,30 @@ void user_command_print(int server_tid, user_command *cmd) {
                     cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case USER_CMD_SET:
-      Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
-                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
-                    get_parameter_name(cmd->data[0]), cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      if (cmd->data[0] == SET_TRAINS) {
+        Assert(Printf(server_tid, "%s%s%sSET %s ",
+                      CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                      get_parameter_name(cmd->data[0])) == 0);
+
+        int offset = 4 + tstrlen(get_parameter_name(cmd->data[0])) + 1;
+
+        for (int i = 0; i < cmd->data[1]; i += 1) {
+          int train_num = cmd->data[i + 2];
+          Assert(Printf(server_tid, "%s%d ",
+                        CURSOR_ROW_COL(CMD_LINE, offset), train_num) == 0);
+
+          offset += (train_num < 10 ? 1 : 2) + 1;
+        }
+
+        Assert(Printf(server_tid, "%s%s%s",
+                      CURSOR_ROW_COL(CMD_LINE, offset),
+                      HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      } else {
+        Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
+                      CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                      get_parameter_name(cmd->data[0]), cmd->data[1],
+                      HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      }
       break;
     case USER_CMD_R:
       Assert(Printf(server_tid, "%s%s%sR %d %c%d %d          %s%s",
