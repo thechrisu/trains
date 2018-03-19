@@ -28,7 +28,7 @@ void attribute_sensor(int train, unsigned int sensor, int current_time) {
  * @returns Whether or not to give the train more time to cross an attributable sensor.
  **/
 bool train_is_lost(int speed, int time_difference) {
-  return speed == 0 || time_difference > (speed == 1 ? 100 * 100 : 42 * 100 / speed);
+  return speed != 0 && time_difference > (speed == 1 ? 100 * 100 : 42 * 100 / speed);
 }
 
 void sensor_interpreter() {
