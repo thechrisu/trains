@@ -35,6 +35,7 @@ void stopping_distance_calibrator() {
 
     stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, 8);
 
+    // TODO look up sensors for track b
     poll_until_sensor_triggered(clock_server_tid, track_state_controller_tid, sensor_offset('C', 13));
 
     stop_and_reverse_train_to_speed(clock_server_tid, tx_server_tid, track_state_controller_tid, train, speed);
