@@ -124,10 +124,35 @@ float get_fudged_stopping_distance_factor(int train) {
     );
 }
 
-int stopping_dist_from_velocity(int velocity) {
-  return velocity * velocity * velocity * 7.70205859 * 0.0000000001
-          - velocity * velocity * 1.70680727 * 0.00001 + velocity * 0.420590057
-          - 1025.15505;
+int stopping_dist_from_velocity(int velocity, uint32_t velocity_model[15],
+                                uint32_t stopping_distance_model[15]) {
+  if (velocity == 0) return 0;
+  if (velocity < 50000) {
+    return (0.0000000001 * velocity) * velocity * velocity * 4.1621
+            + (0.000001 * velocity) * velocity * 8.9394 - velocity * 0.04135
+            + 174.1136;
+  } else {
+    int smaller_speed = 8, larger_speed = -1;
+    for (int i = 8; i <= 14; i++) {
+      if (velocity_model[i] < velocity) {
+        smaller_speed = i;
+      }
+      if (velocity_model[i] > velocity) {
+        larger_speed = i;
+        break;
+      }
+      if (velocity_model[i] == velocity) {
+        return stopping_distance_model[i];
+      }
+    }
+    float r = (velocity / (float)velocity_model[smaller_speed]);
+    int diff = stopping_distance_model[larger_speed] - stopping_distance_model[smaller_speed];
+    if (diff < 0) {
+      diff = 0.5 * stopping_distance_model[14];
+    }
+    float compound_r = r * r * r - 1;
+    return stopping_distance_model[smaller_speed] + diff * compound_r;
+  }
 }
 
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
