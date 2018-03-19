@@ -66,8 +66,9 @@ void user_command_print(int server_tid, user_command *cmd) {
 
         for (int i = 0; i < cmd->data[1]; i += 1) {
           int train_num = cmd->data[i + 2];
-          Assert(Printf(server_tid, "\033[%d;%dH%d %s",
-                        CMD_LINE, offset, train_num, RESET_TEXT) == 0);
+          Assert(Printf(server_tid, "\033[%d;%d%sH%d %s",
+                        CMD_LINE, offset, GREEN_TEXT,
+                        train_num, RESET_TEXT) == 0);
 
           offset += (train_num < 10 ? 1 : 2) + 1;
         }
