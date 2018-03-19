@@ -34,19 +34,28 @@ void predict_sensor_hit(int train_coordinates_server_tid,
                                                            current.loc.sensor,
                                                            next_sensor) - current.loc.offset;
 
-  if (current.target_velocity == 0) {
-    int max_distance_before_stop = current.velocity / (2 * current.acceleration);
+  if (current.velocity == 0) {
+    prediction->ticks = INFINITE_TICKS;
+  } else if (current.target_velocity == 0) {
+    long long current_velocity = current.velocity;
+    int max_distance_before_stop = (int)((current_velocity * current_velocity) /
+                                         (2 * -current.acceleration));
 
     if (max_distance_before_stop < dist_to_next_sensor) {
       prediction->ticks = INFINITE_TICKS;
     } else {
-      prediction->ticks = current.ticks + (2 * dist_to_next_sensor) /
-                                          (current.velocity + current.target_velocity);
+      long long to_sqrt = (current_velocity * current_velocity) +
+                          2 * current.acceleration * dist_to_next_sensor;
+      int sqrt_result = (int)(1.0F / tinvsqrt((float)to_sqrt));
+      prediction->ticks = current.ticks + (100 * (sqrt_result - current_velocity)) /
+                                          current.acceleration;
     }
+  } else if (current.acceleration == 0) {
+    prediction->ticks = current.ticks + 100 * dist_to_next_sensor / current.velocity;
   } else {
     long long velocity_diff = current.velocity - current.target_velocity;
-    long long ticks_to_next_sensor = dist_to_next_sensor / current.target_velocity +
-                                     (velocity_diff * velocity_diff) /
+    long long ticks_to_next_sensor = 100 * dist_to_next_sensor / current.target_velocity +
+                                     100 * (velocity_diff * velocity_diff) /
                                      (2 * current.acceleration * current.target_velocity);
     prediction->ticks = current.ticks + (int)ticks_to_next_sensor;
   }
