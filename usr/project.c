@@ -221,10 +221,11 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       param_name[param_name_index] = '\0';
 
       set_parameter param = MAX_PARAMETER;
-      int num_params_to_test = 2;
+      int num_params_to_test = 3;
       set_parameter params_to_test[num_params_to_test];
       params_to_test[0] = SET_TRAINS;
-      params_to_test[1] = SET_SWITCH_PADDING;
+      params_to_test[1] = SET_TRACK;
+      params_to_test[2] = SET_SWITCH_PADDING;
 
       for (int i = 0; i < num_params_to_test; i += 1) {
         set_parameter param_to_test = params_to_test[i];
