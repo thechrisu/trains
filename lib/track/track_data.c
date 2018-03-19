@@ -3,7 +3,6 @@
 #define FIND_LIMIT 5
 
 void init_track(track_state *global_track) {
-  track_node *track = global_track->track;
   turnout_state *turnouts = global_track->turnouts;
 
 #ifndef TESTING
@@ -25,7 +24,6 @@ void init_track(track_state *global_track) {
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;
   }
-
 
   default_value default_speeds[] = {
     { .train = 24, .speed = 0, .value = 0 },

@@ -7,12 +7,12 @@ static int time_at_last_sensor_hit[80];
 static int terminal_tx_server;
 
 void attribute_sensor(unsigned int sensor, int current_time) {
-  last_sensor[t1train] = sensor;
-  time_at_last_sensor_hit[t1train] = current_time;
+  last_sensor[active_trains[0]] = sensor;
+  time_at_last_sensor_hit[active_trains[0]] = current_time;
 
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%c%d%s",
                 ESC, CALIB_LINE, 1,
-                "Train ", t1train, " just hit sensor ", sensor_bank(sensor), sensor_index(sensor),
+                "Train ", active_trains[0], " just hit sensor ", sensor_bank(sensor), sensor_index(sensor),
                 HIDE_CURSOR_TO_EOL) == 0);
 }
 
@@ -62,19 +62,19 @@ void sensor_interpreter() {
 
         message send, reply;
         send.type = MESSAGE_GETTRAIN;
-        send.msg.tr_data.train = t1train;
+        send.msg.tr_data.train = active_trains[0];
         Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
 
         int current_speed = reply.msg.tr_data.should_speed;
         int last_speed = reply.msg.tr_data.last_speed;
-        int last_time = time_at_last_sensor_hit[t1train];
+        int last_time = time_at_last_sensor_hit[active_trains[0]];
         int time_speed_last_changed = reply.msg.tr_data.time_speed_last_changed;
 
         bool sensor_attributed = false;
 
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
-            unsigned int last = last_sensor[t1train];
+            unsigned int last = last_sensor[active_trains[0]];
 
             if (last == NO_DATA_RECEIVED) {
               attribute_sensor(sensor, current_time);
@@ -84,7 +84,7 @@ void sensor_interpreter() {
                 if (last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
                   int time_elapsed = current_time - last_time;
 
-                  update_constant_velocity_model(track_state_controller_tid, t1train, current_speed, last, sensor, time_elapsed);
+                  update_constant_velocity_model(track_state_controller_tid, active_trains[0], current_speed, last, sensor, time_elapsed);
 
                   char start_bank = sensor_bank(last);
                   unsigned int start_index = sensor_index(last);
@@ -93,7 +93,7 @@ void sensor_interpreter() {
 
                   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%c%d%s%c%d%s%d%s",
                                 ESC, CALIB_LINE + 1, 1,
-                                "Train ", t1train, " took ", time_elapsed, " ticks to go between sensors ",
+                                "Train ", active_trains[0], " took ", time_elapsed, " ticks to go between sensors ",
                                 start_bank, start_index, " and ", end_bank, end_index, " at speed ", current_speed,
                                 HIDE_CURSOR_TO_EOL) == 0);
 
@@ -114,9 +114,9 @@ void sensor_interpreter() {
         if (sensor_attributed) {
           message send;
           send.type = MESSAGE_UPDATE_COORDS_SENSOR;
-          send.msg.update_coords.tr_data.train = t1train;
-          send.msg.update_coords.last_sensor.sensor = last_sensor[t1train];
-          send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[t1train];
+          send.msg.update_coords.tr_data.train = active_trains[0];
+          send.msg.update_coords.last_sensor.sensor = last_sensor[active_trains[0]];
+          send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[active_trains[0]];
           Assert(Send(train_coordinates_server,
                       &send, sizeof(send),
                       EMPTY_MESSAGE, 0) == 0);

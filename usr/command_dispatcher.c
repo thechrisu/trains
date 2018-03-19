@@ -80,9 +80,34 @@ void conductor_ready(conductor_data *c) {
   }
 }
 
+void update_conductors(conductor_data conductors[81]) {
+  int my_priority = MyPriority();
+
+  for (int i = 0; i < num_active_trains; i++) {
+    int t = active_trains[i];
+
+    if (conductors[t].tid == 0) {
+      conductors[t].t = t;
+
+      conductors[t].tid = Create(my_priority + 1, &train_conductor);
+      Assert(conductors[t].tid > 0);
+
+      message train_to_look_after_msg;
+      train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
+      train_to_look_after_msg.msg.train = t;
+      Assert(Send(conductors[t].tid, &train_to_look_after_msg,
+                  sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
+
+      conductors[t].rdy = true;
+      conductors[t].msgs_i = 0;
+      conductors[t].msgs_o = 0;
+      conductors[t].msgs_available = 0;
+      conductors[t].auto_mode = false;
+    }
+  }
+}
+
 void command_dispatcher_server() {
-  int active_trains[] = {24, 58, 74};
-  int num_active_trains = 3;
   int sender_tid;
   message received;
   Assert(RegisterAs("CommandDispatcher") == 0);
@@ -96,22 +121,10 @@ void command_dispatcher_server() {
   Assert(track_state_controller > 0);
 
   conductor_data conductors[81];
-  for (int i = 0; i < num_active_trains; i++) {
-    int t = active_trains[i];
-    conductors[t].t = t;
-    conductors[t].tid = Create(my_priority + 1, &train_conductor);
-    Assert(conductors[t].tid > 0);
-    message train_to_look_after_msg;
-    train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
-    train_to_look_after_msg.msg.train = t;
-    Assert(Send(conductors[t].tid, &train_to_look_after_msg,
-                sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
-    conductors[t].rdy = true;
-    conductors[t].msgs_i = 0;
-    conductors[t].msgs_o = 0;
-    conductors[t].msgs_available = 0;
-    conductors[t].auto_mode = false;
+  for (int i = 0; i < 81; i += 1) {
+    conductors[i].tid = 0;
   }
+  update_conductors(conductors);
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
@@ -172,8 +185,12 @@ void command_dispatcher_server() {
           }
           case USER_CMD_SET:
             switch (received.msg.cmd.data[0]) {
-              case SET_T1TRAIN:
-                t1train = received.msg.cmd.data[1];
+              case SET_TRAINS:
+                num_active_trains = received.msg.cmd.data[1];
+                for (int i = 0; i < num_active_trains; i += 1) {
+                  active_trains[i] = received.msg.cmd.data[i + 2];
+                }
+                update_conductors(conductors);
                 break;
               case SET_SWITCH_PADDING:
                 switch_padding = received.msg.cmd.data[1];

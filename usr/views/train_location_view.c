@@ -81,19 +81,19 @@ void train_location_view() {
   coordinates current_prediction;
   predict_sensor_hit(train_coordinates_server_tid,
                      turnout_states,
-                     t1train, &current_prediction);
+                     active_trains[0], &current_prediction);
 
   coordinates current;
-  get_coordinates(train_coordinates_server_tid, t1train, &current);
+  get_coordinates(train_coordinates_server_tid, active_trains[0], &current);
 
   reply_get_last_sensor_hit last_sensor;
-  get_last_sensor_hit(sensor_interpreter_tid, t1train, &last_sensor);
+  get_last_sensor_hit(sensor_interpreter_tid, active_trains[0], &last_sensor);
 
   int loops = 0;
 
   while (true) {
     reply_get_last_sensor_hit seen_sensor;
-    get_last_sensor_hit(sensor_interpreter_tid, t1train, &seen_sensor);
+    get_last_sensor_hit(sensor_interpreter_tid, active_trains[0], &seen_sensor);
 
     if (seen_sensor.sensor != last_sensor.sensor) {
       get_turnouts(track_state_controller_tid, turnout_states);
@@ -106,7 +106,7 @@ void train_location_view() {
 
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
-                         t1train, &current_prediction);
+                         active_trains[0], &current_prediction);
 
       print_next_sensor_prediction(terminal_tx_server_tid,
                                    current_prediction.loc.sensor,
@@ -116,7 +116,7 @@ void train_location_view() {
       coordinates tentative_prediction;
       predict_sensor_hit(train_coordinates_server_tid,
                          turnout_states,
-                         t1train, &tentative_prediction);
+                         active_trains[0], &tentative_prediction);
 
       if (tentative_prediction.loc.sensor == current_prediction.loc.sensor) {
         if (tentative_prediction.ticks / 10 != current_prediction.ticks / 10) {
@@ -135,7 +135,7 @@ void train_location_view() {
 
     tmemcpy(&last_sensor, &seen_sensor, sizeof(last_sensor));
 
-    get_coordinates(train_coordinates_server_tid, t1train, &current);
+    get_coordinates(train_coordinates_server_tid, active_trains[0], &current);
 
     loops += 1;
     DelayUntil(clock_server_tid, REFRESH_PERIOD * loops);

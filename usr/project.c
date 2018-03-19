@@ -57,9 +57,31 @@ void user_command_print(int server_tid, user_command *cmd) {
                     cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case USER_CMD_SET:
-      Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
-                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
-                    get_parameter_name(cmd->data[0]), cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      if (cmd->data[0] == SET_TRAINS) {
+        Assert(Printf(server_tid, "%s%s%sSET %s %s",
+                      CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                      get_parameter_name(cmd->data[0]), RESET_TEXT) == 0);
+
+        int offset = 1 + 4 + tstrlen(get_parameter_name(cmd->data[0])) + 1;
+
+        for (int i = 0; i < cmd->data[1]; i += 1) {
+          int train_num = cmd->data[i + 2];
+          Assert(Printf(server_tid, "\033[%d;%dH%s%d %s",
+                        CMD_LINE, offset, GREEN_TEXT,
+                        train_num, RESET_TEXT) == 0);
+
+          offset += (train_num < 10 ? 1 : 2) + 1;
+        }
+
+        Assert(Printf(server_tid, "\033[%d;%dH%s",
+                      CMD_LINE, offset,
+                      HIDE_CURSOR_TO_EOL) == 0);
+      } else {
+        Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
+                      CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                      get_parameter_name(cmd->data[0]), cmd->data[1],
+                      HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      }
       break;
     case USER_CMD_R:
       Assert(Printf(server_tid, "%s%s%sR %d %c%d %d          %s%s",
@@ -198,17 +220,24 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
 
       param_name[param_name_index] = '\0';
 
-      set_parameter param = MAX_PARAMETER;
-      if (tstrcmp(param_name, "t1train")) {
-        param = SET_T1TRAIN;
-      } else if (tstrcmp(param_name, "track")) {
-        param = SET_TRACK;
-      } else if (tstrcmp(param_name, "switch_padding")) {
-        param = SET_SWITCH_PADDING;
-      }
+      buffer_index += 1; // Index of first digit of number after parameter name
 
-      if (param != MAX_PARAMETER) {
-        buffer_index += 1; // Index of first digit of number after parameter name
+      set_parameter param = get_parameter_value(param_name);
+
+      if (param == SET_TRAINS) {
+        for (int i = 0; buffer_index < ibuf->elems && i < 8; i += 1) {
+          int n = is_valid_number(ibuf, buffer_index);
+          if (n >= 0) {
+            cmd->type = USER_CMD_SET;
+            cmd->data[0] = SET_TRAINS;
+            cmd->data[1] = i + 1;
+            cmd->data[i + 2] = parse_number(ibuf, buffer_index);
+            buffer_index = (unsigned int)n;
+          } else {
+            break;
+          }
+        }
+      } else if (param != MAX_PARAMETER) {
         if (buffer_index < ibuf->elems) {
           int n = is_valid_number(ibuf, buffer_index);
           if (n >= 0 && ibuf->elems >= (unsigned int)n) {
@@ -347,9 +376,7 @@ void project_first_user_task() {
     if (parse_command(&current_cmd_buf, &current_cmd, c)) {
       if (current_cmd.type != NULL_USER_CMD) {
         cmd_msg.msg.cmd.type = current_cmd.type;
-        cmd_msg.msg.cmd.data[0] = current_cmd.data[0];
-        cmd_msg.msg.cmd.data[1] = current_cmd.data[1];
-        cmd_msg.msg.cmd.data[2] = current_cmd.data[2];
+        tmemcpy(&cmd_msg.msg.cmd.data, &current_cmd.data, sizeof(cmd_msg.msg.cmd.data));
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
@@ -367,7 +394,9 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  log_calibration_data(t1train);
+  for (int i = 0; i < num_active_trains; i += 1) {
+    log_calibration_data(active_trains[i]);
+  }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);

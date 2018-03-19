@@ -22,7 +22,7 @@ enum user_command_type {
 
 typedef struct {
   enum user_command_type type;
-  int data[3];
+  int data[10];
 } user_command;
 
 /**

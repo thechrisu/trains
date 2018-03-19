@@ -10,14 +10,18 @@
 #define PARAMETER_NAME_LENGTH 30
 
 typedef enum set_parameter {
-  SET_T1TRAIN,
+  MIN_PARAMETER,
+  SET_TRAINS,
   SET_SWITCH_PADDING,
   SET_TRACK,
   MAX_PARAMETER,
 } set_parameter;
 
-// Train to attribute sensors to in T1.
-extern int t1train;
+// Trains that are active.
+extern int active_trains[81];
+
+// Number of trains active.
+extern int num_active_trains;
 
 // Minimum distance in mm that a turnout must be switched before a train drives over it.
 extern int switch_padding;
@@ -32,5 +36,12 @@ void init_parameters();
  * @returns A pointer to a string containing the name of the parameter.
  */
 char *get_parameter_name(set_parameter index);
+
+/**
+ * @param   name The name of a parameter.
+ * @returns The value in the set_parameter enum corresponding to the name, or
+ *          MAX_PARAMETER if no parameter matches.
+ */
+set_parameter get_parameter_value(char *name);
 
 #endif /* PARAMETERS_H */
