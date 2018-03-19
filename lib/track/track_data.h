@@ -7,6 +7,7 @@
 
 #include "model.h"
 #include "search_node_queue.h"
+#include "tracks.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
