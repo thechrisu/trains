@@ -3,6 +3,7 @@
 #define CONDUCTOR_STOP_CHECK_INTERVAL 2
 #define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
+#define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 void conductor_setspeed(int train_tx_server, int track_state_controller,
@@ -127,6 +128,15 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
   }
 }
 
+int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) {
+  for (int i = 14; i > 0; i--) {
+    if (path_length_100mm > train_distances[i] * 2.2) {
+      return i;
+    }
+  }
+  return -1;
+}
+
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
                                        int train, int sensor_offset, int goal_offset) {
@@ -144,14 +154,43 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   int s = Time(clock_server);
   bool got_error = false;
 
+  bool had_to_reverse = false;
   get_coordinates(train_coordinates_server, train, &c);
   while (c.loc.sensor == NO_NEXT_SENSOR) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_coordinates(train_coordinates_server, train, &c);
   }
   if (c.loc.sensor == end.sensor) {
-    Delay(clock_server, 200);
+    conductor_reverse_to_speed(train_tx_server, track_state_controller,
+                               clock_server, train, 0);
+    Delay(clock_server, 50);
     get_coordinates(train_coordinates_server, train, &c);
+    had_to_reverse = true;
+#if ROUTING_DEBUG
+    logprintf("Had to reverse!\n\r");
+#endif /* ROUTING_DEBUG */
+  }
+
+#if ROUTING_DEBUG
+  logprintf("We are at: %c%d\n\r",
+            sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor));
+#endif /* ROUTING_DEBUG */
+  get_route(&c.loc, &end, route);
+  int dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
+  int max_feasible_speed = get_max_feasible_speed(
+                              dist_left,
+                              stopping_distance_model.msg.train_distances);
+#if ROUTING_DEBUG
+  logprintf("Max feasible speed: %d, left: %d\n\r", max_feasible_speed, dist_left);
+  logprintf("current: %d, acc: %d\n\r", c.current_speed, c.acceleration);
+#endif /* ROUTING_DEBUG */
+  if (max_feasible_speed != -1
+      && (had_to_reverse || c.current_speed == 0)) {
+#if ROUTING_DEBUG
+    logprintf("Setting speed to %d\n\r", max_feasible_speed);
+#endif /* ROUTING_DEBUG */
+    conductor_setspeed(train_tx_server, track_state_controller,
+                       train, max_feasible_speed);
   }
 
   do {
