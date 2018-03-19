@@ -19,6 +19,7 @@ void attribute_sensor(int train, unsigned int sensor, int current_time) {
 }
 
 /**
+ * If the train is stopped, assume it isn't lost.
  * If the train is moving at speed 1, give it 100 seconds to find itself.
  * Otherwise, give it 42/`speed` seconds (e.g. 21 for speed 2, 3 for speed 14).
  *
