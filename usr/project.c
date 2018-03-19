@@ -388,9 +388,7 @@ void project_first_user_task() {
     if (parse_command(&current_cmd_buf, &current_cmd, c)) {
       if (current_cmd.type != NULL_USER_CMD) {
         cmd_msg.msg.cmd.type = current_cmd.type;
-        cmd_msg.msg.cmd.data[0] = current_cmd.data[0];
-        cmd_msg.msg.cmd.data[1] = current_cmd.data[1];
-        cmd_msg.msg.cmd.data[2] = current_cmd.data[2];
+        tmemcpy(&cmd_msg.msg.cmd.data, &current_cmd.data, sizeof(cmd_msg.msg.cmd.data));
         Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
       }
 
