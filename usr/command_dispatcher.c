@@ -172,6 +172,12 @@ void command_dispatcher_server() {
           }
           case USER_CMD_SET:
             switch (received.msg.cmd.data[0]) {
+              case SET_TRAINS:
+                num_active_trains = received.msg.cmd.data[1];
+                for (int i = 0; i < num_active_trains; i += 1) {
+                  active_trains[i] = received.msg.cmd.data[i + 2];
+                }
+                break;
               case SET_SWITCH_PADDING:
                 switch_padding = received.msg.cmd.data[1];
                 break;
