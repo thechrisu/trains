@@ -2,7 +2,6 @@
 
 #define ABS(x) ((x) > 0 ? (x) : -(x))
 
-#define NO_FIRST_SENSOR_EXPECTED 1234
 #define NOT_ATTRIBUTED           1337
 
 static unsigned int last_sensor[80];
@@ -44,13 +43,6 @@ void sensor_interpreter() {
   for (int i = 0; i < 10; i += 1) {
     current_sensors[i] = 0;
   }
-
-  unsigned int expected_first_sensors[81];
-  for (int i = 0; i < 81; i += 1) {
-    expected_first_sensors[i] = NO_FIRST_SENSOR_EXPECTED;
-  }
-  expected_first_sensors[24] = sensor_offset('A', 5);
-  expected_first_sensors[74] = sensor_offset('A', 8);
 
   int clock_server_tid = WhoIs("ClockServer");
   terminal_tx_server = WhoIs("TerminalTxServer");
@@ -102,7 +94,7 @@ void sensor_interpreter() {
               unsigned int last = last_sensor[train];
 
               if ((last == NO_DATA_RECEIVED &&
-                   sensor == expected_first_sensors[train]) ||
+                   sensor == expected_next_sensors[train]) ||
                   (last != NO_DATA_RECEIVED &&
                    sensor == sensor_next(&track, last, turnouts))) {
                 attribute_sensor(train, sensor, current_time);

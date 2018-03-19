@@ -7,6 +7,8 @@
 
 #include "tstdlib.h"
 
+#define NO_NEXT_SENSOR_EXPECTED 1234
+
 #define PARAMETER_NAME_LENGTH 30
 
 typedef enum set_parameter {
@@ -22,6 +24,9 @@ extern int active_trains[81];
 
 // Number of trains active.
 extern int num_active_trains;
+
+// Expected next sensor for each train.
+unsigned int expected_next_sensors[81];
 
 // Minimum distance in mm that a turnout must be switched before a train drives over it.
 extern int switch_padding;
