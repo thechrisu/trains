@@ -70,7 +70,15 @@ void sensor_interpreter() {
 
         get_leading_edge(current_sensors, received.msg.sensors, leading_edge);
 
-        if (leading_edge == 0) {
+        bool no_new_sensor_hits = true;
+        for (int i = 0; i < 10; i += 1) {
+          if (leading_edge[i] != 0) {
+            no_new_sensor_hits = false;
+            break;
+          }
+        }
+
+        if (no_new_sensor_hits) {
           break;
         }
 
@@ -95,7 +103,8 @@ void sensor_interpreter() {
 
               if ((last == NO_DATA_RECEIVED &&
                    sensor == expected_first_sensors[train]) ||
-                  sensor == sensor_next(&track, last, turnouts)) {
+                  (last != NO_DATA_RECEIVED &&
+                   sensor == sensor_next(&track, last, turnouts))) {
                 attribute_sensor(train, sensor, current_time);
                 sensor_attributed_to = train;
                 break;
@@ -109,7 +118,8 @@ void sensor_interpreter() {
                 unsigned int last = last_sensor[train];
                 int last_time = time_at_last_sensor_hit[train];
 
-                if (sensor_may_be_seen_next(&track, last, sensor)) {
+                if (last != NO_DATA_RECEIVED &&
+                    sensor_may_be_seen_next(&track, last, sensor)) {
                   if (sensor_is_followed_by(&track, last, sensor) &&
                       last_time - data->time_speed_last_changed >
                       40 * ABS(data->should_speed - data->last_speed)) {
