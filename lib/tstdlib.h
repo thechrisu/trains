@@ -63,6 +63,12 @@ void ui2a(unsigned int num, unsigned int base, char *bf);
  */
 void i2a(int num, char *bf);
 
+/**
+ * @param   number A number.
+ * @returns The reciprocal of the square root of the number.
+ */
+float tinvsqrt(float number);
+
 #ifdef TESTING
 #else
 
