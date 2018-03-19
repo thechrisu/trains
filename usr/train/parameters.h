@@ -10,6 +10,7 @@
 #define PARAMETER_NAME_LENGTH 30
 
 typedef enum set_parameter {
+  MIN_PARAMETER,
   SET_TRAINS,
   SET_SWITCH_PADDING,
   SET_TRACK,
@@ -35,5 +36,12 @@ void init_parameters();
  * @returns A pointer to a string containing the name of the parameter.
  */
 char *get_parameter_name(set_parameter index);
+
+/**
+ * @param   name The name of a parameter.
+ * @returns The value in the set_parameter enum corresponding to the name, or
+ *          MAX_PARAMETER if no parameter matches.
+ */
+set_parameter get_parameter_value(char *name);
 
 #endif /* PARAMETERS_H */

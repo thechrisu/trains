@@ -220,22 +220,9 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
 
       param_name[param_name_index] = '\0';
 
-      set_parameter param = MAX_PARAMETER;
-      int num_params_to_test = 3;
-      set_parameter params_to_test[num_params_to_test];
-      params_to_test[0] = SET_TRAINS;
-      params_to_test[1] = SET_TRACK;
-      params_to_test[2] = SET_SWITCH_PADDING;
-
-      for (int i = 0; i < num_params_to_test; i += 1) {
-        set_parameter param_to_test = params_to_test[i];
-        if (tstrcmp(param_name, get_parameter_name(param_to_test))) {
-          param = param_to_test;
-          break;
-        }
-      }
-
       buffer_index += 1; // Index of first digit of number after parameter name
+
+      set_parameter param = get_parameter_value(param_name);
 
       if (param == SET_TRAINS) {
         for (int i = 0; buffer_index < ibuf->elems && i < 8; i += 1) {

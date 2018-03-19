@@ -26,3 +26,13 @@ void init_parameters() {
 char *get_parameter_name(set_parameter index) {
   return parameter_names[index];
 }
+
+set_parameter get_parameter_value(char *name) {
+  for (set_parameter i = MIN_PARAMETER; i < MAX_PARAMETER; i += 1) {
+    if (tstrcmp(name, get_parameter_name(i))) {
+      return i;
+    }
+  }
+
+  return MAX_PARAMETER;
+}
