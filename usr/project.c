@@ -62,18 +62,18 @@ void user_command_print(int server_tid, user_command *cmd) {
                       CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
                       get_parameter_name(cmd->data[0])) == 0);
 
-        int offset = 4 + tstrlen(get_parameter_name(cmd->data[0])) + 1;
+        int offset = 1 + 4 + tstrlen(get_parameter_name(cmd->data[0])) + 1;
 
         for (int i = 0; i < cmd->data[1]; i += 1) {
           int train_num = cmd->data[i + 2];
-          Assert(Printf(server_tid, "%s%d ",
-                        CURSOR_ROW_COL(CMD_LINE, offset), train_num) == 0);
+          Assert(Printf(server_tid, "\033[%d;%dH%d ",
+                        CMD_LINE, offset, train_num) == 0);
 
           offset += (train_num < 10 ? 1 : 2) + 1;
         }
 
-        Assert(Printf(server_tid, "%s%s%s",
-                      CURSOR_ROW_COL(CMD_LINE, offset),
+        Assert(Printf(server_tid, "\033[%d;%dH%s%s",
+                      CMD_LINE, offset,
                       HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       } else {
         Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
@@ -236,13 +236,16 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       buffer_index += 1; // Index of first digit of number after parameter name
 
       if (param == SET_TRAINS) {
-        for (int i = 0; buffer_index < ibuf->elems && buffer_index < 8; i += 1) {
-          buffer_index = is_valid_number(ibuf, buffer_index);
-          if ((int)buffer_index >= 0) {
+        for (int i = 0; buffer_index < ibuf->elems && i < 8; i += 1) {
+          int n = is_valid_number(ibuf, buffer_index);
+          if (n >= 0) {
             cmd->type = USER_CMD_SET;
             cmd->data[0] = SET_TRAINS;
             cmd->data[1] = i + 1;
             cmd->data[i + 2] = parse_number(ibuf, buffer_index);
+            buffer_index = (unsigned int)n;
+          } else {
+            break;
           }
         }
       } else if (param != MAX_PARAMETER) {
