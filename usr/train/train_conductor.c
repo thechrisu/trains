@@ -7,7 +7,7 @@
  * get_max_feasible_speed artificially increases the stopping distance by
  * this amount.
  */
-#define CAUTION_FACTOR 0.0
+#define CAUTION_FACTOR -0.1
 
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -240,8 +240,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
       int dist_left = get_remaining_dist_in_route(route, &c.loc);
 
-      // TODO calculate stopping distance based on velocity
-      int stopping_distance = (int)stopping_distance_model.msg.train_distances[c.current_speed];
+      int stopping_distance = (int)stopping_dist_from_velocity(c.velocity);
+      logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 
       if (loops % 10 == 0) {
         switch_turnouts_within_distance(clock_server, train_tx_server,

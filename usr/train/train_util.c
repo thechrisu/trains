@@ -124,6 +124,12 @@ float get_fudged_stopping_distance_factor(int train) {
     );
 }
 
+int stopping_dist_from_velocity(int velocity) {
+  return velocity * velocity * velocity * 7.70205859 * 0.0000000001
+          - velocity * velocity * 1.70680727 * 0.00001 + velocity * 0.420590057
+          - 1025.15505;
+}
+
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
   return 0.5 + (1 / get_fudged_stopping_distance_factor(train)) * (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left * 0.5;
 }

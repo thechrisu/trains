@@ -178,6 +178,13 @@ void command_dispatcher_server() {
               case SET_SWITCH_PADDING:
                 switch_padding = received.msg.cmd.data[1];
                 break;
+              case SET_TRACK:
+                if (received.msg.cmd.data[1] == 0) {
+                  track.track = track.tracka;
+                } else {
+                  track.track = track.trackb;
+                }
+                break;
               default:
                 Assert(0);
                 break;

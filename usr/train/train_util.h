@@ -92,6 +92,13 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                                      int distance);
 
 /**
+ * Estimates the stopping distance from a stopping distance model.
+ * @param velocity in 1/100mm / s
+ * @return stopping distance (1/100 mm)
+ */
+int stopping_dist_from_velocity(int velocity);
+
+/**
  * When stopping, get the remaining distance (1/100mm) until we have stopped.
  *
  * @param speed                     Speed of the train (0-14).

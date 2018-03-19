@@ -7,6 +7,7 @@
 
 #include "model.h"
 #include "search_node_queue.h"
+#include "tracks.h"
 #include "track_node.h"
 #include "tstdlib.h"
 
@@ -180,5 +181,15 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
  */
 unsigned int sensor_next(track_state *t, unsigned int start,
                          turnout_state turnout_states[NUM_TURNOUTS]);
+
+/**
+ * @param   t        A track state.
+ * @param   turnouts A turnout state.
+ * @param   sensor   A sensor.
+ * @param   loc      A location.
+ * @returns The distance from the sensor to the location.
+ */
+int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
+                  unsigned int sensor, location *loc);
 
 #endif /* TRACK_DATA_H */

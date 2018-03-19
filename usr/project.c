@@ -201,6 +201,8 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       set_parameter param = MAX_PARAMETER;
       if (tstrcmp(param_name, "t1train")) {
         param = SET_T1TRAIN;
+      } else if (tstrcmp(param_name, "track")) {
+        param = SET_TRACK;
       } else if (tstrcmp(param_name, "switch_padding")) {
         param = SET_SWITCH_PADDING;
       }

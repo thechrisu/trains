@@ -12,6 +12,7 @@
 typedef enum set_parameter {
   SET_T1TRAIN,
   SET_SWITCH_PADDING,
+  SET_TRACK,
   MAX_PARAMETER,
 } set_parameter;
 
