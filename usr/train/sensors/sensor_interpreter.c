@@ -2,6 +2,9 @@
 
 #define ABS(x) ((x) > 0 ? (x) : -(x))
 
+#define NO_FIRST_SENSOR_EXPECTED 1234
+#define NOT_ATTRIBUTED           1337
+
 static unsigned int last_sensor[80];
 static int time_at_last_sensor_hit[80];
 static int terminal_tx_server;
@@ -44,7 +47,7 @@ void sensor_interpreter() {
 
   unsigned int expected_first_sensors[81];
   for (int i = 0; i < 81; i += 1) {
-    expected_first_sensors[i] = 1337;
+    expected_first_sensors[i] = NO_FIRST_SENSOR_EXPECTED;
   }
   expected_first_sensors[24] = sensor_offset('A', 5);
   expected_first_sensors[74] = sensor_offset('A', 8);
@@ -82,7 +85,7 @@ void sensor_interpreter() {
         turnout_state turnouts[NUM_TURNOUTS];
         get_turnouts(track_state_controller_tid, turnouts);
 
-        int sensor_attributed_to = 1337;
+        int sensor_attributed_to = NOT_ATTRIBUTED;
 
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
@@ -99,7 +102,7 @@ void sensor_interpreter() {
               }
             }
 
-            if (sensor_attributed_to == 1337) {
+            if (sensor_attributed_to == NOT_ATTRIBUTED) {
               for (int i = 0; i < num_active_trains; i += 1) {
                 int train = active_trains[i];
                 train_data *data = &tr_data[train];
@@ -138,7 +141,7 @@ void sensor_interpreter() {
               }
             }
 
-            if (sensor_attributed_to == 1337) {
+            if (sensor_attributed_to == NOT_ATTRIBUTED) {
               for (int i = 0; i < num_active_trains; i += 1) {
                 int train = active_trains[i];
                 int last_time = time_at_last_sensor_hit[train];
@@ -152,7 +155,7 @@ void sensor_interpreter() {
             }
           }
 
-        if (sensor_attributed_to != 1337) {
+        if (sensor_attributed_to != NOT_ATTRIBUTED) {
           message send;
           send.type = MESSAGE_UPDATE_COORDS_SENSOR;
           send.msg.update_coords.tr_data.train = sensor_attributed_to;
