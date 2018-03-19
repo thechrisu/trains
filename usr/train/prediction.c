@@ -30,24 +30,25 @@ void predict_sensor_hit(int train_coordinates_server_tid,
   prediction->loc.sensor = next_sensor;
   prediction->loc.offset = 0;
 
-  if (current.velocity == 0 || next_sensor == NO_NEXT_SENSOR) {
-    prediction->ticks = INFINITE_TICKS;
-  } else {
-    int dist_to_next_sensor = 100 * distance_between_sensors(&track,
-                                                             current.loc.sensor,
-                                                             next_sensor) - current.loc.offset;
-    long long velocity_diff = current.velocity - current.target_velocity;
-    long long ticks_to_next_sensor;
+  int dist_to_next_sensor = 100 * distance_between_sensors(&track,
+                                                           current.loc.sensor,
+                                                           next_sensor) - current.loc.offset;
 
-    if (current.acceleration == 0) {
-      ticks_to_next_sensor = 100 * dist_to_next_sensor / current.velocity;
+  if (current.target_velocity == 0) {
+    int max_distance_before_stop = current.velocity / (2 * current.acceleration);
+
+    if (max_distance_before_stop < dist_to_next_sensor) {
+      prediction->ticks = INFINITE_TICKS;
     } else {
-      long long numerator = 2 * current.acceleration * dist_to_next_sensor +
-                            velocity_diff * velocity_diff;
-      ticks_to_next_sensor = 100 * numerator /
-                             (2 * current.acceleration * current.velocity);
+      prediction->ticks = current.ticks + (2 * dist_to_next_sensor) /
+                                          (current.velocity + current.target_velocity);
     }
-
+  } else {
+    long long velocity_diff = current.velocity - current.target_velocity;
+    long long ticks_to_next_sensor = dist_to_next_sensor / current.target_velocity +
+                                     (velocity_diff * velocity_diff) /
+                                     (2 * current.acceleration * current.target_velocity);
     prediction->ticks = current.ticks + (int)ticks_to_next_sensor;
   }
+
 }
