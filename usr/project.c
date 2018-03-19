@@ -66,7 +66,7 @@ void user_command_print(int server_tid, user_command *cmd) {
 
         for (int i = 0; i < cmd->data[1]; i += 1) {
           int train_num = cmd->data[i + 2];
-          Assert(Printf(server_tid, "\033[%d;%d%sH%d %s",
+          Assert(Printf(server_tid, "\033[%d;%dH%s%d %s",
                         CMD_LINE, offset, GREEN_TEXT,
                         train_num, RESET_TEXT) == 0);
 
@@ -406,7 +406,7 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  for (int i = 0; i < num_active_trains; i +=1) {
+  for (int i = 0; i < num_active_trains; i += 1) {
     log_calibration_data(active_trains[i]);
   }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
