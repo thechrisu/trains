@@ -20,6 +20,7 @@ void init_parameters() {
 
   tmemcpy(parameter_names[SET_TRAINS], "trains", sizeof("trains"));
   tmemcpy(parameter_names[SET_SWITCH_PADDING], "switch_padding", sizeof("switch_padding"));
+  tmemcpy(parameter_names[SET_TRACK], "track", sizeof("track"));
 }
 
 char *get_parameter_name(set_parameter index) {
