@@ -111,7 +111,7 @@ void train_location_view() {
       print_next_sensor_prediction(terminal_tx_server_tid,
                                    current_prediction.loc.sensor,
                                    current_prediction.ticks);
-    } else if (seen_sensor.sensor != NO_DATA_RECEIVED && loops % 3 == 0) {
+    } else if (seen_sensor.sensor != NO_DATA_RECEIVED) {
       get_turnouts(track_state_controller_tid, turnout_states);
       coordinates tentative_prediction;
       predict_sensor_hit(train_coordinates_server_tid,
