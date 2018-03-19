@@ -172,9 +172,6 @@ void command_dispatcher_server() {
           }
           case USER_CMD_SET:
             switch (received.msg.cmd.data[0]) {
-              case SET_T1TRAIN:
-                t1train = received.msg.cmd.data[1];
-                break;
               case SET_SWITCH_PADDING:
                 switch_padding = received.msg.cmd.data[1];
                 break;

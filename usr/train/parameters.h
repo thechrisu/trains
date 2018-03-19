@@ -10,13 +10,16 @@
 #define PARAMETER_NAME_LENGTH 30
 
 typedef enum set_parameter {
-  SET_T1TRAIN,
+  SET_TRAINS,
   SET_SWITCH_PADDING,
   MAX_PARAMETER,
 } set_parameter;
 
-// Train to attribute sensors to in T1.
-extern int t1train;
+// Trains that are active.
+extern int active_trains[81];
+
+// Number of trains active.
+extern int num_active_trains;
 
 // Minimum distance in mm that a turnout must be switched before a train drives over it.
 extern int switch_padding;

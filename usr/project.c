@@ -199,14 +199,31 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       param_name[param_name_index] = '\0';
 
       set_parameter param = MAX_PARAMETER;
-      if (tstrcmp(param_name, "t1train")) {
-        param = SET_T1TRAIN;
-      } else if (tstrcmp(param_name, "switch_padding")) {
-        param = SET_SWITCH_PADDING;
+      int num_params_to_test = 2;
+      set_parameter params_to_test[num_params_to_test];
+      params_to_test[0] = SET_TRAINS;
+      params_to_test[1] = SET_SWITCH_PADDING;
+
+      for (int i = 0; i < num_params_to_test; i += 1) {
+        set_parameter param_to_test = params_to_test[i];
+        if (tstrcmp(param_name, get_parameter_name(param_to_test))) {
+          param = param_to_test;
+          break;
+        }
       }
 
-      if (param != MAX_PARAMETER) {
-        buffer_index += 1; // Index of first digit of number after parameter name
+      buffer_index += 1; // Index of first digit of number after parameter name
+
+      if (param == SET_TRAINS) {
+        for (int i = 0; buffer_index < ibuf->elems; i += 1) {
+          buffer_index = is_valid_number(ibuf, buffer_index);
+          if (buffer_index >= 0) {
+            cmd->type = USER_CMD_SET;
+            cmd->data[0] = SET_TRAINS;
+            cmd->data[i + 1] = parse_number(ibuf, buffer_index);
+          }
+        }
+      } else if (param != MAX_PARAMETER) {
         if (buffer_index < ibuf->elems) {
           int n = is_valid_number(ibuf, buffer_index);
           if (n >= 0 && ibuf->elems >= (unsigned int)n) {
@@ -365,7 +382,9 @@ void project_first_user_task() {
       print_cmd_char(c, current_cmd_buf.in, terminal_tx_server);
     }
   }
-  log_calibration_data(t1train);
+  for (int i = 0; i < num_active_trains; i +=1) {
+    log_calibration_data(active_trains[i]);
+  }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();
   Assert(Kill(WhoIs("CommandDispatcher")) == 0);
