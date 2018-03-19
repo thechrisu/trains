@@ -236,12 +236,13 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       buffer_index += 1; // Index of first digit of number after parameter name
 
       if (param == SET_TRAINS) {
-        for (int i = 0; buffer_index < ibuf->elems; i += 1) {
+        for (int i = 0; buffer_index < ibuf->elems && buffer_index < 8; i += 1) {
           buffer_index = is_valid_number(ibuf, buffer_index);
-          if (buffer_index >= 0) {
+          if ((int)buffer_index >= 0) {
             cmd->type = USER_CMD_SET;
             cmd->data[0] = SET_TRAINS;
-            cmd->data[i + 1] = parse_number(ibuf, buffer_index);
+            cmd->data[1] = i + 1;
+            cmd->data[i + 2] = parse_number(ibuf, buffer_index);
           }
         }
       } else if (param != MAX_PARAMETER) {
