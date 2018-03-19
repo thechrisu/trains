@@ -149,17 +149,17 @@ void sensor_interpreter() {
                 break;
               }
             }
-          }
 
-          if (sensor_attributed_to == NOT_ATTRIBUTED) {
-            for (int i = 0; i < num_active_trains; i += 1) {
-              int train = active_trains[i];
-              int last_time = time_at_last_sensor_hit[train];
+            if (sensor_attributed_to == NOT_ATTRIBUTED) {
+              for (int i = 0; i < num_active_trains; i += 1) {
+                int train = active_trains[i];
+                int last_time = time_at_last_sensor_hit[train];
 
-              if (train_is_lost(tr_data[train].should_speed, current_time - last_time)) {
-                attribute_sensor(train, sensor, current_time);
-                sensor_attributed_to = train;
-                break;
+                if (train_is_lost(tr_data[train].should_speed, current_time - last_time)) {
+                  attribute_sensor(train, sensor, current_time);
+                  sensor_attributed_to = train;
+                  break;
+                }
               }
             }
           }
