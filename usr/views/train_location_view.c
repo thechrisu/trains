@@ -5,22 +5,39 @@
 #define MAX_TRAINS 3
 
 #define LINE_CLEARED  1357
-#define TRAIN_COL     1
-#define NEXT_COL      9
-#define TIME_COL      16
-#define TIME_DIFF_COL 26
-#define DIST_DIFF_COL 37
+
+#define TRAIN_COL     0
+#define NEXT_COL      1
+#define TIME_COL      2
+#define TIME_DIFF_COL 3
+#define DIST_DIFF_COL 4
+
+static int columns[] = { 1, 9, 16, 26, 37 };
+static int column_widths[] = { 5, 4, 7, 8, 9 };
+
+void clear_column(int terminal_tx_server_tid, int line, int column) {
+  char output_buffer[50];
+
+  char start_string[] = "\033[%d,%dH";
+  int start_string_length = tstrlen(start_string);
+  tmemcpy(output_buffer, start_string, start_string_length * sizeof(char));
+
+  for (int i = 0; i < column_widths[column]; i += 1) {
+    output_buffer[start_string_length + i] = ' ';
+  }
+
+  output_buffer[start_string_length + column_widths[column]] = '\0';
+
+  Assert(Printf(terminal_tx_server_tid, output_buffer,
+                TRAIN_LOCATION_LINE + 2 + line, columns[column]) == 0);
+}
 
 void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
                                   unsigned int next_sensor,
                                   int expected_ticks_next_sensor_hit) {
   if (next_sensor == NO_NEXT_SENSOR) {
-    Assert(Printf(terminal_tx_server_tid,
-                  "\033[%d;%dH     ",
-                  TRAIN_LOCATION_LINE + 2 + line, NEXT_COL) == 0);
-    Assert(Printf(terminal_tx_server_tid,
-                  "\033[%d;%dH       ",
-                  TRAIN_LOCATION_LINE + 2 + line, TIME_COL) == 0);
+    clear_column(terminal_tx_server_tid, line, NEXT_COL);
+    clear_column(terminal_tx_server_tid, line, TIME_COL);
   } else {
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH %s%c%d",
@@ -29,9 +46,7 @@ void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
                   sensor_bank(next_sensor), sensor_index(next_sensor)) == 0);
 
     if (expected_ticks_next_sensor_hit == INFINITE_TICKS) {
-      Assert(Printf(terminal_tx_server_tid,
-                    "\033[%d;%dH       ",
-                    TRAIN_LOCATION_LINE + 2 + line, TIME_COL) == 0);
+      clear_column(terminal_tx_server_tid, line, TIME_COL);
     } else {
       uint32_t minutes = expected_ticks_next_sensor_hit / 100 / 60;
       uint32_t seconds = (expected_ticks_next_sensor_hit / 100) % 60;
@@ -53,10 +68,8 @@ void print_diffs(int terminal_tx_server_tid, int line,
   if (expected_last_sensor == NO_NEXT_SENSOR ||
       expected_last_sensor != last_sensor ||
       expected_ticks_last_sensor_hit == INFINITE_TICKS) {
-    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH        ",
-                  TRAIN_LOCATION_LINE + 2 + line, TIME_DIFF_COL) == 0);
-    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH         ",
-                  TRAIN_LOCATION_LINE + 2 + line, DIST_DIFF_COL) == 0);
+    clear_column(terminal_tx_server_tid, line, TIME_DIFF_COL);
+    clear_column(terminal_tx_server_tid, line, DIST_DIFF_COL);
   } else {
     int ticks_diff = ticks_last_sensor_hit - expected_ticks_last_sensor_hit;
     int seconds = ABS(ticks_diff) / 100;
@@ -83,9 +96,11 @@ void print_diffs(int terminal_tx_server_tid, int line,
 }
 
 void clear_line(int terminal_tx_server_tid, int line) {
-  Assert(Printf(terminal_tx_server_tid,
-                "\033[%d;%dH      |      |         |          |          %s",
-                TRAIN_LOCATION_LINE + 2 + line, 1, HIDE_CURSOR_TO_EOL) == 0);
+  clear_column(terminal_tx_server_tid, line, TRAIN_COL);
+  clear_column(terminal_tx_server_tid, line, NEXT_COL);
+  clear_column(terminal_tx_server_tid, line, TIME_COL);
+  clear_column(terminal_tx_server_tid, line, TIME_DIFF_COL);
+  clear_column(terminal_tx_server_tid, line, DIST_DIFF_COL);
 }
 
 void train_location_view() {
