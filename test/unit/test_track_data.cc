@@ -102,6 +102,8 @@ TEST(TrackDataTest, test_sensor_may_be_seen_next) {
   EXPECT_FALSE(sensor_may_be_seen_next(&t, sensor_offset('B', 9), sensor_offset('A', 10)));
   EXPECT_FALSE(sensor_may_be_seen_next(&t, sensor_offset('B', 9), sensor_offset('A', 11)));
 
+  EXPECT_TRUE(sensor_may_be_seen_next(&t, sensor_offset('C', 7), sensor_offset('C', 6)));
+
   // A sensor shouldn't be triggered twice in a row
   EXPECT_FALSE(sensor_may_be_seen_next(&t, sensor_offset('A', 1), sensor_offset('A', 1)));
 

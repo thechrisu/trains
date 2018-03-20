@@ -2,21 +2,26 @@
 
 #define ABS(x) ((x) > 0 ? (x) : -(x))
 
+#define TICKS_TO_CHANGE_ONE_SPEED 40
+
+#define NOT_ATTRIBUTED            1337
+
 static unsigned int last_sensor[80];
 static int time_at_last_sensor_hit[80];
 static int terminal_tx_server;
 
-void attribute_sensor(unsigned int sensor, int current_time) {
-  last_sensor[active_trains[0]] = sensor;
-  time_at_last_sensor_hit[active_trains[0]] = current_time;
+void attribute_sensor(int train, unsigned int sensor, int current_time) {
+  last_sensor[train] = sensor;
+  time_at_last_sensor_hit[train] = current_time;
 
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%c%d%s",
                 ESC, CALIB_LINE, 1,
-                "Train ", active_trains[0], " just hit sensor ", sensor_bank(sensor), sensor_index(sensor),
+                "Train ", train, " just hit sensor ", sensor_bank(sensor), sensor_index(sensor),
                 HIDE_CURSOR_TO_EOL) == 0);
 }
 
 /**
+ * If the train is stopped, assume it isn't lost.
  * If the train is moving at speed 1, give it 100 seconds to find itself.
  * Otherwise, give it 42/`speed` seconds (e.g. 21 for speed 2, 3 for speed 14).
  *
@@ -25,7 +30,7 @@ void attribute_sensor(unsigned int sensor, int current_time) {
  * @returns Whether or not to give the train more time to cross an attributable sensor.
  **/
 bool train_is_lost(int speed, int time_difference) {
-  return speed == 0 || time_difference > (speed == 1 ? 100 * 100 : 42 * 100 / speed);
+  return speed != 0 && time_difference > (speed == 1 ? 100 * 100 : 42 * 100 / speed);
 }
 
 void sensor_interpreter() {
@@ -56,67 +61,117 @@ void sensor_interpreter() {
 
     switch (received.type) {
       case MESSAGE_SENSORSRECEIVED: {
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+
         get_leading_edge(current_sensors, received.msg.sensors, leading_edge);
+
+        if (!any_sensor_is_triggered(leading_edge)) {
+          break;
+        }
 
         int current_time = Time(clock_server_tid);
 
-        message send, reply;
-        send.type = MESSAGE_GETTRAIN;
-        send.msg.tr_data.train = active_trains[0];
-        Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
+        train_data tr_data[81];
+        for (int i = 0; i < num_active_trains; i += 1) {
+          int train = active_trains[i];
+          get_train(track_state_controller_tid, train, &tr_data[train]);
+        }
 
-        int current_speed = reply.msg.tr_data.should_speed;
-        int last_speed = reply.msg.tr_data.last_speed;
-        int last_time = time_at_last_sensor_hit[active_trains[0]];
-        int time_speed_last_changed = reply.msg.tr_data.time_speed_last_changed;
+        turnout_state turnouts[NUM_TURNOUTS];
+        get_turnouts(track_state_controller_tid, turnouts);
 
-        bool sensor_attributed = false;
+        int sensor_attributed_to = NOT_ATTRIBUTED;
 
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
-            unsigned int last = last_sensor[active_trains[0]];
+            for (int i = 0; i < num_active_trains; i += 1) {
+              int train = active_trains[i];
+              unsigned int last = last_sensor[train];
 
-            if (last == NO_DATA_RECEIVED) {
-              attribute_sensor(sensor, current_time);
-              sensor_attributed = true;
-            } else if (sensor_may_be_seen_next(&track, last, sensor)) {
-              if (sensor_is_followed_by(&track, last, sensor)) {
-                if (last_time - time_speed_last_changed > 40 * ABS(current_speed - last_speed)) {
-                  int time_elapsed = current_time - last_time;
+              if (last == NO_DATA_RECEIVED &&
+                  sensor == expected_next_sensors[train]) {
+                attribute_sensor(train, sensor, current_time);
+                sensor_attributed_to = train;
+                break;
+              }
+            }
 
-                  update_constant_velocity_model(track_state_controller_tid, active_trains[0], current_speed, last, sensor, time_elapsed);
+            if (sensor_attributed_to == NOT_ATTRIBUTED) {
+              for (int i = 0; i < num_active_trains; i += 1) {
+                int train = active_trains[i];
+                train_data *data = &tr_data[train];
+                unsigned int last = last_sensor[train];
+                int last_time = time_at_last_sensor_hit[train];
 
-                  char start_bank = sensor_bank(last);
-                  unsigned int start_index = sensor_index(last);
-                  char end_bank = sensor_bank(sensor);
-                  unsigned int end_index = sensor_index(sensor);
+                if (last != NO_DATA_RECEIVED &&
+                    sensor_is_followed_by(&track, last, sensor)) {
+                  int time_diff = last_time - data->time_speed_last_changed;
+                  int ticks_to_change_speed = TICKS_TO_CHANGE_ONE_SPEED *
+                                              ABS(data->should_speed - data->last_speed);
 
-                  Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%c%d%s%c%d%s%d%s",
-                                ESC, CALIB_LINE + 1, 1,
-                                "Train ", active_trains[0], " took ", time_elapsed, " ticks to go between sensors ",
-                                start_bank, start_index, " and ", end_bank, end_index, " at speed ", current_speed,
-                                HIDE_CURSOR_TO_EOL) == 0);
+                  if (time_diff > ticks_to_change_speed) {
+                    int time_elapsed = current_time - last_time;
 
+                    update_constant_velocity_model(track_state_controller_tid,
+                                                   train, data->should_speed,
+                                                   last, sensor,
+                                                   time_elapsed);
+
+                    Assert(Printf(terminal_tx_server,
+                                  "%s%d;%dH%s%d%s%d%s%c%d%s%c%d%s%d%s",
+                                  ESC, CALIB_LINE + 1, 1,
+                                  "Train ", train,
+                                  " took ", time_elapsed,
+                                  " ticks to go between sensors ",
+                                  sensor_bank(last), sensor_index(last),
+                                  " and ",
+                                  sensor_bank(sensor), sensor_index(sensor),
+                                  " at speed ", data->should_speed,
+                                  HIDE_CURSOR_TO_EOL) == 0);
+                  }
+
+                  attribute_sensor(train, sensor, current_time);
+                  sensor_attributed_to = train;
+                  break;
                 }
               }
+            }
 
-              attribute_sensor(sensor, current_time);
-              sensor_attributed = true;
-            } else if (train_is_lost(current_speed, current_time - last_time)) {
-              attribute_sensor(sensor, current_time);
-              sensor_attributed = true;
+            if (sensor_attributed_to == NOT_ATTRIBUTED) {
+              for (int i = 0; i < num_active_trains; i += 1) {
+                int train = active_trains[i];
+                unsigned int last = last_sensor[train];
+
+                if (last != NO_DATA_RECEIVED &&
+                    sensor_may_be_seen_next(&track, last, sensor)) {
+                  attribute_sensor(train, sensor, current_time);
+                  sensor_attributed_to = train;
+                  break;
+                }
+              }
+            }
+
+            if (sensor_attributed_to == NOT_ATTRIBUTED) {
+              for (int i = 0; i < num_active_trains; i += 1) {
+                int train = active_trains[i];
+                int last_time = time_at_last_sensor_hit[train];
+
+                if (train_is_lost(tr_data[train].should_speed, current_time - last_time)) {
+                  attribute_sensor(train, sensor, current_time);
+                  sensor_attributed_to = train;
+                  break;
+                }
+              }
             }
           }
         }
 
-        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
-
-        if (sensor_attributed) {
+        if (sensor_attributed_to != NOT_ATTRIBUTED) {
           message send;
           send.type = MESSAGE_UPDATE_COORDS_SENSOR;
-          send.msg.update_coords.tr_data.train = active_trains[0];
-          send.msg.update_coords.last_sensor.sensor = last_sensor[active_trains[0]];
-          send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[active_trains[0]];
+          send.msg.update_coords.tr_data.train = sensor_attributed_to;
+          send.msg.update_coords.last_sensor.sensor = last_sensor[sensor_attributed_to];
+          send.msg.update_coords.last_sensor.ticks = time_at_last_sensor_hit[sensor_attributed_to];
           Assert(Send(train_coordinates_server,
                       &send, sizeof(send),
                       EMPTY_MESSAGE, 0) == 0);

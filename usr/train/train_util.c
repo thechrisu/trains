@@ -11,6 +11,16 @@ bool is_sensor_triggered(int16_t sensors[10], unsigned int offset) {
   return sensors[sensor_data_element(offset)] & sensor_data_mask(offset);
 }
 
+bool any_sensor_is_triggered(int16_t sensors[10]) {
+  for (int i = 0; i < 10; i += 1) {
+    if (sensors[i] != 0) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 int poll_until_sensor_triggered_with_timeout(int clock_server_tid,
                                              int track_state_controller_tid,
                                              unsigned int offset,
