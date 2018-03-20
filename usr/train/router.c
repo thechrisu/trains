@@ -1,7 +1,5 @@
 #include "router.h"
 
-#define INFINITE_DISTANCE 1E8
-
 void update_search_node(search_node_queue *q, search_node *current, int direction) {
   track_edge *edge_in_direction = &current->node->edge[direction];
   search_node *node_in_direction = search_node_queue_find_by_node(q, edge_in_direction->dest);

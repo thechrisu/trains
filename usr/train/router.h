@@ -11,6 +11,8 @@
 #include "train_util.h"
 #include "tstdlib.h"
 
+#define INFINITE_DISTANCE 1E8
+
 /**
  * Task that plans routes between different points on the track.
  */

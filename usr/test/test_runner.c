@@ -312,6 +312,11 @@ void test_runner() {
       .prio = 5
     },
     {
+      .name = "route_execution",
+      .code = &test_route_execution_helpers,
+      .prio = 5
+    },
+    {
       .name = "router_complete",
       .code = &test_router_complete,
       .prio = 5
