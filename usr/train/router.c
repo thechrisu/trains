@@ -14,6 +14,17 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
   }
 }
 
+void update_node_reverse(search_node_queue *q, search_node *current) {
+  track_node *other_direction = current->node->reverse;
+  search_node *node_in_other_direction = search_node_queue_find_by_node(q, other_direction);
+  if (node_in_other_direction != NULL_SEARCH_NODE) {
+    if (current->distance < node_in_other_direction->distance) {
+      node_in_other_direction->distance = current->distance;
+      node_in_other_direction->prev = current;
+    }
+  }
+}
+
 bool plan_route(track_state *t, location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]) {
   track_node *start_node = find_sensor(t, start->sensor);
   track_node *end_node = find_sensor(t, end->sensor);
@@ -53,6 +64,18 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
         break;
       default:
         logprintf("Unknown node type %d in plan_route\n\r", t_node->type);
+        break;
+    }
+    switch (t_node->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+      case NODE_ENTER:
+      case NODE_BRANCH:
+      case NODE_EXIT:
+        update_node_reverse(&q, current);
+        break;
+      default:
+        logprintf("Unknown node type %d in plan_route(2)\n\r", t_node->type);
         break;
     }
 
