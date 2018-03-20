@@ -181,7 +181,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   if (c.loc.sensor == end.sensor) {
     conductor_reverse_to_speed(train_tx_server, track_state_controller,
                                clock_server, train, 0);
-    Delay(clock_server, 50);
     get_coordinates(train_coordinates_server, train, &c);
     had_to_reverse = true;
 #if ROUTING_DEBUG
