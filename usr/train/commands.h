@@ -170,4 +170,41 @@ void get_last_sensor_hit(int sensor_interpreter_tid, int train, reply_get_last_s
  */
 void get_coordinates(int train_coordinates_server, int train, coordinates *c);
 
+/**
+ * Reserves a track edge for a train.
+ *
+ * @param   track_reservation_server Task ID of the track reservation server.
+ * @param   train                    Train to reserve the edge for.
+ * @param   start                    Start of the edge.
+ * @param   end                      End of the edge.
+ * @returns 0 on success.
+ *          -1 if `start` and `end` don't form an edge.
+ *          -2 if the edge is already reserved by a train.
+ */
+int reservation_make(int track_reservation_server, int train,
+                     track_node *start, track_node *end);
+
+/**
+ * Drops a train's reservation of a track edge.
+ *
+ * @param   track_reservation_server Task ID of the track reservation server.
+ * @param   train                    Train to drop the reservation for.
+ * @param   start                    Start of the edge.
+ * @param   end                      End of the edge.
+ * @returns 0 on success.
+ *          -1 if `start` and `end` don't form an edge.
+ *          -2 if the given train doesn't have the edge reserved (_i.e._ another
+ *          train reserved it or it isn't reserved at all).
+ */
+int reservation_drop(int track_reservation_server, int train,
+                     track_node *start, track_node *end);
+
+/**
+ * Drops all of a train's track edge reservations.
+ *
+ * @param track_reservation_server Task ID of the track reservation server.
+ * @param train                    Train to drop all reservations for.
+ */
+void reservation_drop_all(int track_reservation_server, int train);
+
 #endif /* TRAIN_COMMANDS_H */
