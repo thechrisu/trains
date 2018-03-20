@@ -22,8 +22,18 @@ int handle_reservation_request(message_reservation_request *req,
     int start_index = node_index_in_track_state(&track, start);
     int end_index = node_index_in_track_state(&track, end);
 
+    int reverse_start_index = node_index_in_track_state(&track, end->reverse);
+    int reverse_end_index = node_index_in_track_state(&track, start->reverse);
+
     if (reserved_by[start_index][end_index] == check_for_reservation_by) {
+      if (reserved_by[reverse_start_index][reverse_end_index] != check_for_reservation_by) {
+        logprintf("Edge from %s to %s was owned by %d, but reverse from %s to %s was not",
+                  start->name, end->name, reserve_for,
+                  start->reverse->name, end->reverse->name);
+      }
+
       reserved_by[start_index][end_index] = reserve_for;
+      reserved_by[reverse_start_index][reverse_end_index] = reserve_for;
       return RESPONSE_OK;
     } else {
       return reservation_error_response;
