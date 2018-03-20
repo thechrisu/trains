@@ -134,14 +134,14 @@ int stopping_dist_from_velocity(int velocity, uint32_t velocity_model[15],
   } else {
     int smaller_speed = 8, larger_speed = -1;
     for (int i = 8; i <= 14; i++) {
-      if (velocity_model[i] < velocity) {
+      if ((int)velocity_model[i] < velocity) {
         smaller_speed = i;
       }
-      if (velocity_model[i] > velocity) {
+      if ((int)velocity_model[i] > velocity) {
         larger_speed = i;
         break;
       }
-      if (velocity_model[i] == velocity) {
+      if ((int)velocity_model[i] == velocity) {
         return stopping_distance_model[i];
       }
     }

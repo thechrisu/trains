@@ -158,6 +158,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   end.sensor = sensor_offset;
   end.offset = goal_offset;
 
+  message velocity_model;
+  get_constant_velocity_model(track_state_controller, train,
+                              &velocity_model);
+
   message stopping_distance_model;
   get_stopping_distance_model(track_state_controller, train,
                               &stopping_distance_model);
@@ -240,7 +244,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
       int dist_left = get_remaining_dist_in_route(route, &c.loc);
 
-      int stopping_distance = (int)stopping_dist_from_velocity(c.velocity);
+      int stopping_distance = (int)stopping_dist_from_velocity(
+                                  c.velocity,
+                                  velocity_model.msg.train_speeds,
+                                  stopping_distance_model.msg.train_distances);
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 
       if (loops % 10 == 0) {
