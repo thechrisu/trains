@@ -28,7 +28,7 @@ int handle_reservation_request(message_reservation_request *req,
     if (reserved_by[start_index][end_index] == check_for_reservation_by) {
       if (reserved_by[reverse_start_index][reverse_end_index] != check_for_reservation_by) {
         logprintf("Edge from %s to %s was owned by %d, but reverse from %s to %s was not",
-                  start->name, end->name, reserve_for,
+                  start->name, end->name, check_for_reservation_by,
                   start->reverse->name, end->reverse->name);
       }
 
