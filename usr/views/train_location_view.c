@@ -105,7 +105,7 @@ void print_diffs(int terminal_tx_server_tid, int line,
   }
 }
 
-void clear_line(int terminal_tx_server_tid, int line) {
+static void clear_line(int terminal_tx_server_tid, int line) {
   clear_cell(terminal_tx_server_tid, line, TRAIN_COL);
   clear_cell(terminal_tx_server_tid, line, NEXT_COL);
   clear_cell(terminal_tx_server_tid, line, TIME_COL);
