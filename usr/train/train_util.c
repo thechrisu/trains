@@ -263,3 +263,29 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
   }
   return dist_remaining_100th_mm - loc->offset;
 }
+
+bool is_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
+                            int distance) {
+  bool passed_loc = false;
+
+  track_node *last_switch = NULL_TRACK_NODE;
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
+    if (passed_loc) {
+      if (get_dist_on_route(route, loc, c) > distance) return last_switch != NULL_TRACK_NODE;
+      if ((*c)->type == NODE_MERGE
+          && *(c + 1) != NULL_TRACK_NODE && (*(c + 1))->type == NODE_BRANCH
+          && *(c + 2) != NULL_TRACK_NODE && (*(c + 1))->type == NODE_MERGE) {
+        track_node *other_dir = STRAIGHT(*(c + 1)) == *c ?
+                                        CURVED(*(c + 1)) : STRAIGHT(*(c + 1));
+        if (other_dir == *(c + 2)) {
+          last_switch = *(c + 1);
+        }
+      }
+    }
+  }
+  return last_switch != NULL_TRACK_NODE;
+}

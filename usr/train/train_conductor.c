@@ -12,12 +12,6 @@
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
-void conductor_setspeed(int train_tx_server, int track_state_controller,
-                        int train, int speed) {
-  set_train_speed(train_tx_server, track_state_controller,
-                  train, speed);
-}
-
 void conductor_reverse_to_speed(int train_tx_server,
                                 int track_state_controller, int clock_server,
                                 int train, int speed) {
@@ -83,7 +77,7 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%s", ESC, CALIB_LINE + 2,
     1, "Calibrating stopping distance for train ", train, " and speed ", speed,
     " now stopping...", HIDE_CURSOR_TO_EOL) == 0);
-  conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+  set_train_speed(train_tx_server, track_state_controller, train, 0);
   bool did_hit_sensor = !poll_until_sensor_triggered_with_timeout(
                                                clock_server,
                                                track_state_controller,
@@ -102,9 +96,9 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     update_stopping_time_model(track_state_controller, train, speed,
                                ticks_to_stop * 10000);
   } else {
-    conductor_setspeed(train_tx_server, track_state_controller, train, 1);
+    set_train_speed(train_tx_server, track_state_controller, train, 1);
     poll_until_sensor_triggered(clock_server, track_state_controller, goal_sensor);
-    conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+    set_train_speed(train_tx_server, track_state_controller, train, 0);
     int distance_off = ((int)velocity_model.msg.train_speeds[1])
                          * (Time(clock_server) - ticks_after_poll) / 100;
     Assert(Printf(terminal_tx_server, "%s%d;%dHAdjusting stopping distance by %d%s",
@@ -112,7 +106,7 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     update_stopping_distance_model(track_state_controller, train, speed,
                                    (uint32_t)((int)stopping_distance_model.msg.train_distances[speed] - distance_off));
   }
-  conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+  set_train_speed(train_tx_server, track_state_controller, train, 0);
 }
 
 void conductor_calib_sd(int train_tx_server, int track_state_controller,
@@ -179,8 +173,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     get_coordinates(train_coordinates_server, train, &c);
   }
   if (c.loc.sensor == end.sensor) {
-    conductor_reverse_to_speed(train_tx_server, track_state_controller,
-                               clock_server, train, 0);
+    stop_and_reverse_train_to_speed(clock_server, train_tx_server,
+                                track_state_controller, train, 0);
     get_coordinates(train_coordinates_server, train, &c);
     had_to_reverse = true;
 #if ROUTING_DEBUG
@@ -206,8 +200,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 #if ROUTING_DEBUG
     logprintf("Setting speed to %d\n\r", max_feasible_speed);
 #endif /* ROUTING_DEBUG */
-    conductor_setspeed(train_tx_server, track_state_controller,
-                       train, max_feasible_speed);
+    set_train_speed(train_tx_server, track_state_controller,
+                    train, max_feasible_speed);
   }
 
   do {
@@ -251,6 +245,17 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 #endif /* ACC_CALIB_DEBUG */
 
+      bool should_reverse = is_reverse_in_distance(route, &c.loc,
+                      stopping_distance + TRAIN_LENGTH + switch_padding * 100);
+      if (should_reverse) {
+        stop_and_reverse_train_to_speed(clock_server, train_tx_server,
+                                        track_state_controller, train, max_feasible_speed);
+        get_coordinates(train_coordinates_server, train, &c);
+        // Note: We are using the old speed when switching turnouts!
+        set_train_speed(train_tx_server, track_state_controller,
+                        train, max_feasible_speed);
+        loops = 0;
+      }
       if (loops % 10 == 0) {
         switch_turnouts_within_distance(clock_server, train_tx_server,
                                         track_state_controller, route, &c.loc,
@@ -285,7 +290,7 @@ void conductor_route_to(int clock_server, int train_tx_server,
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     train, sensor_offset, goal_offset);
-  conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+  set_train_speed(train_tx_server, track_state_controller, train, 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
@@ -293,7 +298,7 @@ void conductor_loop(int clock_server, int train_tx_server,
                     int train, int speed) {
   unsigned int D5 = sensor_offset('D', 5);
 
-  conductor_setspeed(train_tx_server, track_state_controller, train, speed);
+  set_train_speed(train_tx_server, track_state_controller, train, speed);
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     train, D5, 0);
@@ -306,7 +311,7 @@ void conductor_loop(int clock_server, int train_tx_server,
   );
 
   if (timed_out) {
-    conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+    set_train_speed(train_tx_server, track_state_controller, train, 0);
     return;
   }
 
@@ -368,7 +373,7 @@ void train_conductor() {
             break;
           case USER_CMD_TR:
             Assert(received.msg.cmd.data[0] == d.train);
-            conductor_setspeed(train_tx_server, track_state_controller, d.train,
+            set_train_speed(train_tx_server, track_state_controller, d.train,
                                received.msg.cmd.data[1]);
             break;
           case USER_CMD_RV:
