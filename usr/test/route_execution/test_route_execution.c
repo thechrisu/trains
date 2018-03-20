@@ -77,7 +77,48 @@ void test_route_execution_no_reversal_because_none_in_route() {
 }
 
 void test_route_execution_tricky_cases() {
+  track_node *route[MAX_ROUTE_LENGTH];
+  location end = { .sensor = sensor_offset('C', 2), .offset = 0 };
 
+  location start1 = { .sensor = sensor_offset('D', 4), .offset = 0 };
+  Assert(get_route(&start1, &end, route) == 0);
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, 0));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, 40000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start1, 100000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start1, INFINITE_DISTANCE));
+  Assert(!is_reverse_in_distance((track_node**)&route, &end, 0));
+  Assert(!is_reverse_in_distance((track_node**)&route, &end, 100000));
+  Assert(!is_reverse_in_distance((track_node**)&route, &end, INFINITE_DISTANCE));
+
+  start1.offset = 65000;
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, 0));
+  Assert(is_reverse_in_distance((track_node**)&route, &start1, 40000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start1, 100000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start1, INFINITE_DISTANCE));
+
+  start1.offset = 90000;
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, 0));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, 40000));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, 100000));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start1, INFINITE_DISTANCE));
+
+  location start2 = { .sensor = sensor_offset('C', 9), .offset = 0 };
+  location end2 = { .sensor = sensor_offset('A', 6), .offset = 0 };
+  Assert(get_route(&start2, &end2, route) == 0);
+  Assert(!is_reverse_in_distance((track_node**)&route, &start2, 0));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start2, 20000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start2, 100000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start2, INFINITE_DISTANCE));
+
+  start2.offset = 200000;
+  Assert(!is_reverse_in_distance((track_node**)&route, &start2, 0));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start2, 100000));
+  Assert(!is_reverse_in_distance((track_node**)&route, &start2, INFINITE_DISTANCE));
+
+  start2.offset = 40000;
+  Assert(!is_reverse_in_distance((track_node**)&route, &start2, 0));
+  Assert(is_reverse_in_distance((track_node**)&route, &start2, 100000));
+  Assert(is_reverse_in_distance((track_node**)&route, &start2, INFINITE_DISTANCE));
 }
 
 void test_route_execution_helpers() {
