@@ -22,6 +22,12 @@ void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t 
 bool is_sensor_triggered(int16_t sensors[10], unsigned int offset);
 
 /**
+ * @param   sensors A set of sensor data.
+ * @returns Whether or not any sensor in the sensor data is triggered.
+ */
+bool any_sensor_is_triggered(int16_t sensors[10]);
+
+/**
  * Poll the track state controller for sensor data until either
  * 1) the given sensor has been triggered or
  * 2) the number of ticks spent polling exceed the timeout.

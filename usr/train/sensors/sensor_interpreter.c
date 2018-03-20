@@ -63,15 +63,7 @@ void sensor_interpreter() {
 
         get_leading_edge(current_sensors, received.msg.sensors, leading_edge);
 
-        bool no_new_sensor_hits = true;
-        for (int i = 0; i < 10; i += 1) {
-          if (leading_edge[i] != 0) {
-            no_new_sensor_hits = false;
-            break;
-          }
-        }
-
-        if (no_new_sensor_hits) {
+        if (!any_sensor_is_triggered(leading_edge)) {
           break;
         }
 
