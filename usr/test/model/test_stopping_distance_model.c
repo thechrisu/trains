@@ -25,13 +25,21 @@ void test_stopping_distance_model() {
   Assert(ns_tid > 0);
   int track_state_controller_tid = Create(MyPriority() + 1, &track_state_controller);
   Assert(track_state_controller_tid > 0);
-  message receive;
+  message receive, receive_velo;
 
   get_stopping_distance_model(track_state_controller_tid, 1, &receive);
+  get_constant_velocity_model(track_state_controller_tid, 1, &receive_velo);
   for (int i = 0; i < 14; i++) {
     assert_valid_stopping_distance(i, receive.msg.train_distances[i]);
   }
 
+  for (int i = 1; i <= 14; i++) {
+    int sd = receive.msg.train_distances[i];
+    assert_in_bounds(sd,
+          stopping_dist_from_velocity((int)receive_velo.msg.train_speeds[i] + 1,
+                                      receive_velo.msg.train_speeds,
+                                      receive.msg.train_distances), 40 + 0.1 * sd);
+  }
   update_stopping_distance_model(track_state_controller_tid, 1, 14, 133700);
   get_stopping_distance_model(track_state_controller_tid, 1, &receive);
   assert_in_bounds(receive.msg.train_distances[14], 133700, 20000);

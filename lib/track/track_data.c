@@ -85,13 +85,13 @@ void init_track(track_state *global_track) {
     { .train = 24, .speed = 3, .value = 740 },
     { .train = 24, .speed = 4, .value = 1960 },
     { .train = 24, .speed = 5, .value = 3980 },
-    { .train = 24, .speed = 6, .value = 7440 },
-    { .train = 24, .speed = 7, .value = 12790 },
-    { .train = 24, .speed = 8, .value = 20090 },
-    { .train = 24, .speed = 9, .value = 30670 },
-    { .train = 24, .speed = 10, .value = 43640 },
-    { .train = 24, .speed = 11, .value = 60160 },
-    { .train = 24, .speed = 12, .value = 82685 },
+    { .train = 24, .speed = 6, .value = 7811 },
+    { .train = 24, .speed = 7, .value = 13540 },
+    { .train = 24, .speed = 8, .value = 20840 },
+    { .train = 24, .speed = 9, .value = 30976 },
+    { .train = 24, .speed = 10, .value = 44390 },
+    { .train = 24, .speed = 11, .value = 60910 },
+    { .train = 24, .speed = 12, .value = 83435 },
     { .train = 24, .speed = 13, .value = 106430 },
     { .train = 24, .speed = 14, .value = 140575 },
     { .train = 58, .speed = 0, .value = 0 },
@@ -128,7 +128,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_distances[15] = {
-    0, 110, 350, 740, 1960, 3980, 7440, 12790, 20090, 30670, 43640, 60160, 77426, 98431, 139891,
+    0, 110, 350, 740, 1960, 3980, 7563, 13040, 20340, 30772, 43890, 60410, 78498, 100917, 139302,
   };
 
   default_value default_stopping_times[] = {
@@ -138,13 +138,13 @@ void init_track(track_state *global_track) {
     { .train = 24, .speed = 3, .value = 0 },
     { .train = 24, .speed = 4, .value = 0 },
     { .train = 24, .speed = 5, .value = 0 },
-    { .train = 24, .speed = 6, .value = 0 },
-    { .train = 24, .speed = 7, .value = 0 },
-    { .train = 24, .speed = 8, .value = 0 },
-    { .train = 24, .speed = 9, .value = 0 },
-    { .train = 24, .speed = 10, .value = 0 },
-    { .train = 24, .speed = 11, .value = 0 },
-    { .train = 24, .speed = 12, .value = 2533674 },
+    { .train = 24, .speed = 6, .value = 560000 },
+    { .train = 24, .speed = 7, .value = 1043000 },
+    { .train = 24, .speed = 8, .value = 1352600 },
+    { .train = 24, .speed = 9, .value = 1796000 },
+    { .train = 24, .speed = 10, .value = 1429400 },
+    { .train = 24, .speed = 11, .value = 2261600 },
+    { .train = 24, .speed = 12, .value = 2517987 },
     { .train = 24, .speed = 13, .value = 3279754 },
     { .train = 24, .speed = 14, .value = 3430256 },
     { .train = 58, .speed = 0, .value = 0 },
@@ -181,7 +181,7 @@ void init_track(track_state *global_track) {
   };
 
   uint32_t super_default_stopping_times[15] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2710000, 3466000, 3242110,
+    0, 0, 0, 0, 0, 0, 560000, 1043000, 1352600, 1796000, 1429400, 2261600, 2613993, 3372877, 3362489,
   };
 
   setup_default_map(global_track->speed_to_velocity, default_speeds, super_default_speeds);

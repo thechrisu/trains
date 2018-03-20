@@ -134,6 +134,49 @@ float get_fudged_stopping_distance_factor(int train) {
     );
 }
 
+int stopping_dist_from_velocity(int velocity, uint32_t velocity_model[15],
+                                uint32_t stopping_distance_model[15]) {
+  int smaller = -1;
+  int larger = -1;
+  for (int i = 0; i <= 14; i++) {
+    if ((int)velocity_model[i] < velocity) {
+      smaller = i;
+    }
+    if ((int)velocity_model[i] > velocity) {
+      larger = i;
+      break;
+    }
+    if ((int)velocity_model[i] == velocity) {
+      return (int)stopping_distance_model[i];
+    }
+  }
+  if (smaller == -1) return 0;
+  int smaller_val = (int)stopping_distance_model[smaller];
+  int larger_val = (int)stopping_distance_model[larger == -1 ? 14 : larger];
+  int diff = larger_val - smaller_val;
+  float r;
+#if ACC_CALIB_DEBUG
+  logprintf("smaller speed: %d, larger speed: %d\n\r", smaller, larger);
+#endif /* ACC_CALIB_DEBUG */
+  if (larger == -1) {
+    r = 1.0;
+  } else {
+    int numerator = velocity - (int)velocity_model[smaller];
+    int denominator = (int)velocity_model[larger] - (int)velocity_model[smaller];
+    r = (float)numerator / (float)denominator;
+#if ACC_CALIB_DEBUG
+    logprintf("num: %d, float: %d\n\r", numerator, denominator);
+    logprintf("velo: %d, smaller: %d, larger: %d\n\r", velocity, velocity_model[smaller], velocity_model[larger]);
+#endif /* ACC_CALIB_DEBUG */
+  }
+#if ACC_CALIB_DEBUG
+  logprintf("Smaller: %d, larger: %d, diff: %d, r: %d\n\r", smaller_val, larger_val, diff, (int)(r * 1000));
+#endif /* ACC_CALIB_DEBUG */
+  Assert((int)(smaller_val + diff * r) < 200000);
+  Assert(r >= 0.0 && r <= 1.0);
+  return smaller_val + diff * r;
+}
+
 int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
   return 0.5 + (1 / get_fudged_stopping_distance_factor(train)) * (speed *  6 * 0.80619 - 2 * 5.47489) * ticks_left * ticks_left * 0.5;
 }
