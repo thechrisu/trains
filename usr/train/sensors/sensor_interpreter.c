@@ -135,11 +135,11 @@ void sensor_interpreter() {
                                     " at speed ", data->should_speed,
                                     HIDE_CURSOR_TO_EOL) == 0);
                   }
-                }
 
-                attribute_sensor(train, sensor, current_time);
-                sensor_attributed_to = train;
-                break;
+                  attribute_sensor(train, sensor, current_time);
+                  sensor_attributed_to = train;
+                  break;
+                }
               }
             }
 
