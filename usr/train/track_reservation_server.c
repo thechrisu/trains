@@ -99,6 +99,32 @@ void track_reservation_server() {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       }
+      case MESSAGE_RESERVATION_GET_ALL: {
+        reply.type = REPLY_RESERVATION_GET_ALL;
+
+        int train = received.msg.reservation_request.train;
+        int result_index;
+
+        for (int i = 0; i < TRACK_MAX && result_index < MAX_RESERVATIONS_RETURNED; i += 1) {
+          if (result_index >= MAX_RESERVATIONS_RETURNED) {
+            break;
+          }
+
+          for (int j = 0; j < TRACK_MAX; j += 1) {
+            if (result_index >= MAX_RESERVATIONS_RETURNED) {
+              break;
+            }
+
+            if (reserved_by[i][j] == train) {
+              reply.msg.reservations[result_index] = RESERVATION_ENCODE(i, j);
+              result_index += 1;
+            }
+          }
+        }
+
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
+        break;
+      }
       default:
         logprintf("Received message of type %d in track reservation server\n\r", received.type);
         Assert(0);
