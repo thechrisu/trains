@@ -28,7 +28,15 @@ void clear_cell(int terminal_tx_server_tid, int line, int column) {
     output_buffer[start_string_length + i] = ' ';
   }
 
-  output_buffer[start_string_length + column_widths[column]] = '\0';
+  int end_index = start_string_length + column_widths[column];
+
+  if (column == DIST_DIFF_COL) {
+    output_buffer[end_index] = '\0';
+  } else {
+    output_buffer[end_index] = ' ';
+    output_buffer[end_index + 1] = '|';
+    output_buffer[end_index + 2] = '\0';
+  }
 
   Assert(Printf(terminal_tx_server_tid, output_buffer,
                 TRAIN_LOCATION_LINE + 2 + line, columns[column]) == 0);
