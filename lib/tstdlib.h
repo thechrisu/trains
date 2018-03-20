@@ -64,6 +64,8 @@ void ui2a(unsigned int num, unsigned int base, char *bf);
 void i2a(int num, char *bf);
 
 /**
+ * Algorithm from https://en.wikipedia.org/wiki/Fast_inverse_square_root.
+ *
  * @param   number A number.
  * @returns The reciprocal of the square root of the number.
  */
