@@ -5,6 +5,7 @@
 #ifndef PARAMETERS_H
 #define PARAMETERS_H
 
+#include "track_data.h"
 #include "tstdlib.h"
 
 #define NO_NEXT_SENSOR_EXPECTED 1234
