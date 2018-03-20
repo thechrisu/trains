@@ -10,9 +10,9 @@
 static int reserved_by[TRACK_MAX][TRACK_MAX];
 
 int handle_reservation_request(message_reservation_request *req,
-                                int check_for_reservation_by,
-                                int reserve_for,
-                                int reservation_error_response) {
+                               int check_for_reservation_by,
+                               int reserve_for,
+                               int reservation_error_response) {
   track_node *start = req->nodes[0];
   track_node *end = req->nodes[1];
 
