@@ -448,5 +448,5 @@ bool node_follows(track_node *start, track_node *end) {
 }
 
 int node_index_in_track_state(track_state *t, track_node *n) {
-  return (n - t->track) / sizeof(track_node);
+  return n - t->track;
 }

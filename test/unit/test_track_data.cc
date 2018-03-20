@@ -215,6 +215,20 @@ TEST(TrackDataTest, test_location_canonicalize) {
   test_canonicalization(&t, turnouts, 'E', 3, 1500 * 100, 'C', 9, 239 * 100);
 }
 
+TEST(TrackDataTest, test_node_index_in_track_state) {
+  track_state t;
+  init_track(&t);
+
+  track_node *start = find_sensor(&t, sensor_offset('B', 9));
+  EXPECT_EQ(24, node_index_in_track_state(&t, start));
+  EXPECT_EQ(4, node_index_in_track_state(&t, AHEAD(start)));
+  EXPECT_EQ(85, node_index_in_track_state(&t, AHEAD(AHEAD(start))));
+
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    EXPECT_EQ(i, node_index_in_track_state(&t, &t.track[i]));
+  }
+}
+
 #ifndef ALLTESTS
 int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
