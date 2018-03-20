@@ -20,7 +20,7 @@ static int column_widths[] = { 5, 4, 7, 8, 9 };
 void clear_cell(int terminal_tx_server_tid, int line, int column) {
   char output_buffer[50];
 
-  char start_string[] = "\033[%d,%dH";
+  char start_string[] = "\033[%d;%dH";
   int start_string_length = tstrlen(start_string);
   tmemcpy(output_buffer, start_string, start_string_length * sizeof(char));
 
