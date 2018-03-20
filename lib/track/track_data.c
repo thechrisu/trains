@@ -442,3 +442,22 @@ int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
 
   return 0;
 }
+
+bool node_follows(track_node *start, track_node *end) {
+  return end == AHEAD(start) || end == STRAIGHT(start) || end == CURVED(start);
+}
+
+int node_index_in_track_state(track_state *t, track_node *n) {
+  return n - t->track;
+}
+
+track_node *find_node_by_name(track_state *t, char *name) {
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    track_node *node = &t->track[i];
+    if (tstrcmp((char *)node->name, name)) {
+      return node;
+    }
+  }
+
+  return NULL_TRACK_NODE;
+}

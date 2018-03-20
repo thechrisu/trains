@@ -201,3 +201,51 @@ void get_coordinates(int train_coordinates_server, int train, coordinates *c) {
   Assert(reply.type == REPLY_GET_COORDINATES);
   tmemcpy(c, &reply.msg.coords, sizeof(*c));
 }
+
+int send_to_track_reservation_server(int track_reservation_server,
+                                     int train,
+                                     track_node *start,
+                                     track_node *end,
+                                     enum message_type send_type,
+                                     enum message_type expected_reply_type) {
+  message send, reply;
+
+  send.type = send_type;
+  send.msg.reservation_request.train = train;
+  send.msg.reservation_request.nodes[0] = start;
+  send.msg.reservation_request.nodes[1] = end;
+
+  Assert(Send(track_reservation_server,
+              &send, sizeof(send),
+              &reply, sizeof(reply)) == sizeof(reply));
+
+  Assert(reply.type == expected_reply_type);
+  return reply.msg.reservation_response;
+}
+
+int reservation_make(int track_reservation_server, int train,
+                     track_node *start, track_node *end) {
+  return send_to_track_reservation_server(track_reservation_server,
+                                          train, start, end,
+                                          MESSAGE_RESERVATION_MAKE,
+                                          REPLY_RESERVATION_MAKE);
+}
+
+int reservation_drop(int track_reservation_server, int train,
+                     track_node *start, track_node *end) {
+  return send_to_track_reservation_server(track_reservation_server,
+                                          train, start, end,
+                                          MESSAGE_RESERVATION_DROP,
+                                          REPLY_RESERVATION_DROP);
+}
+
+void reservation_drop_all(int track_reservation_server, int train) {
+  message send;
+
+  send.type = MESSAGE_RESERVATION_DROP_ALL;
+  send.msg.reservation_request.train = train;
+
+  Assert(Send(track_reservation_server,
+              &send, sizeof(send),
+              EMPTY_MESSAGE, 0) == 0);
+}

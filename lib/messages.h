@@ -65,6 +65,11 @@ enum message_type {
   MESSAGE_FORWARD_TURNOUT_STATES,
   MESSAGE_GET_COORDINATES,
   REPLY_GET_COORDINATES,
+  MESSAGE_RESERVATION_MAKE,
+  REPLY_RESERVATION_MAKE,
+  MESSAGE_RESERVATION_DROP,
+  REPLY_RESERVATION_DROP,
+  MESSAGE_RESERVATION_DROP_ALL,
 };
 
 typedef struct {
@@ -131,6 +136,11 @@ typedef struct {
 } message_update_coords;
 
 typedef struct {
+  int train;
+  track_node *nodes[2];
+} message_reservation_request;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -162,6 +172,8 @@ typedef struct {
     reply_get_last_sensor_hit last_sensor;
     coordinates coords;
     message_update_coords update_coords;
+    message_reservation_request reservation_request;
+    int reservation_response;
   } msg;
 } message;
 

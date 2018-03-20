@@ -316,6 +316,11 @@ void test_runner() {
       .code = &test_train_coordinates_server,
       .prio = 5
     },
+    {
+      .name = "track_reservation_server",
+      .code = &test_track_reservation_server,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
