@@ -106,7 +106,7 @@ void track_reservation_server() {
 
         reply.msg.all_reservations.count = 0;
 
-        for (int i = 0; i < TRACK_MAX && result_index < MAX_RESERVATIONS_RETURNED; i += 1) {
+        for (int i = 0; i < TRACK_MAX; i += 1) {
           if (reply.msg.all_reservations.count >= MAX_RESERVATIONS_RETURNED) {
             break;
           }
@@ -117,7 +117,7 @@ void track_reservation_server() {
             }
 
             if (reserved_by[i][j] == train) {
-              reply.msg.all_reservations.reservations[result_index] = RESERVATION_ENCODE(i, j);
+              reply.msg.all_reservations.reservations[reply.msg.all_reservations.count] = RESERVATION_ENCODE(i, j);
               reply.msg.all_reservations.count += 1;
             }
           }
