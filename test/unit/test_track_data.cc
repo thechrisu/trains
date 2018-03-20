@@ -250,6 +250,8 @@ TEST(TrackDataTest, test_node_follows) {
   expect_node_follows(&t, "BR5", "C3", true);
   expect_node_follows(&t, "BR5", "MR7", true);
 
+  expect_node_follows(&t, "BR16", "B1", true);
+
   expect_node_follows(&t, "B9", "A6", false);
   expect_node_follows(&t, "B9", "EX9", false);
   expect_node_follows(&t, "A5", "C7", false);
