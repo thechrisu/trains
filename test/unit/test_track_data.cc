@@ -215,6 +215,46 @@ TEST(TrackDataTest, test_location_canonicalize) {
   test_canonicalization(&t, turnouts, 'E', 3, 1500 * 100, 'C', 9, 239 * 100);
 }
 
+track_node *find_node_by_name(track_state *t, char *name) {
+  for (int i = 0; i < TRACK_MAX; i += 1) {
+    track_node *node = &t->track[i];
+    if (strcmp(node->name, name) == 0) {
+      return node;
+    }
+  }
+
+  return nullptr;
+}
+
+void expect_node_follows(track_state *t, char *start_name, char *end_name, bool expect) {
+  track_node *start = find_node_by_name(t, start_name);
+  ASSERT_NE(nullptr, start);
+
+  track_node *end = find_node_by_name(t, end_name);
+  ASSERT_NE(nullptr, end);
+
+  EXPECT_EQ(expect, node_follows(start, end));
+}
+
+TEST(TrackDataTest, test_node_follows) {
+  track_state t;
+  init_track(&t);
+
+  expect_node_follows(&t, "B8", "EX7", true);
+  expect_node_follows(&t, "EN9", "B9", true);
+  expect_node_follows(&t, "B9", "A5", true);
+  expect_node_follows(&t, "A5", "MR3", true);
+  expect_node_follows(&t, "MR3", "C7", true);
+  expect_node_follows(&t, "C7", "MR18", true);
+  expect_node_follows(&t, "MR18", "BR5", true);
+  expect_node_follows(&t, "BR5", "C3", true);
+  expect_node_follows(&t, "BR5", "MR7", true);
+
+  expect_node_follows(&t, "B9", "A6", false);
+  expect_node_follows(&t, "B9", "EX9", false);
+  expect_node_follows(&t, "A5", "C7", false);
+}
+
 TEST(TrackDataTest, test_node_index_in_track_state) {
   track_state t;
   init_track(&t);
