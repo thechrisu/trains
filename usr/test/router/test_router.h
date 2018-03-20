@@ -24,5 +24,6 @@ void test_router_sensor_pair();
 void test_router_errors();
 void test_router_same_sensor();
 void test_router_complete();
+void test_router_reversals();
 
 #endif /* TEST_ROUTER_H */

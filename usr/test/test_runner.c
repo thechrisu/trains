@@ -307,6 +307,11 @@ void test_runner() {
       .prio = 5
     },
     {
+      .name = "router_reversals",
+      .code = &test_router_reversals,
+      .prio = 5
+    },
+    {
       .name = "router_complete",
       .code = &test_router_complete,
       .prio = 5
