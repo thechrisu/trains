@@ -17,7 +17,7 @@
 static int columns[] = { 1, 9, 16, 26, 37 };
 static int column_widths[] = { 5, 4, 7, 8, 9 };
 
-void clear_column(int terminal_tx_server_tid, int line, int column) {
+void clear_cell(int terminal_tx_server_tid, int line, int column) {
   char output_buffer[50];
 
   char start_string[] = "\033[%d,%dH";
@@ -38,8 +38,8 @@ void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
                                   unsigned int next_sensor,
                                   int expected_ticks_next_sensor_hit) {
   if (next_sensor == NO_NEXT_SENSOR) {
-    clear_column(terminal_tx_server_tid, line, NEXT_COL);
-    clear_column(terminal_tx_server_tid, line, TIME_COL);
+    clear_cell(terminal_tx_server_tid, line, NEXT_COL);
+    clear_cell(terminal_tx_server_tid, line, TIME_COL);
   } else {
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH %s%c%d",
@@ -48,7 +48,7 @@ void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
                   sensor_bank(next_sensor), sensor_index(next_sensor)) == 0);
 
     if (expected_ticks_next_sensor_hit == INFINITE_TICKS) {
-      clear_column(terminal_tx_server_tid, line, TIME_COL);
+      clear_cell(terminal_tx_server_tid, line, TIME_COL);
     } else {
       uint32_t minutes = expected_ticks_next_sensor_hit / 100 / 60;
       uint32_t seconds = (expected_ticks_next_sensor_hit / 100) % 60;
@@ -70,8 +70,8 @@ void print_diffs(int terminal_tx_server_tid, int line,
   if (expected_last_sensor == NO_NEXT_SENSOR ||
       expected_last_sensor != last_sensor ||
       expected_ticks_last_sensor_hit == INFINITE_TICKS) {
-    clear_column(terminal_tx_server_tid, line, TIME_DIFF_COL);
-    clear_column(terminal_tx_server_tid, line, DIST_DIFF_COL);
+    clear_cell(terminal_tx_server_tid, line, TIME_DIFF_COL);
+    clear_cell(terminal_tx_server_tid, line, DIST_DIFF_COL);
   } else {
     int ticks_diff = ticks_last_sensor_hit - expected_ticks_last_sensor_hit;
     int seconds = ABS(ticks_diff) / 100;
@@ -98,11 +98,11 @@ void print_diffs(int terminal_tx_server_tid, int line,
 }
 
 void clear_line(int terminal_tx_server_tid, int line) {
-  clear_column(terminal_tx_server_tid, line, TRAIN_COL);
-  clear_column(terminal_tx_server_tid, line, NEXT_COL);
-  clear_column(terminal_tx_server_tid, line, TIME_COL);
-  clear_column(terminal_tx_server_tid, line, TIME_DIFF_COL);
-  clear_column(terminal_tx_server_tid, line, DIST_DIFF_COL);
+  clear_cell(terminal_tx_server_tid, line, TRAIN_COL);
+  clear_cell(terminal_tx_server_tid, line, NEXT_COL);
+  clear_cell(terminal_tx_server_tid, line, TIME_COL);
+  clear_cell(terminal_tx_server_tid, line, TIME_DIFF_COL);
+  clear_cell(terminal_tx_server_tid, line, DIST_DIFF_COL);
 }
 
 void train_location_view() {
