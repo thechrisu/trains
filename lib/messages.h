@@ -144,6 +144,11 @@ typedef struct {
 } message_reservation_request;
 
 typedef struct {
+  int reservations[MAX_RESERVATIONS_RETURNED];
+  int count;
+} message_reservation_get_all_response;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -177,7 +182,7 @@ typedef struct {
     message_update_coords update_coords;
     message_reservation_request reservation_request;
     int reservation_response;
-    int reservations[MAX_RESERVATIONS_RETURNED];
+    message_reservation_get_all_response reservations;
   } msg;
 } message;
 

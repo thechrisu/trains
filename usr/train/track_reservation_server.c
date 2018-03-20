@@ -103,21 +103,22 @@ void track_reservation_server() {
         reply.type = REPLY_RESERVATION_GET_ALL;
 
         int train = received.msg.reservation_request.train;
-        int result_index;
+
+        reply.msg.all_reservations.count = 0;
 
         for (int i = 0; i < TRACK_MAX && result_index < MAX_RESERVATIONS_RETURNED; i += 1) {
-          if (result_index >= MAX_RESERVATIONS_RETURNED) {
+          if (reply.msg.all_reservations.count >= MAX_RESERVATIONS_RETURNED) {
             break;
           }
 
           for (int j = 0; j < TRACK_MAX; j += 1) {
-            if (result_index >= MAX_RESERVATIONS_RETURNED) {
+            if (reply.msg.all_reservations.count >= MAX_RESERVATIONS_RETURNED) {
               break;
             }
 
             if (reserved_by[i][j] == train) {
-              reply.msg.reservations[result_index] = RESERVATION_ENCODE(i, j);
-              result_index += 1;
+              reply.msg.all_reservations.reservations[result_index] = RESERVATION_ENCODE(i, j);
+              reply.msg.all_reservations.count += 1;
             }
           }
         }
