@@ -16,22 +16,19 @@ int handle_reservation_request(message_reservation_request *req,
   track_node *start = req->nodes[0];
   track_node *end = req->nodes[1];
 
-  int response = RESPONSE_OK;
-
   if (!node_follows(start, end)) {
-    response = RESPONSE_NO_SUCH_EDGE;
+    return RESPONSE_NO_SUCH_EDGE;
   } else {
     int start_index = node_index_in_track_state(&track, start);
     int end_index = node_index_in_track_state(&track, end);
 
     if (reserved_by[start_index][end_index] == check_for_reservation_by) {
       reserved_by[start_index][end_index] = reserve_for;
+      return RESPONSE_OK;
     } else {
-      response = reservation_error_response;
+      return reservation_error_response;
     }
   }
-
-  return response;
 }
 
 
@@ -54,9 +51,9 @@ void track_reservation_server() {
       case MESSAGE_RESERVATION_MAKE: {
         reply.type = REPLY_RESERVATION_MAKE;
 
-        int response = handle_reservation_request(&reply.msg.reservation_request,
+        int response = handle_reservation_request(&received.msg.reservation_request,
                                                   NOT_RESERVED,
-                                                  reply.msg.reservation_request.train,
+                                                  received.msg.reservation_request.train,
                                                   RESPONSE_ALREADY_RESERVED);
 
         reply.msg.reservation_response = response;
@@ -67,8 +64,8 @@ void track_reservation_server() {
       case MESSAGE_RESERVATION_DROP: {
         reply.type = REPLY_RESERVATION_DROP;
 
-        int response = handle_reservation_request(&reply.msg.reservation_request,
-                                                  reply.msg.reservation_request.train,
+        int response = handle_reservation_request(&received.msg.reservation_request,
+                                                  received.msg.reservation_request.train,
                                                   NOT_RESERVED,
                                                   RESPONSE_NOT_RESERVED);
 
