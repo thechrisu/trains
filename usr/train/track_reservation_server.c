@@ -30,6 +30,7 @@ int handle_reservation_request(message_reservation_request *req,
         logprintf("Edge from %s to %s was owned by %d, but reverse from %s to %s was not",
                   start->name, end->name, check_for_reservation_by,
                   start->reverse->name, end->reverse->name);
+        return reservation_error_response;
       }
 
       reserved_by[start_index][end_index] = reserve_for;
