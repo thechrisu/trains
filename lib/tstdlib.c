@@ -106,9 +106,16 @@ float tinvsqrt(float number) {
 
   x2 = number * 0.5F;
   y  = number;
+
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+
   i  = * ( long * ) &y;
   i  = 0x5f3759df - ( i >> 1 );
   y  = * ( float * ) &i;
+
+  #pragma GCC diagnostic pop
+
   y  = y * ( threehalfs - ( x2 * y * y ) );
   return y;
 }
