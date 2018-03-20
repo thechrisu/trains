@@ -248,7 +248,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                   c.velocity,
                                   velocity_model.msg.train_speeds,
                                   stopping_distance_model.msg.train_distances);
+#if ACC_CALIB_DEBUG
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
+#endif /* ACC_CALIB_DEBUG */
 
       if (loops % 10 == 0) {
         switch_turnouts_within_distance(clock_server, train_tx_server,
