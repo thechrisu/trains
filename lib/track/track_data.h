@@ -192,4 +192,18 @@ unsigned int sensor_next(track_state *t, unsigned int start,
 int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
                   unsigned int sensor, location *loc);
 
+/**
+ * @param   start A track node.
+ * @param   end   Another track node.
+ * @returns Whether `end` directly follows `start`.
+ */
+bool node_follows(track_node *start, track_node *end);
+
+/**
+ * @param   t A track state.
+ * @param   n A track node.
+ * @returns The index of `n` in `t`'s list of track nodes.
+ */
+int node_index_in_track_state(track_state *t, track_node *n);
+
 #endif /* TRACK_DATA_H */
