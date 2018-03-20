@@ -182,7 +182,7 @@ typedef struct {
     message_update_coords update_coords;
     message_reservation_request reservation_request;
     int reservation_response;
-    message_reservation_get_all_response reservations;
+    message_reservation_get_all_response all_reservations;
   } msg;
 } message;
 
