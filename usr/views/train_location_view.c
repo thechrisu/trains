@@ -142,6 +142,7 @@ void train_location_view() {
       get_last_sensor_hit(sensor_interpreter_tid, train, &seen_sensor);
 
       if (line_states[i] != train && i < MAX_TRAINS) {
+        clear_line(terminal_tx_server_tid, i);
         Assert(Printf(terminal_tx_server_tid,
                       "\033[%d;%dH  %s%d",
                       TRAIN_LOCATION_LINE + 2 + i, TRAIN_COL,
