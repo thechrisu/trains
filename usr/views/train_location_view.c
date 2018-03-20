@@ -6,6 +6,8 @@
 
 #define LINE_CLEARED  1357
 
+#define HEADER        "Train | Next |    Time | Diff (s) | Diff (cm)"
+
 #define TRAIN_COL     0
 #define NEXT_COL      1
 #define TIME_COL      2
@@ -41,7 +43,7 @@ void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
   } else {
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH %s%c%d",
-                  TRAIN_LOCATION_LINE + 2 + line, NEXT_COL,
+                  TRAIN_LOCATION_LINE + 2 + line, columns[NEXT_COL],
                   sensor_index(next_sensor) < 10 ? " " : "",
                   sensor_bank(next_sensor), sensor_index(next_sensor)) == 0);
 
@@ -54,7 +56,7 @@ void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
 
       Assert(Printf(terminal_tx_server_tid,
                     "\033[%d;%dH%s%d:%s%d.%d",
-                    TRAIN_LOCATION_LINE + 2 + line, TIME_COL,
+                    TRAIN_LOCATION_LINE + 2 + line, columns[TIME_COL],
                     minutes < 10 ? " " : "",
                     minutes, seconds < 10 ? "0" : "", seconds, deciseconds) == 0);
     }
@@ -81,14 +83,14 @@ void print_diffs(int terminal_tx_server_tid, int line,
 
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH  %s%c%d.%d%d",
-                  TRAIN_LOCATION_LINE + 2 + line, TIME_DIFF_COL,
+                  TRAIN_LOCATION_LINE + 2 + line, columns[TIME_DIFF_COL],
                   seconds < 10 ? " " : "",
                   ticks_diff < 0 ? '-' : ' ',
                   seconds, deciseconds, centiseconds) == 0);
 
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH    %s%c%d.%d",
-                  TRAIN_LOCATION_LINE + 2 + line, DIST_DIFF_COL,
+                  TRAIN_LOCATION_LINE + 2 + line, columns[DIST_DIFF_COL],
                   centimetres < 10 ? " " : "",
                   distance_diff < 0 ? '-' : ' ',
                   centimetres, millimetres) == 0);
@@ -122,8 +124,9 @@ void train_location_view() {
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s:%s",
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
   Assert(Printf(terminal_tx_server_tid,
-                "\033[%d;%dHTrain | Next |    Time | Diff (s) | Diff (cm)%s",
-                TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
+                "\033[%d;%dH%s%s",
+                TRAIN_LOCATION_LINE + 1, 1,
+                HEADER, HIDE_CURSOR_TO_EOL) == 0);
 
   int line_states[MAX_TRAINS];
   for (int i = 0; i < MAX_TRAINS; i += 1) {
@@ -160,7 +163,7 @@ void train_location_view() {
         clear_line(terminal_tx_server_tid, i);
         Assert(Printf(terminal_tx_server_tid,
                       "\033[%d;%dH  %s%d",
-                      TRAIN_LOCATION_LINE + 2 + i, TRAIN_COL,
+                      TRAIN_LOCATION_LINE + 2 + i, columns[TRAIN_COL],
                       train < 10 ? " " : "", train) == 0);
         line_states[i] = train;
       }
