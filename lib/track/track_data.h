@@ -206,4 +206,12 @@ bool node_follows(track_node *start, track_node *end);
  */
 int node_index_in_track_state(track_state *t, track_node *n);
 
+/**
+ * @param   t    A track state.
+ * @param   name The name of a track node.
+ * @returns A pointer to the node with that name in the track state, or
+            NULL_TRACK_NODE if there is no such node.
+  */
+track_node *find_node_by_name(track_state *t, char *name);
+
 #endif /* TRACK_DATA_H */

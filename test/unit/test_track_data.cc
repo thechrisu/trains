@@ -215,17 +215,6 @@ TEST(TrackDataTest, test_location_canonicalize) {
   test_canonicalization(&t, turnouts, 'E', 3, 1500 * 100, 'C', 9, 239 * 100);
 }
 
-track_node *find_node_by_name(track_state *t, char *name) {
-  for (int i = 0; i < TRACK_MAX; i += 1) {
-    track_node *node = &t->track[i];
-    if (strcmp(node->name, name) == 0) {
-      return node;
-    }
-  }
-
-  return nullptr;
-}
-
 void expect_node_follows(track_state *t, char *start_name, char *end_name, bool expect) {
   track_node *start = find_node_by_name(t, start_name);
   ASSERT_NE(nullptr, start);
