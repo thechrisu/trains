@@ -18,6 +18,9 @@ void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH     ",
                   TRAIN_LOCATION_LINE + 2 + line, NEXT_COL) == 0);
+    Assert(Printf(terminal_tx_server_tid,
+                  "\033[%d;%dH       ",
+                  TRAIN_LOCATION_LINE + 2 + line, TIME_COL) == 0);
   } else {
     Assert(Printf(terminal_tx_server_tid,
                   "\033[%d;%dH %s%c%d",
