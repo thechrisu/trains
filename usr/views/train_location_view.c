@@ -2,6 +2,8 @@
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
+#define MAX_TRAINS 3
+
 #define LINE_CLEARED  1357
 #define TRAIN_COL     1
 #define NEXT_COL      9
@@ -105,8 +107,8 @@ void train_location_view() {
                 "\033[%d;%dHTrain | Next |    Time | Diff (s) | Diff (cm)%s",
                 TRAIN_LOCATION_LINE + 1, 1, HIDE_CURSOR_TO_EOL) == 0);
 
-  int line_states[3];
-  for (int i = 0; i < 3; i += 1) {
+  int line_states[MAX_TRAINS];
+  for (int i = 0; i < MAX_TRAINS; i += 1) {
     clear_line(terminal_tx_server_tid, i);
     line_states[i] = LINE_CLEARED;
   }
@@ -136,7 +138,7 @@ void train_location_view() {
       reply_get_last_sensor_hit seen_sensor;
       get_last_sensor_hit(sensor_interpreter_tid, train, &seen_sensor);
 
-      if (line_states[i] != train && i < 3) {
+      if (line_states[i] != train && i < MAX_TRAINS) {
         Assert(Printf(terminal_tx_server_tid,
                       "\033[%d;%dH  %s%d",
                       TRAIN_LOCATION_LINE + 2 + i, TRAIN_COL,
@@ -189,7 +191,7 @@ void train_location_view() {
       get_coordinates(train_coordinates_server_tid, train, &current[train]);
     }
 
-    for (int i = num_active_trains; i < 3; i += 1) {
+    for (int i = num_active_trains; i < MAX_TRAINS; i += 1) {
       if (line_states[i] != LINE_CLEARED) {
         clear_line(terminal_tx_server_tid, i);
         line_states[i] = LINE_CLEARED;
