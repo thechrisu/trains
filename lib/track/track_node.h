@@ -90,6 +90,7 @@ typedef struct {
 
 typedef struct {
   location loc;
+  bool direction;
   int ticks;
   int current_speed;
   int last_speed;

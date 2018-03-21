@@ -280,7 +280,7 @@ bool is_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
     }
     if (passed_loc) {
       if ((*c)->type == NODE_MERGE && (*(c + 1) != NULL_TRACK_NODE
-          && (*(c + 1))->type == NODE_BRANCH)) {
+          && (*(c + 1))->type == NODE_BRANCH) && (*c)->num == (*(c + 1))->num) {
         track_node *other_dir = STRAIGHT(*(c + 1)) == *c ?
                                         CURVED(*(c + 1)) : STRAIGHT(*(c + 1));
         logprintf("This node: %s, other dir: %s\n\r", (*c)->name, other_dir->name);
