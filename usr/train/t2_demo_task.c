@@ -1,11 +1,11 @@
 #include "t2_demo_task.h"
 
-static int seed;
+static long long seed;
 
 int random_sensor() {
-  int m = 80;
-  int a = 1103515251;
-  int c = 44701;
+  long long m = 80;
+  long long a = 1103515251;
+  long long c = 44701;
   seed = (a * seed + c) % m;
   return seed;
 }
