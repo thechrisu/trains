@@ -285,8 +285,13 @@ void conductor_route_to(int clock_server, int train_tx_server,
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     train, sensor_offset, goal_offset);
+
+  train_data tr_data;
+  get_train(track_state_controller, train, &tr_data);
+
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
-  Assert(Delay(clock_server, 30) == 0);
+
+  Assert(Delay(clock_server, 30 * tr_data.should_speed) == 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
