@@ -248,12 +248,17 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       bool should_reverse = is_reverse_in_distance(route, &c.loc,
                       stopping_distance + TRAIN_LENGTH + switch_padding * 100);
       if (should_reverse) {
+        logprintf("Should reverse!\n\r");
         stop_and_reverse_train_to_speed(clock_server, train_tx_server,
-                                        track_state_controller, train, max_feasible_speed);
+                                        track_state_controller, train, 0);
         get_coordinates(train_coordinates_server, train, &c);
         // Note: We are using the old speed when switching turnouts!
         set_train_speed(train_tx_server, track_state_controller,
                         train, max_feasible_speed);
+        stopping_distance = (int)stopping_dist_from_velocity(
+                                c.velocity,
+                                velocity_model.msg.train_speeds,
+                                stopping_distance_model.msg.train_distances);
         loops = 0;
       }
       if (loops % 10 == 0) {

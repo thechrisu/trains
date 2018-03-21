@@ -16,8 +16,8 @@ void update_node_reverse(search_node_queue *q, search_node *current) {
   track_node *other_direction = current->node->reverse;
   search_node *node_in_other_direction = search_node_queue_find_by_node(q, other_direction);
   if (node_in_other_direction != NULL_SEARCH_NODE) {
-    if (current->distance < node_in_other_direction->distance) {
-      node_in_other_direction->distance = current->distance;
+    if (current->distance + 1 < node_in_other_direction->distance) {
+      node_in_other_direction->distance = current->distance + 1;
       node_in_other_direction->prev = current;
     }
   }
