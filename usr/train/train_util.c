@@ -266,31 +266,39 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
 
 bool is_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
                             int distance) {
-  bool passed_loc = false, is_merge = false;
-  track_node *cu;
+  bool passed_loc = false;
+  track_node *cu; // Current position
+  track_node **next_merge;
 
   track_node *last_switch = NULL_TRACK_NODE;
   for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
-    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+    if (!passed_loc && (*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
       logprintf("Offset : %d\n\r", loc->offset);
       logprintf("Current: %s, Next: %s\n\r", (*c)->name, (*(c + 1))->name);
       passed_loc = true;
       cu = *c;
     }
-    if (passed_loc && !is_merge) {
+    if (passed_loc) {
       if ((*c)->type == NODE_MERGE && (*(c + 1) != NULL_TRACK_NODE
           && (*(c + 1))->type == NODE_BRANCH)) {
         track_node *other_dir = STRAIGHT(*(c + 1)) == *c ?
                                         CURVED(*(c + 1)) : STRAIGHT(*(c + 1));
         logprintf("This node: %s, other dir: %s\n\r", (*c)->name, other_dir->name);
+        logprintf("two ahead: %s\n\r", (*(c + 1))->name);
         if (other_dir == *(c + 2)) {
+          next_merge = c + 1;
           last_switch = *(c + 1);
+          int dist = get_dist_on_route(route, loc, c + 1);
+          logprintf("dist: %d, distance: %d\n\r", dist, distance);
+          if (dist < distance) {
+            return true;
+          }
           // TODO rework remaining distance into this
           logprintf("dist: %d\n\r", get_dist_on_route(route, loc, &route[route_node_count(route) - 1]));
-          is_merge = true;
         }
       }
     }
   }
-  return last_switch != NULL_TRACK_NODE;
+  return last_switch != NULL_TRACK_NODE
+            && (get_dist_on_route(route, loc, next_merge) < distance);
 }
