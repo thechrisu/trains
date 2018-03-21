@@ -30,7 +30,8 @@ void t2_demo_task() {
     set_train_speed(train_tx_server_tid, track_state_controller_tid, received.msg.train, 12);
 
     int sensor = random_sensor();
-    while (!sensor_reachable(&track, sensor, sensor_offset('D', 5))) {
+    while (!sensor_reachable(&track, sensor, sensor_offset('D', 5)) ||
+           !sensor_reachable(&track, sensor_pair(&track, sensor), sensor_offset('D', 5))) {
       sensor = random_sensor();
     }
 
