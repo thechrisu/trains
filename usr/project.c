@@ -333,6 +333,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &sensor_interpreter) > 0);
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
   Assert(Create(my_priority + 2, &router) > 0);
+  Assert(Create(my_priority + 2, &track_reservation_server) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
@@ -357,6 +358,7 @@ void project_first_user_task() {
   Assert(Create(my_priority - 1, &turnout_resetter) > 0);
 
   Assert(Create(my_priority, &clock_view) > 0);
+  Assert(Create(my_priority, &reservation_view) > 0);
   Assert(Create(my_priority, &sensor_view) > 0);
   Assert(Create(my_priority, &train_location_view) > 0);
   Assert(Create(my_priority, &turnout_view) > 0);
