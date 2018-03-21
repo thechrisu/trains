@@ -227,7 +227,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
     for (int loops = 0; /* forever */; loops += 1) {
       if (Time(clock_server) - s > 100 * 50)
-        Assert(0 && 't' == 'i' == 'm' == 'e' == 'o' == 'u' == 't');
+        Assert(0 && "TIMEOUT");
 
       get_coordinates(train_coordinates_server, train, &c);
 
@@ -246,10 +246,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 #endif /* ACC_CALIB_DEBUG */
 
-      bool should_reverse = is_reverse_in_distance(route, &c.loc,
-                      stopping_distance + (c.direction ? 0 : TRAIN_LENGTH)
-                      + switch_padding * 100);
-      if (should_reverse) {
+      int should_reverse = get_reverse_in_distance(route, &c.loc,
+                      stopping_distance - (c.direction ? TRAIN_LENGTH : 0)
+                      - switch_padding * 100);
+      if (should_reverse != -1) {
         logprintf("Should reverse!\n\r");
         stop_and_reverse_train_to_speed(clock_server, train_tx_server,
                                         track_state_controller, train, 0);
@@ -262,6 +262,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                 velocity_model.msg.train_speeds,
                                 stopping_distance_model.msg.train_distances);
         loops = 0;
+        switch_turnout(clock_server, train_tx_server, track_state_controller,
+                       should_reverse & 0xFF,
+                       ((should_reverse >> 8) & 0xFF) == TURNOUT_CURVED);
       }
       if (loops % 10 == 0) {
         switch_turnouts_within_distance(clock_server, train_tx_server,

@@ -153,7 +153,9 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
 /**
  * Given a route, determine if - based on the current position - we have to
  * reverse within the distance given.
+ * @return -1 if we don't have to reverse, or turnout num in the lowest 8 bits,
+ *                                         turnout state in the next 8 bits
  */
-bool is_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
+int get_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
                             int distance);
 #endif /* TRAIN_UTIL_H */

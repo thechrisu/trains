@@ -1,5 +1,10 @@
 #include "test_route_execution.h"
 
+bool is_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
+                            int distance) {
+  return -1 != get_reverse_in_distance(route, loc, distance);
+}
+
 void route_execution_test_setup() {
   int my_priority = MyPriority();
 
