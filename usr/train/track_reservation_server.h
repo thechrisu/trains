@@ -11,6 +11,10 @@
 #include "track_data.h"
 #include "track_node.h"
 
+#define RESERVATION_ENCODE(start, end) ((start) * TRACK_MAX + (end))
+#define RESERVATION_START(code)        ((code) / TRACK_MAX)
+#define RESERVATION_END(code)          ((code) % TRACK_MAX)
+
 void track_reservation_server();
 
 #endif /* TRACK_RESERVATION_SERVER_H */

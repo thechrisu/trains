@@ -207,4 +207,14 @@ int reservation_drop(int track_reservation_server, int train,
  */
 void reservation_drop_all(int track_reservation_server, int train);
 
+/**
+ * Gets all of a train's reservations.
+ *
+ * @param track_reservation_server Task ID of the track reservation server.
+ * @param train                    Train to get all reservations for.
+ * @param reservations             Place to store the reservations.
+ */
+void reservation_get_all(int track_reservation_server, int train,
+                         message_reservation_get_all_response *reservations);
+
 #endif /* TRAIN_COMMANDS_H */

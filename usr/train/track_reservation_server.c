@@ -10,9 +10,9 @@
 static int reserved_by[TRACK_MAX][TRACK_MAX];
 
 int handle_reservation_request(message_reservation_request *req,
-                                int check_for_reservation_by,
-                                int reserve_for,
-                                int reservation_error_response) {
+                               int check_for_reservation_by,
+                               int reserve_for,
+                               int reservation_error_response) {
   track_node *start = req->nodes[0];
   track_node *end = req->nodes[1];
 
@@ -97,6 +97,33 @@ void track_reservation_server() {
         }
 
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      }
+      case MESSAGE_RESERVATION_GET_ALL: {
+        reply.type = REPLY_RESERVATION_GET_ALL;
+
+        int train = received.msg.reservation_request.train;
+
+        reply.msg.all_reservations.count = 0;
+
+        for (int i = 0; i < TRACK_MAX; i += 1) {
+          if (reply.msg.all_reservations.count >= MAX_RESERVATIONS_RETURNED) {
+            break;
+          }
+
+          for (int j = 0; j < TRACK_MAX; j += 1) {
+            if (reply.msg.all_reservations.count >= MAX_RESERVATIONS_RETURNED) {
+              break;
+            }
+
+            if (reserved_by[i][j] == train) {
+              reply.msg.all_reservations.reservations[reply.msg.all_reservations.count] = RESERVATION_ENCODE(i, j);
+              reply.msg.all_reservations.count += 1;
+            }
+          }
+        }
+
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
       }
       default:

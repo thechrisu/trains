@@ -11,6 +11,7 @@
 #include "user_command.h"
 
 #define PRINTF_MESSAGE_BUFFER_SIZE 256
+#define MAX_RESERVATIONS_RETURNED 30
 
 enum message_type {
   MESSAGE_NOTIFIER,
@@ -70,6 +71,8 @@ enum message_type {
   MESSAGE_RESERVATION_DROP,
   REPLY_RESERVATION_DROP,
   MESSAGE_RESERVATION_DROP_ALL,
+  MESSAGE_RESERVATION_GET_ALL,
+  REPLY_RESERVATION_GET_ALL,
 };
 
 typedef struct {
@@ -141,6 +144,11 @@ typedef struct {
 } message_reservation_request;
 
 typedef struct {
+  int reservations[MAX_RESERVATIONS_RETURNED];
+  int count;
+} message_reservation_get_all_response;
+
+typedef struct {
   int type;
   union {
     int32_t reply_time_ticks;
@@ -174,6 +182,7 @@ typedef struct {
     message_update_coords update_coords;
     message_reservation_request reservation_request;
     int reservation_response;
+    message_reservation_get_all_response all_reservations;
   } msg;
 } message;
 

@@ -249,3 +249,19 @@ void reservation_drop_all(int track_reservation_server, int train) {
               &send, sizeof(send),
               EMPTY_MESSAGE, 0) == 0);
 }
+
+void reservation_get_all(int track_reservation_server, int train,
+                         message_reservation_get_all_response *reservations) {
+  message send, reply;
+
+  send.type = MESSAGE_RESERVATION_GET_ALL;
+  send.msg.reservation_request.train = train;
+
+  Assert(Send(track_reservation_server,
+              &send, sizeof(send),
+              &reply, sizeof(reply)) == sizeof(reply));
+
+  Assert(reply.type == REPLY_RESERVATION_GET_ALL);
+
+  tmemcpy(reservations, &reply.msg.all_reservations, sizeof(*reservations));
+}
