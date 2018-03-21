@@ -23,7 +23,7 @@ bool reservations_differ(message_reservation_get_all_response *left,
 }
 
 static void clear_line(int terminal_tx_server_tid, int line) {
-  Assert(Printf(terminal_tx_server_tid, "\033%d;%dH      |%s",
+  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH      |%s",
                 RESERVATION_LINE + 2 + line, 1, HIDE_CURSOR_TO_EOL) == 0);
 };
 
@@ -38,7 +38,7 @@ void print_reservations(int terminal_tx_server_tid, int line,
     track_node *start = &track.track[RESERVATION_START(this_res)];
     track_node *end = &track.track[RESERVATION_END(this_res)];
 
-    Assert(Printf(terminal_tx_server_tid, "\033%d;%dH%s -> %s%s",
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH%s -> %s%s",
                   RESERVATION_LINE + 2 + line, col,
                   start->name, end->name,
                   i < res->count - 1 ? ", " : "") == 0);
@@ -83,10 +83,15 @@ void reservation_view() {
       message_reservation_get_all_response res;
       reservation_get_all(track_reservation_server_tid, train, &res);
 
-      if (reservations_differ(&res, &reservations[train])) {
+      if (reservations_differ(&res, &reservations[train]) ||
+          line_states[i] != train) {
         tmemcpy(&reservations[train], &res, sizeof(reservations[train]));
+
+        clear_line(terminal_tx_server_tid, i);
         print_reservations(terminal_tx_server_tid, i, &reservations[train]);
       }
+
+      line_states[i] = train;
     }
 
     for (int i = num_active_trains; i < MAX_TRAINS; i += 1) {
