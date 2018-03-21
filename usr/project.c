@@ -89,6 +89,16 @@ void user_command_print(int server_tid, user_command *cmd) {
                     cmd->data[0], sensor_bank(cmd->data[1]), sensor_index(cmd->data[1]),
                     cmd->data[2], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_T2START:
+      Assert(Printf(server_tid, "%s%s%sT2START %d          %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
+    case USER_CMD_T2STOP:
+      Assert(Printf(server_tid, "%s%s%sT2STOP %d          %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
@@ -189,6 +199,20 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             }
           }
         }
+      }
+    } else if (string_starts_with(ibuf->data, "t2start ", ibuf->elems)) {
+      int nParse = is_valid_number(ibuf, 8);
+      if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
+        int address = parse_two_digit_number(ibuf->data + 8);
+        cmd->type = USER_CMD_T2START;
+        cmd->data[0] = address;
+      }
+    } else if (string_starts_with(ibuf->data, "t2stop ", ibuf->elems)) {
+      int nParse = is_valid_number(ibuf, 7);
+      if (nParse >= 0 && ibuf->elems >= (unsigned int) nParse) {
+        int address = parse_two_digit_number(ibuf->data + 7);
+        cmd->type = USER_CMD_T2STOP;
+        cmd->data[0] = address;
       }
     } else if (string_starts_with(ibuf->data, "loop ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 5);

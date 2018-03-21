@@ -17,6 +17,8 @@ enum user_command_type {
   USER_CMD_LOOP,
   USER_CMD_SET,
   USER_CMD_R,
+  USER_CMD_T2START,
+  USER_CMD_T2STOP,
   NULL_USER_CMD
 };
 

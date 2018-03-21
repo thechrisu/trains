@@ -7,6 +7,7 @@ typedef struct {
   int tid, msgs_available, msgs_i, msgs_o;
   bool rdy, auto_mode;
   message msgs[TR_Q_LEN];
+  int t2_tid;
 } conductor_data;
 
 /**
@@ -103,6 +104,7 @@ void update_conductors(conductor_data conductors[81]) {
       conductors[t].msgs_o = 0;
       conductors[t].msgs_available = 0;
       conductors[t].auto_mode = false;
+      conductors[t].t2_tid = 0;
     }
   }
 }
@@ -128,7 +130,13 @@ void command_dispatcher_server() {
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
-    Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+
+    if (!(received.type == MESSAGE_USER &&
+          received.msg.cmd.type == USER_CMD_R &&
+          sender_tid == conductors[received.msg.cmd.data[0]].t2_tid)) {
+      Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+    }
+
     switch (received.type) {
       case MESSAGE_USER: {
         switch (received.msg.cmd.type) {
@@ -156,6 +164,33 @@ void command_dispatcher_server() {
               send_if_rdy(&received, &conductors[received.msg.cmd.data[0]],
                           terminal_tx_server);
             }
+            break;
+          }
+          case USER_CMD_T2START: {
+            int train = (int)received.msg.cmd.data[0];
+
+            if (conductors[train].t2_tid == 0) {
+              message send;
+              send.type = MESSAGE_T2_START;
+              send.msg.train = train;
+
+              int t2_tid = Create(MyPriority() + 1, &t2_demo_task);
+              Assert(t2_tid > 0);
+              conductors[train].t2_tid = t2_tid;
+              Assert(Send(t2_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+            }
+
+            break;
+          }
+          case USER_CMD_T2STOP: {
+            int train = (int)received.msg.cmd.data[0];
+            int t2_tid = conductors[train].t2_tid;
+
+            if (t2_tid != 0) {
+              Assert(Kill(t2_tid) == 0);
+              conductors[train].t2_tid = 0;
+            }
+
             break;
           }
           case USER_CMD_SW: {
@@ -215,6 +250,10 @@ void command_dispatcher_server() {
       }
       case MESSAGE_READY:
         conductor_ready(conductors + received.msg.train);
+        int t2_tid = conductors[(int)received.msg.train].t2_tid;
+        if (t2_tid != 0) {
+          Assert(Reply(t2_tid, EMPTY_MESSAGE, 0) >= 0);
+        }
         break;
       default:
         Assert(0); // :(

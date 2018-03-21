@@ -18,6 +18,7 @@
 #include "train/train_conductor.h"
 #include "train/calibration/stopping_distance_calibrator.h"
 #include "train/calibration/velocity_calibrator.h"
+#include "train/t2_demo_task.h"
 
 /**
  * Interprets messages sent from the train FirstUserTask and relays them
