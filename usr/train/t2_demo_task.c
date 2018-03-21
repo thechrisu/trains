@@ -30,6 +30,7 @@ void t2_demo_task() {
     set_train_speed(train_tx_server_tid, track_state_controller_tid, received.msg.train, 12);
 
     int sensor = random_sensor();
+    // TODO remove this check after routing with reversal is sufficiently robust
     while (!sensor_reachable(&track, sensor, sensor_offset('D', 5)) ||
            !sensor_reachable(&track, sensor_pair(&track, sensor), sensor_offset('D', 5))) {
       sensor = random_sensor();
@@ -42,6 +43,6 @@ void t2_demo_task() {
     send.msg.cmd.data[2] = 0;
 
     Assert(Send(command_dispatcher, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-    Assert(Delay(clock_server_tid, 40 * 12) == 0);
+    Assert(Delay(clock_server_tid, 30 * 12) == 0);
   }
 }
