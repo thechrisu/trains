@@ -263,5 +263,5 @@ void reservation_get_all(int track_reservation_server, int train,
 
   Assert(reply.type == REPLY_RESERVATION_GET_ALL);
 
-  tmemcpy(reservations, &reply.msg.all_reservations, sizeof(&reservations));
+  tmemcpy(reservations, &reply.msg.all_reservations, sizeof(*reservations));
 }

@@ -31,7 +31,9 @@ static void clear_line(int terminal_tx_server_tid, int line) {
 
 void print_reservations(int terminal_tx_server_tid, int line,
                         message_reservation_get_all_response *res) {
-  clear_line(terminal_tx_server_tid, line);
+  Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH%s",
+                RESERVATION_LINE + 2 + line, RES_COL,
+                HIDE_CURSOR_TO_EOL) == 0);
 
   int col = RES_COL;
 
@@ -85,15 +87,19 @@ void reservation_view() {
       message_reservation_get_all_response res;
       reservation_get_all(track_reservation_server_tid, train, &res);
 
+      if (line_states[i] != train) {
+        clear_line(terminal_tx_server_tid, i);
+        Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH   %s%d",
+                      RESERVATION_LINE + 2 + i, 1,
+                      train < 10 ? " " : "", train) == 0);
+        line_states[i] = train;
+      }
+
       if (reservations_differ(&res, &reservations[train]) ||
           line_states[i] != train) {
         tmemcpy(&reservations[train], &res, sizeof(reservations[train]));
-
-        clear_line(terminal_tx_server_tid, i);
         print_reservations(terminal_tx_server_tid, i, &reservations[train]);
       }
-
-      line_states[i] = train;
     }
 
     for (int i = num_active_trains; i < MAX_TRAINS; i += 1) {
