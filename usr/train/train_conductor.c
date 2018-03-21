@@ -286,6 +286,7 @@ void conductor_route_to(int clock_server, int train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     train, sensor_offset, goal_offset);
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+  Assert(Delay(clock_server, 30) == 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,

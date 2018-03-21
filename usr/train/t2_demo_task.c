@@ -20,7 +20,6 @@ void t2_demo_task() {
   int command_dispatcher = WhoIs("CommandDispatcher");
   int train_tx_server_tid = WhoIs("TrainTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
-  int clock_server_tid = WhoIs("ClockServer");
 
   seed = get_clockticks();
 
@@ -43,6 +42,5 @@ void t2_demo_task() {
     send.msg.cmd.data[2] = 0;
 
     Assert(Send(command_dispatcher, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
-    Assert(Delay(clock_server_tid, 30 * 12) == 0);
   }
 }
