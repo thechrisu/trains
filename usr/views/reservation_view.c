@@ -92,7 +92,6 @@ void reservation_view() {
         Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH   %s%d",
                       RESERVATION_LINE + 2 + i, 1,
                       train < 10 ? " " : "", train) == 0);
-        line_states[i] = train;
       }
 
       if (reservations_differ(&res, &reservations[train]) ||
@@ -100,6 +99,8 @@ void reservation_view() {
         tmemcpy(&reservations[train], &res, sizeof(reservations[train]));
         print_reservations(terminal_tx_server_tid, i, &reservations[train]);
       }
+
+      line_states[i] = train;
     }
 
     for (int i = num_active_trains; i < MAX_TRAINS; i += 1) {
