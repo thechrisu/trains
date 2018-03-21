@@ -1,6 +1,6 @@
 #include "reservation_view.h"
 
-#define HEADER       "Train | reservations"
+#define HEADER       "Train | Reservations"
 
 #define LINE_CLEARED 1357
 #define RES_COL      9
