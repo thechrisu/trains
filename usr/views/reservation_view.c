@@ -1,5 +1,7 @@
 #include "reservation_view.h"
 
+#define RES_VIEW_REFRESH_PERIOD 100
+
 #define HEADER       "Train | Reservations"
 
 #define LINE_CLEARED 1357
@@ -102,6 +104,6 @@ void reservation_view() {
     }
 
     loops += 1;
-    DelayUntil(clock_server_tid, REFRESH_PERIOD * loops);
+    DelayUntil(clock_server_tid, RES_VIEW_REFRESH_PERIOD * loops);
   }
 }
