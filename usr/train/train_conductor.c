@@ -155,7 +155,7 @@ bool perform_reverse_if_necessary(
   // Assert(critical_dist >= 0);
   int switch_to_reverse = get_reverse_in_distance(route, &c->loc,
                   critical_dist - switch_padding * 100);
-  bool has_reverse = track_has_reverse_in_dist(route, &c->loc, critical_dist);
+  bool has_reverse = track_has_reverse_in_dist(route, &c->loc);
   if (switch_to_reverse != -1 || has_reverse){
     logprintf("Should reverse! (has reverse: %s)\n\r",
               has_reverse ? "TRUE" : "FALSE");

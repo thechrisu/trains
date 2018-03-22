@@ -277,7 +277,7 @@ track_node **get_last_sensor_passed_in_route(track_node *route[MAX_ROUTE_LENGTH]
 }
 
 bool track_has_reverse_in_dist(track_node *route[MAX_ROUTE_LENGTH],
-                               location *loc, int distance) {
+                               location *loc) {
   track_node **c = get_last_sensor_passed_in_route(route, loc);
   if (c == (track_node **)NULL_TRACK_NODE) return false;
   if ((*c) == NULL_TRACK_NODE || (*(c + 1)) == NULL_TRACK_NODE) return false;
@@ -287,7 +287,6 @@ bool track_has_reverse_in_dist(track_node *route[MAX_ROUTE_LENGTH],
 int get_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
                             int distance) {
   bool passed_loc = false;
-  track_node **next_merge;
   turnout_state merge_state = TURNOUT_UNKNOWN;
 
   track_node *last_switch = NULL_TRACK_NODE;
@@ -304,7 +303,6 @@ int get_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
         logprintf("This node: %s, other dir: %s\n\r", (*c)->name, other_dir->name);
         logprintf("two ahead: %s\n\r", (*(c + 1))->name);
         if (other_dir == *(c + 2)) {
-          next_merge = c + 1;
           last_switch = *(c + 1);
           merge_state = STRAIGHT(*(c + 1)) == *(c + 2) ? TURNOUT_STRAIGHT : TURNOUT_CURVED;
           int dist = get_dist_on_route(route, loc, c + 1);
@@ -313,7 +311,7 @@ int get_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
             return ((last_switch->num & 0xFF) | (merge_state << 8));
           }
           // TODO rework remaining distance into this
-          logprintf("dist: %d\n\r", get_dist_on_route(route, loc, &route[route_node_count(route) - 1]));
+          // logprintf("dist: %d\n\r", get_dist_on_route(route, loc, &route[route_node_count(route) - 1]));
         }
       }
     }

@@ -160,5 +160,5 @@ int get_reverse_in_distance(track_node *route[MAX_ROUTE_LENGTH], location *loc,
                             int distance);
 
 bool track_has_reverse_in_dist(track_node *route[MAX_ROUTE_LENGTH],
-                               location *loc, int distance);
+                               location *loc);
 #endif /* TRAIN_UTIL_H */
