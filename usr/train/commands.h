@@ -179,7 +179,7 @@ void get_coordinates(int train_coordinates_server, int train, coordinates *c);
  * @param   end                      End of the edge.
  * @returns 0 on success.
  *          -1 if `start` and `end` don't form an edge.
- *          -2 if the edge is already reserved by a train.
+ *          -2 if some other train has the edge reserved.
  */
 int reservation_make(int track_reservation_server, int train,
                      track_node *start, track_node *end);
@@ -193,8 +193,7 @@ int reservation_make(int track_reservation_server, int train,
  * @param   end                      End of the edge.
  * @returns 0 on success.
  *          -1 if `start` and `end` don't form an edge.
- *          -2 if the given train doesn't have the edge reserved (_i.e._ another
- *          train reserved it or it isn't reserved at all).
+ *          -2 if some other train has the edge reserved.
  */
 int reservation_drop(int track_reservation_server, int train,
                      track_node *start, track_node *end);

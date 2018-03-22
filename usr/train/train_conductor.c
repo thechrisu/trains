@@ -151,8 +151,68 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   return -1;
 }
 
+void drop_reservations_behind(int track_reservation_server,
+                              int train,
+                              track_node *route[MAX_ROUTE_LENGTH],
+                              location *loc) {
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      return;
+    }
+
+    reservation_drop(track_reservation_server, train,
+                     *c, *(c + 1));
+  }
+}
+
+bool get_reservations_within_distance(int track_reservation_server,
+                                      int train,
+                                      track_node *route[MAX_ROUTE_LENGTH],
+                                      location *loc, int distance) {
+  bool passed_loc = false;
+  int distance_so_far = loc->offset;
+
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+      passed_loc = true;
+    }
+
+    logprintf("distance_so_far: %d, distance: %d\n\r", distance_so_far, distance);
+    if (passed_loc && distance_so_far < distance) {
+      int result = reservation_make(track_reservation_server, train,
+                                    *c, *(c + 1));
+
+      if (result < 0) {
+        logprintf("Got result %d while trying to obtain %s -> %s for train %d\n\r", result, (*c)->name, (*(c + 1))->name, train);
+        return false;
+      }
+
+      switch ((*c)->type) {
+        case NODE_SENSOR:
+        case NODE_MERGE:
+        case NODE_ENTER:
+          distance_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
+          break;
+        case NODE_BRANCH:
+          if (*(c + 1) == STRAIGHT(*c)) {
+            distance_so_far += (*c)->edge[DIR_STRAIGHT].dist * 100;
+          } else {
+            distance_so_far += (*c)->edge[DIR_CURVED].dist * 100;
+          }
+          break;
+        default:
+          logprintf("Invalid node type when getting distance between nodes: %d\n\r", (*c)->type);
+          break;
+      }
+    }
+  }
+
+  return true;
+}
+
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
+                                       int track_reservation_server,
                                        int train, int sensor_offset, int goal_offset) {
   location end;
   end.sensor = sensor_offset;
@@ -241,12 +301,50 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         break;
       }
 
-      int dist_left = get_remaining_dist_in_route(route, &c.loc);
-
       int stopping_distance = (int)stopping_dist_from_velocity(
                                   c.velocity,
                                   velocity_model.msg.train_speeds,
                                   stopping_distance_model.msg.train_distances);
+
+      if (loops % 10 == 0) {
+        drop_reservations_behind(track_reservation_server, train,
+                                 route, &c.loc);
+        bool result = get_reservations_within_distance(track_reservation_server, train,
+                                                       route, &c.loc,
+                                                       stopping_distance + switch_padding * 100);
+        if (!result) {
+          int speed_before_reverse = c.current_speed;
+          conductor_setspeed(train_tx_server, track_state_controller, train, 0);
+          Delay(clock_server, 30 * c.current_speed);
+
+          get_coordinates(train_coordinates_server, train, &c);
+          drop_reservations_behind(track_reservation_server, train, route, &c.loc);
+
+          for (int i = 0; i < 5; i += 1) {
+            Delay(clock_server, train);
+            result = get_reservations_within_distance(track_reservation_server,
+                                                      train,
+                                                      route, &c.loc,
+                                                      stopping_distance + switch_padding * 100);
+            if (result) break;
+          }
+
+          if (result) {
+            dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
+            max_feasible_speed = get_max_feasible_speed(dist_left,
+                                                        stopping_distance_model.msg.train_distances);
+            conductor_setspeed(train_tx_server, track_state_controller, train, max_feasible_speed);
+          } else {
+            stop_and_reverse_train_to_speed(clock_server, train_tx_server,
+                                            track_state_controller, train, speed_before_reverse);
+            got_error = true;
+            break;
+          }
+        }
+      }
+
+      int dist_left = get_remaining_dist_in_route(route, &c.loc);
+
 #if ACC_CALIB_DEBUG
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 #endif /* ACC_CALIB_DEBUG */
@@ -281,9 +379,11 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
  */
 void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int train_coordinates_server,
+                        int track_reservation_server,
                         int train, int sensor_offset, int goal_offset) {
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
+                                    track_reservation_server,
                                     train, sensor_offset, goal_offset);
 
   train_data tr_data;
@@ -296,12 +396,14 @@ void conductor_route_to(int clock_server, int train_tx_server,
 
 void conductor_loop(int clock_server, int train_tx_server,
                     int track_state_controller, int train_coordinates_server,
+                    int track_reservation_server,
                     int train, int speed) {
   unsigned int D5 = sensor_offset('D', 5);
 
   conductor_setspeed(train_tx_server, track_state_controller, train, speed);
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
+                                    track_reservation_server,
                                     train, D5, 0);
 
   bool timed_out = poll_until_sensor_pair_triggered_with_timeout(
@@ -337,11 +439,13 @@ void train_conductor() {
   int track_state_controller = WhoIs("TrackStateController");
   int cmd_dispatcher = WhoIs("CommandDispatcher");
   int train_coordinates_server = WhoIs("TrainCoordinatesServer");
+  int track_reservation_server = WhoIs("TrackReservationServer");
   Assert(train_tx_server > 0);
   Assert(clock_server > 0);
   Assert(track_state_controller > 0);
   Assert(cmd_dispatcher > 0);
   Assert(train_coordinates_server > 0);
+  Assert(track_reservation_server > 0);
 
   train_data d;
   d.last_speed = 0;
@@ -370,6 +474,7 @@ void train_conductor() {
           case USER_CMD_LOOP:
             conductor_loop(clock_server, train_tx_server,
                            track_state_controller, train_coordinates_server,
+                           track_reservation_server,
                            d.train, received.msg.cmd.data[1]);
             break;
           case USER_CMD_TR:
@@ -386,6 +491,7 @@ void train_conductor() {
             Assert(received.msg.cmd.data[0] == d.train);
             conductor_route_to(clock_server, train_tx_server,
                             track_state_controller, train_coordinates_server,
+                            track_reservation_server,
                             d.train, received.msg.cmd.data[1], received.msg.cmd.data[2] * 100);
             break;
           default:

@@ -25,8 +25,10 @@ int handle_reservation_request(message_reservation_request *req,
     int reverse_start_index = node_index_in_track_state(&track, end->reverse);
     int reverse_end_index = node_index_in_track_state(&track, start->reverse);
 
-    if (reserved_by[start_index][end_index] == check_for_reservation_by) {
-      if (reserved_by[reverse_start_index][reverse_end_index] != check_for_reservation_by) {
+    if (reserved_by[start_index][end_index] == check_for_reservation_by ||
+        reserved_by[start_index][end_index] == reserve_for) {
+      if (reserved_by[reverse_start_index][reverse_end_index] != check_for_reservation_by &&
+          reserved_by[reverse_start_index][reverse_end_index] != reserve_for) {
         logprintf("Edge from %s to %s was owned by %d, but reverse from %s to %s was not",
                   start->name, end->name, check_for_reservation_by,
                   start->reverse->name, end->reverse->name);
@@ -67,6 +69,12 @@ void track_reservation_server() {
                                                   received.msg.reservation_request.train,
                                                   RESPONSE_ALREADY_RESERVED);
 
+        logprintf("Train %d made reservation from %s to %s, with response %d\n\r",
+                  received.msg.reservation_request.train,
+                  received.msg.reservation_request.nodes[0]->name,
+                  received.msg.reservation_request.nodes[1]->name,
+                  response);
+
         reply.msg.reservation_response = response;
 
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
@@ -79,6 +87,12 @@ void track_reservation_server() {
                                                   received.msg.reservation_request.train,
                                                   NOT_RESERVED,
                                                   RESPONSE_NOT_RESERVED);
+
+        logprintf("Train %d dropped reservation from %s to %s, with response %d\n\r",
+                  received.msg.reservation_request.train,
+                  received.msg.reservation_request.nodes[0]->name,
+                  received.msg.reservation_request.nodes[1]->name,
+                  response);
 
         reply.msg.reservation_response = response;
 
@@ -104,6 +118,8 @@ void track_reservation_server() {
 
         int train = received.msg.reservation_request.train;
 
+        logprintf("Getting all reservations for train %d\n\r", train);
+
         reply.msg.all_reservations.count = 0;
 
         for (int i = 0; i < TRACK_MAX; i += 1) {
@@ -119,9 +135,12 @@ void track_reservation_server() {
             if (reserved_by[i][j] == train) {
               reply.msg.all_reservations.reservations[reply.msg.all_reservations.count] = RESERVATION_ENCODE(i, j);
               reply.msg.all_reservations.count += 1;
+              logprintf("Train %d has reservation from %s to %s\n\r", train, track.track[i].name, track.track[j].name);
             }
           }
         }
+
+        logprintf("Train %d has %d reservations in total\n\r", train, reply.msg.all_reservations.count);
 
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
