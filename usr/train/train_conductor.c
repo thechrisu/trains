@@ -145,6 +145,32 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   return -1;
 }
 
+bool perform_reverse_if_necessary(
+                  int clock_server, int train_tx_server,
+                  int track_state_controller,
+                  int train, int stopping_distance,
+                  track_node *route[MAX_ROUTE_LENGTH], coordinates *c) {
+  //if (c->loc.sensor == sensor_offset('A', 7)) Assert(0 && "BREAK");
+  int critical_dist = stopping_distance - (c->direction ? TRAIN_LENGTH : 0);
+  // Assert(critical_dist >= 0);
+  int switch_to_reverse = get_reverse_in_distance(route, &c->loc,
+                  critical_dist - switch_padding * 100);
+  bool has_reverse = track_has_reverse_in_dist(route, &c->loc, critical_dist);
+  if (switch_to_reverse != -1 || has_reverse){
+    logprintf("Should reverse! (has reverse: %s)\n\r",
+              has_reverse ? "TRUE" : "FALSE");
+    stop_and_reverse_train_to_speed(clock_server, train_tx_server,
+                                    track_state_controller, train, 0);
+    if (switch_to_reverse != -1) {
+      switch_turnout(clock_server, train_tx_server, track_state_controller,
+                     switch_to_reverse & 0xFF,
+                     ((switch_to_reverse >> 8) & 0xFF) == TURNOUT_CURVED);
+    }
+    return true;
+  }
+  return false;
+}
+
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
                                        int train, int sensor_offset, int goal_offset) {
@@ -246,14 +272,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 #endif /* ACC_CALIB_DEBUG */
 
-      int should_reverse = get_reverse_in_distance(route, &c.loc,
-                      stopping_distance - (c.direction ? TRAIN_LENGTH : 0)
-                      - switch_padding * 100);
-      if (should_reverse != -1) {
-        logprintf("Should reverse!\n\r");
-        stop_and_reverse_train_to_speed(clock_server, train_tx_server,
-                                        track_state_controller, train, 0);
-        get_coordinates(train_coordinates_server, train, &c);
+      bool did_reverse = perform_reverse_if_necessary(clock_server,
+                            train_tx_server, track_state_controller,
+                            train, stopping_distance, route, &c);
+      if (did_reverse) {
         // Note: We are using the old speed when switching turnouts!
         set_train_speed(train_tx_server, track_state_controller,
                         train, max_feasible_speed);
@@ -261,12 +283,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                 c.velocity,
                                 velocity_model.msg.train_speeds,
                                 stopping_distance_model.msg.train_distances);
-        loops = 0;
-        switch_turnout(clock_server, train_tx_server, track_state_controller,
-                       should_reverse & 0xFF,
-                       ((should_reverse >> 8) & 0xFF) == TURNOUT_CURVED);
+        logprintf("After reverse, speed up to %d\n\r", max_feasible_speed);
+        get_coordinates(train_coordinates_server, train, &c);
       }
-      if (loops % 10 == 0) {
+      if (loops % 10 == 0 || did_reverse) {
         switch_turnouts_within_distance(clock_server, train_tx_server,
                                         track_state_controller, route, &c.loc,
                                         stopping_distance + switch_padding * 100);

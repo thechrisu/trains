@@ -237,6 +237,7 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
       return current_node;
     }
   }
+  logprintf("Offset: %d\n\r", offset);
 
   Assert(0);
   return 0;
