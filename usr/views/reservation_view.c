@@ -42,11 +42,11 @@ void print_reservations(int terminal_tx_server_tid, int line,
     track_node *start = &track.track[RESERVATION_START(this_res)];
     track_node *end = &track.track[RESERVATION_END(this_res)];
 
-    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH%s -> %s%s",
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH%s->%s%s",
                   RESERVATION_LINE + 2 + line, col,
                   start->name, end->name,
                   i < res->count - 1 ? ", " : "") == 0);
-    col += tstrlen((char *)start->name) + 4 + tstrlen((char *)end->name) + 2;
+    col += tstrlen((char *)start->name) + 2 + tstrlen((char *)end->name) + 2;
   }
 }
 
