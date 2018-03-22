@@ -7,7 +7,7 @@ int random_sensor() {
   long long a = 1103515251;
   long long c = 44701;
   seed = (a * seed + c) % m;
-  return seed;
+  return seed % m;
 }
 
 void t2_demo_task() {
