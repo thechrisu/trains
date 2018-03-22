@@ -6,16 +6,17 @@
 
 #define LINE_CLEARED  1357
 
-#define HEADER        "Train | Next |    Time | Diff (s) | Diff (cm)"
+#define HEADER        "Train | Dest | Next |    Time | Diff (s) | Diff (cm)"
 
 #define TRAIN_COL     0
-#define NEXT_COL      1
-#define TIME_COL      2
-#define TIME_DIFF_COL 3
-#define DIST_DIFF_COL 4
+#define DEST_COL      1
+#define NEXT_COL      2
+#define TIME_COL      3
+#define TIME_DIFF_COL 4
+#define DIST_DIFF_COL 5
 
-static int columns[] = { 1, 9, 16, 26, 37 };
-static int column_widths[] = { 5, 4, 7, 8, 9 };
+static int columns[] = { 1, 9, 16, 23, 33, 44 };
+static int column_widths[] = { 5, 4, 4, 7, 8, 9 };
 
 void clear_cell(int terminal_tx_server_tid, int line, int column) {
   char output_buffer[50];
@@ -40,6 +41,18 @@ void clear_cell(int terminal_tx_server_tid, int line, int column) {
 
   Assert(Printf(terminal_tx_server_tid, output_buffer,
                 TRAIN_LOCATION_LINE + 2 + line, columns[column]) == 0);
+}
+
+void print_destination(int terminal_tx_server_tid, int line, unsigned int destination) {
+  if (destination == NO_DESTINATION) {
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH    ",
+                  TRAIN_LOCATION_LINE + 2 + line, columns[DEST_COL]) == 0);
+  } else {
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH %s%c%d",
+                  TRAIN_LOCATION_LINE + 2 + line, columns[DEST_COL],
+                  sensor_index(destination) < 10 ? " " : "",
+                  sensor_bank(destination), sensor_index(destination)) == 0);
+  }
 }
 
 void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
@@ -107,6 +120,7 @@ void print_diffs(int terminal_tx_server_tid, int line,
 
 static void clear_line(int terminal_tx_server_tid, int line) {
   clear_cell(terminal_tx_server_tid, line, TRAIN_COL);
+  clear_cell(terminal_tx_server_tid, line, DEST_COL);
   clear_cell(terminal_tx_server_tid, line, NEXT_COL);
   clear_cell(terminal_tx_server_tid, line, TIME_COL);
   clear_cell(terminal_tx_server_tid, line, TIME_DIFF_COL);
@@ -129,6 +143,9 @@ void train_location_view() {
   int train_coordinates_server_tid = WhoIs("TrainCoordinatesServer");
   Assert(train_coordinates_server_tid > 0);
 
+  int command_dispatcher_tid = WhoIs("CommandDispatcher");
+  Assert(command_dispatcher_tid > 0);
+
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHSensor Prediction Spot%s:%s",
                 TRAIN_LOCATION_LINE, 1, TRADEMARK, HIDE_CURSOR_TO_EOL) == 0);
   Assert(Printf(terminal_tx_server_tid,
@@ -148,6 +165,7 @@ void train_location_view() {
   coordinates current_prediction[81];
   coordinates current[81];
   reply_get_last_sensor_hit last_sensor[81];
+  unsigned int destinations[81];
 
   for (int i = 0; i < num_active_trains; i += 1) {
     int train = active_trains[i];
@@ -156,6 +174,7 @@ void train_location_view() {
     predict_sensor_hit(train_coordinates_server_tid,
                        turnout_states,
                        train, &current_prediction[train]);
+    destinations[train] = get_train_destination(command_dispatcher_tid, train);
   }
 
   int loops = 0;
@@ -174,6 +193,12 @@ void train_location_view() {
                       TRAIN_LOCATION_LINE + 2 + i, columns[TRAIN_COL],
                       train < 10 ? " " : "", train) == 0);
         line_states[i] = train;
+      }
+
+      unsigned int destination = get_train_destination(command_dispatcher_tid, train);
+      if (destination != destinations[train]) {
+        print_destination(terminal_tx_server_tid, i, destination);
+        destinations[train] = destination;
       }
 
       if (seen_sensor.sensor != last_sensor[train].sensor) {

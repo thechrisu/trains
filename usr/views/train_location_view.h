@@ -12,6 +12,7 @@
 #include "parameters.h"
 #include "prediction.h"
 #include "../train/sensors/sensor_interpreter.h"
+#include "../command_dispatcher.h"
 #include "terminal.h"
 #include "tstdlib.h"
 #include "track_data.h"

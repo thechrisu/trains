@@ -73,6 +73,8 @@ enum message_type {
   MESSAGE_RESERVATION_DROP_ALL,
   MESSAGE_RESERVATION_GET_ALL,
   REPLY_RESERVATION_GET_ALL,
+  MESSAGE_GET_DESTINATION,
+  REPLY_GET_DESTINATION,
 };
 
 typedef struct {
@@ -183,6 +185,7 @@ typedef struct {
     message_reservation_request reservation_request;
     int reservation_response;
     message_reservation_get_all_response all_reservations;
+    int destination;
   } msg;
 } message;
 

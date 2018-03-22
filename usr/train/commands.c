@@ -265,3 +265,18 @@ void reservation_get_all(int track_reservation_server, int train,
 
   tmemcpy(reservations, &reply.msg.all_reservations, sizeof(*reservations));
 }
+
+unsigned int get_train_destination(int command_dispatcher, int train) {
+  message send, reply;
+
+  send.type = MESSAGE_GET_DESTINATION;
+  send.msg.train = train;
+
+  Assert(Send(command_dispatcher,
+              &send, sizeof(send),
+              &reply, sizeof(reply)) == sizeof(reply));
+
+  Assert(reply.type == REPLY_GET_DESTINATION);
+
+  return reply.msg.destination;
+}
