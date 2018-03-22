@@ -4,8 +4,8 @@ void test_single_reversal_siding() {
   // Note: If the first sensor is the pair of the last sensor/the direction
   // we're going in, we treat that as a hint that we should reverse first,
   // before starting to route
-  location start = { .sensor = sensor_offset('B', 10), .offset = 0 };
-  location end = { .sensor = sensor_offset('A', 10), .offset = 0 };
+  location start = { .node = find_sensor(&track, sensor_offset('B', 10)), .offset = 0 };
+  location end = { .node = find_sensor(&track, sensor_offset('A', 10)), .offset = 0 };
   track_node *route[MAX_ROUTE_LENGTH];
 
   Assert(get_route(&start, &end, route) == 0);
@@ -19,8 +19,8 @@ void test_single_reversal_siding() {
 }
 
 void test_single_reversal() {
-  location start = { .sensor = sensor_offset('C', 9), .offset = 0 };
-  location end = { .sensor = sensor_offset('C', 5), .offset = 0 };
+  location start = { .node = find_sensor(&track, sensor_offset('C', 9)), .offset = 0 };
+  location end = { .node = find_sensor(&track, sensor_offset('C', 5)), .offset = 0 };
   track_node *route[MAX_ROUTE_LENGTH];
 
   Assert(get_route(&start, &end, route) == 0);
@@ -34,8 +34,8 @@ void test_single_reversal() {
 }
 
 void test_double_reversal() {
-  location start = { .sensor = sensor_offset('C', 9), .offset = 0 };
-  location end = { .sensor = sensor_offset('A', 6), .offset = 0 };
+  location start = { .node = find_sensor(&track, sensor_offset('C', 9)), .offset = 0 };
+  location end = { .node = find_sensor(&track, sensor_offset('A', 6)), .offset = 0 };
   track_node *route[MAX_ROUTE_LENGTH];
 
   Assert(get_route(&start, &end, route) == 0);

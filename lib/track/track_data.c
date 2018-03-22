@@ -1,6 +1,6 @@
 #include "track_data.h"
 
-#define FIND_LIMIT 5
+#define FIND_LIMIT 15
 
 void init_track(track_state *global_track) {
   turnout_state *turnouts = global_track->turnouts;
@@ -243,9 +243,9 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
   return 0;
 }
 
-uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
-                                         uint32_t total_distance,
-                                         int limit) {
+uint32_t distance_between_nodes_helper(track_node *start, track_node *end,
+                                       uint32_t total_distance,
+                                       int limit) {
   if (start == end) {
     return total_distance;
   } else if (limit == 0) {
@@ -273,16 +273,16 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
   }
 }
 
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+uint32_t distance_between_nodes(track_state *t, track_node *start, track_node *end) {
   if (start == end) return 0;
-  track_node *start_node = find_sensor(t, start);
-  track_node *end_node = find_sensor(t, end);
-  int result = distance_between_sensors_helper(start_node, end_node, 0, FIND_LIMIT);
+  track_node *start_node = start;
+  track_node *end_node = end;
+  int result = distance_between_nodes_helper(start_node, end_node, 0, FIND_LIMIT);
   Assert(result != 0);
   return result;
 }
 
-uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int limit) {
+uint32_t node_is_followed_by_helper(track_node *start, track_node *end, int limit) {
   if (start == end) {
     return true;
   } else if (limit == 0) {
@@ -291,10 +291,10 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 
   switch (start->type) {
     case NODE_MERGE:
-      return sensor_is_followed_by_helper(AHEAD(start), end, limit - 1);
+      return node_is_followed_by_helper(AHEAD(start), end, limit - 1);
     case NODE_BRANCH: {
-      return sensor_is_followed_by_helper(STRAIGHT(start), end, limit - 1) ||
-             sensor_is_followed_by_helper(CURVED(start), end, limit - 1);
+      return node_is_followed_by_helper(STRAIGHT(start), end, limit - 1) ||
+             node_is_followed_by_helper(CURVED(start), end, limit - 1);
     }
     default:
       return false;
@@ -304,7 +304,7 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end) {
   track_node *start_node = find_sensor(t, start);
   return start_node->type == NODE_SENSOR &&
-         sensor_is_followed_by_helper(AHEAD(start_node), find_sensor(t, end), FIND_LIMIT);
+         node_is_followed_by_helper(AHEAD(start_node), find_sensor(t, end), FIND_LIMIT);
 }
 
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second) {
@@ -381,14 +381,32 @@ unsigned int sensor_pair(track_state *t, unsigned int offset) {
   return find_sensor(t, offset)->reverse->num;
 }
 
-unsigned int sensor_next(track_state *t, unsigned int start,
+track_node *node_next(track_state *t, track_node *start,
+                      turnout_state turnout_states[NUM_TURNOUTS]) {
+  switch (start->type) {
+    case NODE_SENSOR:
+    case NODE_ENTRY:
+    case NODE_MERGE:
+      return AHEAD(start);
+    case NODE_BRANCH: {
+      unsigned int index = turnout_num_to_map_offset(start->num);
+      // Default to curved, since that seems to be a popular initial state
+      return (turnout_states[index] == TURNOUT_STRAIGHT) ? STRAIGHT(start) : CURVED(start);
+    }
+    default:
+      return NULL_TRACK_NODE;
+  }
+}
+
+
+track_node *sensor_next(track_state *t, track_node *start,
                          turnout_state turnout_states[NUM_TURNOUTS]) {
-  track_node *current = AHEAD(find_sensor(t, start));
+  track_node *current = AHEAD(start);
 
   while (true) {
     switch (current->type) {
       case NODE_SENSOR:
-        return current->num;
+        return current;
       case NODE_MERGE:
         current = AHEAD(current);
         break;
@@ -399,7 +417,7 @@ unsigned int sensor_next(track_state *t, unsigned int start,
         break;
       }
       default:
-        return NO_NEXT_SENSOR;
+        return NULL_TRACK_NODE;
     }
   }
 }
@@ -414,17 +432,17 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
   location current;
   tmemcpy(&current, source, sizeof(current));
 
-  unsigned int next = sensor_next(t, current.sensor, turnout_states);
-  if (next != NO_NEXT_SENSOR) {
-    int distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+  track_node *next = node_next(t, current.node, turnout_states);
+  if (next != NULL_TRACK_NODE) {
+    int distance_to_next = distance_between_nodes(t, current.node, next) * 100;
 
     while (current.offset >= distance_to_next) {
-      current.sensor = next;
+      current.node = next;
       current.offset -= distance_to_next;
 
-      next = sensor_next(t, current.sensor, turnout_states);
+      next = node_next(t, current.node, turnout_states);
       if (next == NO_NEXT_SENSOR) break;
-      distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+      distance_to_next = distance_between_nodes(t, current.node, next) * 100;
     }
   }
 
@@ -432,13 +450,13 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
 }
 
 int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
-                  unsigned int sensor, location *loc) {
-  if (loc->sensor == NO_NEXT_SENSOR) {
+                  track_node *current, location *loc) {
+  if (loc->node == NULL_TRACK_NODE) {
     return 0;
-  } else if (loc->sensor == sensor) {
+  } else if (loc->current == current) {
     return loc->offset;
-  } else if (sensor == sensor_next(t, loc->sensor, turnouts)) {
-    return loc->offset - 100 * distance_between_sensors(t, loc->sensor, sensor);
+  } else if (current == node_next(t, loc->sensor, turnouts)) {
+    return loc->offset - 100 * distance_between_nodes(t, loc->node, sensor);
   }
 
   return 0;

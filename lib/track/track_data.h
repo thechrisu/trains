@@ -94,9 +94,9 @@ track_node *find_sensor(track_state *t, unsigned int offset);
  * @param   limit             The maximum depth to use to find a sensor.
  * @returns The distance between the two sensors.
  */
-uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
-                                         uint32_t total_distance,
-                                         int limit);
+uint32_t distance_between_nodes_helper(track_node *start, track_node *end,
+                                       uint32_t total_distance,
+                                       int limit);
 
 /**
  * Returns the distance between two sequential sensors.
@@ -106,7 +106,7 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
  * @param   end   The offset of the sensor to finish at.
  * @returns The distance between the two sensors.
  */
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end);
+uint32_t distance_between_nodes(track_state *t, track_node *start, track_node *end);
 
 /**
  * @param   t     The track to base the distance calculation off of.
@@ -114,7 +114,7 @@ uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned i
  * @param   end   The offset of the sensor to finish at.
  * @returns Whether start is directly followed by end.
  */
-bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end);
+bool node_is_followed_by(track_state *t, track_node *start, track_node *end);
 
 /**
  * @param   t      A track state.
@@ -179,7 +179,7 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
  * @returns The next sensor after `start`, taking into account the turnouts' states,
  *          or NO_NEXT_SENSOR if there is no such sensor.
  */
-unsigned int sensor_next(track_state *t, unsigned int start,
+track_node *sensor_next(track_state *t, track_node *start,
                          turnout_state turnout_states[NUM_TURNOUTS]);
 
 /**
