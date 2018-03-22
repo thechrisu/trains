@@ -217,4 +217,13 @@ void reservation_drop_all(int track_reservation_server, int train);
 void reservation_get_all(int track_reservation_server, int train,
                          message_reservation_get_all_response *reservations);
 
+/**
+ * Gets a train's destination.
+ *
+ * @param   command_dispatcher Task ID of the command dispatcher.
+ * @param   train              Train to get the destination for.
+ * @returns The destination of the train.
+ */
+unsigned int get_train_destination(int command_dispatcher, int train);
+
 #endif /* TRAIN_COMMANDS_H */

@@ -8,6 +8,7 @@ typedef struct {
   bool rdy, auto_mode;
   message msgs[TR_Q_LEN];
   int t2_tid;
+  int destination;
 } conductor_data;
 
 /**
@@ -46,6 +47,11 @@ void send_if_rdy(message *m, conductor_data *c, int terminal_tx_server) {
   c->msgs_i = c->msgs_i < TR_Q_LEN - 1 ? c->msgs_i + 1 : 0;
   c->msgs_available++;
   if (c->rdy) {
+    message *msg = &c->msgs[c->msgs_o];
+    if (msg->msg.cmd.type == USER_CMD_R) {
+      c->destination = msg->msg.cmd.data[1];
+    }
+
     Assert(c->msgs[c->msgs_o].msg.cmd.type < NULL_USER_CMD);
     c->auto_mode = is_auto_cmd(&c->msgs[c->msgs_o].msg.cmd);
     Assert(Send(c->tid, &c->msgs[c->msgs_o], sizeof(c->msgs[c->msgs_i]),
@@ -69,6 +75,11 @@ void send_if_rdy(message *m, conductor_data *c, int terminal_tx_server) {
  */
 void conductor_ready(conductor_data *c) {
   if (c->msgs_available) {
+    message *msg = &c->msgs[c->msgs_o];
+    if (msg->msg.cmd.type == USER_CMD_R) {
+      c->destination = msg->msg.cmd.data[1];
+    }
+
     c->auto_mode = is_auto_cmd(&c->msgs[c->msgs_o].msg.cmd);
     Assert(Send(c->tid, c->msgs + c->msgs_o, sizeof(c->msgs[c->msgs_o]),
            EMPTY_MESSAGE, 0) == 0);
@@ -131,7 +142,8 @@ void command_dispatcher_server() {
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
-    if (!(received.type == MESSAGE_USER &&
+    if (received.type != MESSAGE_GET_DESTINATION &&
+        !(received.type == MESSAGE_USER &&
           received.msg.cmd.type == USER_CMD_R &&
           sender_tid == conductors[received.msg.cmd.data[0]].t2_tid)) {
       Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
@@ -248,12 +260,22 @@ void command_dispatcher_server() {
         }
         break;
       }
+      case MESSAGE_GET_DESTINATION: {
+        message reply;
+        reply.type = REPLY_GET_DESTINATION;
+        reply.msg.destination = conductors[(int)received.msg.train].destination;
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
+        break;
+      }
       case MESSAGE_READY:
         conductor_ready(conductors + received.msg.train);
+
         int t2_tid = conductors[(int)received.msg.train].t2_tid;
         if (t2_tid != 0) {
           Assert(Reply(t2_tid, EMPTY_MESSAGE, 0) >= 0);
         }
+
+        conductors[(int)received.msg.train].destination = NO_DESTINATION;
         break;
       default:
         Assert(0); // :(

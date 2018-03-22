@@ -20,6 +20,8 @@
 #include "train/calibration/velocity_calibrator.h"
 #include "train/t2_demo_task.h"
 
+#define NO_DESTINATION 7777
+
 /**
  * Interprets messages sent from the train FirstUserTask and relays them
  * onto the train/the right direction, so that the FirstUserTask can unblock.
