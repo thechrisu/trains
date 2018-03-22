@@ -155,7 +155,7 @@ void train_location_view() {
     get_coordinates(train_coordinates_server_tid, train, &current[train]);
     predict_sensor_hit(train_coordinates_server_tid,
                        turnout_states,
-                       i, &current_prediction[i]);
+                       train, &current_prediction[train]);
   }
 
   int loops = 0;
