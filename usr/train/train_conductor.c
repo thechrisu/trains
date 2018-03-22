@@ -297,6 +297,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       get_coordinates(train_coordinates_server, train, &c);
 
       if (!on_route(route, &c.loc)) {
+        reservation_drop_all(track_reservation_server, train);
         got_error = true;
         break;
       }
