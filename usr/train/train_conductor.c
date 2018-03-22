@@ -393,6 +393,8 @@ void conductor_route_to(int clock_server, int train_tx_server,
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
 
   Assert(Delay(clock_server, 30 * tr_data.should_speed) == 0);
+
+  reservation_drop_all(track_reservation_server, train);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
