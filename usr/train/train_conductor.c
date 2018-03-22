@@ -276,6 +276,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         stopping_distance);
     if (dist_left + stopping_distance > alt_dist_left
             && (has_to_reverse_normal && !has_to_reverse_alt)) {
+      logprintf("Taking the alt route %d\n\r", sizeof(alt_route));
       memcpy(&route, &alt_route, sizeof(alt_route));
       Delay(clock_server, 30 * max_feasible_speed);
     }
