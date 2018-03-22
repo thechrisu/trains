@@ -15,16 +15,11 @@ void test_router_complete() {
       location end_reverse;
       location_reverse(&track, &end_reverse, &end);
 
-      if (sensor_reachable(&track, start_sensor, end_sensor) ||
-          sensor_reachable(&track, start_sensor, end_reverse.sensor)) {
-        Assert(get_route(&start, &end, route) == 0);
-        Assert(route_node_count(route) > 0);
-        Assert(route_node_count(route) <= 50);
-        Assert(route_length(route) >= 0);
-        Assert(route_length(route) < 11 * 1000 * 100);
-      } else {
-        Assert(get_route(&start, &end, route) == -1);
-      }
+      Assert(get_route(&start, &end, route) == 0);
+      Assert(route_node_count(route) > 0);
+      Assert(route_node_count(route) <= 50);
+      Assert(route_length(route) >= 0);
+      Assert(route_length(route) < 11 * 1000 * 100);
     }
   }
 

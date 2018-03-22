@@ -1,7 +1,5 @@
 #include "router.h"
 
-#define INFINITE_DISTANCE 1E8
-
 void update_search_node(search_node_queue *q, search_node *current, int direction) {
   track_edge *edge_in_direction = &current->node->edge[direction];
   search_node *node_in_direction = search_node_queue_find_by_node(q, edge_in_direction->dest);
@@ -10,6 +8,17 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
     if (updated_distance < node_in_direction->distance) {
       node_in_direction->distance = updated_distance;
       node_in_direction->prev = current;
+    }
+  }
+}
+
+void update_node_reverse(search_node_queue *q, search_node *current) {
+  track_node *other_direction = current->node->reverse;
+  search_node *node_in_other_direction = search_node_queue_find_by_node(q, other_direction);
+  if (node_in_other_direction != NULL_SEARCH_NODE) {
+    if (current->distance + 1 < node_in_other_direction->distance) {
+      node_in_other_direction->distance = current->distance + 1;
+      node_in_other_direction->prev = current;
     }
   }
 }
@@ -53,6 +62,18 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
         break;
       default:
         logprintf("Unknown node type %d in plan_route\n\r", t_node->type);
+        break;
+    }
+    switch (t_node->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+      case NODE_ENTER:
+      case NODE_BRANCH:
+      case NODE_EXIT:
+        update_node_reverse(&q, current);
+        break;
+      default:
+        logprintf("Unknown node type %d in plan_route(2)\n\r", t_node->type);
         break;
     }
 

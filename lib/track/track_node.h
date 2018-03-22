@@ -13,6 +13,7 @@
 #define NUM_TURNOUTS 22
 
 #define PICKUP_LENGTH 5 * 10 * 100
+#define TRAIN_LENGTH 20 * 10 * 100
 
 typedef enum {
   NODE_NONE,
@@ -89,6 +90,7 @@ typedef struct {
 
 typedef struct {
   location loc;
+  bool direction;
   int ticks;
   int current_speed;
   int last_speed;
