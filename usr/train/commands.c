@@ -1,7 +1,7 @@
 #include "commands.h"
 
 void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, int train, int speed) {
-  set_train_speed_and_headlights(train_tx_server_tid, track_state_controller_tid, train, speed, false);
+  set_train_speed_and_headlights(train_tx_server_tid, track_state_controller_tid, train, speed, true);
 }
 
 void set_train_speed_and_headlights(int train_tx_server_tid, int track_state_controller_tid, int train, int speed, bool headlights) {
