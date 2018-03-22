@@ -185,15 +185,14 @@ bool get_reservations_within_distance(int track_reservation_server,
                                       track_node *route[MAX_ROUTE_LENGTH],
                                       location *loc, int distance) {
   bool passed_loc = false;
-  int distance_so_far = loc->offset;
+  int distance_so_far = 0;
 
   for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
     if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
       passed_loc = true;
     }
 
-    logprintf("distance_so_far: %d, distance: %d\n\r", distance_so_far, distance);
-    if (passed_loc && distance_so_far < distance) {
+    if (passed_loc && distance_so_far < distance + loc->offset) {
       int result = -1337;
       switch ((*c)->type) {
         case NODE_SENSOR:
@@ -305,6 +304,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   do {
     got_error = false;
 
+    get_coordinates(train_coordinates_server, train, &c);
+
     int route_result = get_route(&c.loc, &end, route);
     if (route_result < 0) {
       logprintf("Tried to route from %c%d to %c%d but couldn't get a route\n\r",
@@ -371,6 +372,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
               break;
             } else {
               conductor_setspeed(train_tx_server, track_state_controller, train, max_feasible_speed);
+              get_coordinates(train_coordinates_server, train, &c);
             }
           } else {
             stop_and_reverse_train_to_speed(clock_server, train_tx_server,
@@ -382,6 +384,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       }
 
       int dist_left = get_remaining_dist_in_route(route, &c.loc);
+      stopping_distance = (int)stopping_dist_from_velocity(
+                                  c.velocity,
+                                  velocity_model.msg.train_speeds,
+                                  stopping_distance_model.msg.train_distances);
 
 #if ACC_CALIB_DEBUG
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
