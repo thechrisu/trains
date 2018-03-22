@@ -1,7 +1,5 @@
 #include "router.h"
 
-#define ABS(x) ((x) > 0 ? (x) : -(x))
-
 void update_search_node(search_node_queue *q, search_node *current, int direction) {
   track_edge *edge_in_direction = &current->node->edge[direction];
   search_node *node_in_direction = search_node_queue_find_by_node(q, edge_in_direction->dest);
@@ -25,105 +23,18 @@ void update_node_reverse(search_node_queue *q, search_node *current) {
   }
 }
 
-bool node_is_neighbour(track_node *node, track_node *start, turnout_state turnouts[NUM_TURNOUTS]) {
-  if (node == start) return true;
-
-  track_node *current = AHEAD(start);
-
-  for (int i = 0; i < 15; i += 1) {
-    switch (current->type) {
-      case NODE_SENSOR:
-      case NODE_EXIT:
-        return node == current;
-      case NODE_MERGE:
-        if (node == current) {
-          return true;
-        }
-        current = AHEAD(current);
-        break;
-      case NODE_BRANCH:
-        if (node == current) {
-          return true;
-        }
-        unsigned int index = turnout_num_to_map_offset(current->num);
-        current = (turnouts[index] == TURNOUT_STRAIGHT) ? STRAIGHT(current) : CURVED(current);
-        break;
-      default:
-        Assert(0);
-    }
-  }
-
-  Assert(0);
-  return false;
-}
-
-int get_neighbour_distance(track_state *t, track_node *node, location *start, turnout_state turnouts[NUM_TURNOUTS]) {
-  track_node *start_node = find_sensor(t, start->sensor);
-
-  if (node == start_node) return start->offset;
-
-  track_node *current = AHEAD(start_node);
-  int distance_so_far = current->edge[DIR_AHEAD].dist;
-
-  for (int i = 0; i < 15; i += 1) {
-    switch (current->type) {
-      case NODE_SENSOR:
-      case NODE_EXIT:
-        return distance_so_far - start->offset;
-      case NODE_MERGE:
-        if (node == current) {
-          return distance_so_far - start->offset;
-        }
-
-        current = AHEAD(current);
-        distance_so_far += current->edge[DIR_AHEAD].dist;
-        break;
-      case NODE_BRANCH:
-        if (node == current) {
-          return distance_so_far - start->offset;
-        }
-
-        unsigned int index = turnout_num_to_map_offset(current->num);
-        if (turnouts[index] == TURNOUT_STRAIGHT) {
-          current = STRAIGHT(current);
-          distance_so_far += current->edge[DIR_STRAIGHT].dist;
-        } else {
-          current = CURVED(current);
-          distance_so_far += current->edge[DIR_CURVED].dist;
-        }
-        break;
-      default:
-        Assert(0);
-    }
-  }
-
-  Assert(0);
-  return 0;
-}
-
 bool plan_route(track_state *t, location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]) {
-  // Assert(start->offset >= 0);
-
   track_node *start_node = find_sensor(t, start->sensor);
   track_node *end_node = find_sensor(t, end->sensor);
 
   search_node_queue q;
   search_node_queue_init(&q);
 
-  turnout_state turnouts[NUM_TURNOUTS];
-  get_turnouts(WhoIs("TrackStateController"), turnouts);
-
   for (int i = 0; i < TRACK_MAX; i += 1) {
     search_node node;
     track_node *t_node = &(t->track[i]);
     node.node = t_node;
-
-    if (node_is_neighbour(t_node, start_node, turnouts)) {
-      node.distance = ABS(get_neighbour_distance(t, t_node, start, turnouts));
-    } else {
-      node.distance = INFINITE_DISTANCE;
-    }
-
+    node.distance = t_node == start_node ? 0 : INFINITE_DISTANCE;
     node.prev = NULL_SEARCH_NODE;
     search_node_queue_enqueue(&q, &node);
   }

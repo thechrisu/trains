@@ -51,14 +51,10 @@ void update_coordinates_after_speed_change(train_data *tr_data,
   c->acceleration = acceleration;
 }
 
-void update_coordinates_after_reverse(coordinates *c, turnout_state turnout_states[NUM_TURNOUTS]) {
+void update_coordinates_after_reverse(coordinates *c) {
   if (c->loc.sensor != NO_NEXT_SENSOR) {
-    logprintf("Before reverse: %c%d +- %d\n\r", sensor_bank(c->loc.sensor), sensor_index(c->loc.sensor), c->loc.offset);
     location_reverse(&track, &c->loc, &c->loc);
-    logprintf("After reverse: %c%d +- %d\n\r", sensor_bank(c->loc.sensor), sensor_index(c->loc.sensor), c->loc.offset);
     c->loc.offset += PICKUP_LENGTH;
-    location_rebase(&track, turnout_states, &c->loc, &c->loc);
-    logprintf("After rebase: %c%d +- %d\n\r", sensor_bank(c->loc.sensor), sensor_index(c->loc.sensor), c->loc.offset);
   }
 }
 
@@ -92,19 +88,15 @@ void train_coordinates_server() {
         update_coordinates_after_speed_change(&uc->tr_data, uc->velocity_model,
                                               uc->acceleration, turnout_states,
                                               train_coords);
-        logprintf("After changing speeds: %c%d +- %d\n\r", sensor_bank(train_coords->loc.sensor), sensor_index(train_coords->loc.sensor), train_coords->loc.offset);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_UPDATE_COORDS_REVERSE:
-        update_coordinates_after_time_passed(clock_server, turnout_states, train_coords);
-        update_coordinates_after_reverse(train_coords, turnout_states);
-        logprintf("After reverse (in main): %c%d +- %d\n\r", sensor_bank(train_coords->loc.sensor), sensor_index(train_coords->loc.sensor), train_coords->loc.offset);
+        update_coordinates_after_reverse(train_coords);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_UPDATE_COORDS_SENSOR:
         update_coordinates_after_sensor_hit(&uc->last_sensor, turnout_states,
                                             train_coords);
-        logprintf("After updating sensor: %c%d +- %d\n\r", sensor_bank(train_coords->loc.sensor), sensor_index(train_coords->loc.sensor), train_coords->loc.offset);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_FORWARD_TURNOUT_STATES:
@@ -116,7 +108,6 @@ void train_coordinates_server() {
         coordinates *c = &coords[(int)received.msg.train];
         update_coordinates_after_time_passed(clock_server, turnout_states, c);
         reply.type = REPLY_GET_COORDINATES;
-        logprintf("After get(): %c%d +- %d\n\r", sensor_bank(train_coords->loc.sensor), sensor_index(train_coords->loc.sensor), train_coords->loc.offset);
         tmemcpy(&(reply.msg.coords), c, sizeof(coordinates));
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;

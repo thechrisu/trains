@@ -61,7 +61,6 @@ void stop_and_reverse_helper(int clock_server_tid, int train_tx_server_tid, int 
 #endif /* DEBUG_REVERSAL */
 
   set_train_speed(train_tx_server_tid, track_state_controller_tid, train, speed);
-  Delay(clock_server_tid, 8);
 }
 
 void stop_and_reverse_train_to_speed(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int train, int speed) {

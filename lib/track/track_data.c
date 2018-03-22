@@ -23,7 +23,6 @@ void init_track(track_state *global_track) {
   }
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;
-    global_track->train[i].direction = true;
   }
 
   default_value default_speeds[] = {
@@ -408,18 +407,6 @@ unsigned int sensor_next(track_state *t, unsigned int start,
 void location_reverse(track_state *t, location *destination, location *source) {
   destination->sensor = sensor_pair(t, source->sensor);
   destination->offset = -source->offset;
-}
-
-void location_rebase(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
-                           location *destination, location *source) {
-  unsigned int n = sensor_next(t, sensor_pair(t, source->sensor), turnout_states);
-  if (n == NO_NEXT_SENSOR) {
-    memcpy(destination, source, sizeof(*source));
-  } else {
-    unsigned int src = source->sensor;
-    destination->sensor = sensor_pair(t, n);
-    destination->offset = distance_between_sensors(t, destination->sensor, src) * 100 + source->offset;
-  }
 }
 
 void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
