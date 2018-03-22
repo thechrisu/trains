@@ -9,13 +9,15 @@
  */
 #define CAUTION_FACTOR -0.1
 
+#define RSV_PAD_FAC 2
+
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 void conductor_setspeed(int train_tx_server, int track_state_controller,
                         int train, int speed) {
-  set_train_speed(train_tx_server, track_state_controller,
-                  train, speed);
+  set_train_speed_and_headlights(train_tx_server, track_state_controller,
+                  train, speed, true);
 }
 
 void conductor_reverse_to_speed(int train_tx_server,
@@ -160,8 +162,21 @@ void drop_reservations_behind(int track_reservation_server,
       return;
     }
 
-    reservation_drop(track_reservation_server, train,
-                     *c, *(c + 1));
+    switch ((*c)->type) {
+      case NODE_SENSOR:
+      case NODE_MERGE:
+        reservation_drop(track_reservation_server, train,
+                         *c, *(c + 1));
+        break;
+      case NODE_BRANCH:
+        reservation_drop(track_reservation_server, train,
+                         *c, STRAIGHT(*c));
+        reservation_drop(track_reservation_server, train,
+                         *c, CURVED(*c));
+        break;
+      default:
+        break;
+    }
   }
 }
 
@@ -179,8 +194,25 @@ bool get_reservations_within_distance(int track_reservation_server,
 
     logprintf("distance_so_far: %d, distance: %d\n\r", distance_so_far, distance);
     if (passed_loc && distance_so_far < distance) {
-      int result = reservation_make(track_reservation_server, train,
+      int result = -1337;
+      switch ((*c)->type) {
+        case NODE_SENSOR:
+        case NODE_MERGE:
+          result = reservation_make(track_reservation_server, train,
                                     *c, *(c + 1));
+          break;
+        case NODE_BRANCH:
+          result = reservation_make(track_reservation_server, train,
+                                    *c, STRAIGHT(*c));
+          if (result >= 0) {
+            result = reservation_make(track_reservation_server, train,
+                                      *c, CURVED(*c));
+          }
+          break;
+        default:
+          logprintf("Invalid node type when getting distance between nodes: %d\n\r", (*c)->type);
+          break;
+      }
 
       if (result < 0) {
         logprintf("Got result %d while trying to obtain %s -> %s for train %d\n\r", result, (*c)->name, (*(c + 1))->name, train);
@@ -311,7 +343,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                  route, &c.loc);
         bool result = get_reservations_within_distance(track_reservation_server, train,
                                                        route, &c.loc,
-                                                       stopping_distance + switch_padding * 100);
+                                                       stopping_distance + switch_padding * 100 * RSV_PAD_FAC);
         if (!result) {
           int speed_before_reverse = c.current_speed;
           conductor_setspeed(train_tx_server, track_state_controller, train, 0);
@@ -325,7 +357,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             result = get_reservations_within_distance(track_reservation_server,
                                                       train,
                                                       route, &c.loc,
-                                                      stopping_distance + switch_padding * 100);
+                                                      stopping_distance + switch_padding * 100 * RSV_PAD_FAC);
             if (result) break;
           }
 
@@ -333,7 +365,12 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
             max_feasible_speed = get_max_feasible_speed(dist_left,
                                                         stopping_distance_model.msg.train_distances);
-            conductor_setspeed(train_tx_server, track_state_controller, train, max_feasible_speed);
+            if (max_feasible_speed == -1) {
+              got_error = true;
+              break;
+            } else {
+              conductor_setspeed(train_tx_server, track_state_controller, train, max_feasible_speed);
+            }
           } else {
             stop_and_reverse_train_to_speed(clock_server, train_tx_server,
                                             track_state_controller, train, speed_before_reverse);
