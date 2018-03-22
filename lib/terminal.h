@@ -15,8 +15,8 @@
 #define CALIB_LINE            19
 #define TRAIN_LOCATION_LINE   23
 #define RESERVATION_LINE      29
-#define CMD_LINE              34
-#define PROMPT_LINE           35
+#define CMD_LINE              35
+#define PROMPT_LINE           36
 
 #define RESET_TEXT "\033[0m"
 #define BOLD_TEXT "\033[1m"
