@@ -151,7 +151,7 @@ bool perform_reverse_if_necessary(
                   int train, int stopping_distance,
                   track_node *route[MAX_ROUTE_LENGTH], coordinates *c) {
   //if (c->loc.sensor == sensor_offset('A', 7)) Assert(0 && "BREAK");
-  int critical_dist = stopping_distance - (c->direction ? TRAIN_LENGTH : 0);
+  int critical_dist = stopping_distance - (c->direction ? TRAIN_LENGTH : PICKUP_LENGTH);
   // Assert(critical_dist >= 0);
   int switch_to_reverse = get_reverse_in_distance(route, &c->loc,
                   critical_dist - switch_padding * 100);
