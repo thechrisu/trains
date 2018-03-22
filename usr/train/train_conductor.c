@@ -145,13 +145,24 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   return -1;
 }
 
+bool has_to_reverse_in_sd(int stopping_distance,
+                          track_node *route[MAX_ROUTE_LENGTH],
+                          coordinates *c) {
+  int critical_dist = stopping_distance - (c->direction ? TRAIN_LENGTH : PICKUP_LENGTH);
+  // Assert(critical_dist >= 0);
+  int switch_to_reverse = get_reverse_in_distance(route, &c->loc,
+                  critical_dist - switch_padding * 100);
+  bool has_reverse = track_has_reverse_in_dist(route, &c->loc, critical_dist);
+  return switch_to_reverse != -1 || has_reverse;
+}
+
 bool perform_reverse_if_necessary(
                   int clock_server, int train_tx_server,
                   int track_state_controller,
                   int train, int stopping_distance,
                   track_node *route[MAX_ROUTE_LENGTH], coordinates *c) {
   //if (c->loc.sensor == sensor_offset('A', 7)) Assert(0 && "BREAK");
-  int critical_dist = stopping_distance - (c->direction ? TRAIN_LENGTH : 0);
+  int critical_dist = stopping_distance - (c->direction ? TRAIN_LENGTH : PICKUP_LENGTH);
   // Assert(critical_dist >= 0);
   int switch_to_reverse = get_reverse_in_distance(route, &c->loc,
                   critical_dist - switch_padding * 100);
@@ -187,6 +198,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                               &stopping_distance_model);
 
   track_node *route[MAX_ROUTE_LENGTH];
+  track_node *alt_route[MAX_ROUTE_LENGTH];
   coordinates c;
 
   int s = Time(clock_server);
@@ -240,6 +252,33 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                 sensor_bank(end.sensor), sensor_index(end.sensor));
       return;
     }
+    int stopping_distance = (int)stopping_dist_from_velocity(
+                                c.velocity,
+                                velocity_model.msg.train_speeds,
+                                stopping_distance_model.msg.train_distances);
+    coordinates alt;
+    memcpy(&alt, &c, sizeof(alt));
+    turnout_state turnout_states[NUM_TURNOUTS];
+    get_turnouts(track_state_controller, turnout_states);
+    alt.loc.offset += stopping_distance;
+    location_canonicalize(&track, turnout_states, &alt.loc, &alt.loc);
+    get_route(&alt.loc, &end, alt_route);
+    int dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
+    int alt_dist_left = ABS(get_remaining_dist_in_route(alt_route, &alt.loc));
+    bool has_to_reverse_normal = has_to_reverse_in_sd(stopping_distance, route, &c);
+    bool has_to_reverse_alt = has_to_reverse_in_sd(stopping_distance, alt_route, &alt);
+    logprintf("Main route: %c%d +- %d, Alt route: %c%d +- %d\n\r",
+        sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor), c.loc.offset,
+        sensor_bank(alt.loc.sensor), sensor_index(alt.loc.sensor), alt.loc.offset);
+    logprintf("Main dist: %d (rev: %s), Alt dist: %d (rev: %s) -- sd: %d\n\r",
+        dist_left + stopping_distance, has_to_reverse_normal ? "TRUE": "FALSE",
+        alt_dist_left, has_to_reverse_alt ? "TRUE": "FALSE",
+        stopping_distance);
+    if (dist_left + stopping_distance > alt_dist_left
+            && (has_to_reverse_normal && !has_to_reverse_alt)) {
+      memcpy(&route, &alt_route, sizeof(alt_route));
+      Delay(clock_server, 30 * max_feasible_speed);
+    }
 
 #if ROUTING_DEBUG
     logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
@@ -264,10 +303,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
       int dist_left = get_remaining_dist_in_route(route, &c.loc);
 
-      int stopping_distance = (int)stopping_dist_from_velocity(
-                                  c.velocity,
-                                  velocity_model.msg.train_speeds,
-                                  stopping_distance_model.msg.train_distances);
+      stopping_distance = (int)stopping_dist_from_velocity(
+                              c.velocity,
+                              velocity_model.msg.train_speeds,
+                              stopping_distance_model.msg.train_distances);
 #if ACC_CALIB_DEBUG
       logprintf("Velocity: %d, stopping dist: %d\n\r", c.velocity, stopping_distance);
 #endif /* ACC_CALIB_DEBUG */

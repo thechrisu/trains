@@ -239,11 +239,9 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
   for (track_node **c = route; *c != NULL_TRACK_NODE && c != end; c += 1) {
     if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
       passed_loc = true;
-      logprintf("Dist on route from: %s\n\r", (*c)->name);
     }
 
     if (passed_loc) {
-      logprintf("%s -> %s\n\r", (*c)->name, (*end)->name);
       if ((*c)->reverse == *(c + 1))
         continue;
       switch ((*c)->type) {
