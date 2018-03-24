@@ -94,9 +94,9 @@ track_node *find_sensor(track_state *t, unsigned int offset);
  * @param   limit             The maximum depth to use to find a sensor.
  * @returns The distance between the two track nodes.
  */
-uint32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
-                                         uint32_t total_distance,
-                                         int limit);
+int32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
+                                            int32_t total_distance,
+                                            int limit);
 
 /**
  * Returns the distance between two sequential track nodes.

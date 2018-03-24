@@ -247,40 +247,40 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
   return 0;
 }
 
-uint32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
-                                         uint32_t total_distance,
-                                         int limit) {
+int32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
+                                            int32_t total_distance,
+                                            int limit) {
   if (start == end) {
     return total_distance;
   } else if (limit == 0) {
-    return 0;
+    return -1;
   }
 
   switch (start->type) {
     case NODE_SENSOR:
     case NODE_MERGE: {
-      uint32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
+      int32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
       return distance_between_track_nodes_helper(AHEAD(start), end, new_total_distance, limit - 1);
     }
     case NODE_BRANCH: {
-      uint32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
-      uint32_t result = distance_between_track_nodes_helper(STRAIGHT(start), end, straight_total_distance, limit - 1);
-      if (result != 0) {
+      int32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
+      int32_t result = distance_between_track_nodes_helper(STRAIGHT(start), end, straight_total_distance, limit - 1);
+      if (result != -1) {
         return result;
       }
 
-      uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
+      int32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
       return distance_between_track_nodes_helper(CURVED(start), end, curved_total_distance, limit - 1);
     }
     default:
-      return 0;
+      return -1;
   }
 }
 
 uint32_t distance_between_track_nodes(track_node *start, track_node *end) {
   if (start == end) return 0;
   int result = distance_between_track_nodes_helper(start, end, 0, FIND_LIMIT);
-  Assert(result != 0);
+  Assert(result != -1);
   return result;
 }
 
