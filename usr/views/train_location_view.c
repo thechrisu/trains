@@ -6,7 +6,7 @@
 
 #define LINE_CLEARED  1357
 
-#define HEADER        "Train | Dest |  Next |  Time | Diff (s) | Diff (cm)"
+#define HEADER        "Train |  Dest |  Next |    Time | Diff (s) | Diff (cm)"
 
 #define TRAIN_COL     0
 #define DEST_COL      1
