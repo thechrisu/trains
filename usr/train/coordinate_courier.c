@@ -25,10 +25,11 @@ void coordinates_to_notification(coordinates *c,
   }
 }
 
-int add_notification_requests(location_notification notifications[MAX_LOCATIONS_TO_OBSERVE],
-                              int n_requests,
-                              location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
-                              bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]) {
+int add_notification_requests(
+        location_notification notifications[MAX_LOCATIONS_TO_OBSERVE],
+        int n_requests,
+        location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
+        bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]) {
   Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
@@ -38,7 +39,8 @@ int add_notification_requests(location_notification notifications[MAX_LOCATIONS_
     for (; j < MAX_LOCATIONS_TO_OBSERVE; j++) {
       if (!is_location_set[j]) {
         is_location_set[j] = true;
-        tmemcpy(locations_to_observe + j, notifications + i, sizeof(notifications[i]));
+        tmemcpy(locations_to_observe + j, notifications + i,
+            sizeof(notifications[i]));
         break;
       }
     }
@@ -53,7 +55,8 @@ void coordinate_courier() {
 
   int message_tid;
   message train_msg;
-  Assert(Receive(&message_tid, &train_msg, sizeof(train_msg)) == sizeof(train_msg));
+  Assert(Receive(&message_tid, &train_msg, sizeof(train_msg))
+      == sizeof(train_msg));
   Assert(Reply(message_tid, EMPTY_MESSAGE, 0) == 0);
   int train = train_msg.msg.train;
 
@@ -73,9 +76,10 @@ void coordinate_courier() {
                                == sizeof(n_request)));
 
     Assert(n_request.type == MESSAGE_CONDUCTOR_NOTIFY_REQUEST);
-    int r = add_notification_requests(n_response.msg.notification_request.notifications,
-                                      n_response.msg.notification_request.num_requests,
-                                      locations_to_observe, is_location_set);
+    int r = add_notification_requests(
+                n_response.msg.notification_request.notifications,
+                n_response.msg.notification_request.num_requests,
+                locations_to_observe, is_location_set);
     Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
   }
   Assert(0);
