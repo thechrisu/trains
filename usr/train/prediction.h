@@ -28,15 +28,15 @@ int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
                           uint32_t velocity);
 
 /**
- * Predict the coordinates of a train the next time it is at a sensor.
+ * Predict the coordinates of a train the next time it is at a track node.
  *
  * @param train_coordinates_server_tid Task ID of the train coordinates server.
  * @param turnout_states               State of the track's turnouts.
  * @param train                        Train to predict for.
  * @param prediction                   Place to store the prediction.
  */
-void predict_sensor_hit(int train_coordinates_server_tid,
-                        turnout_state turnout_states[NUM_TURNOUTS],
-                        int train, coordinates *prediction);
+void predict_track_node_hit(int train_coordinates_server_tid,
+                            turnout_state turnout_states[NUM_TURNOUTS],
+                            int train, coordinates *prediction);
 
 #endif /* TRAIN_PREDICTION_H */
