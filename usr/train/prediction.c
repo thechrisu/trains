@@ -26,9 +26,9 @@ void predict_sensor_hit(int train_coordinates_server_tid,
     return;
   }
 
-  prediction->loc.sensor = next_sensor;
+  prediction->loc.node = next_sensor;
   prediction->loc.offset = 0;
-  int dist_to_next_sensor = 100 * distance_between_sensors(current.loc.sensor,
+  int dist_to_next_sensor = 100 * distance_between_sensors(current.loc.node,
                                                            next_sensor) - current.loc.offset;
 
   if (current.velocity == 0) {
