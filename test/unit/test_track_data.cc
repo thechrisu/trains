@@ -118,19 +118,19 @@ TEST(TrackDataTest, test_location_reverse) {
 
   location loc, result;
 
-  loc = { .sensor = sensor_offset('A', 1), .offset = 0};
-  location_reverse(&t, &result, &loc);
-  EXPECT_EQ(sensor_offset('A', 2), result.sensor);
+  loc = { .node = find_sensor(&t, sensor_offset('A', 1)), .offset = 0 };
+  location_reverse(&result, &loc);
+  EXPECT_EQ(find_sensor(&t, sensor_offset('A', 2)), result.node);
   EXPECT_EQ(0, result.offset);
 
-  loc = { .sensor = sensor_offset('B', 12), .offset = 5};
-  location_reverse(&t, &result, &loc);
-  EXPECT_EQ(sensor_offset('B', 11), result.sensor);
+  loc = { .node = find_sensor(&t, sensor_offset('B', 12)), .offset = 5 };
+  location_reverse(&result, &loc);
+  EXPECT_EQ(find_sensor(&t, sensor_offset('B', 11)), result.node);
   EXPECT_EQ(-5, result.offset);
 
-  loc = { .sensor = sensor_offset('E', 16), .offset = -53};
-  location_reverse(&t, &result, &loc);
-  EXPECT_EQ(sensor_offset('E', 15), result.sensor);
+  loc = { .node = find_sensor(&t, sensor_offset('E', 16)), .offset = -53 };
+  location_reverse(&result, &loc);
+  EXPECT_EQ(find_sensor(&t, sensor_offset('E', 15)), result.node);
   EXPECT_EQ(53, result.offset);
 }
 
@@ -141,34 +141,34 @@ TEST(TrackDataTest, test_sensor_next) {
   turnout_state turnouts[NUM_TURNOUTS];
   init_turnouts(turnouts);
 
-  EXPECT_EQ(sensor_offset('A', 5), sensor_next(&t, sensor_offset('B', 9), turnouts));
-  EXPECT_EQ(sensor_offset('D', 14), sensor_next(&t, sensor_offset('B', 1), turnouts));
-  EXPECT_EQ(sensor_offset('C', 7), sensor_next(&t, sensor_offset('A', 8), turnouts));
-  EXPECT_EQ(sensor_offset('B', 3), sensor_next(&t, sensor_offset('C', 10), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('A', 5)), sensor_next(find_sensor(&t, sensor_offset('B', 9)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('D', 14)), sensor_next(find_sensor(&t, sensor_offset('B', 1)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('C', 7)), sensor_next(find_sensor(&t, sensor_offset('A', 8)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('B', 3)), sensor_next(find_sensor(&t, sensor_offset('C', 10)), turnouts));
 
   // Dead ends
-  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('B', 8), turnouts));
-  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('C', 3), turnouts));
+  EXPECT_EQ(NULL_TRACK_NODE, sensor_next(find_sensor(&t, sensor_offset('B', 8)), turnouts));
+  EXPECT_EQ(NULL_TRACK_NODE, sensor_next(find_sensor(&t, sensor_offset('C', 3)), turnouts));
 
   // Four-way switch
-  EXPECT_EQ(sensor_offset('E', 2), sensor_next(&t, sensor_offset('C', 2), turnouts));
-  EXPECT_EQ(sensor_offset('E', 2), sensor_next(&t, sensor_offset('B', 13), turnouts));
-  EXPECT_EQ(sensor_offset('B', 14), sensor_next(&t, sensor_offset('D', 1), turnouts));
-  EXPECT_EQ(sensor_offset('B', 14), sensor_next(&t, sensor_offset('E', 1), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('E', 2)), sensor_next(find_sensor(&t, sensor_offset('C', 2)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('E', 2)), sensor_next(find_sensor(&t, sensor_offset('B', 13)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('B', 14)), sensor_next(find_sensor(&t, sensor_offset('D', 1)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('B', 14)), sensor_next(find_sensor(&t, sensor_offset('E', 1)), turnouts));
 
   // Going straight over a single turnout
   turnouts[turnout_num_to_map_offset(16)] = TURNOUT_STRAIGHT;
-  EXPECT_EQ(sensor_offset('B', 1), sensor_next(&t, sensor_offset('C', 10), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('B', 1)), sensor_next(find_sensor(&t, sensor_offset('C', 10)), turnouts));
 
   // Four-way switch with two sequential switches straight
   turnouts[turnout_num_to_map_offset(153)] = TURNOUT_CURVED;
   turnouts[turnout_num_to_map_offset(154)] = TURNOUT_STRAIGHT;
   turnouts[turnout_num_to_map_offset(155)] = TURNOUT_STRAIGHT;
   turnouts[turnout_num_to_map_offset(156)] = TURNOUT_STRAIGHT;
-  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('C', 2), turnouts));
-  EXPECT_EQ(1337, sensor_next(&t, sensor_offset('B', 13), turnouts));
-  EXPECT_EQ(sensor_offset('C', 1), sensor_next(&t, sensor_offset('D', 1), turnouts));
-  EXPECT_EQ(sensor_offset('C', 1), sensor_next(&t, sensor_offset('E', 1), turnouts));
+  EXPECT_EQ(NULL_TRACK_NODE, sensor_next(find_sensor(&t, sensor_offset('C', 2)), turnouts));
+  EXPECT_EQ(NULL_TRACK_NODE, sensor_next(find_sensor(&t, sensor_offset('B', 13)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('C', 1)), sensor_next(find_sensor(&t, sensor_offset('D', 1)), turnouts));
+  EXPECT_EQ(find_sensor(&t, sensor_offset('C', 1)), sensor_next(find_sensor(&t, sensor_offset('E', 1)), turnouts));
 }
 
 void test_canonicalization(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
@@ -176,12 +176,12 @@ void test_canonicalization(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
                        char expected_sensor_bank, int expected_sensor_index,
                        int expected_offset) {
   location loc;
-  loc.sensor = sensor_offset(sensor_bank, sensor_index);
+  loc.node = find_sensor(t, sensor_offset(sensor_bank, sensor_index));
   loc.offset = offset;
 
-  location_canonicalize(t, turnouts, &loc, &loc);
+  location_canonicalize(turnouts, &loc, &loc);
 
-  EXPECT_EQ(sensor_offset(expected_sensor_bank, expected_sensor_index), loc.sensor);
+  EXPECT_EQ(find_sensor(t, sensor_offset(expected_sensor_bank, expected_sensor_index)), loc.node);
   EXPECT_EQ(expected_offset, loc.offset);
 }
 
