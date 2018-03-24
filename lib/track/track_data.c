@@ -272,11 +272,9 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
   }
 }
 
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end) {
+uint32_t distance_between_sensors(track_node *start, track_node *end) {
   if (start == end) return 0;
-  track_node *start_node = find_sensor(t, start);
-  track_node *end_node = find_sensor(t, end);
-  int result = distance_between_sensors_helper(start_node, end_node, 0, FIND_LIMIT);
+  int result = distance_between_sensors_helper(start, end, 0, FIND_LIMIT);
   Assert(result != 0);
   return result;
 }
@@ -380,14 +378,14 @@ unsigned int sensor_pair(track_state *t, unsigned int offset) {
   return find_sensor(t, offset)->reverse->num;
 }
 
-unsigned int sensor_next(track_state *t, unsigned int start,
-                         turnout_state turnout_states[NUM_TURNOUTS]) {
-  track_node *current = AHEAD(find_sensor(t, start));
+track_node *sensor_next(track_node *start,
+                        turnout_state turnout_states[NUM_TURNOUTS]) {
+  track_node *current = AHEAD(start);
 
   while (true) {
     switch (current->type) {
       case NODE_SENSOR:
-        return current->num;
+        return current;
       case NODE_MERGE:
         current = AHEAD(current);
         break;
@@ -398,13 +396,13 @@ unsigned int sensor_next(track_state *t, unsigned int start,
         break;
       }
       default:
-        return NO_NEXT_SENSOR;
+        return NULL_TRACK_NODE;
     }
   }
 }
 
-void location_reverse(track_state *t, location *destination, location *source) {
-  destination->sensor = sensor_pair(t, source->sensor);
+void location_reverse(location *destination, location *source) {
+  destination->node = source->node->reverse;
   destination->offset = -source->offset;
 }
 
@@ -413,17 +411,17 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
   location current;
   tmemcpy(&current, source, sizeof(current));
 
-  unsigned int next = sensor_next(t, current.sensor, turnout_states);
-  if (next != NO_NEXT_SENSOR) {
-    int distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+  track_node *next = sensor_next(current.node, turnout_states);
+  if (next != NULL_TRACK_NODE) {
+    int distance_to_next = distance_between_sensors(current.node, next) * 100;
 
     while (current.offset >= distance_to_next) {
-      current.sensor = next;
+      current.node = next;
       current.offset -= distance_to_next;
 
-      next = sensor_next(t, current.sensor, turnout_states);
-      if (next == NO_NEXT_SENSOR) break;
-      distance_to_next = distance_between_sensors(t, current.sensor, next) * 100;
+      next = sensor_next(current.node, turnout_states);
+      if (next == NULL_TRACK_NODE) break;
+      distance_to_next = distance_between_sensors(current.node, next) * 100;
     }
   }
 
@@ -432,12 +430,13 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
 
 int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
                   unsigned int sensor, location *loc) {
-  if (loc->sensor == NO_NEXT_SENSOR) {
+  track_node *next = sensor_next(loc->node, turnouts);
+  if (loc->node == NULL_TRACK_NODE) {
     return 0;
-  } else if (loc->sensor == sensor) {
+  } else if (loc->node->num == (int)sensor) {
     return loc->offset;
-  } else if (sensor == sensor_next(t, loc->sensor, turnouts)) {
-    return loc->offset - 100 * distance_between_sensors(t, loc->sensor, sensor);
+  } else if ((int)sensor == next->num) {
+    return loc->offset - 100 * distance_between_sensors(loc->node, next);
   }
 
   return 0;

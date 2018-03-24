@@ -16,7 +16,7 @@ void test_router_complete() {
       end.node = find_sensor(&track, end_sensor);
 
       location end_reverse;
-      location_reverse(&track, &end_reverse, &end);
+      location_reverse(&end_reverse, &end);
 
       if (sensor_reachable(&track, start_sensor, end_sensor) ||
           sensor_reachable(&track, start_sensor, end_reverse.node->num)) {

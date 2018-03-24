@@ -53,7 +53,7 @@ void update_coordinates_after_speed_change(train_data *tr_data,
 
 void update_coordinates_after_reverse(coordinates *c) {
   if (c->loc.node != NULL_TRACK_NODE) {
-    location_reverse(&track, &c->loc, &c->loc);
+    location_reverse(&c->loc, &c->loc);
     c->loc.offset += PICKUP_LENGTH;
   }
 }

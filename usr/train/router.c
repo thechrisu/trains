@@ -120,7 +120,7 @@ void router() {
         bool forwards_success = plan_route(&track, start, end, forwards);
 
         location end_backwards;
-        location_reverse(&track, &end_backwards, end);
+        location_reverse(&end_backwards, end);
 
         track_node *backwards[MAX_ROUTE_LENGTH];
         bool backwards_success = plan_route(&track, start, &end_backwards, backwards);
