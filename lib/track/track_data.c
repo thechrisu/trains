@@ -247,9 +247,9 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
   return 0;
 }
 
-uint32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
-                                             uint32_t total_distance,
-                                             int limit) {
+int32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
+                                            uint32_t total_distance,
+                                            int limit) {
   if (start == end) {
     return total_distance;
   } else if (limit == 0) {
@@ -259,17 +259,17 @@ uint32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
   switch (start->type) {
     case NODE_SENSOR:
     case NODE_MERGE: {
-      uint32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
+      int32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
       return distance_between_track_nodes_helper(AHEAD(start), end, new_total_distance, limit - 1);
     }
     case NODE_BRANCH: {
-      uint32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
-      uint32_t result = distance_between_track_nodes_helper(STRAIGHT(start), end, straight_total_distance, limit - 1);
-      if (result != 0) {
+      int32_t straight_total_distance = total_distance + start->edge[DIR_STRAIGHT].dist;
+      int32_t result = distance_between_track_nodes_helper(STRAIGHT(start), end, straight_total_distance, limit - 1);
+      if (result != -1) {
         return result;
       }
 
-      uint32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
+      int32_t curved_total_distance = total_distance + start->edge[DIR_CURVED].dist;
       return distance_between_track_nodes_helper(CURVED(start), end, curved_total_distance, limit - 1);
     }
     default:
@@ -280,8 +280,8 @@ uint32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
 uint32_t distance_between_track_nodes(track_node *start, track_node *end) {
   if (start == end) return 0;
   int result = distance_between_track_nodes_helper(start, end, 0, FIND_LIMIT);
-  Assert(result != 0);
-  return result;
+  Assert(result != -1);
+  return (uint32_t)result;
 }
 
 uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int limit) {
