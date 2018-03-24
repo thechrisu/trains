@@ -193,6 +193,7 @@ TEST(TrackDataTest, test_location_canonicalize) {
 
   // Basic test
   test_canonicalization(&t, turnouts, "A5", 0, "A5", 0);
+  test_canonicalization(&t, turnouts, "A5", -50 * 100, "A5", -50 * 100);
 
   // No next sensor
   test_canonicalization(&t, turnouts, "A2", 400 * 100, "A2", 400 * 100);
