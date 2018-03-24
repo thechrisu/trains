@@ -212,6 +212,12 @@ TEST(TrackDataTest, test_location_canonicalize) {
   turnouts[turnout_num_to_map_offset(153)] = TURNOUT_CURVED;
   turnouts[turnout_num_to_map_offset(154)] = TURNOUT_STRAIGHT;
   test_canonicalization(&t, turnouts, "E3", 1300 * 100, "C9", 39 * 100);
+
+  // To non-sensor node
+  test_canonicalization(&t, turnouts, "E3", 600 * 100, "BR153", 153 * 100);
+
+  // From non-sensor node
+  test_canonicalization(&t, turnouts, "BR6", 1100 * 100, "E11", 153 * 100);
 }
 
 void expect_node_follows(track_state *t, char *start_name, char *end_name, bool expect) {
