@@ -154,6 +154,24 @@ typedef struct {
   int count;
 } message_reservation_get_all_response;
 
+#define MAX_LOCATIONS_TO_OBSERVE 10
+
+#define GOT_LOST               -1
+#define LOCATION_CHANGED        0 // We hit a sensor
+#define LOCATION_TO_SWITCH      1
+#define LOCATION_TO_STOP        2
+
+typedef struct {
+  track_node *node;
+  int reason;
+  char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
+} location_notification;
+
+typedef struct {
+  location_notification notifications[MAX_LOCATIONS_TO_OBSERVE];
+  int num_requests;
+} location_notification_request;
+
 typedef struct {
   int type;
   union {
@@ -190,6 +208,8 @@ typedef struct {
     int reservation_response;
     message_reservation_get_all_response all_reservations;
     int destination;
+    location_notification_request notification_request;
+    location_notification notification_response;
   } msg;
 } message;
 
