@@ -7,6 +7,7 @@
 
 #include "codes.h"
 #include "commands.h"
+#include "coordinate_courier.h"
 #include "global_track_state.h"
 #include "prediction.h"
 #include "router.h"

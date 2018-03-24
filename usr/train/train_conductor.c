@@ -279,7 +279,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
  */
 void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int train_coordinates_server,
-                        int train, int sensor_offset, int goal_offset) {
+                       int train, int sensor_offset, int goal_offset) {
+  int coordinate_courier_tid = Create(MyPriority(), &coordinate_courier);
+  Assert(coordinate_courier_tid >= 0);
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     train, sensor_offset, goal_offset);
