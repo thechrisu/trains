@@ -196,7 +196,9 @@ void train_location_view() {
 
       unsigned int destination = get_train_destination(command_dispatcher_tid, train);
       if (destination != destinations[train]) {
-        print_destination(terminal_tx_server_tid, i, find_sensor(&track, destination));
+        print_destination(terminal_tx_server_tid, i, destination == NO_DESTINATION ?
+                                                     NULL_TRACK_NODE :
+                                                     find_sensor(&track, destination));
         destinations[train] = destination;
       }
 
