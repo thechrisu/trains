@@ -172,16 +172,15 @@ TEST(TrackDataTest, test_sensor_next) {
 }
 
 void test_canonicalization(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
-                       char sensor_bank, int sensor_index, int offset,
-                       char expected_sensor_bank, int expected_sensor_index,
-                       int expected_offset) {
+                           char *node, int offset,
+                           char *expected_node, int expected_offset) {
   location loc;
-  loc.node = find_sensor(t, sensor_offset(sensor_bank, sensor_index));
+  loc.node = find_node_by_name(t, node);
   loc.offset = offset;
 
   location_canonicalize(turnouts, &loc, &loc);
 
-  EXPECT_EQ(find_sensor(t, sensor_offset(expected_sensor_bank, expected_sensor_index)), loc.node);
+  EXPECT_EQ(find_node_by_name(t, expected_node), loc.node);
   EXPECT_EQ(expected_offset, loc.offset);
 }
 
@@ -193,26 +192,26 @@ TEST(TrackDataTest, test_location_canonicalize) {
   init_turnouts(turnouts);
 
   // Basic test
-  test_canonicalization(&t, turnouts, 'A', 5, 0, 'A', 5, 0);
+  test_canonicalization(&t, turnouts, "A5", 0, "A5", 0);
 
   // No next sensor
-  test_canonicalization(&t, turnouts, 'A', 2, 400 * 100, 'A', 2, 400 * 100);
+  test_canonicalization(&t, turnouts, "A2", 400 * 100, "A2", 400 * 100);
 
   // After next sensor, which does not have a next sensor
   turnouts[turnout_num_to_map_offset(11)] = TURNOUT_STRAIGHT;
   turnouts[turnout_num_to_map_offset(12)] = TURNOUT_STRAIGHT;
-  test_canonicalization(&t, turnouts, 'C', 14, (43 + 188 + 231 + 100) * 100, 'A', 2, 100 * 100);
+  test_canonicalization(&t, turnouts, "C14", (43 + 188 + 231 + 400) * 100, "A2", 400 * 100);
 
   // After branch
-  test_canonicalization(&t, turnouts, 'A', 3, (43 + 333 + 50) * 100, 'C', 11, 50 * 100);
+  test_canonicalization(&t, turnouts, "A3", (43 + 333 + 10) * 100, "C11", 10 * 100);
 
   // After multiple sensors
-  test_canonicalization(&t, turnouts, 'C', 7, 1700 * 100, 'D', 10, 524 * 100);
+  test_canonicalization(&t, turnouts, "C7", 1200 * 100, "D10", 24 * 100);
 
   // Through four-way switch
   turnouts[turnout_num_to_map_offset(153)] = TURNOUT_CURVED;
   turnouts[turnout_num_to_map_offset(154)] = TURNOUT_STRAIGHT;
-  test_canonicalization(&t, turnouts, 'E', 3, 1500 * 100, 'C', 9, 239 * 100);
+  test_canonicalization(&t, turnouts, "E3", 1300 * 100, "C9", 39 * 100);
 }
 
 void expect_node_follows(track_state *t, char *start_name, char *end_name, bool expect) {
