@@ -6,9 +6,9 @@ int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
   return (int)velocity * (c_time - ticks_at_last_sensor) / 100;
 }
 
-void predict_track_node_hit(int train_coordinates_server_tid,
-                            turnout_state turnout_states[NUM_TURNOUTS],
-                            int train, coordinates *prediction) {
+void predict_sensor_hit(int train_coordinates_server_tid,
+                        turnout_state turnout_states[NUM_TURNOUTS],
+                        int train, coordinates *prediction) {
   coordinates current;
   get_coordinates(train_coordinates_server_tid, train, &current);
 

@@ -6,7 +6,7 @@
 
 #define LINE_CLEARED  1357
 
-#define HEADER        "Train |  Dest |  Next |    Time | Diff (s) | Diff (cm)"
+#define HEADER        "Train | Dest | Next |    Time | Diff (s) | Diff (cm)"
 
 #define TRAIN_COL     0
 #define DEST_COL      1
@@ -15,25 +15,22 @@
 #define TIME_DIFF_COL 4
 #define DIST_DIFF_COL 5
 
-static int columns[] = { 1, 9, 17, 25, 35, 46 };
-static int column_widths[] = { 5, 5, 5, 7, 8, 9 };
+static int columns[] = { 1, 9, 16, 23, 33, 44 };
+static int column_widths[] = { 5, 4, 4, 7, 8, 9 };
 
-void print_with_padding(int terminal_tx_server_tid, int line, int column, char *to_print) {
+void clear_cell(int terminal_tx_server_tid, int line, int column) {
   char output_buffer[50];
 
   char start_string[] = "\033[%d;%dH";
   int start_string_length = tstrlen(start_string);
   tmemcpy(output_buffer, start_string, start_string_length * sizeof(char));
 
-  int padding_length = column_widths[column] - tstrlen(to_print);
-
-  for (int i = 0; i < padding_length; i += 1) {
+  for (int i = 0; i < column_widths[column]; i += 1) {
     output_buffer[start_string_length + i] = ' ';
   }
 
-  tmemcpy(output_buffer + (start_string_length + padding_length), to_print, tstrlen(to_print));
-
   int end_index = start_string_length + column_widths[column];
+
   if (column == DIST_DIFF_COL) {
     output_buffer[end_index] = '\0';
   } else {
@@ -46,33 +43,37 @@ void print_with_padding(int terminal_tx_server_tid, int line, int column, char *
                 TRAIN_LOCATION_LINE + 2 + line, columns[column]) == 0);
 }
 
-void clear_cell(int terminal_tx_server_tid, int line, int column) {
-  print_with_padding(terminal_tx_server_tid, line, column, "");
-}
-
-void print_destination(int terminal_tx_server_tid, int line, track_node *destination) {
-  if (destination == NULL_TRACK_NODE) {
-    clear_cell(terminal_tx_server_tid, line, DEST_COL);
+void print_destination(int terminal_tx_server_tid, int line, unsigned int destination) {
+  if (destination == NO_DESTINATION) {
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH    ",
+                  TRAIN_LOCATION_LINE + 2 + line, columns[DEST_COL]) == 0);
   } else {
-    print_with_padding(terminal_tx_server_tid, line, DEST_COL, (char *)destination->name);
+    Assert(Printf(terminal_tx_server_tid, "\033[%d;%dH %s%c%d",
+                  TRAIN_LOCATION_LINE + 2 + line, columns[DEST_COL],
+                  sensor_index(destination) < 10 ? " " : "",
+                  sensor_bank(destination), sensor_index(destination)) == 0);
   }
 }
 
-void print_next_track_node_prediction(int terminal_tx_server_tid, int line,
-                                      track_node *next,
-                                      int expected_ticks_next_track_node_hit) {
-  if (next == NULL_TRACK_NODE) {
+void print_next_sensor_prediction(int terminal_tx_server_tid, int line,
+                                  unsigned int next_sensor,
+                                  int expected_ticks_next_sensor_hit) {
+  if (next_sensor == NO_NEXT_SENSOR) {
     clear_cell(terminal_tx_server_tid, line, NEXT_COL);
     clear_cell(terminal_tx_server_tid, line, TIME_COL);
   } else {
-    print_with_padding(terminal_tx_server_tid, line, NEXT_COL, (char *)next->name);
+    Assert(Printf(terminal_tx_server_tid,
+                  "\033[%d;%dH %s%c%d",
+                  TRAIN_LOCATION_LINE + 2 + line, columns[NEXT_COL],
+                  sensor_index(next_sensor) < 10 ? " " : "",
+                  sensor_bank(next_sensor), sensor_index(next_sensor)) == 0);
 
-    if (expected_ticks_next_track_node_hit == INFINITE_TICKS) {
+    if (expected_ticks_next_sensor_hit == INFINITE_TICKS) {
       clear_cell(terminal_tx_server_tid, line, TIME_COL);
     } else {
-      uint32_t minutes = expected_ticks_next_track_node_hit / 100 / 60;
-      uint32_t seconds = (expected_ticks_next_track_node_hit / 100) % 60;
-      uint32_t deciseconds = (expected_ticks_next_track_node_hit / 10) % 10;
+      uint32_t minutes = expected_ticks_next_sensor_hit / 100 / 60;
+      uint32_t seconds = (expected_ticks_next_sensor_hit / 100) % 60;
+      uint32_t deciseconds = (expected_ticks_next_sensor_hit / 10) % 10;
 
       Assert(Printf(terminal_tx_server_tid,
                     "\033[%d;%dH%s%d:%s%d.%d",
@@ -170,9 +171,9 @@ void train_location_view() {
     int train = active_trains[i];
     get_last_sensor_hit(sensor_interpreter_tid, train, &last_sensor[train]);
     get_coordinates(train_coordinates_server_tid, train, &current[train]);
-    predict_track_node_hit(train_coordinates_server_tid,
-                           turnout_states,
-                           train, &current_prediction[train]);
+    predict_sensor_hit(train_coordinates_server_tid,
+                       turnout_states,
+                       train, &current_prediction[train]);
     destinations[train] = get_train_destination(command_dispatcher_tid, train);
   }
 
@@ -196,9 +197,7 @@ void train_location_view() {
 
       unsigned int destination = get_train_destination(command_dispatcher_tid, train);
       if (destination != destinations[train]) {
-        print_destination(terminal_tx_server_tid, i, destination == NO_DESTINATION ?
-                                                     NULL_TRACK_NODE :
-                                                     find_sensor(&track, destination));
+        print_destination(terminal_tx_server_tid, i, destination);
         destinations[train] = destination;
       }
 
@@ -211,34 +210,34 @@ void train_location_view() {
                     distance_diff(&track, turnout_states,
                                   seen_sensor.sensor, &current[train].loc));
 
-        predict_track_node_hit(train_coordinates_server_tid,
-                               turnout_states,
-                               train, &current_prediction[train]);
+        predict_sensor_hit(train_coordinates_server_tid,
+                           turnout_states,
+                           train, &current_prediction[train]);
 
-        print_next_track_node_prediction(terminal_tx_server_tid, i,
-                                         current_prediction[train].loc.node,
-                                         current_prediction[train].ticks);
+        print_next_sensor_prediction(terminal_tx_server_tid, i,
+                                     current_prediction[train].loc.node->num,
+                                     current_prediction[train].ticks);
       } else if (seen_sensor.sensor != NO_DATA_RECEIVED) {
         get_turnouts(track_state_controller_tid, turnout_states);
         coordinates tentative_prediction;
-        predict_track_node_hit(train_coordinates_server_tid,
-                               turnout_states,
-                               train, &tentative_prediction);
+        predict_sensor_hit(train_coordinates_server_tid,
+                           turnout_states,
+                           train, &tentative_prediction);
 
         if (tentative_prediction.loc.node == current_prediction[train].loc.node) {
           if (tentative_prediction.ticks / 10 != current_prediction[train].ticks / 10) {
-            print_next_track_node_prediction(terminal_tx_server_tid, i,
-                                             tentative_prediction.loc.node,
-                                             tentative_prediction.ticks);
+            print_next_sensor_prediction(terminal_tx_server_tid, i,
+                                         tentative_prediction.loc.node->num,
+                                         tentative_prediction.ticks);
           }
 
           tmemcpy(&current_prediction[train],
                   &tentative_prediction,
                   sizeof(current_prediction[train]));
         } else {
-          print_next_track_node_prediction(terminal_tx_server_tid, i,
-                                           tentative_prediction.loc.node,
-                                           tentative_prediction.ticks);
+          print_next_sensor_prediction(terminal_tx_server_tid, i,
+                                       tentative_prediction.loc.node->num,
+                                       tentative_prediction.ticks);
         }
       }
 
