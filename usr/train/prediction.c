@@ -14,15 +14,21 @@ void predict_sensor_hit(int train_coordinates_server_tid,
 
   if (current.loc.node == NULL_TRACK_NODE) {
     prediction->loc.node = NULL_TRACK_NODE;
+    prediction->ticks = INFINITE_TICKS;
     return;
   }
 
   track_node *next_sensor = sensor_next(current.loc.node, turnout_states);
 
-  prediction->loc.node = next_sensor;
-  prediction->loc.offset = 0;
+  if (next_sensor == NULL_TRACK_NODE) {
+    prediction->loc.node = NULL_TRACK_NODE;
+    prediction->ticks = INFINITE_TICKS;
+    return;
+  }
 
-  int dist_to_next_sensor = 100 * distance_between_sensors(current.loc.node,
+  prediction->loc.sensor = next_sensor;
+  prediction->loc.offset = 0;
+  int dist_to_next_sensor = 100 * distance_between_sensors(current.loc.sensor,
                                                            next_sensor) - current.loc.offset;
 
   if (current.velocity == 0) {

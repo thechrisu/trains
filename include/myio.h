@@ -26,7 +26,12 @@ int setspeed(int channel, int speed);
 
 void printf(char *format, ...) __attribute((format(printf, 1, 0)));
 void bwprintf(char *format, ...) __attribute((format(printf, 1, 0)));
+
+#ifdef TESTING
+#define logprintf printf
+#else
 void logprintf(char *format, ...) __attribute((format(printf, 1, 0)));
+#endif /* TESTING */
 int logputc(char c);
 int logputr(unsigned int reg);
 void dump_logs();
