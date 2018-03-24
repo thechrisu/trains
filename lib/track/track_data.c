@@ -242,8 +242,6 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
     }
   }
 
-  logprintf("Find sensor offset: %d\n\r", offset);
-  logprintf("\n\r\n\r\n\r");
   Assert(offset <= 80);
   Assert(0);
   return 0;
@@ -308,12 +306,6 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 }
 
 bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end) {
-  if (start >= 80) {
-    logprintf("sensor is followed by (start): %d\n\r", start);
-  }
-  if (end >= 80) {
-    logprintf("sensor is followed by (end): %d\n\r", end);
-  }
   Assert(start <= 80);
   Assert(end <= 80);
   track_node *start_node = find_sensor(t, start);
@@ -322,12 +314,6 @@ bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end)
 }
 
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second) {
-  if (first >= 80) {
-    logprintf("sensors are paired (start): %d\n\r", first);
-  }
-  if (second >= 80) {
-    logprintf("sensors are paired (end): %d\n\r", second);
-  }
   Assert(first <= 80);
   Assert(second <= 80);
   return find_sensor(t, first)->reverse == find_sensor(t, second);
@@ -367,12 +353,6 @@ bool sensor_may_be_seen_next_helper(track_node *start, track_node *end, int limi
 }
 
 bool sensor_may_be_seen_next(track_state *t, unsigned int start, unsigned int end) {
-  if (start >= 80) {
-    logprintf("sensor_may_be_sesn_next (start): %d\n\r", start);
-  }
-  if (end >= 80) {
-    logprintf("sensor_may_be_sesn_next (end): %d\n\r", end);
-  }
   Assert(start <= 80);
   Assert(end <= 80);
   track_node *start_n = find_sensor(t, start);
