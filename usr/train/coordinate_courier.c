@@ -1,5 +1,7 @@
 #include "coordinate_courier.h"
 
+#define TOO_MANY_NOTIFICATION_REQUESTS -1
+
 void coordinates_to_notification(coordinates *c,
         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
         bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
@@ -23,18 +25,40 @@ void coordinates_to_notification(coordinates *c,
   }
 }
 
+int add_notification_requests(location_notification notifications[MAX_LOCATIONS_TO_OBSERVE],
+                              int n_requests,
+                              location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
+                              bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]) {
+  Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
+  int j = 0;
+  for (int i = 0; i < n_requests; i++) {
+    if (j >= MAX_LOCATIONS_TO_OBSERVE) {
+      return TOO_MANY_NOTIFICATION_REQUESTS;
+    }
+    for (; j < MAX_LOCATIONS_TO_OBSERVE; j++) {
+      if (!is_location_set[j]) {
+        is_location_set[j] = true;
+        tmemcpy(locations_to_observe + j, notifications + i, sizeof(notifications[i]));
+        break;
+      }
+    }
+  }
+  return 0;
+}
+
 void coordinate_courier() {
   int conductor = MyParentTid();
   int coordinate_server = WhoIs("TrainCoordinateServer");
-  int train; // TODO get train via initial message from parent.
   coordinates c;
 
   int message_tid;
-  (void)message_tid;
+  message train_msg;
+  Assert(Receive(&message_tid, &train_msg, sizeof(train_msg)) == sizeof(train_msg));
+  Assert(Reply(message_tid, EMPTY_MESSAGE, 0) == 0);
+  int train = train_msg.msg.train;
 
   location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE];
   message n_request, n_response;
-  n_request.type = MESSAGE_CONDUCTOR_NOTIFY_REQUEST;
   n_response.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
   bool is_location_set[MAX_LOCATIONS_TO_OBSERVE];
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
@@ -47,7 +71,12 @@ void coordinate_courier() {
     Assert(Send(conductor, &n_response, sizeof(n_response),
                 &n_request, sizeof(n_request)
                                == sizeof(n_request)));
-    // TODO process new request
+
+    Assert(n_request.type == MESSAGE_CONDUCTOR_NOTIFY_REQUEST);
+    int r = add_notification_requests(n_response.msg.notification_request.notifications,
+                                      n_response.msg.notification_request.num_requests,
+                                      locations_to_observe, is_location_set);
+    Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
   }
   Assert(0);
 }
