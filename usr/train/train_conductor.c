@@ -53,7 +53,7 @@ void conductor_calib_sd_one_iter(int train_tx_server, int track_state_controller
     goal_sensor = sensor_offset('B', 10);
   }
   reverse_start_sensor = sensor_pair(&track, start_sensor);
-  int dist = 100 * distance_between_sensors_helper(find_sensor(&track, start_sensor),
+  int dist = 100 * distance_between_track_nodes_helper(find_sensor(&track, start_sensor),
                                                    find_sensor(&track, goal_sensor),
                                                    0, 15);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%d%s%d%s", ESC, CALIB_LINE + 2,
