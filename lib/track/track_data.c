@@ -430,12 +430,13 @@ void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURN
 
 int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
                   unsigned int sensor, location *loc) {
+  track_node *sensor_node = find_sensor(t, sensor);
   track_node *next = sensor_next(loc->node, turnouts);
   if (loc->node == NULL_TRACK_NODE) {
     return 0;
-  } else if (loc->node->num == (int)sensor) {
+  } else if (sensor_node == loc->node) {
     return loc->offset;
-  } else if ((int)sensor == next->num) {
+  } else if (sensor_node == next) {
     return loc->offset - 100 * distance_between_sensors(loc->node, next);
   }
 
