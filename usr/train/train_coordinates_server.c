@@ -15,7 +15,7 @@ void update_coordinates_helper(int now_ticks,
     if (c->acceleration != 0) {
       c->loc.offset -= (velocity_diff * velocity_diff) / (2 * c->acceleration);
     }
-    location_canonicalize(&track, turnout_states, &c->loc, &c->loc);
+    location_canonicalize(turnout_states, &c->loc, &c->loc);
   }
 
   c->velocity = current_velocity;

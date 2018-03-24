@@ -406,7 +406,7 @@ void location_reverse(location *destination, location *source) {
   destination->offset = -source->offset;
 }
 
-void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
+void location_canonicalize(turnout_state turnout_states[NUM_TURNOUTS],
                            location *destination, location *source) {
   location current;
   tmemcpy(&current, source, sizeof(current));

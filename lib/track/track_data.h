@@ -165,7 +165,7 @@ void location_reverse(location *destination, location *source);
  * @param destination    Where to put the canonicalized location.
  * @param source         The location to canonicalize.
  */
-void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
+void location_canonicalize(turnout_state turnout_states[NUM_TURNOUTS],
                            location *destination, location *source);
 
 /**
