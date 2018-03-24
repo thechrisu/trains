@@ -281,6 +281,11 @@ void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int train_coordinates_server,
                        int train, int sensor_offset, int goal_offset) {
   int coordinate_courier_tid = Create(MyPriority(), &coordinate_courier);
+  message train_message;
+  train_message.msg.train = train;
+  Assert(Send(coordinate_courier_tid, &train_message, sizeof(train_message),
+              EMPTY_MESSAGE, 0)
+          == 0);
   Assert(coordinate_courier_tid >= 0);
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
