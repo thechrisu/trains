@@ -15,9 +15,6 @@ void update_search_node(search_node_queue *q, search_node *current, int directio
 }
 
 bool plan_route(track_state *t, location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]) {
-  track_node *start_node = find_sensor(t, start->sensor);
-  track_node *end_node = find_sensor(t, end->sensor);
-
   search_node_queue q;
   search_node_queue_init(&q);
 
@@ -25,7 +22,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
     search_node node;
     track_node *t_node = &(t->track[i]);
     node.node = t_node;
-    node.distance = t_node == start_node ? 0 : INFINITE_DISTANCE;
+    node.distance = t_node == start->node ? 0 : INFINITE_DISTANCE;
     node.prev = NULL_SEARCH_NODE;
     search_node_queue_enqueue(&q, &node);
   }
@@ -62,7 +59,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
   search_node *end_node_after_search = NULL_SEARCH_NODE;
   for (int i = 0; i < TRACK_MAX; i += 1) {
     search_node *n = &dequeued_nodes[i];
-    if (n->node == end_node) {
+    if (n->node == end->node) {
       end_node_after_search = n;
     }
   }
@@ -97,10 +94,10 @@ int route_node_count(track_node *route[MAX_ROUTE_LENGTH]) {
 }
 
 int route_length(track_node *route[MAX_ROUTE_LENGTH]) {
-  coordinates c;
-  c.loc.sensor = route[0]->num;
-  c.loc.offset = 0;
-  return get_remaining_dist_in_route(route, &c.loc);
+  location loc;
+  loc.node = route[0];
+  loc.offset = 0;
+  return get_remaining_dist_in_route(route, &loc);
 }
 
 void router() {
@@ -123,7 +120,7 @@ void router() {
         bool forwards_success = plan_route(&track, start, end, forwards);
 
         location end_backwards;
-        location_reverse(&track, &end_backwards, end);
+        location_reverse(&end_backwards, end);
 
         track_node *backwards[MAX_ROUTE_LENGTH];
         bool backwards_success = plan_route(&track, start, &end_backwards, backwards);
@@ -158,23 +155,14 @@ void router() {
   Assert(0);
 }
 
-int get_route_next(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]) {
-  turnout_state turnouts[NUM_TURNOUTS];
-  get_turnouts(WhoIs("TrackStateController"), turnouts);
-  location next = { .sensor = sensor_next(&track, start->sensor, turnouts),
-                    .offset = start->offset // TODO do something more useful with offset
-  };
-  return get_route(&next, end, route);
-}
-
 int get_route(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]) {
   int sender_tid;
   message send, received;
 
   send.type = MESSAGE_GET_ROUTE;
-  send.msg.get_route_params.start.sensor = start->sensor;
+  send.msg.get_route_params.start.node = start->node;
   send.msg.get_route_params.start.offset = start->offset;
-  send.msg.get_route_params.end.sensor = end->sensor;
+  send.msg.get_route_params.end.node = end->node;
   send.msg.get_route_params.end.offset = end->offset;
   Assert(Send(WhoIs("Router"), &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 

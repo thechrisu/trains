@@ -6,38 +6,29 @@ int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
   return (int)velocity * (c_time - ticks_at_last_sensor) / 100;
 }
 
-void get_location_from_last_sensor_hit(int clock_server, int velocity,
-                                       reply_get_last_sensor_hit *last_record,
-                                       location *current) {
-  current->sensor = last_record->sensor;
-  current->offset = dist_from_last_sensor(clock_server, last_record->ticks,
-                                      velocity);
-}
-
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction) {
   coordinates current;
   get_coordinates(train_coordinates_server_tid, train, &current);
 
-  if (current.loc.sensor == NO_NEXT_SENSOR) {
-    prediction->loc.sensor = NO_NEXT_SENSOR;
+  if (current.loc.node == NULL_TRACK_NODE) {
+    prediction->loc.node = NULL_TRACK_NODE;
     prediction->ticks = INFINITE_TICKS;
     return;
   }
 
-  unsigned int next_sensor = sensor_next(&track, current.loc.sensor, turnout_states);
+  track_node *next_sensor = sensor_next(current.loc.node, turnout_states);
 
-  if (next_sensor == NO_NEXT_SENSOR) {
-    prediction->loc.sensor = NO_NEXT_SENSOR;
+  if (next_sensor == NULL_TRACK_NODE) {
+    prediction->loc.node = NULL_TRACK_NODE;
     prediction->ticks = INFINITE_TICKS;
     return;
   }
-  
-  prediction->loc.sensor = next_sensor;
+
+  prediction->loc.node = next_sensor;
   prediction->loc.offset = 0;
-  int dist_to_next_sensor = 100 * distance_between_sensors(&track,
-                                                           current.loc.sensor,
+  int dist_to_next_sensor = 100 * distance_between_sensors(current.loc.node,
                                                            next_sensor) - current.loc.offset;
 
   if (current.velocity == 0) {

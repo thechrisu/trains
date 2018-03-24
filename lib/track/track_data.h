@@ -101,12 +101,11 @@ uint32_t distance_between_sensors_helper(track_node *start, track_node *end,
 /**
  * Returns the distance between two sequential sensors.
  *
- * @param   t     The track to base the distance calculation off of.
- * @param   start The offset of the sensor to start at.
- * @param   end   The offset of the sensor to finish at.
+ * @param   start The sensor to start at.
+ * @param   end   The sensor to finish at.
  * @returns The distance between the two sensors.
  */
-uint32_t distance_between_sensors(track_state *t, unsigned int start, unsigned int end);
+uint32_t distance_between_sensors(track_node *start, track_node *end);
 
 /**
  * @param   t     The track to base the distance calculation off of.
@@ -151,11 +150,10 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
  * The reverse of a location is based on the pair of the location's sensor, with an
  * offset equal to the negative of the location's offset. A location and its reverse
  * are in the same real-world position on the track.
- * @param t           A track state.
  * @param destination The location to copy the reverse into.
  * @param source      The location to base the reverse off of.
  */
-void location_reverse(track_state *t, location *destination, location *source);
+void location_reverse(location *destination, location *source);
 
 /**
  * Changes a location so that its offset is smaller than the distance to the next sensor.
@@ -167,20 +165,19 @@ void location_reverse(track_state *t, location *destination, location *source);
  * @param destination    Where to put the canonicalized location.
  * @param source         The location to canonicalize.
  */
-void location_canonicalize(track_state *t, turnout_state turnout_states[NUM_TURNOUTS],
+void location_canonicalize(turnout_state turnout_states[NUM_TURNOUTS],
                            location *destination, location *source);
 
 /**
- * @param   t              A track state.
  * @param   start          The sensor to start from.
  * @param   turnout_states A list of turnout states. This is provided separately
  *                         from the track state to ensure the turnout states can't
  *                         be changed partway through the function.
  * @returns The next sensor after `start`, taking into account the turnouts' states,
- *          or NO_NEXT_SENSOR if there is no such sensor.
+ *          or NULL_TRACK_NODE if there is no such sensor.
  */
-unsigned int sensor_next(track_state *t, unsigned int start,
-                         turnout_state turnout_states[NUM_TURNOUTS]);
+track_node *sensor_next(track_node *start,
+                        turnout_state turnout_states[NUM_TURNOUTS]);
 
 /**
  * @param   t        A track state.

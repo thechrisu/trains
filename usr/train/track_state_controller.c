@@ -132,7 +132,7 @@ void track_state_controller() {
         int ticks = received.msg.ucsm.ticks;
         unsigned int start = received.msg.ucsm.start;
         unsigned int end = received.msg.ucsm.end;
-        uint32_t distance = distance_between_sensors(&track, start, end);
+        uint32_t distance = distance_between_sensors(find_sensor(&track, start), find_sensor(&track, end));
 
         if (ticks == 0) {
           char start_bank = sensor_bank(start);

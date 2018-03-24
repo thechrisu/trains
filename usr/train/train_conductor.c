@@ -155,7 +155,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
                                        int train, int sensor_offset, int goal_offset) {
   location end;
-  end.sensor = sensor_offset;
+  end.node = find_sensor(&track, sensor_offset);
   end.offset = goal_offset;
 
   message velocity_model;
@@ -174,11 +174,11 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   bool had_to_reverse = false;
   get_coordinates(train_coordinates_server, train, &c);
-  while (c.loc.sensor == NO_NEXT_SENSOR) {
+  while (c.loc.node == NULL_TRACK_NODE) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_coordinates(train_coordinates_server, train, &c);
   }
-  if (c.loc.sensor == end.sensor) {
+  if (c.loc.node == end.node) {
     conductor_reverse_to_speed(train_tx_server, track_state_controller,
                                clock_server, train, 0);
     get_coordinates(train_coordinates_server, train, &c);
@@ -215,16 +215,14 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
     int route_result = get_route(&c.loc, &end, route);
     if (route_result < 0) {
-      logprintf("Tried to route from %c%d to %c%d but couldn't get a route\n\r",
-                sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor),
-                sensor_bank(end.sensor), sensor_index(end.sensor));
+      logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
+                c.loc.node->name, end.node->name);
       return;
     }
 
 #if ROUTING_DEBUG
-    logprintf("Got route from %c%d to %c%d with %d nodes\n\r",
-        sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor),
-        sensor_bank(end.sensor), sensor_index(end.sensor),
+    logprintf("Got route from %s to %s with %d nodes\n\r",
+        c.loc.node->name, end.node->name,
         route_node_count(route));
     for (int i = 0; i < route_node_count(route); i += 1) {
       logprintf("%s\n\r", route[i]->name);

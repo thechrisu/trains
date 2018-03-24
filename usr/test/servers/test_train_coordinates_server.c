@@ -45,16 +45,16 @@ void test_train_coordinates_server() {
 
   // Location is uninitialized at beginning
   get_coordinates(train_coords_server_tid, 1, &c);
-  Assert(c.loc.sensor == NO_NEXT_SENSOR);
+  Assert(c.loc.node == NULL_TRACK_NODE);
   get_coordinates(train_coords_server_tid, 80, &c);
-  Assert(c.loc.sensor == NO_NEXT_SENSOR);
+  Assert(c.loc.node == NULL_TRACK_NODE);
 
   // Setting the train's speed initializes speed, velocity, and acceleration, but not location
   set_train_speed(train_tx_server_tid, track_state_controller_tid, train, 6);
 
   Delay(clock_server_tid, 25);
   get_coordinates(train_coords_server_tid, train, &c);
-  Assert(c.loc.sensor == NO_NEXT_SENSOR);
+  Assert(c.loc.node == NULL_TRACK_NODE);
   Assert(c.ticks >= 25 && c.ticks <= 28);
   Assert(c.current_speed == 6);
   Assert(c.last_speed == 0);
@@ -66,7 +66,7 @@ void test_train_coordinates_server() {
   // Train is at full speed
   Delay(clock_server_tid, 125);
   get_coordinates(train_coords_server_tid, train, &c);
-  Assert(c.loc.sensor == NO_NEXT_SENSOR);
+  Assert(c.loc.node == NULL_TRACK_NODE);
   Assert(c.ticks >= 100 && c.ticks <= 400);
   Assert(c.current_speed == 6);
   Assert(c.last_speed == 0);
@@ -83,7 +83,7 @@ void test_train_coordinates_server() {
   Assert(Send(train_coords_server_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 
   get_coordinates(train_coords_server_tid, train, &c);
-  Assert(c.loc.sensor == sensor_offset('B', 15));
+  Assert(c.loc.node == find_sensor(&track, sensor_offset('B', 15)));
 
   int last_offset = c.loc.offset;
   Assert(c.loc.offset >= 0);
@@ -99,7 +99,7 @@ void test_train_coordinates_server() {
 
   Delay(clock_server_tid, 25);
   get_coordinates(train_coords_server_tid, train, &c);
-  Assert(c.loc.sensor == sensor_offset('B', 15));
+  Assert(c.loc.node == find_sensor(&track, sensor_offset('B', 15)));
 
   Assert(c.loc.offset >= 0);
   Assert(c.loc.offset > last_offset);
@@ -115,7 +115,7 @@ void test_train_coordinates_server() {
   // Train has come to a stop
   Delay(clock_server_tid, 150);
   get_coordinates(train_coords_server_tid, train, &c);
-  Assert(c.loc.sensor == sensor_offset('B', 15));
+  Assert(c.loc.node == find_sensor(&track, sensor_offset('B', 15)));
 
   Assert(c.loc.offset >= 0);
   Assert(c.loc.offset > last_offset);
@@ -137,7 +137,7 @@ void test_train_coordinates_server() {
   reverse_train(train_tx_server_tid, track_state_controller_tid, train);
 
   get_coordinates(train_coords_server_tid, train, &c);
-  Assert(c.loc.sensor == sensor_offset('B', 16));
+  Assert(c.loc.node == find_sensor(&track, sensor_offset('B', 16)));
   Assert(c.loc.offset == -last_offset + PICKUP_LENGTH);
   last_offset = c.loc.offset;
 

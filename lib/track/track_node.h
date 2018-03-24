@@ -83,7 +83,7 @@ typedef struct {
  *     |---- 5 cm ----|
  */
 typedef struct {
-  unsigned int sensor;
+  track_node *node;
   int32_t offset; // 1 here is 1/100 mm. Positive is in the same direction as the sensor.
 } location;
 

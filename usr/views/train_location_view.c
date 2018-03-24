@@ -205,7 +205,7 @@ void train_location_view() {
         get_turnouts(track_state_controller_tid, turnout_states);
 
         print_diffs(terminal_tx_server_tid, i,
-                    current_prediction[train].loc.sensor, seen_sensor.sensor,
+                    current_prediction[train].loc.node->num, seen_sensor.sensor,
                     current_prediction[train].ticks, seen_sensor.ticks,
                     distance_diff(&track, turnout_states,
                                   seen_sensor.sensor, &current[train].loc));
@@ -215,7 +215,7 @@ void train_location_view() {
                            train, &current_prediction[train]);
 
         print_next_sensor_prediction(terminal_tx_server_tid, i,
-                                     current_prediction[train].loc.sensor,
+                                     current_prediction[train].loc.node->num,
                                      current_prediction[train].ticks);
       } else if (seen_sensor.sensor != NO_DATA_RECEIVED) {
         get_turnouts(track_state_controller_tid, turnout_states);
@@ -224,10 +224,10 @@ void train_location_view() {
                            turnout_states,
                            train, &tentative_prediction);
 
-        if (tentative_prediction.loc.sensor == current_prediction[train].loc.sensor) {
+        if (tentative_prediction.loc.node == current_prediction[train].loc.node) {
           if (tentative_prediction.ticks / 10 != current_prediction[train].ticks / 10) {
             print_next_sensor_prediction(terminal_tx_server_tid, i,
-                                         tentative_prediction.loc.sensor,
+                                         tentative_prediction.loc.node->num,
                                          tentative_prediction.ticks);
           }
 
@@ -236,7 +236,7 @@ void train_location_view() {
                   sizeof(current_prediction[train]));
         } else {
           print_next_sensor_prediction(terminal_tx_server_tid, i,
-                                       tentative_prediction.loc.sensor,
+                                       tentative_prediction.loc.node->num,
                                        tentative_prediction.ticks);
         }
       }
