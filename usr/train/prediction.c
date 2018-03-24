@@ -29,6 +29,7 @@ void predict_sensor_hit(int train_coordinates_server_tid,
   unsigned int next_sensor = sensor_next(&track, current.loc.sensor, turnout_states);
 
   if (next_sensor == NO_NEXT_SENSOR) {
+    prediction->loc.sensor = NO_NEXT_SENSOR;
     prediction->ticks = INFINITE_TICKS;
     return;
   }
@@ -36,8 +37,8 @@ void predict_sensor_hit(int train_coordinates_server_tid,
   prediction->loc.sensor = next_sensor;
   prediction->loc.offset = 0;
   int dist_to_next_sensor = 100 * distance_between_sensors(&track,
-                                                          current.loc.sensor,
-                                                          next_sensor) - current.loc.offset;
+                                                           current.loc.sensor,
+                                                           next_sensor) - current.loc.offset;
 
   if (current.velocity == 0) {
     prediction->ticks = INFINITE_TICKS;
