@@ -3,7 +3,7 @@
 void test_router_same_sensor() {
   router_test_setup();
 
-  location loc = { .sensor = sensor_offset('C', 8), .offset = 0 };
+  location loc = { .node = find_sensor(&track, sensor_offset('C', 8)), .offset = 0 };
   track_node *route[MAX_ROUTE_LENGTH];
 
   Assert(get_route(&loc, &loc, route) == 0);

@@ -9,7 +9,7 @@ void update_coordinates_helper(int now_ticks,
     current_velocity = c->target_velocity;
   }
 
-  if (c->loc.sensor != NO_NEXT_SENSOR) {
+  if (c->loc.node != NULL_TRACK_NODE) {
     int velocity_diff = current_velocity - c->velocity;
     c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100;
     if (c->acceleration != 0) {
@@ -32,7 +32,7 @@ void update_coordinates_after_sensor_hit(reply_get_last_sensor_hit *last_sensor_
                                          coordinates *c) {
   update_coordinates_helper(last_sensor_hit->ticks, turnout_states, c);
 
-  c->loc.sensor = last_sensor_hit->sensor;
+  c->loc.node = find_sensor(&track, last_sensor_hit->sensor);
   c->loc.offset = 0;
 }
 
@@ -52,7 +52,7 @@ void update_coordinates_after_speed_change(train_data *tr_data,
 }
 
 void update_coordinates_after_reverse(coordinates *c) {
-  if (c->loc.sensor != NO_NEXT_SENSOR) {
+  if (c->loc.node != NULL_TRACK_NODE) {
     location_reverse(&track, &c->loc, &c->loc);
     c->loc.offset += PICKUP_LENGTH;
   }
@@ -74,7 +74,7 @@ void train_coordinates_server() {
 
   coordinates coords[81];
   for (int i = 0; i <= 80; i += 1) {
-    coords[i].loc.sensor = NO_NEXT_SENSOR;
+    coords[i].loc.node = NULL_TRACK_NODE;
   }
 
   turnout_state turnout_states[NUM_TURNOUTS];

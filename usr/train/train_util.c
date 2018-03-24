@@ -102,7 +102,7 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
   bool passed_loc = false;
 
   for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
-    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+    if (*c == loc->node) {
       passed_loc = true;
     }
 
@@ -183,7 +183,7 @@ int stopping_dist_remaining_dist(int train, int speed, int ticks_left) {
 
 bool on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc) {
   for (track_node **c = route; *c != NULL_TRACK_NODE; c += 1) {
-    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+    if (*c == loc->node) {
       return true;
     }
   }
@@ -195,7 +195,7 @@ int get_remaining_dist_in_route(track_node *route[MAX_ROUTE_LENGTH], location *l
   bool passed_loc = false;
 
   for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
-    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+    if (*c == loc->node) {
       passed_loc = true;
     }
 
@@ -237,7 +237,7 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
   bool passed_loc = false;
 
   for (track_node **c = route; *c != NULL_TRACK_NODE && c != end; c += 1) {
-    if ((*c)->type == NODE_SENSOR && (*c)->num == (int)loc->sensor) {
+    if (*c == loc->node) {
       passed_loc = true;
     }
 
