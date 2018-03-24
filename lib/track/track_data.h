@@ -5,6 +5,7 @@
 #ifndef TRACK_DATA_H
 #define TRACK_DATA_H
 
+#include "myio.h"
 #include "model.h"
 #include "search_node_queue.h"
 #include "tracks.h"
