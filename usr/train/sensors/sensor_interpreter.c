@@ -14,6 +14,9 @@ void attribute_sensor(int train, unsigned int sensor, int current_time) {
   last_sensor[train] = sensor;
   time_at_last_sensor_hit[train] = current_time;
 
+  if (sensor >= 80) {
+    logprintf("Attributing sensor >= 80: %d\n\r", sensor);
+  }
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%d%s%c%d%s",
                 ESC, CALIB_LINE, 1,
                 "Train ", train, " just hit sensor ", sensor_bank(sensor), sensor_index(sensor),

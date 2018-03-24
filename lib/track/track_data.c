@@ -204,18 +204,22 @@ bool is_valid_turnout_num(unsigned int turnout) {
 }
 
 char sensor_bank(unsigned int offset) {
+  Assert(offset <= 80);
   return 'A' + offset / 16;
 }
 
 unsigned int sensor_index(unsigned int offset) {
+  Assert(offset <= 80);
   return 1 + offset % 16;
 }
 
 unsigned int sensor_data_element(unsigned int offset) {
+  Assert(offset <= 80);
   return 2 * (sensor_bank(offset) - 'A') + (sensor_index(offset) >= 9 ? 1 : 0);
 }
 
 unsigned int sensor_data_mask(unsigned int offset) {
+  Assert(offset <= 80);
   return 1 << ((16 - sensor_index(offset)) % 8);
 }
 
@@ -238,6 +242,9 @@ track_node *find_sensor(track_state *t, unsigned int offset) {
     }
   }
 
+  logprintf("Find sensor offset: %d\n\r", offset);
+  logprintf("\n\r\n\r\n\r");
+  Assert(offset <= 80);
   Assert(0);
   return 0;
 }
@@ -301,12 +308,28 @@ uint32_t sensor_is_followed_by_helper(track_node *start, track_node *end, int li
 }
 
 bool sensor_is_followed_by(track_state *t, unsigned int start, unsigned int end) {
+  if (start >= 80) {
+    logprintf("sensor is followed by (start): %d\n\r", start);
+  }
+  if (end >= 80) {
+    logprintf("sensor is followed by (end): %d\n\r", end);
+  }
+  Assert(start <= 80);
+  Assert(end <= 80);
   track_node *start_node = find_sensor(t, start);
   return start_node->type == NODE_SENSOR &&
          sensor_is_followed_by_helper(AHEAD(start_node), find_sensor(t, end), FIND_LIMIT);
 }
 
 bool sensors_are_paired(track_state *t, unsigned int first, unsigned int second) {
+  if (first >= 80) {
+    logprintf("sensors are paired (start): %d\n\r", first);
+  }
+  if (second >= 80) {
+    logprintf("sensors are paired (end): %d\n\r", second);
+  }
+  Assert(first <= 80);
+  Assert(second <= 80);
   return find_sensor(t, first)->reverse == find_sensor(t, second);
 }
 
@@ -344,6 +367,14 @@ bool sensor_may_be_seen_next_helper(track_node *start, track_node *end, int limi
 }
 
 bool sensor_may_be_seen_next(track_state *t, unsigned int start, unsigned int end) {
+  if (start >= 80) {
+    logprintf("sensor_may_be_sesn_next (start): %d\n\r", start);
+  }
+  if (end >= 80) {
+    logprintf("sensor_may_be_sesn_next (end): %d\n\r", end);
+  }
+  Assert(start <= 80);
+  Assert(end <= 80);
   track_node *start_n = find_sensor(t, start);
   track_node *end_n = find_sensor(t, end);
   return sensor_may_be_seen_next_helper(AHEAD(start_n), end_n, 2 * FIND_LIMIT, false, false) ||
@@ -377,6 +408,7 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end) {
 }
 
 unsigned int sensor_pair(track_state *t, unsigned int offset) {
+  Assert(offset <= 80);
   return find_sensor(t, offset)->reverse->num;
 }
 
