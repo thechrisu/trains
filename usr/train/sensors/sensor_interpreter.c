@@ -174,7 +174,9 @@ void sensor_interpreter() {
                   train_coordinates_server, sensor_attributed_to,
                   last_sensor[sensor_attributed_to],
                   time_at_last_sensor_hit[sensor_attributed_to]);
-      }
+        }
+
+        break;
       case MESSAGE_GET_LAST_SENSOR_HIT: {
         int train = received.msg.train;
         Assert(train > 0 && train <= 80);
@@ -189,7 +191,7 @@ void sensor_interpreter() {
       default:
         Assert(0);
         break;
-    }
+      }
     }
   }
 }
