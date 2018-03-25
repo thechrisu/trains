@@ -254,7 +254,7 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
     predict_train_stop(c, route, &target, train_speeds, train_distances);
     tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
     locations_to_observe[*n_requests].reason = LOCATION_TO_STOP;
-    *n_requests += 1;
+    *n_requests = *n_requests + 1;
 }
 
 void set_new_triggers(int coord_courier,

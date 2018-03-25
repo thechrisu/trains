@@ -44,11 +44,13 @@ int add_notification_requests(
   Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
+    logprintf("Request: %s %d\n\r", notifications[i].loc.node->name, notifications[i].loc.offset);
     Assert(notifications[i].reason != LOCATION_ANY);
     if (j >= MAX_LOCATIONS_TO_OBSERVE) {
       return TOO_MANY_NOTIFICATION_REQUESTS;
     }
     bool is_dup = false;
+    bool override = false;
     for (int k = 0; k < MAX_LOCATIONS_TO_OBSERVE; k++) {
       if (is_location_set[k]) {
         is_dup |= notifications[i].loc.node == locations_to_observe[k].loc.node
@@ -56,17 +58,19 @@ int add_notification_requests(
         if (locations_to_observe[k].reason == LOCATION_TO_STOP
               && notifications[i].reason == LOCATION_TO_STOP) {
           is_location_set[k] = false;
+          override = true;
           // If they're the same switch w/ the same configuration, then drop existing
         } else if (locations_to_observe[k].reason == LOCATION_TO_SWITCH
               && notifications[i].reason == LOCATION_TO_SWITCH
               && locations_to_observe[k].switch_to_switch[0] == notifications[i].switch_to_switch[0]
               && locations_to_observe[k].switch_to_switch[1] == notifications[i].switch_to_switch[1]) {
           is_location_set[k] = false;
+          override = true;
         }
-        if (is_dup) break;
+        if (is_dup && !override) break;
       }
     }
-    if (is_dup) continue;
+    if (is_dup && !override) continue;
     for (; j < MAX_LOCATIONS_TO_OBSERVE; j++) {
       if (!is_location_set[j]) {
         is_location_set[j] = true;
