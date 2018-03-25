@@ -229,13 +229,13 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         track_node *route[MAX_ROUTE_LENGTH],
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
+    *n_requests = 0;
     /* int next_switch_num;
     bool next_switch_is_curved;
     location target;
     get_next_turnout_in_route(track_state_controller, route, &c.loc,
                               &next_switch_num, &next_switch_is_curved,
                               &next_switch_node, CUTOFF_DISTANCE);
-    *n_requests = 0;
     if (next_switch_node != NULL_TRACK_NODE) {
       // TODO adjust location by stopping distance and switch padding etc
       tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));

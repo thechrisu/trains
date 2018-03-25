@@ -121,9 +121,14 @@ void coordinate_courier() {
           tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
           n_observed.msg.notification_response.reason = LOCATION_ANY;
       }
+      if (first_run) {
+        n_observed.msg.notification_response.reason = c.loc.node == NULL_TRACK_NODE ?
+                                                      GOT_LOST :
+                                                      LOCATION_ANY;
+        first_run = false;
+      }
       Assert(Send(conductor, &n_observed, sizeof(n_observed),
-                  &n_request, sizeof(n_request)
-                                 == sizeof(n_request)));
+                             &n_request, sizeof(n_request)) == sizeof(n_request));
       tmemcpy(&last, &c, sizeof(c));
       Assert(n_request.type == REPLY_CONDUCTOR_NOTIFY_REQUEST);
       if (n_request.msg.notification_request.drop_existing) {
