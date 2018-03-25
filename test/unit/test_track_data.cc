@@ -196,12 +196,12 @@ TEST(TrackDataTest, test_location_canonicalize) {
   test_canonicalization(&t, turnouts, "A5", -50 * 100, "A5", -50 * 100);
 
   // No next sensor
-  test_canonicalization(&t, turnouts, "A2", 400 * 100, "A2", 400 * 100);
+  test_canonicalization(&t, turnouts, "A2", (504 + 100) * 100, "EX5", 100 * 100);
 
   // After next sensor, which does not have a next sensor
   turnouts[turnout_num_to_map_offset(11)] = TURNOUT_STRAIGHT;
   turnouts[turnout_num_to_map_offset(12)] = TURNOUT_STRAIGHT;
-  test_canonicalization(&t, turnouts, "C14", (43 + 188 + 231 + 400) * 100, "A2", 400 * 100);
+  test_canonicalization(&t, turnouts, "C14", (43 + 188 + 231 + 504 + 100) * 100, "EX5", 100 * 100);
 
   // After branch
   test_canonicalization(&t, turnouts, "A3", (43 + 333 + 10) * 100, "C11", 10 * 100);
