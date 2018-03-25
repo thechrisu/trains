@@ -377,8 +377,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         break;
     }
   }
-
-  Kill(coord_courier);
 }
 
 /**
@@ -418,6 +416,7 @@ void conductor_loop(int clock_server, int train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     courier, train, D5, 0);
 
+  Kill(courier);
   bool timed_out = poll_until_sensor_pair_triggered_with_timeout(
     clock_server,
     track_state_controller,

@@ -4,7 +4,7 @@
 
 // returns true if they're the same node, but a's offset is >= b's offset
 bool location_is_ge(location *a, location *b) {
-  if (node_follows(a->node, b->node)) {
+  if (node_follows(b->node, a->node)) {
     return true;
   }
   return a->node == b->node && a->offset >= b->offset;
@@ -115,7 +115,10 @@ void coordinate_courier() {
                                 is_location_set,
                                 &n_observed.msg.notification_response);
     bool has_fresh_loss = c.loc.node == NULL_TRACK_NODE && last.loc.node != NULL_TRACK_NODE;
-    if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || first_run || (got_not && has_fresh_loss)) {
+    if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || first_run || (got_not && (c.loc.node != NULL_TRACK_NODE || has_fresh_loss))) {
+      /*if (has_fresh_loss) { TODO return any sensor when lost
+        should_find_any = true;
+      }*/
       has_fresh_loss = false;
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
           tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
