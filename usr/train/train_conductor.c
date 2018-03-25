@@ -368,6 +368,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                           &drop_existing_notifications,
                                           &got_lost);
         if (!should_quit) {
+          get_coordinates(train_coordinates_server, train, &c);
           set_new_triggers(coord_courier, &c, route,
                            velocity_model.msg.train_speeds,
                            stopping_distance_model.msg.train_distances,
