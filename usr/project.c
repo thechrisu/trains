@@ -294,7 +294,10 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
 }
 
 void delete_from_char(int index, int recipient) {
-#ifndef E2ETESTING
+#ifdef E2ETESTING
+  (void)index;
+  (void)recipient;
+#else
   Assert(Printf(recipient, "%s%d;%dH%s", ESC, PROMPT_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
 #endif /* E2ETESTING */
 }
