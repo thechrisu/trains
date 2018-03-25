@@ -105,6 +105,18 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   Putc(train_tx_server_tid, TRAIN, (char)0x20);
 }
 
+void switcher_turnout(int clock_server_tid, int train_tx_server_tid,
+                      int turnout_num, bool curved) {
+  message send;
+  send.type = MESSAGE_SWITCH;
+  send.msg.switch_params.clock_server_tid = clock_server_tid;
+  send.msg.switch_params.tx_server_tid = train_tx_server_tid;
+  send.msg.switch_params.turnout_num = turnout_num;
+  send.msg.switch_params.curved = curved;
+  int switcher_tid = Create(MyPriority(), &switcher);
+  Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+}
+
 void get_train(int track_state_controller_tid, int train, train_data *tr_data) {
   message send, reply;
   send.type = MESSAGE_GETTRAIN;
