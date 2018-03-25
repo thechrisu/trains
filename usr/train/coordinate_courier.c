@@ -137,7 +137,7 @@ void coordinate_courier() {
   Assert(0);
 }
 
-/* 
+/*
 void send_notification_request(int coordinate_courier_tid,
                                location_notification requests[MAX_LOCATIONS_TO_OBSERVE],
                                int n_requests) {
