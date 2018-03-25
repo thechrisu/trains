@@ -28,6 +28,7 @@
 #include "./model/test_model.h"
 #include "clock/test_clock.h"
 #include "destroy/test_destroy.h"
+#include "prediction/test_stopping_location_prediction.h"
 #include "router/test_router.h"
 #include "./servers/test_track_reservation_server.h"
 #include "./servers/test_train_coordinates_server.h"
