@@ -294,7 +294,9 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
 }
 
 void delete_from_char(int index, int recipient) {
+#ifndef E2ETESTING
   Assert(Printf(recipient, "%s%d;%dH%s", ESC, PROMPT_LINE, 3 + index, HIDE_CURSOR_TO_EOL) == 0);
+#endif /* E2ETESTING */
 }
 
 void print_cmd_char(char c, int index, int recipient) {
@@ -376,9 +378,11 @@ void project_first_user_task() {
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%s", ESC, PROMPT_LINE, 1, '>', HIDE_CURSOR_TO_EOL) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s", ESC, CALIB_LINE - 1, 1, "Kalibration Korner\xE2\x84\xA2:", HIDE_CURSOR_TO_EOL) == 0);
 
+#endif /* E2ETESTING */
   cmd_msg.msg.cmd.type = USER_CMD_GO;
   Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
 
+#ifndef E2ETESTING
   Assert(Create(my_priority - 1, &turnout_resetter) > 0);
 
   Assert(Create(my_priority, &clock_view) > 0);
@@ -408,11 +412,15 @@ void project_first_user_task() {
 
       if (current_cmd.type == USER_CMD_Q) {
         Printf(terminal_tx_server, "%sQuitting...\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1));
+#ifndef E2ETESTING
         Delay(clock_server_tid, 100);
+#endif /* E2ETESTING */
         break;
       } else {
         if (has_char) {
+#ifndef E2ETESTING
           user_command_print(terminal_tx_server, &current_cmd);
+#endif /* E2ETESTING */
           delete_from_char(0, terminal_tx_server);
         }
       }
@@ -421,7 +429,9 @@ void project_first_user_task() {
     }
   }
   for (int i = 0; i < num_active_trains; i += 1) {
+#ifdef E2ETESTING
     log_calibration_data(active_trains[i]);
+#endif /* E2ETESTING */
   }
   Assert(Printf(terminal_tx_server, "%sBye%s.\n\r\n\r", CURSOR_ROW_COL(PROMPT_LINE, 1), HIDE_CURSOR_TO_EOL) == 0);
   kill_ioservers();

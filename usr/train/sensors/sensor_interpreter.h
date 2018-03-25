@@ -18,5 +18,7 @@
 #define NO_DATA_RECEIVED 0xDEDEDEDE
 
 void sensor_interpreter();
+void send_attributed_sensor_to_coord_server(int coord_server, int train,
+                                            unsigned int ls, unsigned int tls);
 
 #endif /* SENSOR_INTERPRETER_H */
