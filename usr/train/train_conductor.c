@@ -354,7 +354,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
 >>>>>>> f24150e094771281130e24b0c5d72fd71302ffa8
     switch (received.type) {
-      case REPLY_CONDUCTOR_NOTIFY_REQUEST:
+      case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         should_quit = process_location_notification(
                                           clock_server, train_tx_server,
                                           track_state_controller,
