@@ -282,8 +282,8 @@ void test_runner() {
       .prio = 5
     },
     {
-      .name = "test_distance_between_sensors",
-      .code = &test_distance_between_sensors,
+      .name = "test_distance_between_track_nodes",
+      .code = &test_distance_between_track_nodes,
       .prio = 5
     },
     {
