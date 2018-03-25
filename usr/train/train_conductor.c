@@ -352,6 +352,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     bool got_lost = false;
     bool drop_existing_notifications = false;
 
+>>>>>>> f24150e094771281130e24b0c5d72fd71302ffa8
     switch (received.type) {
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         should_quit = process_location_notification(
@@ -378,17 +379,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   }
 
   Kill(coord_courier);
-}
-
-int create_courier(int train) {
-  int coordinate_courier_tid = Create(MyPriority(), &coordinate_courier);
-  message train_message;
-  train_message.msg.train = train;
-  Assert(coordinate_courier_tid >= 0);
-  Assert(Send(coordinate_courier_tid, &train_message, sizeof(train_message),
-              EMPTY_MESSAGE, 0)
-          == 0);
-  return coordinate_courier_tid;
 }
 
 /**

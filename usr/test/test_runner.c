@@ -321,6 +321,11 @@ void test_runner() {
       .code = &test_track_reservation_server,
       .prio = 5
     },
+    {
+      .name = "coordinate_courier",
+      .code = &test_coord_courier,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
