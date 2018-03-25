@@ -123,8 +123,8 @@ void coordinate_courier() {
       }
       if (first_run) {
         n_observed.msg.notification_response.reason = c.loc.node == NULL_TRACK_NODE ?
-                                                      LOCATION_ANY :
-                                                      GOT_LOST;
+                                                      GOT_LOST :
+                                                      LOCATION_ANY;
         first_run = false;
       }
       Assert(Send(conductor, &n_observed, sizeof(n_observed),
