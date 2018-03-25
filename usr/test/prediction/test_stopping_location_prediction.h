@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests the prediction of where we will stop.
+ */
 #ifndef TEST_STOPPING_LOCATION_PREDICTION_H
 #define TEST_STOPPING_LOCATION_PREDICTION_H
 

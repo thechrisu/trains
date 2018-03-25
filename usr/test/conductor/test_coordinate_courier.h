@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests all functions of the coordinate courier
+ */
 #ifndef TRAIN_COORD_COURIER_TEST_H
 #define TRAIN_COORD_COURIER_TEST_H
 
