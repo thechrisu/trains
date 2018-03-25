@@ -3,9 +3,9 @@ from qemu_tcp_wrapper import qemu_oneshot_test
 
 TIMEOUT = 10
 
-class TestConductor(unittest.TestCase):
-    def test_conductor(self):
-        ret = qemu_oneshot_test('coordinate_courier', '', TIMEOUT, timer_interrupts_on = True)
+class TestPrediction(unittest.TestCase):
+    def test_stopping_location_prediction(self):
+        ret = qemu_oneshot_test('stop_loc_prediction', '', TIMEOUT)
         self.assertEqual(ret, 'Success.\n\r')
 
 if __name__ == "__main__":
