@@ -76,6 +76,15 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid,
                     int track_state_controller_tid, int turnout_num,
                     bool curved);
 
+/**
+ * Switches a turnout, both in reality and in the track state controller.
+ * Same as switch_turnout, but does so asynchronously by spawning up a task.
+ *
+ * @param clock_server_tid           The task ID of the clock server.
+ * @param train_tx_server_tid        The task ID of the train transmit server.
+ * @param turnout_num                The turnout to switch.
+ * @param curved                     Whether to make the turnout straight or curved.
+ */
 void switcher_turnout(int clock_server_tid, int train_tx_server_tid,
                       int turnout_num, bool curved);
 
