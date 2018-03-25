@@ -153,6 +153,21 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   return -1;
 }
 
+/**
+ * Given a triggered notification, perform some actions and send new
+ * requests for notifications.
+ *
+ * @param clock_server                Clock server tid.
+ * @param train_tx_server             Train tx server tid.
+ * @param track_state_controller      Track state controller tid.
+ * @param n                           Notification we received.
+ * @param route                       Route we're on (May change).
+ * @param end                         Goal of our route (necessary for rerouting).
+ * @param drop_existing_notifications Output: Should all other notifications
+ *                                    be dropped?
+ * @param got_lost                    Output: Whether we lost the train.
+ * @return Whether we should stop the train.
+ */
 bool process_location_notification(int clock_server, int train_tx_server,
                                    int track_state_controller,
                                    location_notification *n,
@@ -227,12 +242,6 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         uint32_t train_distances[15],
                         track_node *route[MAX_ROUTE_LENGTH],
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
-                        int *n_requests);
-
-void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
-                        uint32_t train_distances[15],
-                        track_node *route[MAX_ROUTE_LENGTH],
-                        location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
     *n_requests = 0;
     /* int next_switch_num;
@@ -277,9 +286,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
                                        int coord_courier,
                                        int train, int sensor_offset, int goal_offset) {
-  location end;
-  end.node = find_sensor(&track, sensor_offset);
-  end.offset = goal_offset;
+  location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
 
   message velocity_model;
   get_constant_velocity_model(track_state_controller, train,
@@ -290,11 +297,11 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                               &stopping_distance_model);
 
   track_node *route[MAX_ROUTE_LENGTH];
-  coordinates c;
 
   int s = Time(clock_server);
 
   bool had_to_reverse = false;
+  coordinates c;
   get_coordinates(train_coordinates_server, train, &c);
 
   // TODO clean up this initialization mess
