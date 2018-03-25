@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "messages.h"
 #include "prediction.h"
+#include "sensors/sensor_interpreter.h"
 
 void train_coordinates_server();
 

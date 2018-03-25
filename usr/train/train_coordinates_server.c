@@ -1,5 +1,7 @@
 #include "train_coordinates_server.h"
 
+#define MAX_SENSORS_PASSED 2
+
 void update_coordinates_helper(int now_ticks,
                                turnout_state turnout_states[NUM_TURNOUTS],
                                coordinates *c) {
@@ -73,8 +75,13 @@ void train_coordinates_server() {
   int clock_server = WhoIs("ClockServer");
 
   coordinates coords[81];
+  unsigned int last_sensor[81];
+  int sensors_passed[81];
+
   for (int i = 0; i <= 80; i += 1) {
     coords[i].loc.node = NULL_TRACK_NODE;
+    last_sensor[i] = NO_DATA_RECEIVED;
+    sensors_passed[i] = 0;
   }
 
   turnout_state turnout_states[NUM_TURNOUTS];
@@ -82,7 +89,8 @@ void train_coordinates_server() {
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     message_update_coords *uc = &received.msg.update_coords;
-    coordinates *train_coords = &coords[(int)uc->tr_data.train];
+    int train = uc->tr_data.train;
+    coordinates *train_coords = &coords[train];
     switch (received.type) {
       case MESSAGE_UPDATE_COORDS_SPEED:
         update_coordinates_after_speed_change(&uc->tr_data, uc->velocity_model,
@@ -97,6 +105,8 @@ void train_coordinates_server() {
       case MESSAGE_UPDATE_COORDS_SENSOR:
         update_coordinates_after_sensor_hit(&uc->last_sensor, turnout_states,
                                             train_coords);
+        last_sensor[train] = uc->last_sensor.sensor;
+        sensors_passed[train] = 0;
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_FORWARD_TURNOUT_STATES:
@@ -105,8 +115,22 @@ void train_coordinates_server() {
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_GET_COORDINATES: {
-        coordinates *c = &coords[(int)received.msg.train];
+        train = received.msg.train;
+
+        coordinates *c = &coords[train];
         update_coordinates_after_time_passed(clock_server, turnout_states, c);
+
+        if (c->loc.node != NULL_TRACK_NODE &&
+            c->loc.node->type == NODE_SENSOR &&
+            c->loc.node->num != (int)last_sensor[train]) {
+          last_sensor[train] = c->loc.node->num;
+          sensors_passed[train] += 1;
+
+          if (sensors_passed[train] > MAX_SENSORS_PASSED) {
+            c->loc.node = NULL_TRACK_NODE;
+          }
+        }
+
         reply.type = REPLY_GET_COORDINATES;
         tmemcpy(&(reply.msg.coords), c, sizeof(coordinates));
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
