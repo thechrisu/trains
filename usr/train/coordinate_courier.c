@@ -87,7 +87,7 @@ void drop_all_notifications(bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]) {
 
 void coordinate_courier() {
   int conductor = MyParentTid();
-  int coordinate_server = WhoIs("TrainCoordinateServer");
+  int coordinate_server = WhoIs("TrainCoordinatesServer");
   int clock_server = WhoIs("ClockServer");
   coordinates c, last;
   last.loc.node = NULL_TRACK_NODE;
@@ -148,7 +148,7 @@ int create_courier(int train) {
   return coordinate_courier_tid;
 }
 
-/* 
+/*
 void send_notification_request(int coordinate_courier_tid,
                                location_notification requests[MAX_LOCATIONS_TO_OBSERVE],
                                int n_requests) {
