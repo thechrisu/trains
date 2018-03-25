@@ -130,6 +130,7 @@ typedef struct {
 typedef struct {
   location start;
   location end;
+  track_node **route;
 } message_get_route_params;
 
 typedef struct {
@@ -205,7 +206,6 @@ typedef struct {
     default_value usdm;
     default_value ustm;
     message_get_route_params get_route_params;
-    track_node **route;
     reply_get_last_sensor_hit last_sensor;
     coordinates coords;
     message_update_coords update_coords;
