@@ -94,6 +94,7 @@ void coordinate_courier() {
   message train_msg;
   Assert(Receive(&message_tid, &train_msg, sizeof(train_msg))
       == sizeof(train_msg));
+  Assert(message_tid == conductor);
   Assert(Reply(message_tid, EMPTY_MESSAGE, 0) == 0);
   int train = train_msg.msg.train;
 

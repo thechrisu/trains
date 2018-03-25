@@ -156,15 +156,18 @@ typedef struct {
 
 #define MAX_LOCATIONS_TO_OBSERVE 10
 
-#define GOT_LOST               -1
-#define LOCATION_CHANGED        0 // We hit a sensor
-#define LOCATION_TO_SWITCH      1
-#define LOCATION_TO_STOP        2
-#define LOCATION_ANY            3 // Any location where we're not lost
+typedef enum {
+  GOT_LOST,
+  LOCATION_CHANGED, // We hit a sensor
+  LOCATION_TO_SWITCH,
+  LOCATION_TO_STOP,
+  LOCATION_ANY, // Any location where we're not lost
+  MAX_NOTIFICATION_TYPE,
+} coord_notification_type;
 
 typedef struct {
   location loc;
-  char reason;
+  coord_notification_type reason;
   char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
 } location_notification;
 
