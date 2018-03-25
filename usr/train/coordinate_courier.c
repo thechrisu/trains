@@ -87,7 +87,7 @@ void drop_all_notifications(bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]) {
 
 void coordinate_courier() {
   int conductor = MyParentTid();
-  int coordinate_server = WhoIs("TrainCoordinateServer");
+  int coordinate_server = WhoIs("TrainCoordinatesServer");
   int clock_server = WhoIs("ClockServer");
   coordinates c, last;
   last.loc.node = NULL_TRACK_NODE;
