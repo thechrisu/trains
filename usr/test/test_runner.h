@@ -18,6 +18,7 @@
 #include "awaitevent/test_timer_interrupt.h"
 #include "awaitevent/test_tx_terminal.h"
 #include "awaitevent/test_rx_terminal.h"
+#include "conductor/test_coordinate_courier.h"
 #include "./iio/test_getcputc_errors.h"
 #include "./iio/test_getcputc_happypath.h"
 #include "./iio/test_printf.h"

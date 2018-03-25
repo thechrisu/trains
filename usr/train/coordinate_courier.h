@@ -8,6 +8,7 @@
 #include "tstdlib.h"
 
 void coordinate_courier();
+int create_courier(int train);
 
 #endif /* TRAIN_COORDINATE_COURIER_H */
 
