@@ -177,6 +177,7 @@ void sensor_interpreter() {
         }
 
         break;
+      }
       case MESSAGE_GET_LAST_SENSOR_HIT: {
         int train = received.msg.train;
         Assert(train > 0 && train <= 80);
@@ -191,7 +192,6 @@ void sensor_interpreter() {
       default:
         Assert(0);
         break;
-      }
     }
   }
 }
