@@ -338,15 +338,20 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     return;
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   bool should_quit = false;
+
   while (!should_quit) {
     int sender_tid;
     message received;
+
     Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
+    Assert(sender_tid == coord_courier);
+
+    Assert(Time(clock_server) - s <= 50 * 100);
+
     bool got_lost = false;
     bool drop_existing_notifications = false;
-    Assert(sender_tid == coord_courier);
+
     switch (received.type) {
       case REPLY_CONDUCTOR_NOTIFY_REQUEST:
         should_quit = process_location_notification(
@@ -371,6 +376,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         break;
     }
   }
+
   Kill(coord_courier);
 }
 
