@@ -128,8 +128,7 @@ void coordinate_courier() {
         first_run = false;
       }
       Assert(Send(conductor, &n_observed, sizeof(n_observed),
-                  &n_request, sizeof(n_request)
-                                 == sizeof(n_request)));
+                             &n_request, sizeof(n_request)) == sizeof(n_request));
       tmemcpy(&last, &c, sizeof(c));
       Assert(n_request.type == REPLY_CONDUCTOR_NOTIFY_REQUEST);
       if (n_request.msg.notification_request.drop_existing) {
