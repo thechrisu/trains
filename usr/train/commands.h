@@ -71,7 +71,12 @@ void stop_and_reverse_train(int clock_server_tid, int train_tx_server_tid, int t
  * @param turnout_num                The turnout to switch.
  * @param curved                     Whether to make the turnout straight or curved.
  */
-void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_state_controller_tid, int turnout_num, bool curved);
+void switch_turnout(int clock_server_tid, int train_tx_server_tid,
+                    int track_state_controller_tid, int turnout_num,
+                    bool curved);
+
+void switcher_turnout(int clock_server_tid, int train_tx_server_tid,
+                      int turnout_num, bool curved);
 
 /**
  * Queries the track state controller for train data.

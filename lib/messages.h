@@ -160,16 +160,18 @@ typedef struct {
 #define LOCATION_CHANGED        0 // We hit a sensor
 #define LOCATION_TO_SWITCH      1
 #define LOCATION_TO_STOP        2
+#define LOCATION_ANY            3 // Any location where we're not lost
 
 typedef struct {
-  track_node *node;
-  int reason;
+  location loc;
+  char reason;
   char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
 } location_notification;
 
 typedef struct {
   location_notification notifications[MAX_LOCATIONS_TO_OBSERVE];
   int num_requests;
+  bool drop_existing;
 } location_notification_request;
 
 typedef struct {
