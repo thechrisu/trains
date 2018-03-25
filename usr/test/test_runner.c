@@ -326,6 +326,11 @@ void test_runner() {
       .code = &test_coord_courier,
       .prio = 5
     },
+    {
+      .name = "stop_loc_prediction",
+      .code = &test_stopping_location_prediction,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
