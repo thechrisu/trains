@@ -176,6 +176,11 @@ bool process_location_notification(int clock_server, int train_tx_server,
       return false;
       break;
     case LOCATION_CHANGED: {
+      if (on_route(route, &n->loc)) {
+        *drop_existing_notifications = false;
+        return false;
+      }
+      *drop_existing_notifications = true;
       int route_result = get_route(&n->loc, end, route);
       if (route_result < 0) {
         logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
