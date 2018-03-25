@@ -4,10 +4,13 @@
 
 // returns true if they're the same node, but a's offset is >= b's offset
 bool location_is_ge(location *a, location *b) {
+  if (node_follows(a->node, b->node)) {
+    return true;
+  }
   return a->node == b->node && a->offset >= b->offset;
 }
 
-bool coordinates_to_notification(coordinates *c, coordinates *last,`
+bool coordinates_to_notification(coordinates *c, coordinates *last,
         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
         bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
         location_notification *n) {
@@ -15,10 +18,10 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,`
     n->reason = GOT_LOST;
     return true;
   }
-  tmemcpy(&n->loc, &c->loc);
+  tmemcpy(&n->loc, &c->loc, sizeof(c->loc));
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
-        && location_is_ge(&c->loc, locations_to_observe[i].loc)) {
+        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
       n->reason = locations_to_observe[i].reason;
       tmemcpy(n->switch_to_switch, locations_to_observe[i].switch_to_switch,
           sizeof(n->switch_to_switch));
@@ -60,7 +63,6 @@ int add_notification_requests(
               && locations_to_observe[k].switch_to_switch[1] == notifications[i].switch_to_switch[1]) {
           is_location_set[k] = false;
         }
-        is_dup |= notifications[i].
         if (is_dup) break;
       }
     }
@@ -111,8 +113,8 @@ void coordinate_courier() {
     bool got_not = coordinates_to_notification(&c, &last, locations_to_observe,
                                 is_location_set,
                                 &n_observed.msg.notification_response);
-    if ((should_find_any && c.node != NO_NEXT_SENSOR) || got_not) {
-      if (should_find_any && c.node != NO_NEXT_SENSOR) {
+    if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || got_not) {
+      if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
           tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
           n_observed.msg.notification_response.reason = LOCATION_ANY;
       }
@@ -127,8 +129,7 @@ void coordinate_courier() {
       int r = add_notification_requests(
                   n_request.msg.notification_request.notifications,
                   n_request.msg.notification_request.num_requests,
-                  locations_to_observe, is_location_set,
-                  &should_find_any);
+                  locations_to_observe, is_location_set);
       Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
     }
     Delay(clock_server, 1);

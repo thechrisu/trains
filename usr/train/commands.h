@@ -8,6 +8,7 @@
 #include "a0codes.h"
 #include "codes.h"
 #include "messages.h"
+#include "switcher.h"
 #include "tstdlib.h"
 #include "track_data.h"
 

@@ -11,21 +11,10 @@
 #include "messages.h"
 #include "track_data.h"
 #include "track_node.h"
+#include "train_util.h"
 #include "tstdlib.h"
 
 #define INFINITE_TICKS 1E8
-
-/**
- * Returns the distance we travelled since we last hit a sensor.
- *
- * @param clock_server          Tid of the clock server.
- * @param ticks_at_last_sensor  The time in ticks at the point when we last hit a sensor.
- * @param velocity              The train's velocity (in 1/100th mm/s).
- *
- * @return The distance in 1/100th mm that we have travelled.
- */
-int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
-                          uint32_t velocity);
 
 /**
  * Predict the coordinates of a train the next time it is at a sensor.
@@ -39,4 +28,11 @@ void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction);
 
+void synthesize_turnout_states_from_route(track_node *route[MAX_ROUTE_LENGTH],
+                                          turnout_state states[NUM_TURNOUTS]);
+
+// TODO document this
+void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
+                        coordinates *send_stop_here, uint32_t train_speeds[15],
+                        uint32_t train_distances[15]);
 #endif /* TRAIN_PREDICTION_H */
