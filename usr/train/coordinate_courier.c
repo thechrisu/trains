@@ -14,7 +14,7 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
         bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
         location_notification *n) {
-  if (c->loc.node == NULL_TRACK_NODE) {
+  if (c->loc.node == NULL_TRACK_NODE && last->loc.node != NULL_TRACK_NODE) {
     n->reason = GOT_LOST;
     return true;
   }
@@ -107,13 +107,16 @@ void coordinate_courier() {
   n_observed.type = MESSAGE_CONDUCTOR_NOTIFY_REQUEST;
   bool is_location_set[MAX_LOCATIONS_TO_OBSERVE];
   bool should_find_any = false;
+  bool first_run = true;
   drop_all_notifications(is_location_set);
   while (true) {
     get_coordinates(coordinate_server, train, &c);
     bool got_not = coordinates_to_notification(&c, &last, locations_to_observe,
                                 is_location_set,
                                 &n_observed.msg.notification_response);
-    if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || got_not) {
+    bool has_fresh_loss = c.loc.node == NULL_TRACK_NODE && last.loc.node != NULL_TRACK_NODE;
+    if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || first_run || (got_not && has_fresh_loss)) {
+      has_fresh_loss = false;
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
           tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
           n_observed.msg.notification_response.reason = LOCATION_ANY;

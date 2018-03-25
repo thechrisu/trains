@@ -34,7 +34,24 @@ void test_coord_courier_not_located_yet() {
   coord_courier_test_teardown(courier_tid);
 }
 
+void test_coordinates_to_notification() {
+  track_state t;
+  coordinates current, last;
+  location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE];
+  bool is_location_set[MAX_LOCATIONS_TO_OBSERVE];
+  location_notification new;
+
+  current.loc.node = NULL_TRACK_NODE;
+  last.loc.node = NULL_TRACK_NODE;
+  Assert(!coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
+
+  last.loc.node = &t.tracka[0];
+  Assert(coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
+  Assert(new.reason == GOT_LOST);
+}
+
 void test_coord_courier() {
   test_coord_courier_not_located_yet();
+  test_coordinates_to_notification();
   bwprintf("Success.\n\r");
 }
