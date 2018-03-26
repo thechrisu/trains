@@ -2,10 +2,10 @@
 
 static long long seed;
 
-int random_sensor() {
-  long long m = 80;
-  long long a = 1103515251;
-  long long c = 44701;
+int random() {
+  long long m = 0x10000;
+  long long a = 1103515245;
+  long long c = 12345;
   seed = (a * seed + c) % m;
   return seed % m;
 }
@@ -31,7 +31,7 @@ void t2_demo_task() {
     send.type = MESSAGE_USER;
     send.msg.cmd.type = USER_CMD_R;
     send.msg.cmd.data[0] = received.msg.train;
-    send.msg.cmd.data[1] = random_sensor();
+    send.msg.cmd.data[1] = random() % 80;
     send.msg.cmd.data[2] = 0;
 
     Assert(Send(command_dispatcher, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
