@@ -277,7 +277,6 @@ void set_new_triggers(int coord_courier,
 
 void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
-                                       int coord_courier,
                                        int train, int sensor_offset, int goal_offset) {
   location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
 
@@ -357,13 +356,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                 c.loc.node->name, end.node->name);
       return;
     }
-
-    // Ignore first message from coordinate courier
-    int sender_tid;
-    message received;
-    Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
-    Assert(sender_tid  == coord_courier);
   }
+
+  int coord_courier = create_courier(train);
 
   int s = Time(clock_server);
   bool should_quit = false;
@@ -404,6 +399,8 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         break;
     }
   }
+
+  Assert(Kill(coord_courier) == 0);
 }
 
 /**
@@ -418,18 +415,16 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
  */
 void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int train_coordinates_server,
-                       int train, int sensor_offset, int goal_offset) {
-  int courier = create_courier(train);
+                        int train, int sensor_offset, int goal_offset) {
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
-                                    courier, train, sensor_offset, goal_offset);
+                                    train, sensor_offset, goal_offset);
   train_data tr_data;
   get_train(track_state_controller, train, &tr_data);
 
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
 
   Assert(Delay(clock_server, 1 + 30 * tr_data.should_speed) == 0);
-  Kill(courier);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
@@ -437,13 +432,11 @@ void conductor_loop(int clock_server, int train_tx_server,
                     int train, int speed) {
   unsigned int D5 = sensor_offset('D', 5);
 
-  int courier = create_courier(train);
   conductor_setspeed(train_tx_server, track_state_controller, train, speed);
   route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
-                                    courier, train, D5, 0);
+                                    train, D5, 0);
 
-  Kill(courier);
   bool timed_out = poll_until_sensor_pair_triggered_with_timeout(
     clock_server,
     track_state_controller,
