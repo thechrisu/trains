@@ -31,14 +31,14 @@ void test_next_switch_prediction() {
   Assert(found);
   Assert(next_num == 14);
   Assert(!is_curved);
-  Assert(next.loc.offset == 0);
   Assert(next.loc.node == find_node_by_name(&track, "BR14"));
+  Assert(next.loc.offset == 0);
   predict_next_switch(&c, route, &next, &next_num, &is_curved, &found, 1, 10);
   Assert(found);
   Assert(next_num == 14);
   Assert(!is_curved);
-  Assert(next.loc.offset > 0);
   Assert(next.loc.node == find_node_by_name(&track, "A3"));
+  Assert(next.loc.offset > 0);
 
   r.loc.node = find_node_by_name(&track, "C5");
   Assert(get_route(&c.loc, &r.loc, route) == 0);

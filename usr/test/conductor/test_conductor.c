@@ -33,7 +33,7 @@ void test_craft_triggers() {
 
   track_node *route[MAX_ROUTE_LENGTH];
   location start = { .node = find_sensor(&track, sensor_offset('C', 9)), .offset = 0 };
-  location end = { .node = find_sensor(&track, sensor_offset('C', 5)), .offset = 0 };
+  location end = { .node = find_sensor(&track, sensor_offset('C', 6)), .offset = 0 };
   Assert(get_route(&start, &end, route) == 0);
   Assert(route_node_count(route) > 0);
 
@@ -45,12 +45,13 @@ void test_craft_triggers() {
   Assert(n_reqs > 0);
   Assert(locs[n_reqs - 1].reason == LOCATION_TO_STOP);
   location_notification exp[3] = {
-    { .reason = 2, .loc = { .node = find_node_by_name(&track, "B15"), .offset = find_node_by_name(&track, "B15")->edge[DIR_AHEAD].dist }},
-    { .reason = 2, .loc = { .node = find_node_by_name(&track, "BR14"), .offset = find_node_by_name(&track, "BR14")->edge[DIR_CURVED].dist }},
-    { .reason = 3, .loc = { .node = find_node_by_name(&track, "D6"), .offset = find_node_by_name(&track, "D6")->edge[DIR_AHEAD].dist }},
+    { .reason = 2, .loc = { .node = find_node_by_name(&track, "B15"), .offset = find_node_by_name(&track, "B15")->edge[DIR_AHEAD].dist * 100}},
+    { .reason = 2, .loc = { .node = find_node_by_name(&track, "BR14"), .offset = find_node_by_name(&track, "BR14")->edge[DIR_CURVED].dist  * 100}},
+    { .reason = 3, .loc = { .node = find_node_by_name(&track, "D6"), .offset = find_node_by_name(&track, "D6")->edge[DIR_AHEAD].dist * 100}},
   };
   for (int i = 0; i < n_reqs; i++) {
     Assert(locs[i].reason == exp[i].reason);
+    Assert(tstrcmp(locs[i].loc.node->name, exp[i].loc.node->name));
     Assert(locs[i].loc.node == exp[i].loc.node);
     Assert(locs[i].loc.offset < exp[i].loc.offset);
   }

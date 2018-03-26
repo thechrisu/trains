@@ -92,14 +92,16 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
     if ((*c) == co->loc.node) {
       passed = true;
     }
-    if (passed) {
+    if ((*c)->type == NODE_BRANCH) {
+      remaining += (*c)->edge[STRAIGHT(*c) == (*(c + 1)) ? DIR_STRAIGHT : DIR_CURVED].dist * 100;
+    } else {
       remaining += (*c)->edge[DIR_AHEAD].dist * 100;
-      if ((*(c + 1))->type == NODE_BRANCH) {
-        *next_turnout_num = (*(c + 1))->num;
-        *next_is_curved = (*(c + 2)) == CURVED(*(c + 1));
-        *found = true;
-        break;
-      }
+    }
+    if (passed && (*(c + 1))->type == NODE_BRANCH) {
+      *next_turnout_num = (*(c + 1))->num;
+      *next_is_curved = (*(c + 2)) == CURVED(*(c + 1));
+      *found = true;
+      break;
     }
   }
   remaining -= distance;
@@ -114,20 +116,12 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
     send_switch_here->loc.node = (*c);
     if ((*c) == co->loc.node) {
       passed = true;
-      if ((*c)->type == NODE_BRANCH) {
-        return;
-      } else {
-        dist_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
-        continue;
-      }
     }
-    if (passed) {
-      if ((*c)->type == NODE_BRANCH) {
-        dist_so_far += (*(c + 1)) == CURVED(*c) ?
-          (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
-      } else {
-        dist_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
-      }
+    if ((*c)->type == NODE_BRANCH) {
+      dist_so_far += (*(c + 1)) == CURVED(*c) ?
+        (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
+    } else {
+      dist_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
     }
   }
 }
