@@ -103,18 +103,16 @@ int route_length(track_node *route[MAX_ROUTE_LENGTH]) {
 void router() {
   RegisterAs("Router");
 
-  track_node *route[MAX_ROUTE_LENGTH];
-
   int sender_tid;
   message received, reply;
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
-    Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
     switch (received.type) {
       case MESSAGE_GET_ROUTE: {
         location *start = &received.msg.get_route_params.start;
         location *end = &received.msg.get_route_params.end;
+        track_node **route = received.msg.get_route_params.route;
 
         track_node *forwards[MAX_ROUTE_LENGTH];
         bool forwards_success = plan_route(&track, start, end, forwards);
@@ -139,10 +137,9 @@ void router() {
           }
 
           reply.type = REPLY_GET_ROUTE_OK;
-          reply.msg.route = route;
         }
 
-        Assert(Send(sender_tid, &reply, sizeof(reply), EMPTY_MESSAGE, 0) == 0);
+        Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
       }
       default:
@@ -156,7 +153,6 @@ void router() {
 }
 
 int get_route(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH]) {
-  int sender_tid;
   message send, received;
 
   send.type = MESSAGE_GET_ROUTE;
@@ -164,23 +160,18 @@ int get_route(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH
   send.msg.get_route_params.start.offset = start->offset;
   send.msg.get_route_params.end.node = end->node;
   send.msg.get_route_params.end.offset = end->offset;
-  Assert(Send(WhoIs("Router"), &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+  send.msg.get_route_params.route = route;
+  Assert(Send(WhoIs("Router"), &send, sizeof(send),
+                               &received, sizeof(received)) == sizeof(received));
 
-  Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
-
-  int result = 0;
   switch (received.type) {
     case REPLY_GET_ROUTE_OK:
-      tmemcpy(route, received.msg.route, MAX_ROUTE_LENGTH * sizeof(track_node *));
-      break;
+      return 0;
     case REPLY_GET_ROUTE_ERROR:
-      result = -1;
-      break;
+      return -1;
     default:
       logprintf("Router responded to get request with message of type %d\n\r", received.type);
       Assert(0);
+      return 0;
   }
-
-  Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
-  return result;
 }
