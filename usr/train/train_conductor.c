@@ -153,6 +153,24 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   return -1;
 }
 
+bool reroute(int clock_server, int train_tx_server,
+             int track_state_controller,
+             location *start, location *end,
+             track_node *route[MAX_ROUTE_LENGTH]) {
+  int route_result = get_route(start, end, route);
+  if (route_result < 0) {
+    logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
+              start->node->name, end->node->name);
+    return true;
+  }
+
+  // TODO do incremental switching
+  switch_turnouts_within_distance(clock_server, train_tx_server,
+        track_state_controller, route, start, route_length(route));
+
+  return false;
+}
+
 /**
  * Given a triggered notification, perform some actions and send new
  * requests for notifications.
@@ -188,17 +206,8 @@ bool process_location_notification(int clock_server, int train_tx_server,
         return false;
       }
       *drop_existing_notifications = true;
-      int route_result = get_route(&n->loc, end, route);
-      if (route_result < 0) {
-        logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
-                  n->loc.node->name, end->node->name);
-        return true;
-      }
-      // TODO do incremental switching
-      switch_turnouts_within_distance(clock_server, train_tx_server,
-            track_state_controller, route, &n->loc, route_length(route));
-      *drop_existing_notifications = true;
-      return false;
+      return reroute(clock_server, train_tx_server, track_state_controller,
+                     &n->loc, end, route);
     }
     case LOCATION_TO_SWITCH:
       switcher_turnout(clock_server,
@@ -212,16 +221,8 @@ bool process_location_notification(int clock_server, int train_tx_server,
       return true;
     case LOCATION_ANY: {
       *drop_existing_notifications = false;
-      int route_result = get_route(&n->loc, end, route);
-      if (route_result < 0) {
-        logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
-                  n->loc.node->name, end->node->name);
-        return true;
-      }
-      // TODO do incremental switching
-      switch_turnouts_within_distance(clock_server, train_tx_server,
-                  track_state_controller, route, &n->loc, route_length(route));
-      return false;
+      return reroute(clock_server, train_tx_server, track_state_controller,
+                     &n->loc, end, route);
     }
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
