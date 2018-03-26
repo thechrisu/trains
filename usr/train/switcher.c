@@ -1,5 +1,7 @@
 #include "switcher.h"
 
+#include "track_data.h"
+
 void switcher() {
   int sender_tid;
   message received;
@@ -15,5 +17,6 @@ void switcher() {
 
   int turnout_num = received.msg.switch_params.turnout_num;
   bool curved = received.msg.switch_params.curved;
+  logprintf("Switching for realzies: %s to %s\n\r", turnout_num_to_node(&track, turnout_num)->name, curved ? "Curved" : "Straight");
   switch_turnout(clock_server_tid, tx_server_tid, track_state_controller_tid, turnout_num, curved);
 }

@@ -88,9 +88,7 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
   *found = false;
   bool passed = false;
   int lookahead = 0;
-  logprintf("***************** %d\n\r", distance);
   for (c = route; *(c + 1) != NULL_TRACK_NODE && lookahead++ < max_lookahead; c++) {
-    logprintf("r: %d, (%s)\n\r", remaining, (*c)->name);
     if ((*c) == co->loc.node) {
       passed = true;
     }
@@ -111,12 +109,9 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
   tmemcpy(send_switch_here, co, sizeof(*co));
   passed = false;
   if (!(*found)) return;
-  logprintf("=====================\n\r");
   for (c = route; *(c + 1) != NULL_TRACK_NODE && dist_so_far <= remaining; c++) {
-    logprintf("r: %d, so: %d (%s)\n\r", remaining, dist_so_far, (*c)->name);
     send_switch_here->loc.offset = remaining - dist_so_far;
     send_switch_here->loc.node = (*c);
-    logprintf("Setting %s +- %d\n\r", send_switch_here->loc.node->name, send_switch_here->loc.offset);
     if ((*c) == co->loc.node) {
       passed = true;
       if ((*c)->type == NODE_BRANCH) {
