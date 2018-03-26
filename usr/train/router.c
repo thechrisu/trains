@@ -123,6 +123,15 @@ void router() {
         track_node *backwards[MAX_ROUTE_LENGTH];
         bool backwards_success = plan_route(&track, start, &end_backwards, backwards);
 
+        if (forwards_success) {
+          tmemcpy(route,
+                  forwards,
+                  MAX_ROUTE_LENGTH * sizeof(track_node *));
+          reply.type = REPLY_GET_ROUTE_OK;
+        } else {
+          reply.type = REPLY_GET_ROUTE_ERROR;
+        }
+            /*
         if (!forwards_success && !backwards_success) {
           reply.type = REPLY_GET_ROUTE_ERROR;
         } else {
@@ -138,6 +147,7 @@ void router() {
 
           reply.type = REPLY_GET_ROUTE_OK;
         }
+        */
 
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
