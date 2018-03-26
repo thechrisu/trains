@@ -347,9 +347,16 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   int route_result = get_route(&c.loc, &end, route);
   if (route_result < 0) {
-    logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
-              c.loc.node->name, end.node->name);
-    return;
+    conductor_reverse_to_speed(train_tx_server, track_state_controller,
+                               clock_server, train, 0);
+    get_coordinates(train_coordinates_server, train, &c);
+
+    route_result = get_route(&c.loc, &end, route);
+    if (route_result < 0) {
+      logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
+                c.loc.node->name, end.node->name);
+      return;
+    }
   }
 
   int s = Time(clock_server);
