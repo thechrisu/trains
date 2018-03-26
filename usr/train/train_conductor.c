@@ -3,6 +3,8 @@
 #define CONDUCTOR_STOP_CHECK_INTERVAL 2
 #define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
+#define SWITCH_LOOKAHEAD_NODES 10
+
 #define SWITCH_DIST 10000
 
 /**
@@ -245,7 +247,7 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
       int next_turnout_num;
       coordinates where_to_switch;
       predict_next_switch(&f, route, &where_to_switch, &next_turnout_num,
-          &next_switch_is_curved, &has_next_turnout, SWITCH_DIST);
+          &next_switch_is_curved, &has_next_turnout, SWITCH_DIST, SWITCH_LOOKAHEAD_NODES);
 
       tmemcpy(&f, &where_to_switch, sizeof(f));
       if (has_next_turnout) {

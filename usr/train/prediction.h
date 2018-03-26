@@ -56,5 +56,6 @@ void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
 
 void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
                         coordinates *send_switch_here, int *next_turnout_num,
-                        bool *next_is_curved, bool *found, int distance);
+                        bool *next_is_curved, bool *found, int distance,
+                        int max_lookahead);
 #endif /* TRAIN_PREDICTION_H */

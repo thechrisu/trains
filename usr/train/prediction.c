@@ -82,49 +82,48 @@ void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
 
 void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
                         coordinates *send_switch_here, int *next_turnout_num,
-                        bool *next_is_curved, bool *found, int distance) {
+                        bool *next_is_curved, bool *found, int distance, int max_lookahead) {
   int remaining = 0;
   track_node **c;
   *found = false;
   bool passed = false;
-  for (c = route; *(c + 1) != NULL_TRACK_NODE; c++) {
+  int lookahead = 0;
+  logprintf("***************** %d\n\r", distance);
+  for (c = route; *(c + 1) != NULL_TRACK_NODE && lookahead++ < max_lookahead; c++) {
+    logprintf("r: %d, (%s)\n\r", remaining, (*c)->name);
     if ((*c) == co->loc.node) {
       passed = true;
-      if ((*c)->type == NODE_BRANCH) {
-        remaining += (*(c + 1)) == CURVED(*c) ?
-          (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
-      } else {
-        remaining += (*c)->edge[DIR_AHEAD].dist * 100;
-      }
-      continue;
     }
     if (passed) {
-      if ((*c)->type == NODE_BRANCH) {
-        *next_turnout_num = (*c)->num;
-        *next_is_curved = (*(c + 1)) == CURVED(*c);
+      remaining += (*c)->edge[DIR_AHEAD].dist * 100;
+      if ((*(c + 1))->type == NODE_BRANCH) {
+        *next_turnout_num = (*(c + 1))->num;
+        *next_is_curved = (*(c + 2)) == CURVED(*(c + 1));
         *found = true;
         break;
-      } else {
-        remaining += (*c)->edge[DIR_AHEAD].dist * 100;
       }
     }
   }
+  remaining -= distance;
   int dist_so_far = 0;
+  send_switch_here->loc.node = co->loc.node;
+  send_switch_here->loc.offset = remaining - dist_so_far;
   tmemcpy(send_switch_here, co, sizeof(*co));
   passed = false;
   if (!found) return;
-  for (c = route; *(c + 1) != NULL_TRACK_NODE && dist_so_far < remaining; c++) {
+  logprintf("=====================\n\r");
+  for (c = route; *(c + 1) != NULL_TRACK_NODE && dist_so_far <= remaining; c++) {
+    logprintf("r: %d, so: %d (%s)\n\r", remaining, dist_so_far, (*c)->name);
     send_switch_here->loc.offset = remaining - dist_so_far;
     send_switch_here->loc.node = (*c);
     if ((*c) == co->loc.node) {
       passed = true;
       if ((*c)->type == NODE_BRANCH) {
-        dist_so_far += (*(c + 1)) == CURVED(*c) ?
-          (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
+        return;
       } else {
         dist_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
+        continue;
       }
-      continue;
     }
     if (passed) {
       if ((*c)->type == NODE_BRANCH) {

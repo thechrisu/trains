@@ -5,6 +5,8 @@
 #ifndef TEST_STOPPING_LOCATION_PREDICTION_H
 #define TEST_STOPPING_LOCATION_PREDICTION_H
 
+#include "myio.h"
+
 void test_stopping_location_prediction();
 
 #endif /* TEST_STOPPING_LOCATION_PREDICTION_H */
