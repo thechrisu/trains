@@ -25,6 +25,8 @@ unsigned int turnout_num_to_map_offset(unsigned int turnout);
 
 unsigned int map_offset_to_turnout(unsigned int offset);
 
+track_node *turnout_num_to_node(track_state *t, unsigned int num);
+
 /**
  * Returns true if a turnout number is between 1 and 18 or between 153 and 156.
  *

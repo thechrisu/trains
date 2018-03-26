@@ -5,7 +5,7 @@
 
 #define SWITCH_LOOKAHEAD_NODES 10
 
-#define SWITCH_DIST 10000
+#define SWITCH_DIST 15000
 
 /**
  * get_max_feasible_speed artificially increases the stopping distance by
@@ -248,16 +248,18 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
       coordinates where_to_switch;
       predict_next_switch(&f, route, &where_to_switch, &next_turnout_num,
           &next_switch_is_curved, &has_next_turnout, SWITCH_DIST, SWITCH_LOOKAHEAD_NODES);
-
-      tmemcpy(&f, &where_to_switch, sizeof(f));
       if (has_next_turnout) {
+        f.loc.node = turnout_num_to_node(&track, next_turnout_num);
+        f.loc.offset = 0;
         tmemcpy(&locations_to_observe[*n_requests].loc, &where_to_switch, sizeof(where_to_switch));
         locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
         locations_to_observe[*n_requests].switch_to_switch[0] = next_turnout_num;
         locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
         *n_requests = *n_requests + 1;
-        logprintf("Next switch: %d (%s)\n\r", next_turnout_num, next_switch_is_curved ? "C" : "S");
+        logprintf("Send switch here: %s +- %d\n\r",
+            where_to_switch.loc.node->name, where_to_switch.loc.offset);
       }
+      f.loc.offset++;
     } while (has_next_turnout && *n_requests < 5);
     coordinates target;
     predict_train_stop(c, route, &target, train_speeds, train_distances);

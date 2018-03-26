@@ -199,6 +199,10 @@ unsigned int map_offset_to_turnout(unsigned int offset) {
   return offset + (153 - 18);
 }
 
+track_node *turnout_num_to_node(track_state *t, unsigned int num) {
+  return t->track + 80 + 2 * turnout_num_to_map_offset(num);
+}
+
 bool is_valid_turnout_num(unsigned int turnout) {
   return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
 }
