@@ -76,6 +76,9 @@ enum message_type {
   MESSAGE_T2_START,
   MESSAGE_GET_DESTINATION,
   REPLY_GET_DESTINATION,
+  MESSAGE_CONDUCTOR_NOTIFY_REQUEST,
+  REPLY_CONDUCTOR_NOTIFY_REQUEST,
+  MAX_MESSAGE_TYPE_ID,
 };
 
 typedef struct {
@@ -127,6 +130,7 @@ typedef struct {
 typedef struct {
   location start;
   location end;
+  track_node **route;
 } message_get_route_params;
 
 typedef struct {
@@ -150,6 +154,29 @@ typedef struct {
   int reservations[MAX_RESERVATIONS_RETURNED];
   int count;
 } message_reservation_get_all_response;
+
+#define MAX_LOCATIONS_TO_OBSERVE 10
+
+typedef enum {
+  GOT_LOST,
+  LOCATION_CHANGED, // We hit a sensor
+  LOCATION_TO_SWITCH,
+  LOCATION_TO_STOP,
+  LOCATION_ANY, // Any location where we're not lost
+  MAX_NOTIFICATION_TYPE,
+} coord_notification_type;
+
+typedef struct {
+  location loc;
+  coord_notification_type reason;
+  char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
+} location_notification;
+
+typedef struct {
+  location_notification notifications[MAX_LOCATIONS_TO_OBSERVE];
+  int num_requests;
+  bool drop_existing;
+} location_notification_request;
 
 typedef struct {
   int type;
@@ -179,7 +206,6 @@ typedef struct {
     default_value usdm;
     default_value ustm;
     message_get_route_params get_route_params;
-    track_node **route;
     reply_get_last_sensor_hit last_sensor;
     coordinates coords;
     message_update_coords update_coords;
@@ -187,6 +213,8 @@ typedef struct {
     int reservation_response;
     message_reservation_get_all_response all_reservations;
     int destination;
+    location_notification_request notification_request;
+    location_notification notification_response;
   } msg;
 } message;
 
