@@ -364,7 +364,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     bool got_lost = false;
     bool drop_existing_notifications = false;
 
->>>>>>> f24150e094771281130e24b0c5d72fd71302ffa8
     switch (received.type) {
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         should_quit = process_location_notification(

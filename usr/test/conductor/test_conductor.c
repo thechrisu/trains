@@ -47,11 +47,10 @@ void test_craft_triggers() {
   location_notification exp[3] = {
     { .reason = 2, .loc = { .node = find_node_by_name(&track, "B15"), .offset = find_node_by_name(&track, "B15")->edge[DIR_AHEAD].dist * 100}},
     { .reason = 2, .loc = { .node = find_node_by_name(&track, "BR14"), .offset = find_node_by_name(&track, "BR14")->edge[DIR_CURVED].dist  * 100}},
-    { .reason = 3, .loc = { .node = find_node_by_name(&track, "D6"), .offset = find_node_by_name(&track, "D6")->edge[DIR_AHEAD].dist * 100}},
+    { .reason = 3, .loc = { .node = find_node_by_name(&track, "BR8"), .offset = find_node_by_name(&track, "BR8")->edge[DIR_AHEAD].dist * 100}},
   };
   for (int i = 0; i < n_reqs; i++) {
     Assert(locs[i].reason == exp[i].reason);
-    Assert(tstrcmp(locs[i].loc.node->name, exp[i].loc.node->name));
     Assert(locs[i].loc.node == exp[i].loc.node);
     Assert(locs[i].loc.offset < exp[i].loc.offset);
   }
