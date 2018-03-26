@@ -44,7 +44,6 @@ int add_notification_requests(
   Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
-    logprintf("Request: %s %d\n\r", notifications[i].loc.node->name, notifications[i].loc.offset);
     Assert(notifications[i].reason != LOCATION_ANY);
     if (j >= MAX_LOCATIONS_TO_OBSERVE) {
       return TOO_MANY_NOTIFICATION_REQUESTS;
