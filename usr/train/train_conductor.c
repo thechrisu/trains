@@ -298,46 +298,52 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   track_node *route[MAX_ROUTE_LENGTH];
 
-  int s = Time(clock_server);
-
   bool had_to_reverse = false;
+
   coordinates c;
   get_coordinates(train_coordinates_server, train, &c);
 
-  // TODO clean up this initialization mess
   while (c.loc.node == NULL_TRACK_NODE) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_coordinates(train_coordinates_server, train, &c);
   }
-  if (c.loc.node == end.node) {
+
+  if (c.loc.node == end.node && c.loc.offset > end.offset) {
     conductor_reverse_to_speed(train_tx_server, track_state_controller,
                                clock_server, train, 0);
     get_coordinates(train_coordinates_server, train, &c);
     had_to_reverse = true;
+
 #if ROUTING_DEBUG
     logprintf("Had to reverse!\n\r");
 #endif /* ROUTING_DEBUG */
   }
+
 #if ROUTING_DEBUG
   logprintf("We are at: %s\n\r", c.loc.node->name);
 #endif /* ROUTING_DEBUG */
+
   get_route(&c.loc, &end, route);
+
   // TODO do incremental switching
   switch_turnouts_within_distance(clock_server, train_tx_server,
                     track_state_controller, route, &c.loc, route_length(route));
+
   int dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
   int max_feasible_speed = get_max_feasible_speed(
                               dist_left,
                               stopping_distance_model.msg.train_distances);
+
 #if ROUTING_DEBUG
   logprintf("Max feasible speed: %d, left: %d\n\r", max_feasible_speed, dist_left);
   logprintf("current: %d, acc: %d\n\r", c.current_speed, c.acceleration);
 #endif /* ROUTING_DEBUG */
-  if (max_feasible_speed != -1
-      && (had_to_reverse || c.current_speed == 0)) {
+
+  if (max_feasible_speed != -1 && (had_to_reverse || c.current_speed == 0)) {
 #if ROUTING_DEBUG
     logprintf("Setting speed to %d\n\r", max_feasible_speed);
 #endif /* ROUTING_DEBUG */
+
     conductor_setspeed(train_tx_server, track_state_controller,
                        train, max_feasible_speed);
   }
@@ -353,6 +359,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     return;
   }
 
+  int s = Time(clock_server);
   bool should_quit = false;
 
   while (!should_quit) {
