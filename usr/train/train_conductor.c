@@ -205,7 +205,6 @@ bool process_location_notification(int clock_server, int train_tx_server,
       return false;
     }
     case LOCATION_TO_SWITCH:
-      logprintf("Setting switch %d to %s\n\r", n->switch_to_switch[0], n->switch_to_switch[1] ? "C":"S");
       switcher_turnout(clock_server,
                        train_tx_server,
                        n->switch_to_switch[0],
@@ -322,10 +321,12 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 #endif /* ROUTING_DEBUG */
   }
 #if ROUTING_DEBUG
-  logprintf("We are at: %c%d\n\r",
-            sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor));
+  logprintf("We are at: %s\n\r", c.loc.node->name);
 #endif /* ROUTING_DEBUG */
   get_route(&c.loc, &end, route);
+  // TODO do incremental switching
+  switch_turnouts_within_distance(clock_server, train_tx_server,
+                    track_state_controller, route, &c.loc, route_length(route));
   int dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
   int max_feasible_speed = get_max_feasible_speed(
                               dist_left,
@@ -359,33 +360,50 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
     Assert(sender_tid == coord_courier);
 
-    Assert(Time(clock_server) - s <= 50 * 100);
+    int route_result = get_route(&c.loc, &end, route);
+    if (route_result < 0) {
+      logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
+                c.loc.node->name, end.node->name);
+      return;
+    }
 
-    bool got_lost = false;
-    bool drop_existing_notifications = false;
+    bool should_quit = false;
 
-    switch (received.type) {
-      case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
-        should_quit = process_location_notification(
-                                          clock_server, train_tx_server,
-                                          &received.msg.notification_response,
-                                          route, &end,
-                                          &drop_existing_notifications,
-                                          &got_lost);
-        if (!should_quit) {
-          get_coordinates(train_coordinates_server, train, &c);
-          set_new_triggers(coord_courier, &c, route,
-                           velocity_model.msg.train_speeds,
-                           stopping_distance_model.msg.train_distances,
-                           drop_existing_notifications);
-        }
-        break;
-      default:
-        logprintf("%s%d%s%d\n\r",
-            "Unexpected message type in route to sd in conductor for train ",
-            train, " got message type: ", received.type);
-        Assert(0 && "Unexpected message type in route withing stopping d");
-        break;
+    while (!should_quit) {
+      int sender_tid;
+      message received;
+
+      Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
+      Assert(sender_tid == coord_courier);
+
+      Assert(Time(clock_server) - s <= 50 * 100);
+
+      bool got_lost = false;
+      bool drop_existing_notifications = false;
+
+      switch (received.type) {
+        case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
+          should_quit = process_location_notification(
+                                            clock_server, train_tx_server,
+                                            &received.msg.notification_response,
+                                            route, &end,
+                                            &drop_existing_notifications,
+                                            &got_lost);
+          if (!should_quit) {
+            get_coordinates(train_coordinates_server, train, &c);
+            set_new_triggers(coord_courier, &c, route,
+                             velocity_model.msg.train_speeds,
+                             stopping_distance_model.msg.train_distances,
+                             drop_existing_notifications);
+          }
+          break;
+        default:
+          logprintf("%s%d%s%d\n\r",
+              "Unexpected message type in route to sd in conductor for train ",
+              train, " got message type: ", received.type);
+          Assert(0 && "Unexpected message type in route withing stopping d");
+          break;
+      }
     }
   }
 }

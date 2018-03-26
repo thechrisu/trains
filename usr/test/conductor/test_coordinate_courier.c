@@ -109,7 +109,6 @@ void test_add_then_trigger() {
   coord_courier_test_teardown(courier_tid);
 }
 
-
 void test_coord_courier() {
   test_coord_courier_not_located_yet();
   test_coordinates_to_notification_basic();

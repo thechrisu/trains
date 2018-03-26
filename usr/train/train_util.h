@@ -161,4 +161,11 @@ track_node **get_next_of_type(track_node **remaining_route, node_type type);
  */
 int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_node **end);
 
+// TODO document this
+/*
+void get_next_turnout_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc,
+                               int *next_switch_num, bool *next_switch_is_curved,
+                               location *target, int cutoff_distance);
+*/
+
 #endif /* TRAIN_UTIL_H */

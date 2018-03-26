@@ -44,7 +44,6 @@ int add_notification_requests(
   Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
-    logprintf("Request: %s %d\n\r", notifications[i].loc.node->name, notifications[i].loc.offset);
     Assert(notifications[i].reason != LOCATION_ANY);
     if (j >= MAX_LOCATIONS_TO_OBSERVE) {
       return TOO_MANY_NOTIFICATION_REQUESTS;
@@ -164,7 +163,10 @@ int create_courier(int train) {
 }
 
 /*
+<<<<<<< HEAD
 >>>>>>> f24150e094771281130e24b0c5d72fd71302ffa8
+=======
+>>>>>>> 44848a09bf8b387c48e4d893753177c2c2d8e4fd
 void send_notification_request(int coordinate_courier_tid,
                                location_notification requests[MAX_LOCATIONS_TO_OBSERVE],
                                int n_requests) {
