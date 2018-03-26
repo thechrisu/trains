@@ -357,6 +357,12 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                 c.loc.node->name, end.node->name);
       return;
     }
+
+    // Ignore first message from coordinate courier
+    int sender_tid;
+    message received;
+    Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
+    Assert(sender_tid  == coord_courier);
   }
 
   int s = Time(clock_server);
