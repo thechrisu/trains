@@ -3,7 +3,7 @@
 #define CONDUCTOR_STOP_CHECK_INTERVAL 2
 #define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
-#define CUTOFF_DISTANCE 250000
+#define SWITCH_DIST 10000
 
 /**
  * get_max_feasible_speed artificially increases the stopping distance by
@@ -159,7 +159,6 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
  *
  * @param clock_server                Clock server tid.
  * @param train_tx_server             Train tx server tid.
- * @param track_state_controller      Track state controller tid.
  * @param n                           Notification we received.
  * @param route                       Route we're on (May change).
  * @param end                         Goal of our route (necessary for rerouting).
@@ -169,7 +168,6 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
  * @return Whether we should stop the train.
  */
 bool process_location_notification(int clock_server, int train_tx_server,
-                                   int track_state_controller,
                                    location_notification *n,
                                    track_node *route[MAX_ROUTE_LENGTH],
                                    location *end,
@@ -177,7 +175,6 @@ bool process_location_notification(int clock_server, int train_tx_server,
                                    bool *got_lost);
 
 bool process_location_notification(int clock_server, int train_tx_server,
-                                   int track_state_controller,
                                    location_notification *n,
                                    track_node *route[MAX_ROUTE_LENGTH],
                                    location *end,
@@ -202,13 +199,11 @@ bool process_location_notification(int clock_server, int train_tx_server,
                   n->loc.node->name, end->node->name);
         return true;
       }
-      // TODO do incremental switching
-      switch_turnouts_within_distance(clock_server, train_tx_server,
-            track_state_controller, route, &n->loc, route_length(route));
       *drop_existing_notifications = true;
       return false;
     }
     case LOCATION_TO_SWITCH:
+      logprintf("Setting switch %d to %s\n\r", n->switch_to_switch[0], n->switch_to_switch[1] ? "C":"S");
       switcher_turnout(clock_server,
                        train_tx_server,
                        n->switch_to_switch[0],
@@ -226,9 +221,6 @@ bool process_location_notification(int clock_server, int train_tx_server,
                   n->loc.node->name, end->node->name);
         return true;
       }
-      // TODO do incremental switching
-      switch_turnouts_within_distance(clock_server, train_tx_server,
-                  track_state_controller, route, &n->loc, route_length(route));
       return false;
     }
     default:
@@ -244,21 +236,27 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
     *n_requests = 0;
-    /* int next_switch_num;
-    bool next_switch_is_curved;
-    location target;
-    get_next_turnout_in_route(track_state_controller, route, &c.loc,
-                              &next_switch_num, &next_switch_is_curved,
-                              &next_switch_node, CUTOFF_DISTANCE);
-    if (next_switch_node != NULL_TRACK_NODE) {
-      // TODO adjust location by stopping distance and switch padding etc
-      tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));
-      locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
-      locations_to_observe[*n_requests].switch_to_switch[0] = next_switch_num;
-      locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
-      *n_requests = *n_requests + 1;
-    }
-    */
+    bool has_next_turnout;
+    coordinates f;
+    tmemcpy(&f, c, sizeof(f));
+    do {
+      has_next_turnout = false;
+      bool next_switch_is_curved;
+      int next_turnout_num;
+      coordinates where_to_switch;
+      predict_next_switch(&f, route, &where_to_switch, &next_turnout_num,
+          &next_switch_is_curved, &has_next_turnout, SWITCH_DIST);
+
+      tmemcpy(&f, &where_to_switch, sizeof(f));
+      if (has_next_turnout) {
+        tmemcpy(&locations_to_observe[*n_requests].loc, &where_to_switch, sizeof(where_to_switch));
+        locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
+        locations_to_observe[*n_requests].switch_to_switch[0] = next_turnout_num;
+        locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
+        *n_requests = *n_requests + 1;
+        logprintf("Next switch: %d (%s)\n\r", next_turnout_num, next_switch_is_curved ? "C" : "S");
+      }
+    } while (has_next_turnout && *n_requests < 5);
     coordinates target;
     predict_train_stop(c, route, &target, train_speeds, train_distances);
     tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
@@ -323,9 +321,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
             sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor));
 #endif /* ROUTING_DEBUG */
   get_route(&c.loc, &end, route);
-  // TODO do incremental switching
-  switch_turnouts_within_distance(clock_server, train_tx_server,
-                    track_state_controller, route, &c.loc, route_length(route));
   int dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
   int max_feasible_speed = get_max_feasible_speed(
                               dist_left,
@@ -369,7 +364,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         should_quit = process_location_notification(
                                           clock_server, train_tx_server,
-                                          track_state_controller,
                                           &received.msg.notification_response,
                                           route, &end,
                                           &drop_existing_notifications,

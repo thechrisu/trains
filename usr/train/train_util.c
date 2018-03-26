@@ -131,39 +131,6 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
     }
   }
 }
-/** TODO reuse this when implementing incremental switching
-void get_next_turnout_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc,
-                               int *next_switch_num, bool *next_switch_is_curved,
-                               location *target, int cutoff_distance) {
-  *next_switch_num = -1;
-
-  turnout_state turnout_states[NUM_TURNOUTS];
-  get_turnouts(track_state_controller, turnout_states);
-
-  bool passed_loc = false;
-
-  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
-    if (*c == loc->node) {
-      passed_loc = true;
-    }
-
-    if (passed_loc) {
-      if (get_dist_on_route(route, loc, c) > cutoff_distance) {
-        return;
-      }
-
-      if ((*c)->type == NODE_BRANCH) {
-        *next_switch_num = (*c)->num;
-        int map_offset = turnout_num_to_map_offset((*c)->num);
-        *next_switch_is_curved = *(c + 1) == CURVED(*c)
-                            && turnout_states[map_offset] == TURNOUT_STRAIGHT;
-        *next_switch_node = (*c);
-        return;
-      }
-    }
-  }
-}
-*/
 
 float get_fudged_stopping_distance_factor(int train) {
   return 0.33333

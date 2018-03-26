@@ -79,3 +79,60 @@ void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
   synthesize_turnout_states_from_route(route, ideal_turnout_states);
   location_canonicalize(ideal_turnout_states, &send_stop_here->loc, &send_stop_here->loc);
 }
+
+void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
+                        coordinates *send_switch_here, int *next_turnout_num,
+                        bool *next_is_curved, bool *found, int distance) {
+  int remaining = 0;
+  track_node **c;
+  *found = false;
+  bool passed = false;
+  for (c = route; *(c + 1) != NULL_TRACK_NODE; c++) {
+    if ((*c) == co->loc.node) {
+      passed = true;
+      if ((*c)->type == NODE_BRANCH) {
+        remaining += (*(c + 1)) == CURVED(*c) ?
+          (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
+      } else {
+        remaining += (*c)->edge[DIR_AHEAD].dist * 100;
+      }
+      continue;
+    }
+    if (passed) {
+      if ((*c)->type == NODE_BRANCH) {
+        *next_turnout_num = (*c)->num;
+        *next_is_curved = (*(c + 1)) == CURVED(*c);
+        *found = true;
+        break;
+      } else {
+        remaining += (*c)->edge[DIR_AHEAD].dist * 100;
+      }
+    }
+  }
+  int dist_so_far = 0;
+  tmemcpy(send_switch_here, co, sizeof(*co));
+  passed = false;
+  if (!found) return;
+  for (c = route; *(c + 1) != NULL_TRACK_NODE && dist_so_far < remaining; c++) {
+    send_switch_here->loc.offset = remaining - dist_so_far;
+    send_switch_here->loc.node = (*c);
+    if ((*c) == co->loc.node) {
+      passed = true;
+      if ((*c)->type == NODE_BRANCH) {
+        dist_so_far += (*(c + 1)) == CURVED(*c) ?
+          (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
+      } else {
+        dist_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
+      }
+      continue;
+    }
+    if (passed) {
+      if ((*c)->type == NODE_BRANCH) {
+        dist_so_far += (*(c + 1)) == CURVED(*c) ?
+          (*c)->edge[DIR_CURVED].dist * 100 : (*c)->edge[DIR_STRAIGHT].dist * 100;
+      } else {
+        dist_so_far += (*c)->edge[DIR_AHEAD].dist * 100;
+      }
+    }
+  }
+}
