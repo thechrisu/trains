@@ -28,17 +28,10 @@ void t2_demo_task() {
   while (true) {
     message send;
 
-    int sensor = random_sensor();
-    // TODO remove this check after routing with reversal is sufficiently robust
-    while (!sensor_reachable(&track, sensor, sensor_offset('D', 5)) ||
-           !sensor_reachable(&track, sensor_pair(&track, sensor), sensor_offset('D', 5))) {
-      sensor = random_sensor();
-    }
-
     send.type = MESSAGE_USER;
     send.msg.cmd.type = USER_CMD_R;
     send.msg.cmd.data[0] = received.msg.train;
-    send.msg.cmd.data[1] = sensor;
+    send.msg.cmd.data[1] = random_sensor();
     send.msg.cmd.data[2] = 0;
 
     Assert(Send(command_dispatcher, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
