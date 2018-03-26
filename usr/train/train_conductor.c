@@ -342,6 +342,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                        train, max_feasible_speed);
   }
 
+  if (max_feasible_speed == -1) {
+    return;
+  }
+
   int route_result = get_route(&c.loc, &end, route);
   if (route_result < 0) {
     logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
