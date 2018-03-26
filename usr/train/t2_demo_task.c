@@ -23,10 +23,10 @@ void t2_demo_task() {
 
   seed = get_clockticks();
 
+  set_train_speed(train_tx_server_tid, track_state_controller_tid, received.msg.train, 12);
+
   while (true) {
     message send;
-
-    set_train_speed(train_tx_server_tid, track_state_controller_tid, received.msg.train, 12);
 
     int sensor = random_sensor();
     // TODO remove this check after routing with reversal is sufficiently robust
