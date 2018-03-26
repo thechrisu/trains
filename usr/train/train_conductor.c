@@ -319,8 +319,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 #endif /* ROUTING_DEBUG */
   }
 #if ROUTING_DEBUG
-  logprintf("We are at: %c%d\n\r",
-            sensor_bank(c.loc.sensor), sensor_index(c.loc.sensor));
+  logprintf("We are at: %s\n\r", c.loc.node->name);
 #endif /* ROUTING_DEBUG */
   get_route(&c.loc, &end, route);
   // TODO do incremental switching
