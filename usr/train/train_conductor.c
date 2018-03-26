@@ -256,8 +256,9 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
         locations_to_observe[*n_requests].switch_to_switch[0] = next_turnout_num;
         locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
         *n_requests = *n_requests + 1;
-        logprintf("Send switch here: %s +- %d\n\r",
-            where_to_switch.loc.node->name, where_to_switch.loc.offset);
+        logprintf("Send switch here: %s +- %d (switch: %d, pos; %s)\n\r",
+            where_to_switch.loc.node->name, where_to_switch.loc.offset,
+            next_turnout_num, next_switch_is_curved ? "curved" : "straight");
       }
       f.loc.offset++;
     } while (has_next_turnout && *n_requests < 5);

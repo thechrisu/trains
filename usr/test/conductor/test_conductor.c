@@ -45,14 +45,14 @@ void test_craft_triggers() {
   Assert(n_reqs > 0);
   Assert(locs[n_reqs - 1].reason == LOCATION_TO_STOP);
   location_notification exp[3] = {
-    { .reason = 2, .loc = { .node = find_node_by_name(&track, "B15"), .offset = 33000 }},
-    { .reason = 2, .loc = { .node = find_node_by_name(&track, "BR14"), .offset = 46500 }},
-    { .reason = 3, .loc = { .node = find_node_by_name(&track, "D6"), .offset = 67098 }},
+    { .reason = 2, .loc = { .node = find_node_by_name(&track, "B15"), .offset = find_node_by_name(&track, "B15")->edge[DIR_AHEAD].dist }},
+    { .reason = 2, .loc = { .node = find_node_by_name(&track, "BR14"), .offset = find_node_by_name(&track, "BR14")->edge[DIR_CURVED].dist }},
+    { .reason = 3, .loc = { .node = find_node_by_name(&track, "D6"), .offset = find_node_by_name(&track, "D6")->edge[DIR_AHEAD].dist }},
   };
   for (int i = 0; i < n_reqs; i++) {
     Assert(locs[i].reason == exp[i].reason);
     Assert(locs[i].loc.node == exp[i].loc.node);
-    Assert(locs[i].loc.offset >= 0);
+    Assert(locs[i].loc.offset < exp[i].loc.offset);
   }
   conductor_test_teardown();
 }
