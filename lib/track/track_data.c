@@ -20,6 +20,7 @@ void init_track(track_state *global_track) {
 
   for(int i = 0; i < NUM_TURNOUTS; i++) {
     turnouts[i] = TURNOUT_UNKNOWN; // offset 18-21 map to 153-156
+    global_track->last_switch_time[i] = 0;
   }
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;

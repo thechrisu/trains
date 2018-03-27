@@ -8,6 +8,7 @@
 #include "a0codes.h"
 #include "codes.h"
 #include "commands.h"
+#include "global_track_state.h"
 #include "messages.h"
 
 void switcher();

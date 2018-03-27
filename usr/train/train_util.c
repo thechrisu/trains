@@ -96,7 +96,42 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
   }
 }
 
-// TODO maybe do this via switchers?
+void switcher_turnouts_within_distance(int clock_server, int train_tx_server,
+                                       track_node *route[MAX_ROUTE_LENGTH],
+                                       location *loc,
+                                       int distance) {
+  turnout_state turnout_states[NUM_TURNOUTS];
+  int track_state_controller = WhoIs("TrackStateController");
+  Assert(track_state_controller > 0);
+  get_turnouts(track_state_controller, turnout_states);
+
+  bool passed_loc = false;
+
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c += 1) {
+    if (*c == loc->node) {
+      passed_loc = true;
+    }
+
+    if (passed_loc) {
+      if (get_dist_on_route(route, loc, c) > distance) {
+        return;
+      }
+
+      if ((*c)->type == NODE_BRANCH) {
+        int map_offset = turnout_num_to_map_offset((*c)->num);
+        if (*(c + 1) == STRAIGHT(*c) && turnout_states[map_offset] == TURNOUT_CURVED) {
+          switcher_turnout(clock_server, train_tx_server, (*c)->num, false);
+        } else if (*(c + 1) == CURVED(*c) && turnout_states[map_offset] == TURNOUT_STRAIGHT) {
+          switcher_turnout(clock_server, train_tx_server, (*c)->num, true);
+        } else if (*(c + 1) != STRAIGHT(*c) && *(c + 1) != CURVED(*c)) {
+          logprintf("Route has switch nodes %d -> %d, but they're not connected\n\r",
+                    (*c)->num, (*(c + 1))->num);
+        }
+      }
+    }
+  }
+}
+
 void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                                      int track_state_controller,
                                      track_node *route[MAX_ROUTE_LENGTH],

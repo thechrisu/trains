@@ -73,6 +73,7 @@ typedef struct {
   uint32_t speed_to_velocity[81][15]; // 1 here is 1/100 mm/s
   uint32_t stopping_distance[81][15]; // 1 here is 1/100 mm
   uint32_t stopping_time_mus[81][15]; // 1 here is 1 microsecond
+  volatile int last_switch_time[NUM_TURNOUTS];
 } track_state;
 
 /**

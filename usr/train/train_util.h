@@ -108,6 +108,11 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                                      location *loc,
                                      int distance);
 
+void switcher_turnouts_within_distance(int clock_server, int train_tx_server,
+                                       track_node *route[MAX_ROUTE_LENGTH],
+                                       location *loc,
+                                       int distance);
+
 /**
  * Estimates the stopping distance from a stopping distance model.
  * @param velocity in 1/100mm / s

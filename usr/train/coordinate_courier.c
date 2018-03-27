@@ -163,10 +163,6 @@ int create_courier(int train) {
 }
 
 /*
-<<<<<<< HEAD
->>>>>>> f24150e094771281130e24b0c5d72fd71302ffa8
-=======
->>>>>>> 44848a09bf8b387c48e4d893753177c2c2d8e4fd
 void send_notification_request(int coordinate_courier_tid,
                                location_notification requests[MAX_LOCATIONS_TO_OBSERVE],
                                int n_requests) {
