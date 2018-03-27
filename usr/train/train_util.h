@@ -108,6 +108,14 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                                      location *loc,
                                      int distance);
 
+/**
+ * Like switch_turnouts_within_distance, but with switchers
+ * @param clock_server            Tid of the clock server.
+ * @param train_tx_server         Tid of the train tx server to send sw commands.
+ * @param route                   The route.
+ * @param loc                     Point in route after which turnouts should be switched.
+ * @param distance                Distance inside of which turnouts should be switched.
+ */
 void switcher_turnouts_within_distance(int clock_server, int train_tx_server,
                                        track_node *route[MAX_ROUTE_LENGTH],
                                        location *loc,
