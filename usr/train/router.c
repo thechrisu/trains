@@ -29,9 +29,13 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
 
   search_node dequeued_nodes[TRACK_MAX];
   int i = 0;
-  while (search_node_queue_peek(&q) != NULL_SEARCH_NODE) {
+  while (true) {
     search_node *current = &dequeued_nodes[i];
-    search_node_queue_dequeue(&q, current);
+    int result = search_node_queue_dequeue(&q, current);
+
+    if (result == -1 || current->node == end->node) {
+      break;
+    }
 
     track_node *t_node = current->node;
     switch (t_node->type) {
