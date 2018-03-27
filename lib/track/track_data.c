@@ -257,6 +257,7 @@ int32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
   }
 
   switch (start->type) {
+    case NODE_ENTER:
     case NODE_SENSOR:
     case NODE_MERGE: {
       int32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
