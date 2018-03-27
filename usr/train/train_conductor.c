@@ -246,27 +246,27 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         track_node *route[MAX_ROUTE_LENGTH],
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
-    *n_requests = 0;
-    /* int next_switch_num;
-    bool next_switch_is_curved;
-    location target;
-    get_next_turnout_in_route(track_state_controller, route, &c.loc,
-                              &next_switch_num, &next_switch_is_curved,
-                              &next_switch_node, CUTOFF_DISTANCE);
-    if (next_switch_node != NULL_TRACK_NODE) {
-      // TODO adjust location by stopping distance and switch padding etc
-      tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));
-      locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
-      locations_to_observe[*n_requests].switch_to_switch[0] = next_switch_num;
-      locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
-      *n_requests = *n_requests + 1;
-    }
-    */
-    coordinates target;
-    predict_train_stop(c, route, &target, train_speeds, train_distances);
-    tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
-    locations_to_observe[*n_requests].reason = LOCATION_TO_STOP;
+  *n_requests = 0;
+  /* int next_switch_num;
+  bool next_switch_is_curved;
+  location target;
+  get_next_turnout_in_route(track_state_controller, route, &c.loc,
+                            &next_switch_num, &next_switch_is_curved,
+                            &next_switch_node, CUTOFF_DISTANCE);
+  if (next_switch_node != NULL_TRACK_NODE) {
+    // TODO adjust location by stopping distance and switch padding etc
+    tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));
+    locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
+    locations_to_observe[*n_requests].switch_to_switch[0] = next_switch_num;
+    locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
     *n_requests = *n_requests + 1;
+  }
+  */
+  coordinates target;
+  predict_train_stop(c, route, &target, train_speeds, train_distances);
+  tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
+  locations_to_observe[*n_requests].reason = LOCATION_TO_STOP;
+  *n_requests = *n_requests + 1;
 }
 
 void set_new_triggers(int coord_courier,
