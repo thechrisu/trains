@@ -20,10 +20,6 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
   }
 
   tmemcpy(&n->loc, &c->loc, sizeof(c->loc));
-  if (c->loc.node != last->loc.node) {
-    n->reason = LOCATION_CHANGED;
-    return true;
-  }
 
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
@@ -34,6 +30,11 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
       is_location_set[i] = false;
       return true;
     }
+  }
+
+  if (c->loc.node != last->loc.node) {
+    n->reason = LOCATION_CHANGED;
+    return true;
   }
 
   return false; // the boring case -- nothing happened!
