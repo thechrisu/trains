@@ -153,6 +153,16 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   return -1;
 }
 
+/**
+ * Prepare to travel between the given locations. Tell the caller to exit
+ * if it isn't possible to reroute.
+ * @param clock_server                Clock server tid.
+ * @param train_tx_server             Train tx server tid.
+ * @param track_state_controller      Track state controller tid.
+ * @param start                       Current location.
+ * @param end                         Goal of our route.
+ * @param route                       Place to put the new route.
+ */
 bool reroute(int clock_server, int train_tx_server,
              int track_state_controller,
              location *start, location *end,
