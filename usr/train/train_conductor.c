@@ -244,42 +244,48 @@ bool process_location_notification(int clock_server, int train_tx_server,
 void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         uint32_t train_distances[15],
                         track_node *route[MAX_ROUTE_LENGTH],
+                        bool got_lost,
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
-    *n_requests = 0;
-    /* int next_switch_num;
-    bool next_switch_is_curved;
-    location target;
-    get_next_turnout_in_route(track_state_controller, route, &c.loc,
-                              &next_switch_num, &next_switch_is_curved,
-                              &next_switch_node, CUTOFF_DISTANCE);
-    if (next_switch_node != NULL_TRACK_NODE) {
-      // TODO adjust location by stopping distance and switch padding etc
-      tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));
-      locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
-      locations_to_observe[*n_requests].switch_to_switch[0] = next_switch_num;
-      locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
-      *n_requests = *n_requests + 1;
-    }
-    */
-    coordinates target;
-    predict_train_stop(c, route, &target, train_speeds, train_distances);
-    tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
-    locations_to_observe[*n_requests].reason = LOCATION_TO_STOP;
+  *n_requests = 0;
+
+  if (got_lost) {
+    return;
+  }
+
+  /* int next_switch_num;
+  bool next_switch_is_curved;
+  location target;
+  get_next_turnout_in_route(track_state_controller, route, &c.loc,
+                            &next_switch_num, &next_switch_is_curved,
+                            &next_switch_node, CUTOFF_DISTANCE);
+  if (next_switch_node != NULL_TRACK_NODE) {
+    // TODO adjust location by stopping distance and switch padding etc
+    tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));
+    locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
+    locations_to_observe[*n_requests].switch_to_switch[0] = next_switch_num;
+    locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
     *n_requests = *n_requests + 1;
+  }
+  */
+
+  coordinates target;
+  predict_train_stop(c, route, &target, train_speeds, train_distances);
+  tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
+  locations_to_observe[*n_requests].reason = LOCATION_TO_STOP;
+  *n_requests = *n_requests + 1;
 }
 
 void set_new_triggers(int coord_courier,
                       coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
                       uint32_t train_speeds[15], uint32_t train_distances[15],
-                      bool drop_existing_notifications) {
-  // TODO care about what we do when we are lost
+                      bool drop_existing_notifications, bool got_lost) {
   message next_req;
   next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
   next_req.msg.notification_request.drop_existing = drop_existing_notifications;
   craft_new_triggers(c, train_speeds,
                      train_distances,
-                     route,
+                     route, got_lost,
                      next_req.msg.notification_request.notifications,
                      &next_req.msg.notification_request.num_requests);
   Assert(Reply(coord_courier, &next_req, sizeof(next_req)) == 0);
@@ -396,7 +402,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
           set_new_triggers(coord_courier, &c, route,
                            velocity_model.msg.train_speeds,
                            stopping_distance_model.msg.train_distances,
-                           drop_existing_notifications);
+                           drop_existing_notifications, got_lost);
         }
         break;
       default:

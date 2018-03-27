@@ -52,12 +52,14 @@ void conductor_reverse(int train_tx_server, int track_state_controller, int cloc
  * @param train_speeds         Speed->Velocity map.
  * @param train_distances      Speed->Stopping distance map.
  * @param route                The route we're on.
+ * @param got_lost             Whether the train is currently lost.
  * @param locations_to_observe Output: New triggers are in this array.
  * @param n_requests           Output: The number of new triggers.
  */
 void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         uint32_t train_distances[15],
                         track_node *route[MAX_ROUTE_LENGTH],
+                        bool got_lost,
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests);
 
@@ -72,9 +74,12 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
  * @param drop_existing_notificaitons  Whether the coordinator should drop
  *                                     existing notifications before adding the
  *                                     new triggers.
+ * @param got_lost                     Whether the train is lost. If this is the case,
+ *                                     no new notifications should be added until the
+ *                                     train is found again.
  */
 void set_new_triggers(int coord_courier,
                       coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
                       uint32_t train_speeds[15], uint32_t train_distances[15],
-                      bool drop_existing_notifications);
+                      bool drop_existing_notifications, bool got_lost);
 #endif /* TRAIN_CONDUCTOR_H */
