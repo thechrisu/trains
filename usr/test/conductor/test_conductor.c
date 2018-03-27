@@ -41,7 +41,7 @@ void test_craft_triggers() {
   int n_reqs;
 
   craft_new_triggers(&c, velocity_model.msg.train_speeds,
-      stopping_distance_model.msg.train_distances, route, locs, &n_reqs);
+      stopping_distance_model.msg.train_distances, route, false, locs, &n_reqs);
   Assert(n_reqs > 0);
   Assert(locs[n_reqs - 1].reason == LOCATION_TO_STOP);
   location_notification exp[3] = {

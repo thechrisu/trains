@@ -43,7 +43,8 @@ void test_coordinates_to_notification_basic() {
 
   current.loc.node = NULL_TRACK_NODE;
   last.loc.node = NULL_TRACK_NODE;
-  Assert(!coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
+  Assert(coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
+  Assert(new.reason == GOT_LOST);
 
   last.loc.node = &t.tracka[0];
   Assert(coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));

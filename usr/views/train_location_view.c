@@ -2,6 +2,8 @@
 
 #define ABS(x) ((x) < 0 ? -(x) : (x))
 
+#define SENSOR_MAYBE(node) ((node) == NULL_TRACK_NODE ? NO_NEXT_SENSOR : (node)->num)
+
 #define MAX_TRAINS 3
 
 #define LINE_CLEARED  1357
@@ -215,7 +217,7 @@ void train_location_view() {
                            train, &current_prediction[train]);
 
         print_next_sensor_prediction(terminal_tx_server_tid, i,
-                                     current_prediction[train].loc.node->num,
+                                     SENSOR_MAYBE(current_prediction[train].loc.node),
                                      current_prediction[train].ticks);
       } else if (seen_sensor.sensor != NO_DATA_RECEIVED) {
         get_turnouts(track_state_controller_tid, turnout_states);
@@ -227,7 +229,7 @@ void train_location_view() {
         if (tentative_prediction.loc.node == current_prediction[train].loc.node) {
           if (tentative_prediction.ticks / 10 != current_prediction[train].ticks / 10) {
             print_next_sensor_prediction(terminal_tx_server_tid, i,
-                                         tentative_prediction.loc.node->num,
+                                         SENSOR_MAYBE(tentative_prediction.loc.node),
                                          tentative_prediction.ticks);
           }
 
@@ -236,7 +238,7 @@ void train_location_view() {
                   sizeof(current_prediction[train]));
         } else {
           print_next_sensor_prediction(terminal_tx_server_tid, i,
-                                       tentative_prediction.loc.node->num,
+                                       SENSOR_MAYBE(tentative_prediction.loc.node),
                                        tentative_prediction.ticks);
         }
       }
