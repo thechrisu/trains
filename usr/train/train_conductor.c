@@ -315,7 +315,19 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   logprintf("We are at: %s\n\r", c.loc.node->name);
 #endif /* ROUTING_DEBUG */
 
-  get_route(&c.loc, &end, route);
+  int route_result = get_route(&c.loc, &end, route);
+  if (route_result < 0) {
+    conductor_reverse_to_speed(train_tx_server, track_state_controller,
+                               clock_server, train, 0);
+    get_coordinates(train_coordinates_server, train, &c);
+
+    route_result = get_route(&c.loc, &end, route);
+    if (route_result < 0) {
+      logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
+                c.loc.node->name, end.node->name);
+      return;
+    }
+  }
 
   // TODO do incremental switching
   switch_turnouts_within_distance(clock_server, train_tx_server,
@@ -342,20 +354,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   if (max_feasible_speed == -1) {
     return;
-  }
-
-  int route_result = get_route(&c.loc, &end, route);
-  if (route_result < 0) {
-    conductor_reverse_to_speed(train_tx_server, track_state_controller,
-                               clock_server, train, 0);
-    get_coordinates(train_coordinates_server, train, &c);
-
-    route_result = get_route(&c.loc, &end, route);
-    if (route_result < 0) {
-      logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
-                c.loc.node->name, end.node->name);
-      return;
-    }
   }
 
   int coord_courier = create_courier(train);
