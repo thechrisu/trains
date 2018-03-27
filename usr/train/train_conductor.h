@@ -72,9 +72,12 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
  * @param drop_existing_notificaitons  Whether the coordinator should drop
  *                                     existing notifications before adding the
  *                                     new triggers.
+ * @param got_lost                     Whether the train is lost. If this is the case,
+ *                                     no new notifications should be added until the
+ *                                     train is found again.
  */
 void set_new_triggers(int coord_courier,
                       coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
                       uint32_t train_speeds[15], uint32_t train_distances[15],
-                      bool drop_existing_notifications);
+                      bool drop_existing_notifications, bool got_lost);
 #endif /* TRAIN_CONDUCTOR_H */
