@@ -282,8 +282,8 @@ void test_runner() {
       .prio = 5
     },
     {
-      .name = "test_distance_between_sensors",
-      .code = &test_distance_between_sensors,
+      .name = "test_distance_between_track_nodes",
+      .code = &test_distance_between_track_nodes,
       .prio = 5
     },
     {
@@ -319,6 +319,16 @@ void test_runner() {
     {
       .name = "track_reservation_server",
       .code = &test_track_reservation_server,
+      .prio = 5
+    },
+    {
+      .name = "coordinate_courier",
+      .code = &test_coord_courier,
+      .prio = 5
+    },
+    {
+      .name = "stop_loc_prediction",
+      .code = &test_stopping_location_prediction,
       .prio = 5
     },
     { .name = "" } // Keep this guard element at the end of the array.

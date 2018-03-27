@@ -1,11 +1,5 @@
 #include "prediction.h"
 
-int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
-                          uint32_t velocity) {
-  int c_time = Time(clock_server);
-  return (int)velocity * (c_time - ticks_at_last_sensor) / 100;
-}
-
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction) {
@@ -28,8 +22,8 @@ void predict_sensor_hit(int train_coordinates_server_tid,
 
   prediction->loc.node = next_sensor;
   prediction->loc.offset = 0;
-  int dist_to_next_sensor = 100 * distance_between_sensors(current.loc.node,
-                                                           next_sensor) - current.loc.offset;
+  int dist_to_next_sensor = 100 * distance_between_track_nodes(current.loc.node,
+                                                               next_sensor) - current.loc.offset;
 
   if (current.velocity == 0) {
     prediction->ticks = INFINITE_TICKS;
@@ -56,5 +50,32 @@ void predict_sensor_hit(int train_coordinates_server_tid,
                                      (2 * current.acceleration * current.target_velocity);
     prediction->ticks = current.ticks + (int)ticks_to_next_sensor;
   }
+}
 
+void synthesize_turnout_states_from_route(track_node *route[MAX_ROUTE_LENGTH],
+                                          turnout_state states[NUM_TURNOUTS]) {
+  for (track_node **c = route; *(c + 1) != NULL_TRACK_NODE; c++) {
+    if ((*c)->type == NODE_BRANCH) {
+      int turnout_index = turnout_num_to_map_offset((*c)->num);
+      if ((*(c + 1)) == STRAIGHT((*c))) {
+        states[turnout_index] = TURNOUT_STRAIGHT;
+      } else if ((*(c + 1)) == CURVED(*c)) {
+        states[turnout_index] = TURNOUT_CURVED;
+      }
+    }
+  }
+}
+
+void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
+                        coordinates *send_stop_here,
+                        uint32_t train_speeds[15], uint32_t train_distances[15]) {
+  tmemcpy(send_stop_here, c, sizeof(*c));
+  int remaining = get_remaining_dist_in_route(route, &c->loc);
+  int stopping_distance = (int)stopping_dist_from_velocity(
+                              c->target_velocity, train_speeds, train_distances);
+  send_stop_here->loc.offset += remaining - stopping_distance;
+
+  turnout_state ideal_turnout_states[NUM_TURNOUTS];
+  synthesize_turnout_states_from_route(route, ideal_turnout_states);
+  location_canonicalize(ideal_turnout_states, &send_stop_here->loc, &send_stop_here->loc);
 }

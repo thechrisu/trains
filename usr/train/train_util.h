@@ -3,7 +3,6 @@
 
 #include "commands.h"
 #include "global_track_state.h"
-#include "prediction.h"
 #include "terminal.h"
 #include "tstdlib.h"
 
@@ -81,6 +80,18 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
                   int dist, int velocity);
 
 /**
+ * Returns the distance we travelled since we last hit a sensor.
+ *
+ * @param clock_server          Tid of the clock server.
+ * @param ticks_at_last_sensor  The time in ticks at the point when we last hit a sensor.
+ * @param velocity              The train's velocity (in 1/100th mm/s).
+ *
+ * @return The distance in 1/100th mm that we have travelled.
+ */
+int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
+                          uint32_t velocity);
+
+/**
  * Given a point in a route, switches all turnouts on the route within a given
  * distance of the point.
  *
@@ -149,5 +160,12 @@ track_node **get_next_of_type(track_node **remaining_route, node_type type);
  * @returns The distance from `loc` to `end` in 1/100 mm.
  */
 int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_node **end);
+
+// TODO document this
+/*
+void get_next_turnout_in_route(track_node *route[MAX_ROUTE_LENGTH], location *loc,
+                               int *next_switch_num, bool *next_switch_is_curved,
+                               location *target, int cutoff_distance);
+*/
 
 #endif /* TRAIN_UTIL_H */

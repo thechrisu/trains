@@ -11,21 +11,10 @@
 #include "messages.h"
 #include "track_data.h"
 #include "track_node.h"
+#include "train_util.h"
 #include "tstdlib.h"
 
 #define INFINITE_TICKS 1E8
-
-/**
- * Returns the distance we travelled since we last hit a sensor.
- *
- * @param clock_server          Tid of the clock server.
- * @param ticks_at_last_sensor  The time in ticks at the point when we last hit a sensor.
- * @param velocity              The train's velocity (in 1/100th mm/s).
- *
- * @return The distance in 1/100th mm that we have travelled.
- */
-int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
-                          uint32_t velocity);
 
 /**
  * Predict the coordinates of a train the next time it is at a sensor.
@@ -39,4 +28,29 @@ void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction);
 
+/**
+ * Given a route, record which direction the turnouts should be set to.
+ *
+ * @param route                   Route.
+ * @param states                  Array that will contain correct values
+ *                                for all turnouts used in the route.
+ *                                For turnouts not used in the route,
+ *                                no guarantee is made w.r.t. states
+ */
+void synthesize_turnout_states_from_route(track_node *route[MAX_ROUTE_LENGTH],
+                                          turnout_state states[NUM_TURNOUTS]);
+
+/**
+ * Given a track, predict the location where we have to stop.
+ *
+ * @param c                        Current coordinates.
+ * @param route                    The route we're currently on.
+ * @param send_stop_here           Output coordinates, will contain target
+ *                                 location.
+ * @param train_speeds             Speed-to-velocity array.
+ * @param train_distances          Stopping distance array for the given train.
+ */
+void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
+                        coordinates *send_stop_here, uint32_t train_speeds[15],
+                        uint32_t train_distances[15]);
 #endif /* TRAIN_PREDICTION_H */

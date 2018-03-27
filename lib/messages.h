@@ -130,6 +130,7 @@ typedef struct {
 typedef struct {
   location start;
   location end;
+  track_node **route;
 } message_get_route_params;
 
 typedef struct {
@@ -156,20 +157,25 @@ typedef struct {
 
 #define MAX_LOCATIONS_TO_OBSERVE 10
 
-#define GOT_LOST               -1
-#define LOCATION_CHANGED        0 // We hit a sensor
-#define LOCATION_TO_SWITCH      1
-#define LOCATION_TO_STOP        2
+typedef enum {
+  GOT_LOST,
+  LOCATION_CHANGED, // We hit a sensor
+  LOCATION_TO_SWITCH,
+  LOCATION_TO_STOP,
+  LOCATION_ANY, // Any location where we're not lost
+  MAX_NOTIFICATION_TYPE,
+} coord_notification_type;
 
 typedef struct {
-  track_node *node;
-  int reason;
+  location loc;
+  coord_notification_type reason;
   char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
 } location_notification;
 
 typedef struct {
   location_notification notifications[MAX_LOCATIONS_TO_OBSERVE];
   int num_requests;
+  bool drop_existing;
 } location_notification_request;
 
 typedef struct {
@@ -200,7 +206,6 @@ typedef struct {
     default_value usdm;
     default_value ustm;
     message_get_route_params get_route_params;
-    track_node **route;
     reply_get_last_sensor_hit last_sensor;
     coordinates coords;
     message_update_coords update_coords;

@@ -2,10 +2,10 @@
 
 static long long seed;
 
-int random_sensor() {
-  long long m = 80;
-  long long a = 1103515251;
-  long long c = 44701;
+int random() {
+  long long m = 0x10000;
+  long long a = 1103515245;
+  long long c = 12345;
   seed = (a * seed + c) % m;
   return seed % m;
 }
@@ -23,22 +23,15 @@ void t2_demo_task() {
 
   seed = get_clockticks();
 
+  set_train_speed(train_tx_server_tid, track_state_controller_tid, received.msg.train, 12);
+
   while (true) {
     message send;
-
-    set_train_speed(train_tx_server_tid, track_state_controller_tid, received.msg.train, 12);
-
-    int sensor = random_sensor();
-    // TODO remove this check after routing with reversal is sufficiently robust
-    while (!sensor_reachable(&track, sensor, sensor_offset('D', 5)) ||
-           !sensor_reachable(&track, sensor_pair(&track, sensor), sensor_offset('D', 5))) {
-      sensor = random_sensor();
-    }
 
     send.type = MESSAGE_USER;
     send.msg.cmd.type = USER_CMD_R;
     send.msg.cmd.data[0] = received.msg.train;
-    send.msg.cmd.data[1] = sensor;
+    send.msg.cmd.data[1] = random() % 80;
     send.msg.cmd.data[2] = 0;
 
     Assert(Send(command_dispatcher, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
