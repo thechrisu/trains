@@ -5,7 +5,7 @@
 
 #define SWITCH_LOOKAHEAD_NODES 10
 
-#define SWITCH_DIST 15000
+#define SWITCH_DIST 25000
 
 /**
  * get_max_feasible_speed artificially increases the stopping distance by
@@ -197,8 +197,10 @@ bool process_location_notification(int clock_server, int train_tx_server,
       *drop_existing_notifications = true;
       int route_result = get_route(&n->loc, end, route);
       if (route_result < 0) {
+#if DEBUG_TRAIN_COORDINATOR
         logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
                   n->loc.node->name, end->node->name);
+#endif /* DEBUG_TRAIN_COORDINATOR */
         return true;
       }
       *drop_existing_notifications = true;
@@ -212,7 +214,9 @@ bool process_location_notification(int clock_server, int train_tx_server,
       *drop_existing_notifications = false;
       return false;
     case LOCATION_TO_STOP: {
+#if DEBUG_TRAIN_COORDINATOR
       logprintf("STAHP\n\r");
+#endif /* DEBUG_TRAIN_COORDINATOR */
       *drop_existing_notifications = true;
       switcher_turnouts_within_distance(clock_server, train_tx_server,
                                         route, &n->loc, 200000);
@@ -345,6 +349,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 #endif /* ROUTING_DEBUG */
     conductor_setspeed(train_tx_server, track_state_controller,
                        train, max_feasible_speed);
+  }
+
+  if (max_feasible_speed == -1) {
+    return;
   }
 
   int route_result = get_route(&c.loc, &end, route);

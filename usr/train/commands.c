@@ -94,6 +94,9 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   buf[0] = (char)(curved ? 0x22 : 0x21);
   buf[1] = (char)turnout_num;
   Assert(PutBytes(train_tx_server_tid, buf, 2) == 0);
+#if DEBUG_SWITCHING
+  logprintf("Sw %d to %s\n\r", turnout_num, curved ? "C" : "S");
+#endif /* DEBUG_SWITCHING */
 
   message send;
   send.type = MESSAGE_TURNOUTSWITCHED;
