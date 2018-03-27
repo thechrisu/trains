@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Tests for the train conductor task.
+ */
 #ifndef TEST_CONDUCTOR_CONDUCTOR_H
 #define TEST_CONDUCTOR_CONDUCTOR_H
 
