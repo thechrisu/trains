@@ -44,6 +44,9 @@ int add_notification_requests(
   Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
+#if DEBUG_TRAIN_COORDINATOR
+     logprintf("Adding request of type %d (%s +- %d)\n\r", notifications[i].reason, notifications[i].loc.node->name, notifications[i].loc.offset);
+#endif /* DEBUG_TRAIN_COORDINATOR */
     Assert(notifications[i].reason != LOCATION_ANY);
     if (j >= MAX_LOCATIONS_TO_OBSERVE) {
       return TOO_MANY_NOTIFICATION_REQUESTS;
