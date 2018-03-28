@@ -2,6 +2,23 @@
 
 #define FIND_LIMIT 5
 
+void set_turnout_permanently(track_node nodes[TRACK_MAX], unsigned int turnout, turnout_state state) {
+  track_node *node = nodes + 80 + 2 * turnout_num_to_map_offset(turnout);
+  Assert(node->type == NODE_BRANCH);
+
+  switch (state) {
+    case TURNOUT_STRAIGHT:
+      tmemcpy(&node->edge[DIR_CURVED], &node->edge[DIR_STRAIGHT], sizeof(track_edge));
+      break;
+    case TURNOUT_CURVED:
+      tmemcpy(&node->edge[DIR_STRAIGHT], &node->edge[DIR_CURVED], sizeof(track_edge));
+      break;
+    default:
+      logprintf("Unknown turnout state %d in set_turnout_permanently\n\r", state);
+      Assert(0);
+  }
+}
+
 void init_track(track_state *global_track) {
   turnout_state *turnouts = global_track->turnouts;
 
@@ -11,7 +28,12 @@ void init_track(track_state *global_track) {
 #endif /* TESTING */
 
   init_tracka(global_track->tracka);
+
   init_trackb(global_track->trackb);
+  set_turnout_permanently(global_track->trackb, 17, TURNOUT_CURVED);
+  set_turnout_permanently(global_track->trackb, 155, TURNOUT_CURVED);
+  set_turnout_permanently(global_track->trackb, 156, TURNOUT_STRAIGHT);
+
   global_track->track = global_track->tracka;
   global_track->nodes = TRACKA_SIZE;
 
