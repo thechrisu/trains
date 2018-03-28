@@ -151,14 +151,14 @@ void track_state_controller() {
         Assert(s >= 0 && s <= 14);
         if (velocity >= DEFINITE_MAX_CM_PER_SEC * 10 * 100) {
           logprintf("Got a velocity of %d 1/100 mm/s\n\r in track state controller\n\r", velocity);
-        }
-        Assert(velocity < DEFINITE_MAX_CM_PER_SEC * 10 * 100);
-        if (track.speed_to_velocity[t][s] == 0) {
-          track.speed_to_velocity[t][s] = velocity;
         } else {
-          track.speed_to_velocity[t][s] *= 9;
-          track.speed_to_velocity[t][s] += velocity;
-          track.speed_to_velocity[t][s] /= 10;
+          if (track.speed_to_velocity[t][s] == 0) {
+            track.speed_to_velocity[t][s] = velocity;
+          } else {
+            track.speed_to_velocity[t][s] *= 9;
+            track.speed_to_velocity[t][s] += velocity;
+            track.speed_to_velocity[t][s] /= 10;
+          }
         }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
@@ -179,12 +179,14 @@ void track_state_controller() {
         uint32_t v = received.msg.usdm.value;
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
-        if (track.stopping_distance[t][s] == 0) {
-          track.stopping_distance[t][s] = v;
-        } else {
-          track.stopping_distance[t][s] *= 9;
-          track.stopping_distance[t][s] += v;
-          track.stopping_distance[t][s] /= 10;
+        if (v < 200000) {
+          if (track.stopping_distance[t][s] == 0) {
+            track.stopping_distance[t][s] = v;
+          } else {
+            track.stopping_distance[t][s] *= 9;
+            track.stopping_distance[t][s] += v;
+            track.stopping_distance[t][s] /= 10;
+          }
         }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
@@ -205,12 +207,14 @@ void track_state_controller() {
         uint32_t v = received.msg.ustm.value;
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
-        if (track.stopping_time_mus[t][s] == 0) {
-          track.stopping_time_mus[t][s] = v;
-        } else {
-          track.stopping_time_mus[t][s] *= 9;
-          track.stopping_time_mus[t][s] += v;
-          track.stopping_time_mus[t][s] /= 10;
+        if (v < 1000 * 1000 * 10) {
+          if (track.stopping_time_mus[t][s] == 0) {
+            track.stopping_time_mus[t][s] = v;
+          } else {
+            track.stopping_time_mus[t][s] *= 9;
+            track.stopping_time_mus[t][s] += v;
+            track.stopping_time_mus[t][s] /= 10;
+          }
         }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
