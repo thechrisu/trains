@@ -14,11 +14,13 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
         bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
         location_notification *n) {
-  if (c->loc.node == NULL_TRACK_NODE && last->loc.node != NULL_TRACK_NODE) {
+  if (c->loc.node == NULL_TRACK_NODE) {
     n->reason = GOT_LOST;
     return true;
   }
+
   tmemcpy(&n->loc, &c->loc, sizeof(c->loc));
+
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
         && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
@@ -29,10 +31,12 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
       return true;
     }
   }
+
   if (c->loc.node != last->loc.node) {
     n->reason = LOCATION_CHANGED;
     return true;
   }
+
   return false; // the boring case -- nothing happened!
 }
 
@@ -127,8 +131,8 @@ void coordinate_courier() {
       }*/
       has_fresh_loss = false;
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
-          tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
-          n_observed.msg.notification_response.reason = LOCATION_ANY;
+        tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
+        n_observed.msg.notification_response.reason = LOCATION_ANY;
       }
       if (first_run) {
         n_observed.msg.notification_response.reason = c.loc.node == NULL_TRACK_NODE ?

@@ -233,16 +233,9 @@ unsigned int sensor_offset(char bank, unsigned int index) {
 }
 
 track_node *find_sensor(track_state *t, unsigned int offset) {
-  char bank = sensor_bank(offset);
-  int index = sensor_index(offset);
-
-  char buf[4];
-  buf[0] = bank;
-  ui2a(index, 10, buf + 1);
-
   for (int i = 0; i < TRACK_MAX; i += 1) {
     track_node *current_node = &(t->track[i]);
-    if (tstrncmp(buf, current_node->name, tstrlen(buf) + 1) == 0) {
+    if (current_node->type == NODE_SENSOR && current_node->num == (int)offset) {
       return current_node;
     }
   }
@@ -262,6 +255,7 @@ int32_t distance_between_track_nodes_helper(track_node *start, track_node *end,
   }
 
   switch (start->type) {
+    case NODE_ENTER:
     case NODE_SENSOR:
     case NODE_MERGE: {
       int32_t new_total_distance = total_distance + start->edge[DIR_AHEAD].dist;
