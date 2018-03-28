@@ -317,6 +317,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   coordinates c;
   get_coordinates(train_coordinates_server, train, &c);
 
+  if (c.loc.node == NULL_TRACK_NODE && c.current_speed == 0) {
+    conductor_setspeed(train_tx_server, track_state_controller, train, 12);
+  }
+
   while (c.loc.node == NULL_TRACK_NODE) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_coordinates(train_coordinates_server, train, &c);
