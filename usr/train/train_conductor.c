@@ -209,14 +209,19 @@ bool process_location_notification(int clock_server, int train_tx_server,
       return false;
       break;
     case LOCATION_CHANGED: {
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("changed locations to %s +- %d\n\r", n->loc.node->name, n->loc.offset);
+#endif /* DEBUG_TRAIN_COORDINATOR */
+      *drop_existing_notifications = true;
       if (on_route(route, &n->loc)) {
-        *drop_existing_notifications = false;
         return false;
       }
-      *drop_existing_notifications = true;
       return reroute(&n->loc, end, route);
     }
     case LOCATION_TO_SWITCH:
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("switching %d to %s\n\r", n->switch_to_switch[0], n->switch_to_switch[1] ? "C" : "S");
+#endif /* DEBUG_TRAIN_COORDINATOR */
       switcher_turnout(clock_server,
                        train_tx_server,
                        n->switch_to_switch[0],
@@ -224,17 +229,14 @@ bool process_location_notification(int clock_server, int train_tx_server,
       *drop_existing_notifications = false;
       return false;
     case LOCATION_TO_STOP: {
+      *drop_existing_notifications = true;
 #if DEBUG_TRAIN_COORDINATOR
       logprintf("STAHP\n\r");
 #endif /* DEBUG_TRAIN_COORDINATOR */
-      *drop_existing_notifications = true;
-      switcher_turnouts_within_distance(clock_server, train_tx_server,
-                                        route, &n->loc, 200000);
-
       return true;
     }
     case LOCATION_ANY: {
-      *drop_existing_notifications = false;
+      *drop_existing_notifications = true;
       return reroute(&n->loc, end, route);
     }
     default:
@@ -443,7 +445,20 @@ void conductor_route_to(int clock_server, int train_tx_server,
   get_train(track_state_controller, train, &tr_data);
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
 
-  Assert(Delay(clock_server, 1 + 30 * tr_data.should_speed) == 0);
+  coordinates c;
+  get_coordinates(train_coordinates_server, train, &c);
+  location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
+
+  track_node *route[MAX_ROUTE_LENGTH];
+  get_route(&c.loc, &end, route);
+
+  int n_switched = num_turnouts_within_distance(track_state_controller, route, &c.loc, 200000);
+  switch_turnouts_within_distance(clock_server, train_tx_server, track_state_controller,
+                                  route, &c.loc, 200000);
+
+  int total_delay = 30 * tr_data.should_speed - n_switched * 150;
+  if (tr_data.should_speed == 0 || total_delay <= 0) return;
+  Assert(Delay(clock_server, total_delay) == 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,

@@ -1,6 +1,7 @@
 #include "coordinate_courier.h"
 
 #define TOO_MANY_NOTIFICATION_REQUESTS -1
+#define ABS(a) ((a) < 0 ? -(a) : (a))
 
 // returns true if they're the same node, but a's offset is >= b's offset
 bool location_is_ge(location *a, location *b) {
@@ -20,6 +21,17 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
   }
 
   tmemcpy(&n->loc, &c->loc, sizeof(c->loc));
+  int num_notifications = 0;
+  for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
+    if (is_location_set[i]
+        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
+      n->reason = locations_to_observe[i].reason;
+      tmemcpy(n->switch_to_switch, locations_to_observe[i].switch_to_switch,
+          sizeof(n->switch_to_switch));
+      num_notifications++;
+    }
+  }
+  if (num_notifications > 1)
 
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
@@ -60,7 +72,7 @@ int add_notification_requests(
     for (int k = 0; k < MAX_LOCATIONS_TO_OBSERVE; k++) {
       if (is_location_set[k]) {
         is_dup |= notifications[i].loc.node == locations_to_observe[k].loc.node
-          && notifications[i].loc.offset == locations_to_observe[k].loc.offset;
+          && ABS(notifications[i].loc.offset - locations_to_observe[k].loc.offset) < 300;
         if (locations_to_observe[k].reason == LOCATION_TO_STOP
               && notifications[i].reason == LOCATION_TO_STOP) {
           is_location_set[k] = false;
@@ -126,9 +138,9 @@ void coordinate_courier() {
                                 &n_observed.msg.notification_response);
     bool has_fresh_loss = c.loc.node == NULL_TRACK_NODE && last.loc.node != NULL_TRACK_NODE;
     if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || first_run || (got_not && (c.loc.node != NULL_TRACK_NODE || has_fresh_loss))) {
-      /*if (has_fresh_loss) { TODO return any sensor when lost
+      if (has_fresh_loss) {
         should_find_any = true;
-      }*/
+      }
       has_fresh_loss = false;
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
         tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));

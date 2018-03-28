@@ -10,18 +10,21 @@ void switcher() {
 
   Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
   Assert(sender_tid == MyParentTid());
+  int turnout_num = received.msg.switch_params.turnout_num;
+  bool curved = received.msg.switch_params.curved;
+#if DEBUG_SWITCHING
+  logprintf("will: %s to %s\n\r", turnout_num_to_node(&track, turnout_num)->name, curved ? "Curved" : "Straight");
+#endif /* DEBUG_SWITCHING */
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
   Assert(received.type == MESSAGE_SWITCH);
 
   int clock_server_tid = received.msg.switch_params.clock_server_tid;
   int tx_server_tid = received.msg.switch_params.tx_server_tid;
   int track_state_controller_tid = WhoIs("TrackStateController");
-
-  int turnout_num = received.msg.switch_params.turnout_num;
-  bool curved = received.msg.switch_params.curved;
 #if DEBUG_SWITCHING
   logprintf("will: %s to %s\n\r", turnout_num_to_node(&track, turnout_num)->name, curved ? "Curved" : "Straight");
 #endif /* DEBUG_SWITCHING */
+
   volatile int t = Time(clock_server_tid);
   Assert(t > 0);
   Assert(turnout_num_to_map_offset(turnout_num) < NUM_TURNOUTS);

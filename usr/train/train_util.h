@@ -91,6 +91,10 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
 int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
                           uint32_t velocity);
 
+int num_turnouts_within_distance(int track_state_controller,
+                                 track_node *route[MAX_ROUTE_LENGTH],
+                                 location *loc,
+                                 int distance);
 /**
  * Given a point in a route, switches all turnouts on the route within a given
  * distance of the point.

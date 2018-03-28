@@ -116,7 +116,7 @@ void switcher_turnout(int clock_server_tid, int train_tx_server_tid,
   send.msg.switch_params.tx_server_tid = train_tx_server_tid;
   send.msg.switch_params.turnout_num = turnout_num;
   send.msg.switch_params.curved = curved;
-  int switcher_tid = Create(MyPriority(), &switcher);
+  int switcher_tid = Create(MyPriority() + 2, &switcher);
   Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
