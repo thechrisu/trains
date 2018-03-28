@@ -11,6 +11,30 @@ bool location_is_ge(location *a, location *b) {
   return a->node == b->node && a->offset >= b->offset;
 }
 
+/**
+ * Helper function, useful to diagnose problems arising from a starved notification.
+ * (So far, we haven't had any problems tho)
+ *
+ * @Param locations_to_observe             Possible notification slows.
+ * @param is_location_set                  Map to valid notification slots.
+ * @param c                                Our location + speed.
+ */
+void print_num_triggerable_notifications(
+          location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
+          bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
+          coordinates *c) {
+  int n_notifications = 0;
+  for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
+    if (is_location_set[i]
+        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
+      n_notifications += 1;
+    }
+  }
+  if (n_notifications > 1) {
+    logprintf("Notifications: %d\n\r", n_notifications);
+  }
+}
+
 bool coordinates_to_notification(coordinates *c, coordinates *last,
         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
         bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
