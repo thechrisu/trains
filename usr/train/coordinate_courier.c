@@ -74,7 +74,7 @@ int add_notification_requests(
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
 #if DEBUG_TRAIN_COORDINATOR
-    logprintf("Adding request of type %d (%s +- %d)\n\r", notifications[i].reason, notifications[i].loc.node->name, notifications[i].loc.offset);
+    // logprintf("Adding request of type %d (%s +- %d)\n\r", notifications[i].reason, notifications[i].loc.node->name, notifications[i].loc.offset);
 #endif /* DEBUG_TRAIN_COORDINATOR */
     Assert(notifications[i].reason != LOCATION_ANY);
     if (j >= MAX_LOCATIONS_TO_OBSERVE) {
@@ -158,6 +158,7 @@ void coordinate_courier() {
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
         tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
         n_observed.msg.notification_response.reason = LOCATION_ANY;
+        should_find_any = false;
       }
       if (first_run) {
         n_observed.msg.notification_response.reason = c.loc.node == NULL_TRACK_NODE ?
