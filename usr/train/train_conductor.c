@@ -193,13 +193,6 @@ bool process_location_notification(int clock_server, int train_tx_server,
                                    track_node *route[MAX_ROUTE_LENGTH],
                                    location *end,
                                    bool *drop_existing_notifications,
-                                   bool *got_lost);
-
-bool process_location_notification(int clock_server, int train_tx_server,
-                                   location_notification *n,
-                                   track_node *route[MAX_ROUTE_LENGTH],
-                                   location *end,
-                                   bool *drop_existing_notifications,
                                    bool *got_lost) {
   *got_lost = false;
   switch (n->reason) {
