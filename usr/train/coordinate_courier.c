@@ -21,17 +21,6 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
   }
 
   tmemcpy(&n->loc, &c->loc, sizeof(c->loc));
-  int num_notifications = 0;
-  for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
-    if (is_location_set[i]
-        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
-      n->reason = locations_to_observe[i].reason;
-      tmemcpy(n->switch_to_switch, locations_to_observe[i].switch_to_switch,
-          sizeof(n->switch_to_switch));
-      num_notifications++;
-    }
-  }
-  if (num_notifications > 1)
 
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
