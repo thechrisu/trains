@@ -451,7 +451,7 @@ void conductor_route_to(int clock_server, int train_tx_server,
   switch_turnouts_within_distance(clock_server, train_tx_server, track_state_controller,
                                   route, &c.loc, 200000);
 
-  int total_delay = 30 * tr_data.should_speed - n_switched * 150;
+  int total_delay = 30 * tr_data.should_speed - n_switched * 15;
   if (tr_data.should_speed == 0 || total_delay <= 0) return;
   Assert(Delay(clock_server, total_delay) == 0);
 }
