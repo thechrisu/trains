@@ -18,7 +18,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
   search_node_queue q;
   search_node_queue_init(&q);
 
-  for (int i = 0; i < TRACK_MAX; i += 1) {
+  for (int i = 0; i < t->nodes; i += 1) {
     search_node node;
     track_node *t_node = &(t->track[i]);
     node.node = t_node;
@@ -27,7 +27,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
     search_node_queue_enqueue(&q, &node);
   }
 
-  search_node dequeued_nodes[TRACK_MAX];
+  search_node dequeued_nodes[t->nodes];
   int i = 0;
   while (search_node_queue_peek(&q) != NULL_SEARCH_NODE) {
     search_node *current = &dequeued_nodes[i];
@@ -57,7 +57,7 @@ bool plan_route(track_state *t, location *start, location *end, track_node *rout
   }
 
   search_node *end_node_after_search = NULL_SEARCH_NODE;
-  for (int i = 0; i < TRACK_MAX; i += 1) {
+  for (int i = 0; i < t->nodes; i += 1) {
     search_node *n = &dequeued_nodes[i];
     if (n->node == end->node) {
       end_node_after_search = n;
