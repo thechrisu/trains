@@ -297,7 +297,7 @@ void set_new_triggers(int coord_courier,
   Assert(Reply(coord_courier, &next_req, sizeof(next_req)) == 0);
 }
 
-int route_to_within_stopping_distance(int clock_server, int train_tx_server,
+void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
                                        int train, int sensor_offset, int goal_offset) {
   location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
@@ -347,7 +347,7 @@ int route_to_within_stopping_distance(int clock_server, int train_tx_server,
     if (route_result < 0) {
       logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
                 c.loc.node->name, end.node->name);
-      return 0;
+      return;
     }
   }
 
@@ -371,7 +371,7 @@ int route_to_within_stopping_distance(int clock_server, int train_tx_server,
   }
 
   if (max_feasible_speed == -1) {
-    return 0;
+    return;
   }
 
   int coord_courier = create_courier(train);
@@ -418,17 +418,6 @@ int route_to_within_stopping_distance(int clock_server, int train_tx_server,
   }
 
   Assert(Kill(coord_courier) == 0);
-
-  get_coordinates(train_coordinates_server, train, &c);
-
-  int n_switched = num_turnouts_within_distance(track_state_controller, route, &c.loc, 200000);
-  switch_turnouts_within_distance(clock_server, train_tx_server, track_state_controller,
-                                  route, &c.loc, 200000);
-  train_data tr_data;
-  get_train(track_state_controller, train, &tr_data);
-  int total_delay = 30 * tr_data.should_speed - n_switched * 150;
-  if (tr_data.should_speed == 0 || total_delay <= 0) return 0;
-  return total_delay;
 }
 
 /**
@@ -444,13 +433,27 @@ int route_to_within_stopping_distance(int clock_server, int train_tx_server,
 void conductor_route_to(int clock_server, int train_tx_server,
                         int track_state_controller, int train_coordinates_server,
                         int train, int sensor_offset, int goal_offset) {
-  int ticks_to_speed_0 = route_to_within_stopping_distance(clock_server, train_tx_server,
+  route_to_within_stopping_distance(clock_server, train_tx_server,
                                     track_state_controller, train_coordinates_server,
                                     train, sensor_offset, goal_offset);
+  train_data tr_data;
+  get_train(track_state_controller, train, &tr_data);
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
 
-  if (ticks_to_speed_0 == 0) return;
-  Assert(Delay(clock_server, ticks_to_speed_0) == 0);
+  coordinates c;
+  get_coordinates(train_coordinates_server, train, &c);
+  location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
+
+  track_node *route[MAX_ROUTE_LENGTH];
+  get_route(&c.loc, &end, route);
+
+  int n_switched = num_turnouts_within_distance(track_state_controller, route, &c.loc, 200000);
+  switch_turnouts_within_distance(clock_server, train_tx_server, track_state_controller,
+                                  route, &c.loc, 200000);
+
+  int total_delay = 30 * tr_data.should_speed - n_switched * 150;
+  if (tr_data.should_speed == 0 || total_delay <= 0) return;
+  Assert(Delay(clock_server, total_delay) == 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,
