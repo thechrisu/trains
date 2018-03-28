@@ -13,6 +13,7 @@ void init_track(track_state *global_track) {
   init_tracka(global_track->tracka);
   init_trackb(global_track->trackb);
   global_track->track = global_track->tracka;
+  global_track->nodes = TRACKA_SIZE;
 
 #ifndef TESTING
 #pragma GCC diagnostic pop
@@ -228,7 +229,7 @@ unsigned int sensor_offset(char bank, unsigned int index) {
 }
 
 track_node *find_sensor(track_state *t, unsigned int offset) {
-  for (int i = 0; i < TRACK_MAX; i += 1) {
+  for (int i = 0; i < t->nodes; i += 1) {
     track_node *current_node = &(t->track[i]);
     if (current_node->type == NODE_SENSOR && current_node->num == (int)offset) {
       return current_node;
@@ -462,7 +463,7 @@ int node_index_in_track_state(track_state *t, track_node *n) {
 }
 
 track_node *find_node_by_name(track_state *t, char *name) {
-  for (int i = 0; i < TRACK_MAX; i += 1) {
+  for (int i = 0; i < t->nodes; i += 1) {
     track_node *node = &t->track[i];
     if (tstrcmp((char *)node->name, name)) {
       return node;
