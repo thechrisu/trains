@@ -91,6 +91,16 @@ void poll_until_at_dist(int clock_server, int terminal_tx_server,
 int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
                           uint32_t velocity);
 
+/**
+ * Returns the number of to-switchable turnouts in the given distance
+ * to make the route given our current location.
+ *
+ * @param track_state_controller          Tid of the track state controller.
+ * @param route                           Route we're on.
+ * @param loc                             Current location.
+ * @param distance                        Distance (1/100th mm).
+ * @return Number of switches (>= 0)
+ */
 int num_turnouts_within_distance(int track_state_controller,
                                  track_node *route[MAX_ROUTE_LENGTH],
                                  location *loc,
