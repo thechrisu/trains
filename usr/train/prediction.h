@@ -53,4 +53,9 @@ void synthesize_turnout_states_from_route(track_node *route[MAX_ROUTE_LENGTH],
 void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
                         coordinates *send_stop_here, uint32_t train_speeds[15],
                         uint32_t train_distances[15]);
+
+void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
+                        coordinates *send_switch_here, int *next_turnout_num,
+                        bool *next_is_curved, bool *found, int distance,
+                        int max_lookahead);
 #endif /* TRAIN_PREDICTION_H */

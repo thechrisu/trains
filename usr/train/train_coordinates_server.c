@@ -123,8 +123,11 @@ void train_coordinates_server() {
         if (c->loc.node != NULL_TRACK_NODE &&
             c->loc.node->type == NODE_SENSOR &&
             c->loc.node->num != (int)last_sensor[train]) {
+          if (c->loc.node != find_sensor(&track, last_sensor[train])->reverse) {
+            sensors_passed[train] += 1;
+          }
+
           last_sensor[train] = c->loc.node->num;
-          sensors_passed[train] += 1;
 
           if (sensors_passed[train] > MAX_SENSORS_PASSED) {
             c->loc.node = NULL_TRACK_NODE;

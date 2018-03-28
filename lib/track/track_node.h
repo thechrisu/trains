@@ -10,6 +10,8 @@
 
 // The track initialization functions expect an array of this size.
 #define TRACK_MAX 144
+#define TRACKA_SIZE 144
+#define TRACKB_SIZE 140
 #define NUM_TURNOUTS 22
 
 #define PICKUP_LENGTH 5 * 10 * 100
@@ -70,9 +72,11 @@ typedef struct {
   track_node *track;
   track_node tracka[TRACK_MAX];
   track_node trackb[TRACK_MAX];
+  int nodes;
   uint32_t speed_to_velocity[81][15]; // 1 here is 1/100 mm/s
   uint32_t stopping_distance[81][15]; // 1 here is 1/100 mm
   uint32_t stopping_time_mus[81][15]; // 1 here is 1 microsecond
+  volatile int last_switch_time[NUM_TURNOUTS];
 } track_state;
 
 /**

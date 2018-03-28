@@ -98,9 +98,22 @@ void test_coordinates_to_notification_complex() {
   Assert(!coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
 }
 
+void test_add_then_trigger() {
+  int courier_tid = coord_courier_test_setup();
+  int receiver_tid;
+  message received;
+  Assert(Receive(&receiver_tid, &received, sizeof(received)) == sizeof(received));
+  Assert(receiver_tid == courier_tid);
+
+  Assert(received.msg.notification_response.reason == GOT_LOST);
+  Assert(received.msg.notification_response.loc.node == NULL_TRACK_NODE);
+  coord_courier_test_teardown(courier_tid);
+}
+
 void test_coord_courier() {
   test_coord_courier_not_located_yet();
   test_coordinates_to_notification_basic();
   test_coordinates_to_notification_complex();
+  test_add_then_trigger();
   bwprintf("Success.\n\r");
 }

@@ -92,6 +92,20 @@ int dist_from_last_sensor(int clock_server, int ticks_at_last_sensor,
                           uint32_t velocity);
 
 /**
+ * Returns the number of to-switchable turnouts in the given distance
+ * to make the route given our current location.
+ *
+ * @param track_state_controller          Tid of the track state controller.
+ * @param route                           Route we're on.
+ * @param loc                             Current location.
+ * @param distance                        Distance (1/100th mm).
+ * @return Number of switches (>= 0)
+ */
+int num_turnouts_within_distance(int track_state_controller,
+                                 track_node *route[MAX_ROUTE_LENGTH],
+                                 location *loc,
+                                 int distance);
+/**
  * Given a point in a route, switches all turnouts on the route within a given
  * distance of the point.
  *
@@ -107,6 +121,19 @@ void switch_turnouts_within_distance(int clock_server, int train_tx_server,
                                      track_node *route[MAX_ROUTE_LENGTH],
                                      location *loc,
                                      int distance);
+
+/**
+ * Like switch_turnouts_within_distance, but with switchers
+ * @param clock_server            Tid of the clock server.
+ * @param train_tx_server         Tid of the train tx server to send sw commands.
+ * @param route                   The route.
+ * @param loc                     Point in route after which turnouts should be switched.
+ * @param distance                Distance inside of which turnouts should be switched.
+ */
+void switcher_turnouts_within_distance(int clock_server, int train_tx_server,
+                                       track_node *route[MAX_ROUTE_LENGTH],
+                                       location *loc,
+                                       int distance);
 
 /**
  * Estimates the stopping distance from a stopping distance model.

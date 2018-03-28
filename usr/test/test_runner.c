@@ -327,6 +327,16 @@ void test_runner() {
       .prio = 5
     },
     {
+      .name = "test_next_switch_prediction",
+      .code = &test_next_switch_prediction,
+      .prio = 5
+    },
+    {
+      .name = "test_conductor",
+      .code = &test_conductor,
+      .prio = 5
+    },
+    {
       .name = "stop_loc_prediction",
       .code = &test_stopping_location_prediction,
       .prio = 5

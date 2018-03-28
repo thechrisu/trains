@@ -11,8 +11,9 @@ void init_track(track_state *global_track) {
 #endif /* TESTING */
 
   init_tracka(global_track->tracka);
-  init_tracka(global_track->trackb);
+  init_trackb(global_track->trackb);
   global_track->track = global_track->tracka;
+  global_track->nodes = TRACKA_SIZE;
 
 #ifndef TESTING
 #pragma GCC diagnostic pop
@@ -20,6 +21,7 @@ void init_track(track_state *global_track) {
 
   for(int i = 0; i < NUM_TURNOUTS; i++) {
     turnouts[i] = TURNOUT_UNKNOWN; // offset 18-21 map to 153-156
+    global_track->last_switch_time[i] = 0;
   }
   for(unsigned int i = 0; i < 81; i++) {
     global_track->train[i].should_speed = 0;
@@ -199,6 +201,10 @@ unsigned int map_offset_to_turnout(unsigned int offset) {
   return offset + (153 - 18);
 }
 
+track_node *turnout_num_to_node(track_state *t, unsigned int num) {
+  return t->track + 80 + 2 * turnout_num_to_map_offset(num);
+}
+
 bool is_valid_turnout_num(unsigned int turnout) {
   return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
 }
@@ -228,7 +234,7 @@ unsigned int sensor_offset(char bank, unsigned int index) {
 }
 
 track_node *find_sensor(track_state *t, unsigned int offset) {
-  for (int i = 0; i < TRACK_MAX; i += 1) {
+  for (int i = 0; i < t->nodes; i += 1) {
     track_node *current_node = &(t->track[i]);
     if (current_node->type == NODE_SENSOR && current_node->num == (int)offset) {
       return current_node;
@@ -462,7 +468,7 @@ int node_index_in_track_state(track_state *t, track_node *n) {
 }
 
 track_node *find_node_by_name(track_state *t, char *name) {
-  for (int i = 0; i < TRACK_MAX; i += 1) {
+  for (int i = 0; i < t->nodes; i += 1) {
     track_node *node = &t->track[i];
     if (tstrcmp((char *)node->name, name)) {
       return node;

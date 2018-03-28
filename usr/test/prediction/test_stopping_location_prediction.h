@@ -6,6 +6,7 @@
 #define TEST_STOPPING_LOCATION_PREDICTION_H
 
 #include "bwio.h"
+#include "myio.h"
 
 void test_stopping_location_prediction();
 

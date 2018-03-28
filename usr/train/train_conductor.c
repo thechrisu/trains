@@ -3,7 +3,9 @@
 #define CONDUCTOR_STOP_CHECK_INTERVAL 2
 #define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
 
-#define CUTOFF_DISTANCE 250000
+#define SWITCH_LOOKAHEAD_NODES 10
+
+#define SWITCH_DIST 25000
 
 /**
  * get_max_feasible_speed artificially increases the stopping distance by
@@ -156,16 +158,11 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
 /**
  * Prepare to travel between the given locations. Tell the caller to exit
  * if it isn't possible to reroute.
- * @param clock_server                Clock server tid.
- * @param train_tx_server             Train tx server tid.
- * @param track_state_controller      Track state controller tid.
  * @param start                       Current location.
  * @param end                         Goal of our route.
  * @param route                       Place to put the new route.
  */
-bool reroute(int clock_server, int train_tx_server,
-             int track_state_controller,
-             location *start, location *end,
+bool reroute(location *start, location *end,
              track_node *route[MAX_ROUTE_LENGTH]) {
   int route_result = get_route(start, end, route);
   if (route_result < 0) {
@@ -173,10 +170,6 @@ bool reroute(int clock_server, int train_tx_server,
               start->node->name, end->node->name);
     return true;
   }
-
-  // TODO do incremental switching
-  switch_turnouts_within_distance(clock_server, train_tx_server,
-        track_state_controller, route, start, route_length(route));
 
   return false;
 }
@@ -187,7 +180,6 @@ bool reroute(int clock_server, int train_tx_server,
  *
  * @param clock_server                Clock server tid.
  * @param train_tx_server             Train tx server tid.
- * @param track_state_controller      Track state controller tid.
  * @param n                           Notification we received.
  * @param route                       Route we're on (May change).
  * @param end                         Goal of our route (necessary for rerouting).
@@ -197,7 +189,6 @@ bool reroute(int clock_server, int train_tx_server,
  * @return Whether we should stop the train.
  */
 bool process_location_notification(int clock_server, int train_tx_server,
-                                   int track_state_controller,
                                    location_notification *n,
                                    track_node *route[MAX_ROUTE_LENGTH],
                                    location *end,
@@ -211,29 +202,38 @@ bool process_location_notification(int clock_server, int train_tx_server,
       return false;
       break;
     case LOCATION_CHANGED: {
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("changed locations to %s +- %d\n\r", n->loc.node->name, n->loc.offset);
+#endif /* DEBUG_TRAIN_COORDINATOR */
+      *drop_existing_notifications = true;
       if (on_route(route, &n->loc)) {
-        *drop_existing_notifications = false;
         return false;
       }
-      *drop_existing_notifications = true;
-      return reroute(clock_server, train_tx_server, track_state_controller,
-                     &n->loc, end, route);
+      return reroute(&n->loc, end, route);
     }
     case LOCATION_TO_SWITCH:
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("switching %d to %s\n\r", n->switch_to_switch[0], n->switch_to_switch[1] ? "C" : "S");
+#endif /* DEBUG_TRAIN_COORDINATOR */
       switcher_turnout(clock_server,
                        train_tx_server,
                        n->switch_to_switch[0],
                        n->switch_to_switch[1]);
       *drop_existing_notifications = false;
       return false;
-    case LOCATION_TO_STOP:
+    case LOCATION_TO_STOP: {
       *drop_existing_notifications = true;
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("STAHP\n\r");
+#endif /* DEBUG_TRAIN_COORDINATOR */
       return true;
-    case LOCATION_ANY: {
-      *drop_existing_notifications = false;
-      return reroute(clock_server, train_tx_server, track_state_controller,
-                     &n->loc, end, route);
     }
+    case LOCATION_ANY:
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("Got LOCATION_ANY to %s +- %d\n\r", n->loc.node->name, n->loc.offset);
+#endif /* DEBUG_TRAIN_COORDINATOR */
+      *drop_existing_notifications = true;
+      return reroute(&n->loc, end, route);
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
       Assert(0 && "Unexpected notification type");
@@ -248,27 +248,33 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
   *n_requests = 0;
-
   if (got_lost) {
     return;
   }
-
-  /* int next_switch_num;
-  bool next_switch_is_curved;
-  location target;
-  get_next_turnout_in_route(track_state_controller, route, &c.loc,
-                            &next_switch_num, &next_switch_is_curved,
-                            &next_switch_node, CUTOFF_DISTANCE);
-  if (next_switch_node != NULL_TRACK_NODE) {
-    // TODO adjust location by stopping distance and switch padding etc
-    tmemcpy(&target, &locations_to_observe[*n_requests].loc, sizeof(target));
-    locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
-    locations_to_observe[*n_requests].switch_to_switch[0] = next_switch_num;
-    locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
-    *n_requests = *n_requests + 1;
-  }
-  */
-
+  bool has_next_turnout;
+  coordinates f;
+  tmemcpy(&f, c, sizeof(f));
+  do {
+    has_next_turnout = false;
+    bool next_switch_is_curved;
+    int next_turnout_num;
+    coordinates where_to_switch;
+    predict_next_switch(&f, route, &where_to_switch, &next_turnout_num,
+        &next_switch_is_curved, &has_next_turnout, SWITCH_DIST, SWITCH_LOOKAHEAD_NODES);
+    if (has_next_turnout) {
+      f.loc.node = turnout_num_to_node(&track, next_turnout_num);
+      f.loc.offset = 0;
+      tmemcpy(&locations_to_observe[*n_requests].loc, &where_to_switch, sizeof(where_to_switch));
+      locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
+      locations_to_observe[*n_requests].switch_to_switch[0] = next_turnout_num;
+      locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
+      *n_requests = *n_requests + 1;
+      /*logprintf("Send switch here: %s +- %d (switch: %d, pos; %s)\n\r",
+          where_to_switch.loc.node->name, where_to_switch.loc.offset,
+          next_turnout_num, next_switch_is_curved ? "curved" : "straight");*/
+    }
+    f.loc.offset++;
+  } while (has_next_turnout && *n_requests < 5);
   coordinates target;
   predict_train_stop(c, route, &target, train_speeds, train_distances);
   tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
@@ -311,6 +317,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   coordinates c;
   get_coordinates(train_coordinates_server, train, &c);
 
+  if (c.loc.node == NULL_TRACK_NODE && c.current_speed == 0) {
+    conductor_setspeed(train_tx_server, track_state_controller, train, 12);
+  }
+
   while (c.loc.node == NULL_TRACK_NODE) {
     Delay(clock_server, CONDUCTOR_SENSOR_CHECK_INTERVAL);
     get_coordinates(train_coordinates_server, train, &c);
@@ -344,10 +354,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
       return;
     }
   }
-
-  // TODO do incremental switching
-  switch_turnouts_within_distance(clock_server, train_tx_server,
-                    track_state_controller, route, &c.loc, route_length(route));
 
   int dist_left = ABS(get_remaining_dist_in_route(route, &c.loc));
   int max_feasible_speed = get_max_feasible_speed(
@@ -383,6 +389,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
     Assert(Receive(&sender_tid, &received, sizeof(received)) == sizeof(received));
     Assert(sender_tid == coord_courier);
+
     Assert(Time(clock_server) - s <= 50 * 100);
 
     bool got_lost = false;
@@ -390,9 +397,9 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
     switch (received.type) {
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
+        // logprintf("Got message of type %d\n\r", received.msg.notification_response.reason);
         should_quit = process_location_notification(
                                           clock_server, train_tx_server,
-                                          track_state_controller,
                                           &received.msg.notification_response,
                                           route, &end,
                                           &drop_existing_notifications,
@@ -435,10 +442,22 @@ void conductor_route_to(int clock_server, int train_tx_server,
                                     train, sensor_offset, goal_offset);
   train_data tr_data;
   get_train(track_state_controller, train, &tr_data);
-
   conductor_setspeed(train_tx_server, track_state_controller, train, 0);
 
-  Assert(Delay(clock_server, 1 + 30 * tr_data.should_speed) == 0);
+  coordinates c;
+  get_coordinates(train_coordinates_server, train, &c);
+  location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
+
+  track_node *route[MAX_ROUTE_LENGTH];
+  get_route(&c.loc, &end, route);
+
+  int n_switched = num_turnouts_within_distance(track_state_controller, route, &c.loc, 200000);
+  switch_turnouts_within_distance(clock_server, train_tx_server, track_state_controller,
+                                  route, &c.loc, 200000);
+
+  int total_delay = 30 * tr_data.should_speed - n_switched * 15;
+  if (tr_data.should_speed == 0 || total_delay <= 0) return;
+  Assert(Delay(clock_server, total_delay) == 0);
 }
 
 void conductor_loop(int clock_server, int train_tx_server,

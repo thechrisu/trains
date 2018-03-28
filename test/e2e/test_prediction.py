@@ -8,5 +8,9 @@ class TestPrediction(unittest.TestCase):
         ret = qemu_oneshot_test('stop_loc_prediction', '', TIMEOUT)
         self.assertEqual(ret, 'Success.\n\r')
 
+    def test_next_switch(self):
+        ret = qemu_oneshot_test('test_next_switch_prediction', '', TIMEOUT, timer_interrupts_on=True)
+        self.assertEqual(ret, 'Success.\n\r')
+
 if __name__ == "__main__":
     unittest.main()

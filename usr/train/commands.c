@@ -94,6 +94,9 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   buf[0] = (char)(curved ? 0x22 : 0x21);
   buf[1] = (char)turnout_num;
   Assert(PutBytes(train_tx_server_tid, buf, 2) == 0);
+#if DEBUG_SWITCHING
+  logprintf("Sw %d to %s\n\r", turnout_num, curved ? "C" : "S");
+#endif /* DEBUG_SWITCHING */
 
   message send;
   send.type = MESSAGE_TURNOUTSWITCHED;
@@ -113,7 +116,7 @@ void switcher_turnout(int clock_server_tid, int train_tx_server_tid,
   send.msg.switch_params.tx_server_tid = train_tx_server_tid;
   send.msg.switch_params.turnout_num = turnout_num;
   send.msg.switch_params.curved = curved;
-  int switcher_tid = Create(MyPriority(), &switcher);
+  int switcher_tid = Create(MyPriority() + 2, &switcher);
   Assert(Send(switcher_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 

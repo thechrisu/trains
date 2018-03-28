@@ -1,6 +1,7 @@
 #include "coordinate_courier.h"
 
 #define TOO_MANY_NOTIFICATION_REQUESTS -1
+#define ABS(a) ((a) < 0 ? -(a) : (a))
 
 // returns true if they're the same node, but a's offset is >= b's offset
 bool location_is_ge(location *a, location *b) {
@@ -8,6 +9,30 @@ bool location_is_ge(location *a, location *b) {
     return true;
   }
   return a->node == b->node && a->offset >= b->offset;
+}
+
+/**
+ * Helper function, useful to diagnose problems arising from a starved notification.
+ * (So far, we haven't had any problems tho)
+ *
+ * @Param locations_to_observe             Possible notification slows.
+ * @param is_location_set                  Map to valid notification slots.
+ * @param c                                Our location + speed.
+ */
+void print_num_triggerable_notifications(
+          location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
+          bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
+          coordinates *c) {
+  int n_notifications = 0;
+  for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
+    if (is_location_set[i]
+        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
+      n_notifications += 1;
+    }
+  }
+  if (n_notifications > 1) {
+    logprintf("Notifications: %d\n\r", n_notifications);
+  }
 }
 
 bool coordinates_to_notification(coordinates *c, coordinates *last,
@@ -48,6 +73,9 @@ int add_notification_requests(
   Assert(n_requests <= MAX_LOCATIONS_TO_OBSERVE);
   int j = 0;
   for (int i = 0; i < n_requests; i++) {
+#if DEBUG_TRAIN_COORDINATOR
+    // logprintf("Adding request of type %d (%s +- %d)\n\r", notifications[i].reason, notifications[i].loc.node->name, notifications[i].loc.offset);
+#endif /* DEBUG_TRAIN_COORDINATOR */
     Assert(notifications[i].reason != LOCATION_ANY);
     if (j >= MAX_LOCATIONS_TO_OBSERVE) {
       return TOO_MANY_NOTIFICATION_REQUESTS;
@@ -57,7 +85,7 @@ int add_notification_requests(
     for (int k = 0; k < MAX_LOCATIONS_TO_OBSERVE; k++) {
       if (is_location_set[k]) {
         is_dup |= notifications[i].loc.node == locations_to_observe[k].loc.node
-          && notifications[i].loc.offset == locations_to_observe[k].loc.offset;
+          && ABS(notifications[i].loc.offset - locations_to_observe[k].loc.offset) < 300;
         if (locations_to_observe[k].reason == LOCATION_TO_STOP
               && notifications[i].reason == LOCATION_TO_STOP) {
           is_location_set[k] = false;
@@ -123,13 +151,14 @@ void coordinate_courier() {
                                 &n_observed.msg.notification_response);
     bool has_fresh_loss = c.loc.node == NULL_TRACK_NODE && last.loc.node != NULL_TRACK_NODE;
     if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || first_run || (got_not && (c.loc.node != NULL_TRACK_NODE || has_fresh_loss))) {
-      /*if (has_fresh_loss) { TODO return any sensor when lost
+      if (has_fresh_loss) {
         should_find_any = true;
-      }*/
+      }
       has_fresh_loss = false;
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
         tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
         n_observed.msg.notification_response.reason = LOCATION_ANY;
+        should_find_any = false;
       }
       if (first_run) {
         n_observed.msg.notification_response.reason = c.loc.node == NULL_TRACK_NODE ?

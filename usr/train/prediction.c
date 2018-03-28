@@ -1,5 +1,7 @@
 #include "prediction.h"
 
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction) {
@@ -78,4 +80,41 @@ void predict_train_stop(coordinates *c, track_node *route[MAX_ROUTE_LENGTH],
   turnout_state ideal_turnout_states[NUM_TURNOUTS];
   synthesize_turnout_states_from_route(route, ideal_turnout_states);
   location_canonicalize(ideal_turnout_states, &send_stop_here->loc, &send_stop_here->loc);
+}
+
+void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
+                        coordinates *send_switch_here, int *next_turnout_num,
+                        bool *next_is_curved, bool *found, int distance, int max_lookahead) {
+  tmemcpy(send_switch_here, co, sizeof(*co));
+  int remaining = 0;
+  track_node **c;
+  *found = false;
+  bool passed = false;
+  int lookahead = 0;
+  for (c = route; *(c + 2) != NULL_TRACK_NODE && lookahead < max_lookahead; c++) {
+    if ((*c) == co->loc.node) {
+      passed = true;
+    }
+    if (passed) {
+      lookahead++;
+    }
+    if ((*c)->type == NODE_BRANCH) {
+      remaining += (*c)->edge[STRAIGHT(*c) == (*(c + 1)) ? DIR_STRAIGHT : DIR_CURVED].dist * 100;
+    } else {
+      remaining += (*c)->edge[DIR_AHEAD].dist * 100;
+    }
+    if (passed && (*(c + 1))->type == NODE_BRANCH) {
+      *next_turnout_num = (*(c + 1))->num;
+      *next_is_curved = (*(c + 2)) == CURVED(*(c + 1));
+      *found = true;
+      break;
+    }
+  }
+  if (!(*found)) return;
+
+  send_switch_here->loc.node = (*route);
+  send_switch_here->loc.offset = max(0, remaining - distance);
+  turnout_state ideal_turnout_states[NUM_TURNOUTS];
+  synthesize_turnout_states_from_route(route, ideal_turnout_states);
+  location_canonicalize(ideal_turnout_states, &send_switch_here->loc, &send_switch_here->loc);
 }

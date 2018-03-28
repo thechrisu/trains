@@ -245,8 +245,10 @@ void command_dispatcher_server() {
               case SET_TRACK:
                 if (received.msg.cmd.data[1] == 0) {
                   track.track = track.tracka;
+                  track.nodes = TRACKA_SIZE;
                 } else {
                   track.track = track.trackb;
+                  track.nodes = TRACKB_SIZE;
                 }
                 break;
               default:
