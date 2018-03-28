@@ -11,7 +11,7 @@ void init_track(track_state *global_track) {
 #endif /* TESTING */
 
   init_tracka(global_track->tracka);
-  init_tracka(global_track->trackb);
+  init_trackb(global_track->trackb);
   global_track->track = global_track->tracka;
 
 #ifndef TESTING
