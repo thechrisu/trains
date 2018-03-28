@@ -228,10 +228,12 @@ bool process_location_notification(int clock_server, int train_tx_server,
 #endif /* DEBUG_TRAIN_COORDINATOR */
       return true;
     }
-    case LOCATION_ANY: {
+    case LOCATION_ANY:
+#if DEBUG_TRAIN_COORDINATOR
+      logprintf("Got LOCATION_ANY to %s +- %d\n\r", n->loc.node->name, n->loc.offset);
+#endif /* DEBUG_TRAIN_COORDINATOR */
       *drop_existing_notifications = true;
       return reroute(&n->loc, end, route);
-    }
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
       Assert(0 && "Unexpected notification type");
