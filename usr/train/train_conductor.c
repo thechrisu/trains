@@ -245,10 +245,10 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
                         bool got_lost,
                         location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                         int *n_requests) {
+  *n_requests = 0;
   if (got_lost) {
     return;
   }
-  *n_requests = 0;
   bool has_next_turnout;
   coordinates f;
   tmemcpy(&f, c, sizeof(f));
