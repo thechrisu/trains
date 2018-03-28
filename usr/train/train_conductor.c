@@ -414,6 +414,9 @@ int route_to_within_stopping_distance(int clock_server, int train_tx_server,
         break;
     }
   }
+
+  Assert(Kill(coord_courier) == 0);
+
   get_coordinates(train_coordinates_server, train, &c);
 
   int n_switched = num_turnouts_within_distance(track_state_controller, route, &c.loc, 200000);
@@ -424,8 +427,6 @@ int route_to_within_stopping_distance(int clock_server, int train_tx_server,
   int total_delay = 30 * tr_data.should_speed - n_switched * 150;
   if (tr_data.should_speed == 0 || total_delay <= 0) return 0;
   return total_delay;
-
-  Assert(Kill(coord_courier) == 0);
 }
 
 /**
