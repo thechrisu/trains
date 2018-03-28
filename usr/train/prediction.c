@@ -91,9 +91,12 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
   *found = false;
   bool passed = false;
   int lookahead = 0;
-  for (c = route; *(c + 1) != NULL_TRACK_NODE && lookahead++ < max_lookahead; c++) {
+  for (c = route; *(c + 1) != NULL_TRACK_NODE && lookahead < max_lookahead; c++) {
     if ((*c) == co->loc.node) {
       passed = true;
+    }
+    if (passed) {
+      lookahead++;
     }
     if ((*c)->type == NODE_BRANCH) {
       remaining += (*c)->edge[STRAIGHT(*c) == (*(c + 1)) ? DIR_STRAIGHT : DIR_CURVED].dist * 100;

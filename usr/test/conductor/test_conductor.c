@@ -44,16 +44,21 @@ void test_craft_triggers() {
       stopping_distance_model.msg.train_distances, route, false, locs, &n_reqs);
   Assert(n_reqs > 0);
   Assert(locs[n_reqs - 1].reason == LOCATION_TO_STOP);
-  location_notification exp[3] = {
+  location_notification exp[] = {
     { .reason = 2, .loc = { .node = find_node_by_name(&track, "B15"), .offset = find_node_by_name(&track, "B15")->edge[DIR_AHEAD].dist * 100}},
     { .reason = 2, .loc = { .node = find_node_by_name(&track, "BR14"), .offset = find_node_by_name(&track, "BR14")->edge[DIR_CURVED].dist  * 100}},
+    { .reason = 2, .loc = { .node = find_node_by_name(&track, "D6"), .offset = find_node_by_name(&track, "D6")->edge[DIR_AHEAD].dist * 100}},
+    { .reason = 2, .loc = { .node = find_node_by_name(&track, "D9"), .offset = find_node_by_name(&track, "D9")->edge[DIR_AHEAD].dist * 100}},
     { .reason = 3, .loc = { .node = find_node_by_name(&track, "BR8"), .offset = find_node_by_name(&track, "BR8")->edge[DIR_AHEAD].dist * 100}},
   };
   for (int i = 0; i < n_reqs; i++) {
+    logprintf("%s +- %d (%d)\n\r", locs[i].loc.node->name, locs[i].loc.offset, locs[i].reason);
     Assert(locs[i].reason == exp[i].reason);
     Assert(locs[i].loc.node == exp[i].loc.node);
     Assert(locs[i].loc.offset < exp[i].loc.offset);
   }
+  Assert(locs[n_reqs - 1].reason == LOCATION_TO_STOP);
+
   conductor_test_teardown();
 }
 
