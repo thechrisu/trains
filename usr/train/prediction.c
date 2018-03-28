@@ -91,7 +91,7 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
   *found = false;
   bool passed = false;
   int lookahead = 0;
-  for (c = route; *(c + 1) != NULL_TRACK_NODE && lookahead < max_lookahead; c++) {
+  for (c = route; *(c + 2) != NULL_TRACK_NODE && lookahead < max_lookahead; c++) {
     if ((*c) == co->loc.node) {
       passed = true;
     }
