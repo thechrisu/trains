@@ -98,6 +98,16 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   logprintf("Sw %d to %s\n\r", turnout_num, curved ? "C" : "S");
 #endif /* DEBUG_SWITCHING */
 
+  if (turnout_num >= 153 && turnout_num <= 156 && curved) {
+    int paired_turnout = turnout_num ^ 0x1;
+    buf[0] = (char)0x21;
+    buf[1] = (char)paired_turnout;
+    Assert(PutBytes(train_tx_server_tid, buf, 2) == 0);
+#if DEBUG_SWITCHING
+    logprintf("Sw paired %d to straight\n\r", paired_turnout);
+#endif /* DEBUG_SWITCHING */
+  }
+
   message send;
   send.type = MESSAGE_TURNOUTSWITCHED;
   send.msg.turnout_switched_params.turnout_num = turnout_num;
