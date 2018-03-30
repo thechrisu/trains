@@ -98,6 +98,12 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   logprintf("Sw %d to %s\n\r", turnout_num, curved ? "C" : "S");
 #endif /* DEBUG_SWITCHING */
 
+  message send;
+  send.type = MESSAGE_TURNOUTSWITCHED;
+  send.msg.turnout_switched_params.turnout_num = turnout_num;
+  send.msg.turnout_switched_params.state = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
+  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+
   if (turnout_num >= 153 && turnout_num <= 156 && curved) {
     int paired_turnout = turnout_num ^ 0x1;
     buf[0] = (char)0x21;
@@ -106,13 +112,11 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
 #if DEBUG_SWITCHING
     logprintf("Sw paired %d to straight\n\r", paired_turnout);
 #endif /* DEBUG_SWITCHING */
-  }
 
-  message send;
-  send.type = MESSAGE_TURNOUTSWITCHED;
-  send.msg.turnout_switched_params.turnout_num = turnout_num;
-  send.msg.turnout_switched_params.state = curved ? TURNOUT_CURVED : TURNOUT_STRAIGHT;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+    send.msg.turnout_switched_params.turnout_num = paired_turnout;
+    send.msg.turnout_switched_params.state = TURNOUT_STRAIGHT;
+    Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+  }
 
   Delay(clock_server_tid, 15);
   Putc(train_tx_server_tid, TRAIN, (char)0x20);
