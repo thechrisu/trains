@@ -76,6 +76,12 @@ void user_command_print(int server_tid, user_command *cmd) {
         Assert(Printf(server_tid, "\033[%d;%dH%s",
                       CMD_LINE, offset,
                       HIDE_CURSOR_TO_EOL) == 0);
+      } else if (cmd->data[0] == SET_DIRECTION) {
+        Assert(Printf(server_tid, "%s%s%sSET %s %d %s          %s%s",
+                      CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                      get_parameter_name(cmd->data[0]), cmd->data[1],
+                      (bool)cmd->data[2] ? "FWD" : "REV",
+                      HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       } else {
         Assert(Printf(server_tid, "%s%s%sSET %s %d          %s%s",
                       CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
