@@ -23,6 +23,11 @@ bool is_auto_cmd(user_command *cmd) {
          cmd->type == USER_CMD_LOOP;
 }
 
+/**
+ * Prints out the present train groupings
+ *
+ * @param terminal_tx_server
+ */
 void print_groups(int terminal_tx_server) {
   for (int i = 0; i < MAX_GROUPS; i++) {
     if (i < num_groups) {
@@ -157,6 +162,13 @@ void conductor_ready(conductor_data *c) {
   }
 }
 
+/**
+ * Creates a train conductor task and tells it what train to supervise.
+ *
+ * @param t                                  Train
+ * @param my_priority                        Priority of the command_dispatcher
+ * @param conductors                         Array to put initialized conductor info into.
+ */
 void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
   conductors[t].t = t;
 
@@ -177,6 +189,12 @@ void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
   conductors[t].t2_tid = 0;
 }
 
+/**
+ * Much better than 'Killing' a task:
+ * We tell the task to kill itself, and clean up after itself while doing so.
+ *
+ * @param tid                      Task to sunset.
+ */
 void sunset_tid(int tid) {
   message sunset;
   sunset.type = MESSAGE_SUNSET;

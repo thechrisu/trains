@@ -52,11 +52,6 @@ void multi_train_conductor() {
     Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
     switch (received.type) {
       case MESSAGE_SUNSET:
-        logprintf("RECEIVED SUNSET\n\r");
-        logprintf("RECEIVED SUNSET\n\r");
-        logprintf("RECEIVED SUNSET\n\r");
-        logprintf("RECEIVED SUNSET\n\r");
-        logprintf("RECEIVED SUNSET\n\r");
         is_done = true;
         break;
       case MESSAGE_USER:
