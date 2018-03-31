@@ -99,6 +99,14 @@ void user_command_print(int server_tid, user_command *cmd) {
                     CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
                     cmd->data[0], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_GROUP:
+      Assert(Printf(server_tid, "%s%s%sGROUP %s %d %d %d %d %d %d         %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    cmd->data[1],
+                    cmd->data[3], cmd->data[4], cmd->data[5],
+                    cmd->data[6], cmd->data[7], cmd->data[8],
+                    HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
@@ -225,6 +233,47 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             cmd->type = USER_CMD_LOOP;
             cmd->data[0] = address;
             cmd->data[1] = speed;
+          }
+        }
+      }
+    } else if (string_starts_with(ibuf->data, "group ", ibuf->elems)) {
+      char group_name[3];
+      unsigned int buffer_index = 0;
+      int j = 0;
+      for (buffer_index = 6; buffer_index < 6 + MAX_GROUP_NAME_LEN
+          && buffer_index < ibuf->elems
+          && ibuf->data[buffer_index] != ' '; buffer_index++, j++) {
+        group_name[j] = ibuf->data[buffer_index];
+      }
+      if (buffer_index != ibuf->elems && j != 0) {
+        cmd->data[0] = j;
+        tmemcpy(cmd->data + 1, group_name, j); // will copy things into the first int
+        int num_trains = 0;
+        for (int i = 0; buffer_index < ibuf->elems && i < 8
+            && num_trains < MAX_GROUP_MEMBERS; i += 1) {
+          int n = is_valid_number(ibuf, buffer_index);
+          if (n >= 0) {
+            cmd->type = USER_CMD_GROUP;
+            cmd->data[i + 3] = parse_number(ibuf, buffer_index);
+            buffer_index = (unsigned int)n;
+            num_trains += 1;
+          } else {
+            if (num_trains > 0) {
+              cmd->data[2] = num_trains;
+            }
+            for (int i = cmd->data[2]; i < MAX_GROUP_MEMBERS + 2 + 1; i++) {
+              cmd->data[i] = -1;
+            }
+            int mask = 0;
+            for (int i = 0; i < MAX_GROUP_NAME_LEN; i++) {
+              if (i < cmd->data[0]) {
+                mask |= 0xFF;
+              } else {
+                mask |= 0x00;
+              }
+              mask = mask << 8;
+            }
+            break;
           }
         }
       }

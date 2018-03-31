@@ -139,6 +139,7 @@ void command_dispatcher_server() {
   }
   update_conductors(conductors);
 
+  num_groups = 0;
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
@@ -260,6 +261,25 @@ void command_dispatcher_server() {
             Assert(0);
             break; // Invalid command.
         }
+        break;
+      }
+      case USER_CMD_GROUP: {
+        if (num_groups >= MAX_GROUPS) {
+          logprintf("Max number of groups already reached, can't add new group (cmd dispatcher)\n\r");
+          break;
+        }
+        int group_name_len = (int)received.msg.cmd.data[0];
+        Assert(group_name_len <= MAX_GROUP_NAME_LEN);
+        char *group_name = (char *)received.msg.cmd.data[1];
+        int num_members = (int)received.msg.cmd.data[2];
+        Assert(num_members <= MAX_GROUP_MEMBERS);
+
+        tr_groups[num_groups].num_members = num_members;
+        tmemcpy(tr_groups[num_groups].group_name, group_name, group_name_len);
+        for (int i = 0; i < num_members; i++) {
+          tr_groups[num_groups].members[i] = received.msg.cmd.data[3 + i];
+        }
+        num_groups += 1;
         break;
       }
       case MESSAGE_GET_DESTINATION: {
