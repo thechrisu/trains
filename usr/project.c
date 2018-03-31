@@ -261,6 +261,22 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             break;
           }
         }
+      } else if (param == SET_DIRECTION) {
+        if (buffer_index < ibuf->elems) {
+          int n = is_valid_number(ibuf, buffer_index);
+          if (n >= 0 && ibuf->elems >= (unsigned int)n) {
+            int train_number = parse_number(ibuf, buffer_index);
+            buffer_index = (unsigned int)n;
+
+            n = is_valid_number(ibuf, buffer_index);
+            if (n >= 0 && ibuf->elems >= (unsigned int)n) {
+              cmd->type = USER_CMD_SET;
+              cmd->data[0] = SET_DIRECTION;
+              cmd->data[1] = train_number;
+              cmd->data[2] = parse_number(ibuf, buffer_index);
+            }
+          }
+        }
       } else if (param != MAX_PARAMETER) {
         if (buffer_index < ibuf->elems) {
           int n = is_valid_number(ibuf, buffer_index);

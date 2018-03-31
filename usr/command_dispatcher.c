@@ -252,8 +252,8 @@ void command_dispatcher_server() {
                 }
                 break;
               case SET_DIRECTION: {
-                int train = received.msg.cmd.data[0];
-                bool is_forward = (bool)received.msg.cmd.data[1]; // any != 0
+                int train = received.msg.cmd.data[1];
+                bool is_forward = (bool)received.msg.cmd.data[2]; // any != 0
                 message send;
                 send.type = MESSAGE_TRAINSETDIRECTION;
                 send.msg.tr_data.train = train;
