@@ -157,6 +157,34 @@ void conductor_ready(conductor_data *c) {
   }
 }
 
+void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
+  conductors[t].t = t;
+
+  conductors[t].tid = Create(my_priority + 1, &train_conductor);
+  Assert(conductors[t].tid > 0);
+
+  message train_to_look_after_msg;
+  train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
+  train_to_look_after_msg.msg.train = t;
+  Assert(Send(conductors[t].tid, &train_to_look_after_msg,
+              sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
+
+  conductors[t].rdy = true;
+  conductors[t].msgs_i = 0;
+  conductors[t].msgs_o = 0;
+  conductors[t].msgs_available = 0;
+  conductors[t].auto_mode = false;
+  conductors[t].t2_tid = 0;
+}
+
+void sunset_tid(int tid) {
+  logprintf("Tid: %d\n\r", tid);
+  message sunset;
+  sunset.type = MESSAGE_SUNSET;
+  Assert(Send(tid, &sunset, sizeof(sunset),
+        EMPTY_MESSAGE, 0) == 0);
+}
+
 void update_conductors(conductor_data conductors[81]) {
   int my_priority = MyPriority();
 
@@ -164,23 +192,7 @@ void update_conductors(conductor_data conductors[81]) {
     int t = active_trains[i];
 
     if (conductors[t].tid == 0) {
-      conductors[t].t = t;
-
-      conductors[t].tid = Create(my_priority + 1, &train_conductor);
-      Assert(conductors[t].tid > 0);
-
-      message train_to_look_after_msg;
-      train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
-      train_to_look_after_msg.msg.train = t;
-      Assert(Send(conductors[t].tid, &train_to_look_after_msg,
-                  sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
-
-      conductors[t].rdy = true;
-      conductors[t].msgs_i = 0;
-      conductors[t].msgs_o = 0;
-      conductors[t].msgs_available = 0;
-      conductors[t].auto_mode = false;
-      conductors[t].t2_tid = 0;
+      create_conductor(t, my_priority, conductors);
     }
   }
 }
@@ -339,10 +351,8 @@ void command_dispatcher_server() {
             for (int i = 0; i < num_members; i++) {
               int tr = received.msg.cmd.data[3 + i];
               tr_groups[num_groups].g.members[i] = tr;
-              message sunset;
-              sunset.type = MESSAGE_SUNSET;
-              Assert(Send(conductors[tr].tid, &sunset, sizeof(sunset),
-                    EMPTY_MESSAGE, 0) == 0);
+              logprintf("Sunsetting individual conducotrs : %d\n\r", conductors[tr].tid);
+              sunset_tid(conductors[tr].tid);
               // Need to do this, since it may be polling (conductor_loop)
               // For some reason, if you uncomment the Kill(),
               // we end up in an infinite loop. Debugging this is super hard
@@ -352,6 +362,7 @@ void command_dispatcher_server() {
             }
             tr_groups[num_groups].tid = Create(my_priority + 1,
                                                &multi_train_conductor);
+            logprintf("New group tid: %d\n\r", tr_groups[num_groups].tid);
             Assert(tr_groups[num_groups].tid > 0);
             message setgroup;
             setgroup.type = MESSAGE_MULTICONDUCTOR_SETGROUP;
@@ -366,6 +377,36 @@ void command_dispatcher_server() {
           default:
             Assert(0);
             break; // Invalid command.
+        }
+        break;
+      }
+      case USER_CMD_UNGROUP: {
+        int index = -1;
+        for (int i = 0; i < num_groups; i++) {
+          if (tstrcmp(tr_groups[i].group_name, (char *)received.msg.cmd.data[0])) {
+            index = i;
+            break;
+          }
+        }
+        if (index != -1) {
+          logprintf("Group name to sunset: %d\n\r", tr_groups[index].tid);
+          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
+          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
+          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
+          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
+          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
+          logprintf("Group name to sunset: %d\n\r", tr_groups[index].tid);
+          sunset_tid(tr_groups[index].tid);
+          for (int i = 0; i < tr_groups[index].g.num_members; i++) {
+            create_conductor(tr_groups[index].g.members[i], my_priority, conductors);
+          }
+          for (int i = index + 1; i < num_groups; i++) {
+            tmemcpy(tr_groups + i - 1, tr_groups + i, sizeof(tr_groups[index]));
+          }
+          num_groups -= 1;
+          print_groups(terminal_tx_server);
+        } else {
+          logprintf("Should have found group %s\n\r", received.msg.cmd.data[0]);
         }
         break;
       }

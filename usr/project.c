@@ -274,6 +274,25 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           cmd->type = NULL_USER_CMD;
         }
       }
+    } else if (string_starts_with(ibuf->data, "ungroup ", ibuf->elems)) {
+      char group_name[MAX_GROUP_NAME_LEN];
+      unsigned int buffer_index = 0;
+      int j = 0;
+      for (buffer_index = 6; buffer_index < 6 + MAX_GROUP_NAME_LEN + 1
+          && buffer_index < ibuf->elems
+          && ibuf->data[buffer_index] != ' '; buffer_index++, j++) {
+        group_name[j] = ibuf->data[buffer_index];
+      }
+      for (int i = 0; i < num_groups; i++) {
+        if (tstrcmp(group_name, tr_groups[i].group_name)) {
+          cmd->type = USER_CMD_UNGROUP;
+          tmemcpy((char *)(cmd->data[0]), group_name, j);
+          for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
+            ((char *)cmd->data[0])[k] = '\0';
+          }
+          break;
+        }
+      }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
       char param_name[PARAMETER_NAME_LENGTH];
       unsigned int param_name_index = 0;
