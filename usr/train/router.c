@@ -175,3 +175,15 @@ int get_route(location *start, location *end, track_node *route[MAX_ROUTE_LENGTH
       return 0;
   }
 }
+
+bool reroute(location *start, location *end,
+             track_node *route[MAX_ROUTE_LENGTH]) {
+  int route_result = get_route(start, end, route);
+  if (route_result < 0) {
+    logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
+              start->node->name, end->node->name);
+    return true;
+  }
+
+  return false;
+}

@@ -195,4 +195,14 @@ void get_next_turnout_in_route(track_node *route[MAX_ROUTE_LENGTH], location *lo
                                location *target, int cutoff_distance);
 */
 
+/**
+ * Used for planning short moves:
+ * Return the highest speed such that we can accelerate to it and decelerate
+ * to 0 and still have *some* path left.
+ * @param path_length_100mm         The distance left in 1/100thmm.
+ * @param train_distances           Stopping distances by speed.
+ * @return -1 if even speed 1 is too long, otherwise 1-14.
+ */
+int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]);
+
 #endif /* TRAIN_UTIL_H */
