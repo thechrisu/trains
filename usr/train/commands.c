@@ -105,7 +105,8 @@ void switch_turnout(int clock_server_tid, int train_tx_server_tid, int track_sta
   Assert(Send(track_state_controller_tid, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 
   if (turnout_num >= 153 && turnout_num <= 156 && curved) {
-    int paired_turnout = turnout_num ^ 0x1;
+    int paired_turnouts[] = { 154, 153, 156, 155 };
+    int paired_turnout = paired_turnouts[turnout_num - 153];
     buf[0] = (char)0x21;
     buf[1] = (char)paired_turnout;
     Assert(PutBytes(train_tx_server_tid, buf, 2) == 0);
