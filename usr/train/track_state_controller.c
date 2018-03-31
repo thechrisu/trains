@@ -49,6 +49,12 @@ void track_state_controller() {
         }
         Assert(Reply(sender_tid, &reply, sizeof(reply)) == 0);
         break;
+      case MESSAGE_TRAINSETDIRECTION: {
+        train = received.msg.tr_data.train;
+        track.train[train].direction = received.msg.tr_data.direction;
+        Reply(sender_tid, EMPTY_MESSAGE, 0);
+        break;
+      }
       case MESSAGE_TRAINSETSPEED: {
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
