@@ -29,7 +29,6 @@ void multi_train_conductor() {
   int sender_tid;
   message received, ready;
   int train_tx_server = WhoIs("TrainTxServer");
-  int terminal_tx_server = WhoIs("TerminalTxServer");
   int clock_server = WhoIs("ClockServer");
   int track_state_controller = WhoIs("TrackStateController");
   int cmd_dispatcher = WhoIs("CommandDispatcher");
@@ -39,11 +38,6 @@ void multi_train_conductor() {
   Assert(track_state_controller > 0);
   Assert(cmd_dispatcher > 0);
   Assert(train_coordinates_server > 0);
-
-  train_data d;
-  d.last_speed = 0;
-  d.should_speed = 0;
-  d.time_speed_last_changed = Time(clock_server);
 
   train_group g;
 
