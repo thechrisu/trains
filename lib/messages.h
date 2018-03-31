@@ -167,13 +167,20 @@ typedef enum {
   LOCATION_TO_SWITCH,
   LOCATION_TO_STOP,
   LOCATION_ANY, // Any location where we're not lost
+  SPACING,
   MAX_NOTIFICATION_TYPE,
 } coord_notification_type;
 
 typedef struct {
-  location loc;
+  union {
+    location loc;
+    int trains[2]; // [0] Is ahead of [1]
+  } subject;
   coord_notification_type reason;
-  char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
+  union {
+    int distance[2]; // [0]: IS distance, [1]: SHOULD distance
+    char switch_to_switch[2]; // 0: switch number, 1: state to switch to.
+  } action;
 } location_notification;
 
 typedef struct {

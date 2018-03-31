@@ -26,7 +26,7 @@ void print_num_triggerable_notifications(
   int n_notifications = 0;
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
-        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
+        && location_is_ge(&c->loc, &locations_to_observe[i].subject.loc)) {
       n_notifications += 1;
     }
   }
@@ -44,14 +44,14 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
     return true;
   }
 
-  tmemcpy(&n->loc, &c->loc, sizeof(c->loc));
+  tmemcpy(&n->subject.loc, &c->loc, sizeof(c->loc));
 
   for (int i = 0; i < MAX_LOCATIONS_TO_OBSERVE; i++) {
     if (is_location_set[i]
-        && location_is_ge(&c->loc, &locations_to_observe[i].loc)) {
+        && location_is_ge(&c->loc, &locations_to_observe[i].subject.loc)) {
       n->reason = locations_to_observe[i].reason;
-      tmemcpy(n->switch_to_switch, locations_to_observe[i].switch_to_switch,
-          sizeof(n->switch_to_switch));
+      tmemcpy(n->action.switch_to_switch, locations_to_observe[i].action.switch_to_switch,
+          sizeof(n->action.switch_to_switch));
       is_location_set[i] = false;
       return true;
     }
@@ -84,8 +84,8 @@ int add_notification_requests(
     bool override = false;
     for (int k = 0; k < MAX_LOCATIONS_TO_OBSERVE; k++) {
       if (is_location_set[k]) {
-        is_dup |= notifications[i].loc.node == locations_to_observe[k].loc.node
-          && ABS(notifications[i].loc.offset - locations_to_observe[k].loc.offset) < 300;
+        is_dup |= notifications[i].subject.loc.node == locations_to_observe[k].subject.loc.node
+          && ABS(notifications[i].subject.loc.offset - locations_to_observe[k].subject.loc.offset) < 300;
         if (locations_to_observe[k].reason == LOCATION_TO_STOP
               && notifications[i].reason == LOCATION_TO_STOP) {
           is_location_set[k] = false;
@@ -93,8 +93,8 @@ int add_notification_requests(
           // If they're the same switch w/ the same configuration, then drop existing
         } else if (locations_to_observe[k].reason == LOCATION_TO_SWITCH
               && notifications[i].reason == LOCATION_TO_SWITCH
-              && locations_to_observe[k].switch_to_switch[0] == notifications[i].switch_to_switch[0]
-              && locations_to_observe[k].switch_to_switch[1] == notifications[i].switch_to_switch[1]) {
+              && locations_to_observe[k].action.switch_to_switch[0] == notifications[i].action.switch_to_switch[0]
+              && locations_to_observe[k].action.switch_to_switch[1] == notifications[i].action.switch_to_switch[1]) {
           is_location_set[k] = false;
           override = true;
         }
@@ -156,7 +156,7 @@ void coordinate_courier() {
       }
       has_fresh_loss = false;
       if (should_find_any && c.loc.node != NULL_TRACK_NODE) {
-        tmemcpy(&n_observed.msg.notification_response.loc, &c, sizeof(c));
+        tmemcpy(&n_observed.msg.notification_response.subject.loc, &c, sizeof(c));
         n_observed.msg.notification_response.reason = LOCATION_ANY;
         should_find_any = false;
       }
