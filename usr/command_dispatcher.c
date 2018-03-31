@@ -23,6 +23,76 @@ bool is_auto_cmd(user_command *cmd) {
          cmd->type == USER_CMD_LOOP;
 }
 
+void print_groups(int terminal_tx_server) {
+  for (int i = 0; i < MAX_GROUPS; i++) {
+    if (i < num_groups) {
+      switch (tr_groups[i].g.num_members) {
+        case 1:
+          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d",
+                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0]) == 0);
+          break;
+        case 2:
+          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d",
+                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1]
+              ) == 0);
+          break;
+        case 3:
+          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d",
+                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2]
+              ) == 0);
+          break;
+        case 4:
+          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d\t%d",
+                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2],
+                        tr_groups[i].g.members[3]
+              ) == 0);
+          break;
+        case 5:
+          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d\t%d\t%d",
+                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2],
+                        tr_groups[i].g.members[3],
+                        tr_groups[i].g.members[4]
+              ) == 0);
+          break;
+        case 6:
+          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d\t%d\t%d\t%d",
+                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2],
+                        tr_groups[i].g.members[3],
+                        tr_groups[i].g.members[4],
+                        tr_groups[i].g.members[5]
+              ) == 0);
+          break;
+      }
+    } else {
+      Assert(Printf(terminal_tx_server, "%s%s%s",
+                    CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
+                    HIDE_CURSOR_TO_EOL));
+    }
+  }
+}
+
+
 /**
  * Adds m to the conductors' buffer, sends the next message in the buffer
  * if the conductor is ready. If the conductor is not ready,
@@ -294,6 +364,7 @@ void command_dispatcher_server() {
             Assert(Send(tr_groups[num_groups].tid, &setgroup, sizeof(setgroup),
                   EMPTY_MESSAGE, 0) == 0);
             num_groups += 1;
+            print_groups(terminal_tx_server);
             break;
           }
           default:
