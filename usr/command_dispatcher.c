@@ -196,10 +196,12 @@ void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
  * @param tid                      Task to sunset.
  */
 void sunset_tid(int tid) {
-  message sunset;
-  sunset.type = MESSAGE_SUNSET;
-  Assert(Send(tid, &sunset, sizeof(sunset),
-        EMPTY_MESSAGE, 0) == 0);
+  if (tid > 0) {
+    message sunset;
+    sunset.type = MESSAGE_SUNSET;
+    Assert(Send(tid, &sunset, sizeof(sunset),
+          EMPTY_MESSAGE, 0) == 0);
+  }
 }
 
 void update_conductors(conductor_data conductors[81]) {
