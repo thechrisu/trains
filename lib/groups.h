@@ -27,7 +27,7 @@ typedef struct {
   int tid;
 } train_group_info;
 
-train_group_info tr_groups[6];
-int num_groups;
+extern train_group_info tr_groups[6];
+extern int num_groups;
 
 #endif /* TRAIN_GROUPS_H */
