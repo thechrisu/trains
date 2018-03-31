@@ -178,7 +178,6 @@ void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
 }
 
 void sunset_tid(int tid) {
-  logprintf("Tid: %d\n\r", tid);
   message sunset;
   sunset.type = MESSAGE_SUNSET;
   Assert(Send(tid, &sunset, sizeof(sunset),
@@ -351,7 +350,6 @@ void command_dispatcher_server() {
             for (int i = 0; i < num_members; i++) {
               int tr = received.msg.cmd.data[3 + i];
               tr_groups[num_groups].g.members[i] = tr;
-              logprintf("Sunsetting individual conducotrs : %d\n\r", conductors[tr].tid);
               sunset_tid(conductors[tr].tid);
               // Need to do this, since it may be polling (conductor_loop)
               // For some reason, if you uncomment the Kill(),
@@ -362,7 +360,6 @@ void command_dispatcher_server() {
             }
             tr_groups[num_groups].tid = Create(my_priority + 1,
                                                &multi_train_conductor);
-            logprintf("New group tid: %d\n\r", tr_groups[num_groups].tid);
             Assert(tr_groups[num_groups].tid > 0);
             message setgroup;
             setgroup.type = MESSAGE_MULTICONDUCTOR_SETGROUP;
@@ -374,39 +371,32 @@ void command_dispatcher_server() {
             print_groups(terminal_tx_server);
             break;
           }
+          case USER_CMD_UNGROUP: {
+            int index = -1;
+            for (int i = 0; i < num_groups; i++) {
+              if (tstrcmp(tr_groups[i].group_name, (char *)received.msg.cmd.data[0])) {
+                index = i;
+                break;
+              }
+            }
+            if (index != -1) {
+              sunset_tid(tr_groups[index].tid);
+              for (int i = 0; i < tr_groups[index].g.num_members; i++) {
+                create_conductor(tr_groups[index].g.members[i], my_priority, conductors);
+              }
+              for (int i = index + 1; i < num_groups; i++) {
+                tmemcpy(tr_groups + i - 1, tr_groups + i, sizeof(tr_groups[index]));
+              }
+              num_groups -= 1;
+              print_groups(terminal_tx_server);
+            } else {
+              logprintf("Should have found group %s\n\r", received.msg.cmd.data[0]);
+            }
+            break;
+          }
           default:
             Assert(0);
             break; // Invalid command.
-        }
-        break;
-      }
-      case USER_CMD_UNGROUP: {
-        int index = -1;
-        for (int i = 0; i < num_groups; i++) {
-          if (tstrcmp(tr_groups[i].group_name, (char *)received.msg.cmd.data[0])) {
-            index = i;
-            break;
-          }
-        }
-        if (index != -1) {
-          logprintf("Group name to sunset: %d\n\r", tr_groups[index].tid);
-          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
-          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
-          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
-          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
-          logprintf("Index: %d, name: %s, tid: %d\n\r", index, tr_groups[index].group_name, tr_groups[index].tid);
-          logprintf("Group name to sunset: %d\n\r", tr_groups[index].tid);
-          sunset_tid(tr_groups[index].tid);
-          for (int i = 0; i < tr_groups[index].g.num_members; i++) {
-            create_conductor(tr_groups[index].g.members[i], my_priority, conductors);
-          }
-          for (int i = index + 1; i < num_groups; i++) {
-            tmemcpy(tr_groups + i - 1, tr_groups + i, sizeof(tr_groups[index]));
-          }
-          num_groups -= 1;
-          print_groups(terminal_tx_server);
-        } else {
-          logprintf("Should have found group %s\n\r", received.msg.cmd.data[0]);
         }
         break;
       }
