@@ -28,66 +28,61 @@ void print_groups(int terminal_tx_server) {
     if (i < num_groups) {
       switch (tr_groups[i].g.num_members) {
         case 1:
-          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d",
-                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
-                        tr_groups[i].g.members[0]) == 0);
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+                        ) == 0);
           break;
         case 2:
-          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d",
-                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
                         tr_groups[i].g.members[0],
-                        tr_groups[i].g.members[1]
+                        tr_groups[i].g.members[1], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
               ) == 0);
           break;
         case 3:
-          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d",
-                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
                         tr_groups[i].g.members[0],
                         tr_groups[i].g.members[1],
-                        tr_groups[i].g.members[2]
+                        tr_groups[i].g.members[2], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
               ) == 0);
           break;
         case 4:
-          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d\t%d",
-                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
                         tr_groups[i].g.members[0],
                         tr_groups[i].g.members[1],
                         tr_groups[i].g.members[2],
-                        tr_groups[i].g.members[3]
+                        tr_groups[i].g.members[3], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
               ) == 0);
           break;
         case 5:
-          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d\t%d\t%d",
-                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
                         tr_groups[i].g.members[0],
                         tr_groups[i].g.members[1],
                         tr_groups[i].g.members[2],
                         tr_groups[i].g.members[3],
-                        tr_groups[i].g.members[4]
+                        tr_groups[i].g.members[4], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
               ) == 0);
           break;
         case 6:
-          Assert(Printf(terminal_tx_server, "%s%s%s#%d: %s\t%d\t%d\t%d\t%d\t%d\t%d",
-                        CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                        HIDE_CURSOR_TO_EOL, i + 1, tr_groups[i].group_name,
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
                         tr_groups[i].g.members[0],
                         tr_groups[i].g.members[1],
                         tr_groups[i].g.members[2],
                         tr_groups[i].g.members[3],
                         tr_groups[i].g.members[4],
-                        tr_groups[i].g.members[5]
+                        tr_groups[i].g.members[5], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
               ) == 0);
           break;
       }
     } else {
-      Assert(Printf(terminal_tx_server, "%s%s%s",
-                    CURSOR_ROW_COL(GROUP_LINE + i, 1), HIDE_CURSOR,
-                    HIDE_CURSOR_TO_EOL));
+      Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s",
+                    ESC, GROUP_LINE + i, 1, HIDE_CURSOR,
+                    HIDE_CURSOR_TO_EOL) == 0);
     }
   }
 }
@@ -202,6 +197,7 @@ void command_dispatcher_server() {
   Assert(train_tx_server > 0);
   Assert(clock_server > 0);
   Assert(track_state_controller > 0);
+  Assert(terminal_tx_server > 0);
 
   conductor_data conductors[81];
   for (int i = 0; i < 81; i += 1) {
@@ -339,7 +335,7 @@ void command_dispatcher_server() {
             Assert(num_members <= MAX_GROUP_MEMBERS);
 
             tr_groups[num_groups].g.num_members = num_members;
-            tmemcpy(tr_groups[num_groups].group_name, group_name, group_name_len);
+            tmemcpy(tr_groups[num_groups].group_name, group_name, MAX_GROUP_NAME_LEN);
             for (int i = 0; i < num_members; i++) {
               int tr = received.msg.cmd.data[3 + i];
               tr_groups[num_groups].g.members[i] = tr;

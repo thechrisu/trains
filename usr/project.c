@@ -262,12 +262,14 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             break;
           }
         }
-        if (num_trains > 0) {
+        if (num_trains > 0 && j < MAX_GROUP_NAME_LEN) {
           cmd->data[2] = num_trains;
           for (int i = cmd->data[2]; i < MAX_GROUP_MEMBERS; i++) {
             cmd->data[i + 3] = -1;
           }
-          ((char *)cmd->data[1])[j] = '\0';
+          for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
+            ((char *)cmd->data[1])[k] = '\0';
+          }
         } else {
           cmd->type = NULL_USER_CMD;
         }
