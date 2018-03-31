@@ -237,19 +237,20 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
         }
       }
     } else if (string_starts_with(ibuf->data, "group ", ibuf->elems)) {
-      char group_name[3];
+      char group_name[MAX_GROUP_NAME_LEN];
       unsigned int buffer_index = 0;
       int j = 0;
-      for (buffer_index = 6; buffer_index < 6 + MAX_GROUP_NAME_LEN
+      for (buffer_index = 6; buffer_index < 6 + MAX_GROUP_NAME_LEN + 1
           && buffer_index < ibuf->elems
           && ibuf->data[buffer_index] != ' '; buffer_index++, j++) {
         group_name[j] = ibuf->data[buffer_index];
       }
+      buffer_index += 1; // For the space (' ')
       if (buffer_index != ibuf->elems && j != 0) {
         cmd->data[0] = j;
-        tmemcpy(cmd->data + 1, group_name, j); // will copy things into the first int
+        tmemcpy((char *)(cmd->data[1]), group_name, j); // will copy things into the first int
         int num_trains = 0;
-        for (int i = 0; buffer_index < ibuf->elems && i < 8
+        for (int i = 0; buffer_index < ibuf->elems && i < MAX_GROUP_MEMBERS
             && num_trains < MAX_GROUP_MEMBERS; i += 1) {
           int n = is_valid_number(ibuf, buffer_index);
           if (n >= 0) {
@@ -258,23 +259,17 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             buffer_index = (unsigned int)n;
             num_trains += 1;
           } else {
-            if (num_trains > 0) {
-              cmd->data[2] = num_trains;
-            }
-            for (int i = cmd->data[2]; i < MAX_GROUP_MEMBERS + 2 + 1; i++) {
-              cmd->data[i] = -1;
-            }
-            int mask = 0;
-            for (int i = 0; i < MAX_GROUP_NAME_LEN; i++) {
-              if (i < cmd->data[0]) {
-                mask |= 0xFF;
-              } else {
-                mask |= 0x00;
-              }
-              mask = mask << 8;
-            }
             break;
           }
+        }
+        if (num_trains > 0) {
+          cmd->data[2] = num_trains;
+          for (int i = cmd->data[2]; i < MAX_GROUP_MEMBERS; i++) {
+            cmd->data[i + 3] = -1;
+          }
+          ((char *)cmd->data[1])[j] = '\0';
+        } else {
+          cmd->type = NULL_USER_CMD;
         }
       }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
