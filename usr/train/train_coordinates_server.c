@@ -79,7 +79,7 @@ void train_coordinates_server() {
   int sensors_passed[81];
 
   for (int i = 0; i <= 80; i += 1) {
-    coords[i].loc.node = NULL_TRACK_NODE;
+    tmemset(&coords[i], 0, sizeof(coords[i]));
     last_sensor[i] = NO_DATA_RECEIVED;
     sensors_passed[i] = 0;
   }
