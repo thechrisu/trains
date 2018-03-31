@@ -340,6 +340,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   int s = Time(clock_server);
   bool should_quit = false;
+  bool received_kill = false;
 
   while (!should_quit) {
     int sender_tid;
@@ -354,6 +355,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     bool drop_existing_notifications = false;
 
     switch (received.type) {
+      case MESSAGE_SUNSET:
+        should_quit = true;
+        received_kill = true;
+        break;
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         // logprintf("Got message of type %d\n\r", received.msg.notification_response.reason);
         should_quit = process_location_notification(
@@ -380,6 +385,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   }
 
   Assert(Kill(coord_courier) == 0);
+  if (received_kill) Exit();
 }
 
 /**
@@ -484,6 +490,9 @@ void train_conductor() {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
     switch (received.type) {
+      case MESSAGE_SUNSET:
+        Exit(); // Don't want to send a READY message
+        break;
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
           case USER_CMD_SD:

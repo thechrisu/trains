@@ -268,11 +268,31 @@ void command_dispatcher_server() {
             int num_members = (int)received.msg.cmd.data[2];
             Assert(num_members <= MAX_GROUP_MEMBERS);
 
-            tr_groups[num_groups].num_members = num_members;
+            tr_groups[num_groups].g.num_members = num_members;
             tmemcpy(tr_groups[num_groups].group_name, group_name, group_name_len);
             for (int i = 0; i < num_members; i++) {
-              tr_groups[num_groups].members[i] = received.msg.cmd.data[3 + i];
+              int tr = received.msg.cmd.data[3 + i];
+              tr_groups[num_groups].g.members[i] = tr;
+              message sunset;
+              sunset.type = MESSAGE_SUNSET;
+              Assert(Send(conductors[tr].tid, &sunset, sizeof(sunset),
+                    EMPTY_MESSAGE, 0) == 0);
+              // Need to do this, since it may be polling (conductor_loop)
+              // For some reason, if you uncomment the Kill(),
+              // we end up in an infinite loop. Debugging this is super hard
+              // --> screw debugging that, we just won't group
+              // before exiting from conductor_loop()
+              // Kill(conductors[tr].tid);
             }
+            tr_groups[num_groups].tid = Create(my_priority + 1,
+                                               &multi_train_conductor);
+            Assert(tr_groups[num_groups].tid > 0);
+            message setgroup;
+            setgroup.type = MESSAGE_MULTICONDUCTOR_SETGROUP;
+            tmemcpy(&setgroup.msg.group_content, &tr_groups[num_groups].g,
+                sizeof(tr_groups[num_groups].g));
+            Assert(Send(tr_groups[num_groups].tid, &setgroup, sizeof(setgroup),
+                  EMPTY_MESSAGE, 0) == 0);
             num_groups += 1;
             break;
           }

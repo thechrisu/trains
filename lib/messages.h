@@ -5,6 +5,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include "groups.h"
 #include "model_data.h"
 #include "track_node.h"
 #include "tstdlib.h"
@@ -58,6 +59,7 @@ enum message_type {
   REPLY_GET_ROUTE_ERROR,
   MESSAGE_READY,
   MESSAGE_CONDUCTOR_SETTRAIN,
+  MESSAGE_MULTICONDUCTOR_SETGROUP,
   MESSAGE_GET_LAST_SENSOR_HIT,
   REPLY_GET_LAST_SENSOR_HIT,
   MESSAGE_UPDATE_COORDS_SPEED,
@@ -78,6 +80,7 @@ enum message_type {
   REPLY_GET_DESTINATION,
   MESSAGE_CONDUCTOR_NOTIFY_REQUEST,
   REPLY_CONDUCTOR_NOTIFY_REQUEST,
+  MESSAGE_SUNSET, // We're not killing the task, we're "sunsetting" it.
   MAX_MESSAGE_TYPE_ID,
 };
 
@@ -198,6 +201,7 @@ typedef struct {
     uint32_t train_speeds[15];
     uint32_t train_distances[15];
     uint32_t train_times[15];
+    train_group group_content;
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
     message_calib_sd_params calib_sd_params;

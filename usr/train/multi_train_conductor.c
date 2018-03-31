@@ -45,13 +45,12 @@ void multi_train_conductor() {
   d.should_speed = 0;
   d.time_speed_last_changed = Time(clock_server);
 
+  train_group g;
+
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
-  Assert(received.msg.train > 0 && received.msg.train <= 80); // TODO receive group
-  Assert(received.type == MESSAGE_CONDUCTOR_SETTRAIN);
-  d.train = received.msg.train;
-
-  ready.msg.train = d.train;
+  Assert(received.type == MESSAGE_MULTICONDUCTOR_SETGROUP);
+  tmemcpy(&g, &received.msg.group_content, sizeof(g));
   ready.type = MESSAGE_READY;
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);

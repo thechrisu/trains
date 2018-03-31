@@ -15,13 +15,13 @@ static char parameter_names[MAX_PARAMETER][PARAMETER_NAME_LENGTH];
 void init_parameters() {
   active_trains[0] = 24;
   active_trains[1] = 58;
-  active_trains[2] = 74;
+  active_trains[2] = 78;
 
   for (int i = 0; i < 81; i += 1) {
     expected_next_sensors[i] = NO_NEXT_SENSOR_EXPECTED;
   }
   expected_next_sensors[24] = sensor_offset('A', 5);
-  expected_next_sensors[74] = sensor_offset('A', 8);
+  expected_next_sensors[78] = sensor_offset('A', 8);
 
   num_active_trains = NUM_ACTIVE_TRAINS_DEFAULT;
   switch_padding = SWITCH_PADDING_DEFAULT;
