@@ -82,6 +82,8 @@ enum message_type {
   MESSAGE_CONDUCTOR_NOTIFY_REQUEST,
   REPLY_CONDUCTOR_NOTIFY_REQUEST,
   MESSAGE_SUNSET, // We're not killing the task, we're "sunsetting" it.
+  MESSAGE_SLEEP,
+  MESSAGE_WAKEUP,
   MAX_MESSAGE_TYPE_ID,
 };
 
@@ -195,6 +197,7 @@ typedef struct {
     int32_t reply_time_ticks;
     int32_t message_delay_ticks;
     int32_t message_delay_until_ticks;
+    int32_t sleeper_ticks;
     k3_params reply_k3_params;
     char putc;
     char getc;

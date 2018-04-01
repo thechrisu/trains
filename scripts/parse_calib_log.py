@@ -32,7 +32,7 @@ def get_log_lines():
     f = open(sys.argv[1])
     log_file = f.read()
     f.close()
-    lines = log_file.split('\n')
+    lines = list(filter(lambda x: x != '', log_file.split('\n')))
     assert(len(lines) % LINES_PER_BLOCK == 0)
     return lines
 
