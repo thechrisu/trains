@@ -40,4 +40,13 @@ int route_node_count(track_node *route[MAX_ROUTE_LENGTH]);
  */
 int route_length(track_node *route[MAX_ROUTE_LENGTH]);
 
+/**
+ * Prepare to travel between the given locations. Tell the caller to exit
+ * if it isn't possible to reroute.
+ * @param start                       Current location.
+ * @param end                         Goal of our route.
+ * @param route                       Place to put the new route.
+ */
+bool reroute(location *start, location *end,
+             track_node *route[MAX_ROUTE_LENGTH]);
 #endif /* ROUTER_H */

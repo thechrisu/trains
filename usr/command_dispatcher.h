@@ -7,6 +7,7 @@
 
 #include "a0codes.h"
 #include "codes.h"
+#include "groups.h"
 #include "messages.h"
 #include "parameters.h"
 #include "track_node.h"
@@ -16,6 +17,7 @@
 #include "train/reverser.h"
 #include "train/switcher.h"
 #include "train/train_conductor.h"
+#include "train/multi_train_conductor.h"
 #include "train/calibration/stopping_distance_calibrator.h"
 #include "train/calibration/velocity_calibrator.h"
 #include "train/t2_demo_task.h"

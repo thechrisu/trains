@@ -1,5 +1,11 @@
 #include "train_util.h"
 
+/**
+ * get_max_feasible_speed artificially increases the stopping distance by
+ * this amount.
+ */
+#define CAUTION_FACTOR -0.1
+
 void get_leading_edge(int16_t old_sensors[10], int16_t new_sensors[10], int16_t leading_edge[10]) {
   for (int i = 0; i < 10; i++) {
     leading_edge[i] = ~old_sensors[i] & new_sensors[i]; // 0 -> 1
@@ -339,4 +345,13 @@ int get_dist_on_route(track_node *route[MAX_ROUTE_LENGTH], location *loc, track_
     }
   }
   return dist_remaining_100th_mm - loc->offset;
+}
+
+int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) {
+  for (int i = 14; i > 0; i--) {
+    if (path_length_100mm > train_distances[i] * (2 * (1 + CAUTION_FACTOR))) {
+      return i;
+    }
+  }
+  return -1;
 }

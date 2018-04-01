@@ -7,12 +7,6 @@
 
 #define SWITCH_DIST 25000
 
-/**
- * get_max_feasible_speed artificially increases the stopping distance by
- * this amount.
- */
-#define CAUTION_FACTOR -0.1
-
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -136,42 +130,6 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
     conductor_calib_sd_one_iter(train_tx_server, track_state_controller,
                                 clock_server, terminal_tx_server, train, speed);
   }
-}
-
-/**
- * Used for planning short moves:
- * Return the highest speed such that we can accelerate to it and decelerate
- * to 0 and still have *some* path left.
- * @param path_length_100mm         The distance left in 1/100thmm.
- * @param train_distances           Stopping distances by speed.
- * @return -1 if even speed 1 is too long, otherwise 1-14.
- */
-int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) {
-  for (int i = 14; i > 0; i--) {
-    if (path_length_100mm > train_distances[i] * (2 * (1 + CAUTION_FACTOR))) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-/**
- * Prepare to travel between the given locations. Tell the caller to exit
- * if it isn't possible to reroute.
- * @param start                       Current location.
- * @param end                         Goal of our route.
- * @param route                       Place to put the new route.
- */
-bool reroute(location *start, location *end,
-             track_node *route[MAX_ROUTE_LENGTH]) {
-  int route_result = get_route(start, end, route);
-  if (route_result < 0) {
-    logprintf("Tried to route from %s to %s but couldn't get a route\n\r",
-              start->node->name, end->node->name);
-    return true;
-  }
-
-  return false;
 }
 
 /**
@@ -382,6 +340,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   int s = Time(clock_server);
   bool should_quit = false;
+  bool received_kill = false;
 
   while (!should_quit) {
     int sender_tid;
@@ -396,6 +355,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
     bool drop_existing_notifications = false;
 
     switch (received.type) {
+      case MESSAGE_SUNSET:
+        should_quit = true;
+        received_kill = true;
+        break;
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         // logprintf("Got message of type %d\n\r", received.msg.notification_response.reason);
         should_quit = process_location_notification(
@@ -422,6 +385,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
   }
 
   Assert(Kill(coord_courier) == 0);
+  if (received_kill) Exit();
 }
 
 /**
@@ -526,6 +490,9 @@ void train_conductor() {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
     switch (received.type) {
+      case MESSAGE_SUNSET:
+        Exit(); // Don't want to send a READY message
+        break;
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
           case USER_CMD_SD:

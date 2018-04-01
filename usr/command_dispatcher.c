@@ -23,6 +23,71 @@ bool is_auto_cmd(user_command *cmd) {
          cmd->type == USER_CMD_LOOP;
 }
 
+void print_groups(int terminal_tx_server) {
+  for (int i = 0; i < MAX_GROUPS; i++) {
+    if (i < num_groups) {
+      switch (tr_groups[i].g.num_members) {
+        case 1:
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+                        ) == 0);
+          break;
+        case 2:
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+              ) == 0);
+          break;
+        case 3:
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+              ) == 0);
+          break;
+        case 4:
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2],
+                        tr_groups[i].g.members[3], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+              ) == 0);
+          break;
+        case 5:
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2],
+                        tr_groups[i].g.members[3],
+                        tr_groups[i].g.members[4], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+              ) == 0);
+          break;
+        case 6:
+          Assert(Printf(terminal_tx_server, "%s%d;%dH#%d: %s\t%d\t%d\t%d\t%d\t%d\t%d%s%s",
+                        ESC, GROUP_LINE + i, 1, i + 1, tr_groups[i].group_name,
+                        tr_groups[i].g.members[0],
+                        tr_groups[i].g.members[1],
+                        tr_groups[i].g.members[2],
+                        tr_groups[i].g.members[3],
+                        tr_groups[i].g.members[4],
+                        tr_groups[i].g.members[5], HIDE_CURSOR, HIDE_CURSOR_TO_EOL
+              ) == 0);
+          break;
+      }
+    } else {
+      Assert(Printf(terminal_tx_server, "%s%d;%dH%s%s",
+                    ESC, GROUP_LINE + i, 1, HIDE_CURSOR,
+                    HIDE_CURSOR_TO_EOL) == 0);
+    }
+  }
+}
+
+
 /**
  * Adds m to the conductors' buffer, sends the next message in the buffer
  * if the conductor is ready. If the conductor is not ready,
@@ -132,6 +197,7 @@ void command_dispatcher_server() {
   Assert(train_tx_server > 0);
   Assert(clock_server > 0);
   Assert(track_state_controller > 0);
+  Assert(terminal_tx_server > 0);
 
   conductor_data conductors[81];
   for (int i = 0; i < 81; i += 1) {
@@ -139,6 +205,7 @@ void command_dispatcher_server() {
   }
   update_conductors(conductors);
 
+  num_groups = 0;
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
 
@@ -256,6 +323,46 @@ void command_dispatcher_server() {
                 break;
             }
             break;
+          case USER_CMD_GROUP: {
+            if (num_groups >= MAX_GROUPS) {
+              logprintf("Max number of groups already reached, can't add new group (cmd dispatcher)\n\r");
+              break;
+            }
+            int group_name_len = (int)received.msg.cmd.data[0];
+            Assert(group_name_len <= MAX_GROUP_NAME_LEN);
+            char *group_name = (char *)received.msg.cmd.data[1];
+            int num_members = (int)received.msg.cmd.data[2];
+            Assert(num_members <= MAX_GROUP_MEMBERS);
+
+            tr_groups[num_groups].g.num_members = num_members;
+            tmemcpy(tr_groups[num_groups].group_name, group_name, MAX_GROUP_NAME_LEN);
+            for (int i = 0; i < num_members; i++) {
+              int tr = received.msg.cmd.data[3 + i];
+              tr_groups[num_groups].g.members[i] = tr;
+              message sunset;
+              sunset.type = MESSAGE_SUNSET;
+              Assert(Send(conductors[tr].tid, &sunset, sizeof(sunset),
+                    EMPTY_MESSAGE, 0) == 0);
+              // Need to do this, since it may be polling (conductor_loop)
+              // For some reason, if you uncomment the Kill(),
+              // we end up in an infinite loop. Debugging this is super hard
+              // --> screw debugging that, we just won't group
+              // before exiting from conductor_loop()
+              // Kill(conductors[tr].tid);
+            }
+            tr_groups[num_groups].tid = Create(my_priority + 1,
+                                               &multi_train_conductor);
+            Assert(tr_groups[num_groups].tid > 0);
+            message setgroup;
+            setgroup.type = MESSAGE_MULTICONDUCTOR_SETGROUP;
+            tmemcpy(&setgroup.msg.group_content, &tr_groups[num_groups].g,
+                sizeof(tr_groups[num_groups].g));
+            Assert(Send(tr_groups[num_groups].tid, &setgroup, sizeof(setgroup),
+                  EMPTY_MESSAGE, 0) == 0);
+            num_groups += 1;
+            print_groups(terminal_tx_server);
+            break;
+          }
           default:
             Assert(0);
             break; // Invalid command.
