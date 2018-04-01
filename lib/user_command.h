@@ -22,6 +22,7 @@ enum user_command_type {
   USER_CMD_GROUP,
   USER_CMD_UNGROUP,
   USER_CMD_TRG,
+  USER_CMD_RVG,
   NULL_USER_CMD
 };
 
