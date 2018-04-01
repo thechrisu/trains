@@ -56,6 +56,7 @@ void multi_train_conductor() {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
       case MESSAGE_SUNSET:
+        Kill(coordinate_courier_tid);
         is_done = true;
         break;
       case MESSAGE_USER:
