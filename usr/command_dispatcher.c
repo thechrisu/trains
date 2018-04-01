@@ -1,6 +1,6 @@
 #include "command_dispatcher.h"
 
-#define TR_Q_LEN 30
+#define TR_Q_LEN 15
 
 typedef struct {
   int t;
