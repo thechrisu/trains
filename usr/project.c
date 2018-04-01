@@ -295,16 +295,13 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
         group_name[j] = ibuf->data[buffer_index];
       }
       group_name[j] = '\0';
-      for (int i = 0; i < num_groups; i++) {
-        if (tstrcmp(group_name, tr_groups[i].group_name)) {
-          cmd->type = USER_CMD_UNGROUP;
-          tmemcpy((char *)(cmd->data[0]), group_name, j);
-          for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
-            ((char *)cmd->data[0])[k] = '\0';
-          }
-          break;
-        } else {
-          cmd->type = NULL_USER_CMD;
+
+      train_group_info *group = find_group(group_name);
+      if (group != NULL_TRAIN_GROUP_INFO) {
+        cmd->type = USER_CMD_UNGROUP;
+        tmemcpy((char *)(cmd->data[0]), group_name, j);
+        for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
+          ((char *)cmd->data[0])[k] = '\0';
         }
       }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
