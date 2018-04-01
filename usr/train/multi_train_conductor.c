@@ -79,7 +79,7 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
   for (int i = 0; i < group->num_members; i += 1) {
     Assert(speeds[i] >= 0);
     set_train_speed(train_tx_server, track_state_controller,
-                    group->members[0], speeds[i]);
+                    group->members[i], speeds[i]);
   }
 }
 
