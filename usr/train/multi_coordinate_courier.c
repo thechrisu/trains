@@ -142,8 +142,7 @@ void multi_coordinate_courier() {
       int train = group.members[i];
       get_coordinates(coordinate_server, train, &c);
       bool got_not = multi_coordinates_to_notification(&c, &last,
-                                  locations_to_observe,
-                                  is_location_set,
+                                  locations_to_observe, is_location_set,
                                   &n_observed.msg.notification_response);
       bool has_fresh_loss = c.loc.node == NULL_TRACK_NODE && last.loc.node != NULL_TRACK_NODE;
       if ((should_find_any && c.loc.node != NULL_TRACK_NODE) || first_run
@@ -175,8 +174,10 @@ void multi_coordinate_courier() {
                   locations_to_observe, is_location_set);
         Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
       }
-      Delay(clock_server, 1);
+
+      // TODO compute spacing, send spacing offences
     }
+    Delay(clock_server, 1);
   }
   Assert(0);
 }
