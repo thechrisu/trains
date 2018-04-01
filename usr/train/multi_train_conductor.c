@@ -15,7 +15,7 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
   message velocity_model[group->num_members];
   for (int i = 0; i < group->num_members; i += 1) {
     get_constant_velocity_model(track_state_controller, group->members[i],
-                                velocity_model[i]);
+                                &velocity_model[i]);
   }
 
   bool found_speed = true;
@@ -108,15 +108,15 @@ void multi_train_conductor() {
             int leader = received.msg.notification_response.subject.trains[0];
             int follower = received.msg.notification_response.subject.trains[1];
 
-            int actual_distance = received.msg.notification_response.subject.distance[0];
-            int expected_distance = received.msg.notification_response.subject.distance[1];
+            int actual_distance = received.msg.notification_response.action.distance[0];
+            int expected_distance = received.msg.notification_response.action.distance[1];
 
             coordinates leader_coords, follower_coords;
 
-            get_coordinates(train_coordinates_server, leader, leader_coords);
-            get_coordinates(train_coordinates_server, follower, follower_coords);
+            get_coordinates(train_coordinates_server, leader, &leader_coords);
+            get_coordinates(train_coordinates_server, follower, &follower_coords);
 
-            if (leader.velocity == 0 && leader.target_velocity == 0) {
+            if (leader_coords.velocity == 0 && leader_coords.target_velocity == 0) {
               set_train_speed(train_tx_server, track_state_controller, follower, 0);
             } else if (actual_distance < expected_distance) {
               // Too close
@@ -127,13 +127,14 @@ void multi_train_conductor() {
             message leader_velocity_model, follower_velocity_model;
 
             get_constant_velocity_model(track_state_controller, leader,
-                                        leader_velocity_model);
+                                        &leader_velocity_model);
             get_constant_velocity_model(track_state_controller, follower,
-                                        follower_velocity_model);
+                                        &follower_velocity_model);
 
             // Change following train's speed to correct spacing
             // If no speed will correct the spacing, change the leading train's speed
 
+            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
             break;
           case GOT_LOST:
           case LOCATION_CHANGED:
@@ -145,10 +146,6 @@ void multi_train_conductor() {
             Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
             break;
           }
-          case SPACING:
-            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
-            break;
-          }
           default:
             logprintf("Multitrainconductor: Notification of unknown type %d\n\r",
                 received.msg.notification_response.reason);
@@ -156,6 +153,7 @@ void multi_train_conductor() {
             break;
         }
         break;
+      }
       default:
         logprintf("Got user cmd message of type %d\n\r", received.type);
         Assert(0);
