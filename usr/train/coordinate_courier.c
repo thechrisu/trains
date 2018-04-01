@@ -3,14 +3,6 @@
 #define TOO_MANY_NOTIFICATION_REQUESTS -1
 #define ABS(a) ((a) < 0 ? -(a) : (a))
 
-// returns true if they're the same node, but a's offset is >= b's offset
-bool location_is_ge(location *a, location *b) {
-  if (node_follows(b->node, a->node)) {
-    return true;
-  }
-  return a->node == b->node && a->offset >= b->offset;
-}
-
 /**
  * Helper function, useful to diagnose problems arising from a starved notification.
  * (So far, we haven't had any problems tho)
