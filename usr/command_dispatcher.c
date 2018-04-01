@@ -349,6 +349,16 @@ void command_dispatcher_server() {
                   track.nodes = TRACKB_SIZE;
                 }
                 break;
+              case SET_DIRECTION: {
+                int train = received.msg.cmd.data[1];
+                bool is_forward = (bool)received.msg.cmd.data[2]; // any != 0
+                message send;
+                send.type = MESSAGE_TRAINSETDIRECTION;
+                send.msg.tr_data.train = train;
+                send.msg.tr_data.direction = is_forward;
+                Assert(Send(track_state_controller, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
+                break;
+              }
               default:
                 Assert(0);
                 break;
