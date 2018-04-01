@@ -169,8 +169,7 @@ void train_location_view() {
   reply_get_last_sensor_hit last_sensor[81];
   unsigned int destinations[81];
 
-  for (int i = 0; i < num_active_trains; i += 1) {
-    int train = active_trains[i];
+  for (int train = 1; train <= 80; train += 1) {
     get_last_sensor_hit(sensor_interpreter_tid, train, &last_sensor[train]);
     get_coordinates(train_coordinates_server_tid, train, &current[train]);
     predict_sensor_hit(train_coordinates_server_tid,
