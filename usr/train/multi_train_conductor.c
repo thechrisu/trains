@@ -83,6 +83,16 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
   }
 }
 
+/**
+ * Sends speed 15 to all members of a group.
+ * Also reverses the group members in the group.
+ * We do this because, after reversing,
+ * the *front* train will be the *last* train, and vice versa.
+ *
+ * @param train_tx_server           Tid of the train tx server, needed to send speed 15.
+ * @param track_state_controller    To update our direction.
+ * @param group                     Reference to the group getting reversed.
+ */
 void reverse_group(int train_tx_server, int track_state_controller,
                    train_group *group) {
 
