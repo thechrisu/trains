@@ -453,7 +453,6 @@ void command_dispatcher_server() {
         conductor_ready(conductors + received.msg.train);
 
         int t2_tid = conductors[(int)received.msg.train].t2_tid;
-        logprintf("t2_tid for train %d: %d\n\r", received.msg.train, t2_tid);
         if (t2_tid != 0) {
           Assert(Reply(t2_tid, EMPTY_MESSAGE, 0) >= 0);
         }
