@@ -176,8 +176,8 @@ void init_track(track_state *global_track) {
     { .train = 78, .speed = 10, .value = 35000 },
     { .train = 78, .speed = 11, .value = 45000 },
     { .train = 78, .speed = 12, .value = 60000 },
-    { .train = 78, .speed = 13, .value = 75000 },
-    { .train = 78, .speed = 14, .value = 100000 },
+    { .train = 78, .speed = 13, .value = 73926 },
+    { .train = 78, .speed = 14, .value = 99245 },
     { .train = 1337, .speed = 1337, .value = 1337 }
   };
 
