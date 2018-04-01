@@ -1,3 +1,7 @@
+/**
+ * @file
+ * @brief Sleeper task.
+ */
 #ifndef TRAIN_SLEEPER_H
 #define TRAIN_SLEEPER_H
 
