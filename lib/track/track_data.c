@@ -481,6 +481,11 @@ int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
   return 0;
 }
 
+int distance_between_locations(location *from_loc, location *to_loc) {
+  int btw_nodes = (int)distance_between_track_nodes(from_loc->node, to_loc->node);
+  return 100 * btw_nodes + to_loc->offset - from_loc->offset;
+}
+
 bool node_follows(track_node *start, track_node *end) {
   return end == AHEAD(start) || end == STRAIGHT(start) || end == CURVED(start);
 }

@@ -175,7 +175,24 @@ void multi_coordinate_courier() {
         Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
       }
 
-      // TODO compute spacing, send spacing offences
+    }
+    for (int i = 0; i < group.num_members - 1; i++) {
+      int first_t = group.members[i];
+      int second_t = group.members[i + 1];
+      coordinates first, second; // First: Train AHEAD of second
+      get_coordinates(coordinate_server, first_t, &first);
+      get_coordinates(coordinate_server, second_t, &second);
+
+      int d = distance_between_locations(&second.loc, &first.loc) / 100;
+      if (d > spacing + spacing_error || d < spacing - spacing_error) {
+        n_observed.msg.notification_response.subject.trains[0] = first_t;
+        n_observed.msg.notification_response.subject.trains[1] = second_t;
+        n_observed.msg.notification_response.reason = SPACING;
+        n_observed.msg.notification_response.action.distance[0] = d;
+        n_observed.msg.notification_response.action.distance[1] = spacing;
+        Assert(Send(conductor, &n_observed, sizeof(n_observed),
+                               EMPTY_MESSAGE, 0) == 0);
+      }
     }
     Delay(clock_server, 1);
   }
@@ -193,17 +210,3 @@ int create_multi_courier(train_group *group) {
           == 0);
   return coordinate_courier_tid;
 }
-
-/*
-void send_notification_request(int coordinate_courier_tid,
-                               location_notification requests[MAX_LOCATIONS_TO_OBSERVE],
-                               int n_requests) {
-  message send;
-  tmemcpy(&send.msg.notification_request.notifications, requests,
-          sizeof(requests[0]) * n_requests);
-  send.msg.notification_request.num_requests = n_requests;
-  Assert(Send(coordinate_courier_tid, &send, sizeof(send), EMPTY_MESSAGE, 0)
-      == 0);
-}
-
-*/

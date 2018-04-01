@@ -204,6 +204,9 @@ track_node *sensor_next(track_node *start,
 int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
                   unsigned int sensor, location *loc);
 
+int distance_between_locations(location *from_loc,
+                               location *to_loc);
+
 /**
  * @param   start A track node.
  * @param   end   Another track node.

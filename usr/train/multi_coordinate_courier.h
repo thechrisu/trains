@@ -8,6 +8,7 @@
 #include "codes.h"
 #include "commands.h"
 #include "messages.h"
+#include "parameters.h"
 #include "track_data.h"
 #include "tstdlib.h"
 #include "train_util.h"
