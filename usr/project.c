@@ -121,7 +121,8 @@ void user_command_print(int server_tid, user_command *cmd) {
     case USER_CMD_TRG:
       Assert(Printf(server_tid, "%s%s%sTRG %s %d         %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
-                    cmd->data[0], cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+                    ((train_group_info *)cmd->data[0])->group_name,
+                    cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
@@ -392,7 +393,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           int speed = parse_number(ibuf, buffer_index);
           if (speed >= 0 && speed <= 14) {
             cmd->type = USER_CMD_TRG;
-            cmd->data[0] = (int)group->group_name;
+            cmd->data[0] = (int)group;
             cmd->data[1] = speed;
           }
         }
