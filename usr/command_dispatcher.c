@@ -431,6 +431,9 @@ void command_dispatcher_server() {
             }
             break;
           }
+          case USER_CMD_TRG:
+            // TODO dispatch to related multi-train conductor
+            break;
           default:
             Assert(0);
             break; // Invalid command.
