@@ -190,7 +190,7 @@ void train_location_view() {
       if (line_states[i] != train && i < MAX_TRAINS) {
         clear_line(terminal_tx_server_tid, i);
         Assert(Printf(terminal_tx_server_tid,
-                      "\033[%d;%dH  %s%d",
+                      "\033[%d;%dH   %s%d",
                       TRAIN_LOCATION_LINE + 2 + i, columns[TRAIN_COL],
                       train < 10 ? " " : "", train) == 0);
         line_states[i] = train;
