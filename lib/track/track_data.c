@@ -482,6 +482,10 @@ int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
 }
 
 int distance_between_locations(location *from_loc, location *to_loc) {
+  if (from_loc->node == NULL_TRACK_NODE || to_loc->node == NULL_TRACK_NODE) {
+    return -1;
+  }
+
   int result = distance_between_track_nodes_helper(from_loc->node, to_loc->node,
                                                    0, 2 * FIND_LIMIT);
   if (result < 0) return result;

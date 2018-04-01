@@ -197,8 +197,6 @@ void multi_coordinate_courier() {
       if (r < 0) continue;
       int d = r / 100;
       if ((d > spacing + spacing_error || d < spacing - spacing_error) &&
-          first.loc.node != NULL_TRACK_NODE &&
-          second.loc.node != NULL_TRACK_NODE &&
           last_spacing_notification[i] < time - SPACING_NOTIFICATION_PERIOD) {
         last_spacing_notification[i] = time;
 
