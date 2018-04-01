@@ -71,11 +71,12 @@ void multi_train_conductor() {
   int coordinate_courier_tid = -1;
   while (!is_done) {
     if (coordinate_courier_tid < 0) {
-      coordinate_courier_tid = create_multi_courier(g);
+      coordinate_courier_tid = create_multi_courier(&g);
     }
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
       case MESSAGE_SUNSET:
+        Kill(coordinate_courier_tid);
         is_done = true;
         break;
       case MESSAGE_USER:
@@ -133,6 +134,18 @@ void multi_train_conductor() {
             // Change following train's speed to correct spacing
             // If no speed will correct the spacing, change the leading train's speed
 
+            break;
+          case GOT_LOST:
+          case LOCATION_CHANGED:
+          case LOCATION_ANY: {
+            message next_req;
+            next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
+            next_req.msg.notification_request.drop_existing = true;
+            next_req.msg.notification_request.num_requests = 0;
+            Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
+            break;
+          }
+          case SPACING:
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
             break;
           }
