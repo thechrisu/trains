@@ -15,6 +15,10 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
   set_train_speed(train_tx_server, track_state_controller,
                   train, speed);
   // TODO implement this for real
+  // 1. Get grouped trains' velocity models
+  // 2. Pick speeds for trains to follow at
+  // 3. If one follower or more can't oscillate around given speed, try with a lower speed
+  // 4. Change trains' speeds to picked speeds
 }
 
 void multi_conductor_reverse_to_speed(int train_tx_server,
@@ -64,6 +68,10 @@ void multi_train_conductor() {
             // TODO
             break;
           case USER_CMD_TR:
+            multi_conductor_setspeed(train_tx_server,
+                                     track_state_controller,
+                                     received.msg.cmd.data[0],
+                                     received.msg.cmd.data[1]);
             break;
           case USER_CMD_RV:
             break;
@@ -80,6 +88,10 @@ void multi_train_conductor() {
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         switch (received.msg.notification_response.reason) {
           case SPACING:
+            // Get the associated trains' velocity models
+            // Change following train's speed to correct spacing
+            // If no speed will correct the spacing, change the leading train's speed
+            // TODO do something different in the case of acceleration?
             logprintf("SPACING: IS: %d, SHOULD BE: %d\n\r",
               received.msg.notification_response.action.distance[0],
               received.msg.notification_response.action.distance[1]
