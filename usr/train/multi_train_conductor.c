@@ -81,12 +81,29 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
   }
 }
 
-void multi_conductor_reverse_to_speed(int train_tx_server,
-                                int track_state_controller, int clock_server,
-                                int train, int speed) {
-  stop_and_reverse_train_to_speed(clock_server, train_tx_server,
-                                  track_state_controller, train, speed);
-  // TODO implement this for real
+/**
+ * Sends speed 15 to all members of a group.
+ * Also reverses the group members in the group.
+ * We do this because, after reversing,
+ * the *front* train will be the *last* train, and vice versa.
+ *
+ * @param train_tx_server           Tid of the train tx server, needed to send speed 15.
+ * @param track_state_controller    To update our direction.
+ * @param group                     Reference to the group getting reversed.
+ */
+void reverse_group(int train_tx_server, int track_state_controller,
+                   train_group *group) {
+
+  train_group group_copy;
+  tmemcpy(&group_copy, group, sizeof(group_copy));
+  for (int i = 0; i < group->num_members; i++) {
+    reverse_train(train_tx_server, track_state_controller, group->members[i]);
+  }
+  int j = 0;
+  for (int i = group_copy.num_members - 1; i >= 0; i--, j++) {
+    group->members[i] = group_copy.members[j];
+  }
+  Assert(group->num_members == group_copy.num_members);
 }
 
 void multi_train_conductor() {
@@ -112,6 +129,8 @@ void multi_train_conductor() {
   bool is_done = false;
 
   int coordinate_courier_tid = -1;
+
+  train_data tr_data; // Needed to reverse to previous speed
   while (!is_done) {
     if (coordinate_courier_tid < 0) {
       coordinate_courier_tid = create_multi_courier(&g);
@@ -133,11 +152,11 @@ void multi_train_conductor() {
                                      &g, received.msg.cmd.data[1]);
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
             break;
-          case USER_CMD_RV:
+          case USER_CMD_RVG:
+            get_train(track_state_controller, g.members[0], &tr_data);
+            set_alarm(tr_data.should_speed * 33);
+            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
             break;
-          case USER_CMD_R:
-            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
-            break; // TODO
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);
             Assert(0);
@@ -220,14 +239,23 @@ void multi_train_conductor() {
 
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
             break;
-          }
+          } // SPACING
           default:
             logprintf("Multitrainconductor: Notification of unknown type %d\n\r",
                 received.msg.notification_response.reason);
             Assert(0 && "Multitrainconductor: Notification of unknown type");
             break;
-        }
+        } // MESSAGE_CONDUCTOR_NOTIFY_REQUEST
         break;
+      case MESSAGE_WAKEUP: { // GOOD MORNING
+        reverse_group(train_tx_server, track_state_controller, &g); // speed 15 + reorder group
+        Kill(coordinate_courier_tid);
+        Delay(clock_server, 8); // HACK
+        coordinate_courier_tid = create_multi_courier(&g);
+        multi_conductor_setspeed(train_tx_server, track_state_controller, &g,
+                                 tr_data.should_speed);
+        break;
+      }
       default:
         logprintf("Got user cmd message of type %d\n\r", received.type);
         Assert(0);
