@@ -33,7 +33,7 @@ int speed_above(uint32_t target_velocity, uint32_t velocities[15]) {
  *          or -1 if none exists.
  */
 int speed_below(uint32_t target_velocity, uint32_t velocities[15]) {
-  for (int i = 14; i >= 0; i += 1) {
+  for (int i = 14; i >= 0; i -= 1) {
     if (velocities[i] <= target_velocity) {
       return i;
     }
