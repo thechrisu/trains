@@ -12,16 +12,29 @@
 
 void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
                               train_group *group, int speed) {
-  // TODO implement this for real
-  // 1. Get grouped trains' velocity models
-  // 2. Pick speeds for trains to follow at
-  // 3. If one follower or more can't oscillate around given speed, try with a lower speed
-  // 4. Change trains' speeds to picked speeds
+  message velocity_model[group->num_members];
+  for (int i = 0; i < group->num_members; i += 1) {
+    get_constant_velocity_model(track_state_controller, group->members[i],
+                                velocity_model[i]);
+  }
 
-  (void)train_tx_server;
-  (void)track_state_controller;
-  (void)group;
-  (void)speed;
+  bool found_speed = true;
+
+  while (!found_speed) {
+    uint32_t lead_velocity = velocity_model[0].msg.train_speeds[speed];
+
+    for (int i = 1; i < group->num_members; i += 1) {
+      if (velocity_model[i].msg.train_speeds[14] < lead_velocity) {
+        found_speed = false;
+        break;
+      }
+    }
+
+    speed -= 1;
+  }
+
+  set_train_speed(train_tx_server, track_state_controller,
+                  group->members[0], speed);
 }
 
 void multi_conductor_reverse_to_speed(int train_tx_server,
@@ -74,6 +87,7 @@ void multi_train_conductor() {
             multi_conductor_setspeed(train_tx_server,
                                      track_state_controller,
                                      &g, received.msg.cmd.data[1]);
+            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
             break;
           case USER_CMD_RV:
             break;
@@ -89,17 +103,39 @@ void multi_train_conductor() {
         break;
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         switch (received.msg.notification_response.reason) {
-          case SPACING:
-            // Get the associated trains' velocity models
+          case SPACING: {
+            int leader = received.msg.notification_response.subject.trains[0];
+            int follower = received.msg.notification_response.subject.trains[1];
+
+            int actual_distance = received.msg.notification_response.subject.distance[0];
+            int expected_distance = received.msg.notification_response.subject.distance[1];
+
+            coordinates leader_coords, follower_coords;
+
+            get_coordinates(train_coordinates_server, leader, leader_coords);
+            get_coordinates(train_coordinates_server, follower, follower_coords);
+
+            if (leader.velocity == 0 && leader.target_velocity == 0) {
+              set_train_speed(train_tx_server, track_state_controller, follower, 0);
+            } else if (actual_distance < expected_distance) {
+              // Too close
+            } else if (actual_distance > expected_distance) {
+              // Too far
+            }
+
+            message leader_velocity_model, follower_velocity_model;
+
+            get_constant_velocity_model(track_state_controller, leader,
+                                        leader_velocity_model);
+            get_constant_velocity_model(track_state_controller, follower,
+                                        follower_velocity_model);
+
             // Change following train's speed to correct spacing
             // If no speed will correct the spacing, change the leading train's speed
-            // TODO do something different in the case of acceleration?
-            logprintf("SPACING: IS: %d, SHOULD BE: %d\n\r",
-              received.msg.notification_response.action.distance[0],
-              received.msg.notification_response.action.distance[1]
-            );
+
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
             break;
+          }
           default:
             logprintf("Multitrainconductor: Notification of unknown type %d\n\r",
                 received.msg.notification_response.reason);

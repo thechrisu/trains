@@ -24,17 +24,6 @@
 void multi_train_conductor();
 
 /**
- * Sets the speed of the train group.
- *
- * train_tx_server          Train Transmit Server.
- * track_state_controller   Task administering the global state.
- * group                    Train group.
- * speed                    Speed to set group to.
- */
-void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
-                              train_group *group, int speed);
-
-/**
  * Reverses the train.
  *
  * train_tx_server          Train Transmit Server.
