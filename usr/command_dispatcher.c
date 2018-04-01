@@ -360,6 +360,12 @@ void command_dispatcher_server() {
                 Assert(Send(track_state_controller, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
                 break;
               }
+              case SET_SPACING:
+                spacing = received.msg.cmd.data[1];
+                break;
+              case SET_SPACING_ERROR:
+                spacing_error = received.msg.cmd.data[1];
+                break;
               default:
                 Assert(0);
                 break;

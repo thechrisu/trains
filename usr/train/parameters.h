@@ -18,6 +18,8 @@ typedef enum set_parameter {
   SET_SWITCH_PADDING,
   SET_TRACK,
   SET_DIRECTION,
+  SET_SPACING,
+  SET_SPACING_ERROR,
   MAX_PARAMETER,
 } set_parameter;
 
@@ -32,6 +34,12 @@ unsigned int expected_next_sensors[81];
 
 // Minimum distance in mm that a turnout must be switched before a train drives over it.
 extern int switch_padding;
+
+// Ideal distance in mm that trains should be apart.
+extern int spacing;
+
+// Ideal error of the spacing parameter (mm).
+extern int spacing_error;
 
 /**
  * Initializes parameters to their default values.
