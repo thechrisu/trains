@@ -62,7 +62,10 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
       }
     }
 
-    speed -= 1;
+    if (!found_speed) {
+      speed -= 1;
+      found_speed = true;
+    }
   }
 
   set_train_speed(train_tx_server, track_state_controller,
