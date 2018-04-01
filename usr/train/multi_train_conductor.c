@@ -58,7 +58,7 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
 
   bool found_speed = true;
 
-  while (!found_speed) {
+  do {
     uint32_t lead_velocity = velocity_model[0].msg.train_speeds[speeds[0]];
 
     for (int i = 1; i < group->num_members; i += 1) {
@@ -74,7 +74,7 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
       speeds[0] -= 1;
       found_speed = true;
     }
-  }
+  } while (!found_speed);
 
   for (int i = 0; i < group->num_members; i += 1) {
     Assert(speeds[i] >= 0);
