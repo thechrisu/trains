@@ -56,25 +56,23 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
     speeds[i] = -1;
   }
 
-  bool found_speed = true;
+  bool found_speed = false;
 
-  do {
+  while (!found_speed) {
+    found_speed = true;
+
     uint32_t lead_velocity = velocity_model[0].msg.train_speeds[speeds[0]];
 
     for (int i = 1; i < group->num_members; i += 1) {
       if (velocity_model[i].msg.train_speeds[14] < lead_velocity) {
         found_speed = false;
+        speeds[0] -= 1;
         break;
       } else {
         speeds[i] = speed_below(lead_velocity, velocity_model[i].msg.train_speeds);
       }
     }
-
-    if (!found_speed) {
-      speeds[0] -= 1;
-      found_speed = true;
-    }
-  } while (!found_speed);
+  }
 
   for (int i = 0; i < group->num_members; i += 1) {
     Assert(speeds[i] >= 0);
