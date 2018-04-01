@@ -136,6 +136,7 @@ void multi_train_conductor() {
 
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
             break;
+          }
           case GOT_LOST:
           case LOCATION_CHANGED:
           case LOCATION_ANY: {
@@ -153,7 +154,6 @@ void multi_train_conductor() {
             break;
         }
         break;
-      }
       default:
         logprintf("Got user cmd message of type %d\n\r", received.type);
         Assert(0);
