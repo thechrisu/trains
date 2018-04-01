@@ -528,7 +528,7 @@ void project_first_user_task() {
     }
   }
   for (int i = 0; i < num_active_trains; i += 1) {
-#ifdef E2ETESTING
+#ifndef E2ETESTING
     log_calibration_data(active_trains[i]);
 #endif /* E2ETESTING */
   }
