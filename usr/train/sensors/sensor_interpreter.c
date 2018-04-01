@@ -74,9 +74,23 @@ void sensor_interpreter() {
 
         int current_time = Time(clock_server_tid);
 
+        int trains_to_attribute_to[10];
+        int num_trains_to_attribute_to;
+
+        if (num_groups == 1) {
+          train_group *g = &tr_groups[0].g;
+          for (int i = 0; i < g->num_members; i += 1) {
+            trains_to_attribute_to[i] = g->members[i];
+          }
+          num_trains_to_attribute_to = g->num_members;
+        } else {
+          tmemcpy(trains_to_attribute_to, active_trains, num_active_trains * sizeof(int));
+          num_trains_to_attribute_to = num_active_trains;
+        }
+
         train_data tr_data[81];
-        for (int i = 0; i < num_active_trains; i += 1) {
-          int train = active_trains[i];
+        for (int i = 0; i < num_trains_to_attribute_to; i += 1) {
+          int train = trains_to_attribute_to[i];
           get_train(track_state_controller_tid, train, &tr_data[train]);
         }
 
@@ -87,8 +101,8 @@ void sensor_interpreter() {
 
         for (unsigned int sensor = 0; sensor < 80; sensor += 1) {
           if (is_sensor_triggered(leading_edge, sensor)) {
-            for (int i = 0; i < num_active_trains; i += 1) {
-              int train = active_trains[i];
+            for (int i = 0; i < num_trains_to_attribute_to; i += 1) {
+              int train = trains_to_attribute_to[i];
               unsigned int last = last_sensor[train];
 
               if (last == NO_DATA_RECEIVED &&
@@ -100,8 +114,8 @@ void sensor_interpreter() {
             }
 
             if (sensor_attributed_to == NOT_ATTRIBUTED) {
-              for (int i = 0; i < num_active_trains; i += 1) {
-                int train = active_trains[i];
+              for (int i = 0; i < num_trains_to_attribute_to; i += 1) {
+                int train = trains_to_attribute_to[i];
                 train_data *data = &tr_data[train];
                 unsigned int last = last_sensor[train];
                 int last_time = time_at_last_sensor_hit[train];
@@ -141,8 +155,8 @@ void sensor_interpreter() {
             }
 
             if (sensor_attributed_to == NOT_ATTRIBUTED) {
-              for (int i = 0; i < num_active_trains; i += 1) {
-                int train = active_trains[i];
+              for (int i = 0; i < num_trains_to_attribute_to; i += 1) {
+                int train = trains_to_attribute_to[i];
                 unsigned int last = last_sensor[train];
 
                 if (last != NO_DATA_RECEIVED &&
@@ -155,8 +169,8 @@ void sensor_interpreter() {
             }
 
             if (sensor_attributed_to == NOT_ATTRIBUTED) {
-              for (int i = 0; i < num_active_trains; i += 1) {
-                int train = active_trains[i];
+              for (int i = 0; i < num_trains_to_attribute_to; i += 1) {
+                int train = trains_to_attribute_to[i];
                 int last_time = time_at_last_sensor_hit[train];
 
                 if (train_is_lost(tr_data[train].should_speed, current_time - last_time)) {
