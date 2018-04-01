@@ -11,14 +11,17 @@
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
-                        int train, int speed) {
-  set_train_speed(train_tx_server, track_state_controller,
-                  train, speed);
+                              train_group *group, int speed) {
   // TODO implement this for real
   // 1. Get grouped trains' velocity models
   // 2. Pick speeds for trains to follow at
   // 3. If one follower or more can't oscillate around given speed, try with a lower speed
   // 4. Change trains' speeds to picked speeds
+
+  (void)train_tx_server;
+  (void)track_state_controller;
+  (void)group;
+  (void)speed;
 }
 
 void multi_conductor_reverse_to_speed(int train_tx_server,
@@ -67,12 +70,12 @@ void multi_train_conductor() {
           case USER_CMD_LOOP:
             // TODO
             break;
-          case USER_CMD_TR:
+          case USER_CMD_TRG: {
             multi_conductor_setspeed(train_tx_server,
                                      track_state_controller,
-                                     received.msg.cmd.data[0],
-                                     received.msg.cmd.data[1]);
+                                     &g, received.msg.cmd.data[1]);
             break;
+          }
           case USER_CMD_RV:
             break;
           case USER_CMD_R:
