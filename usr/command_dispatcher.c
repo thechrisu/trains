@@ -431,9 +431,11 @@ void command_dispatcher_server() {
             }
             break;
           }
-          case USER_CMD_TRG:
-            // TODO dispatch to related multi-train conductor
+          case USER_CMD_TRG: {
+            train_group_info *group = (train_group_info *)received.msg.cmd.data[0];
+            Assert(Send(group->tid, &received, sizeof(received), EMPTY_MESSAGE, 0) == 0);
             break;
+          }
           default:
             Assert(0);
             break; // Invalid command.
