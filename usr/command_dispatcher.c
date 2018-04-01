@@ -23,6 +23,11 @@ bool is_auto_cmd(user_command *cmd) {
          cmd->type == USER_CMD_LOOP;
 }
 
+/**
+ * Prints out the present train groupings
+ *
+ * @param terminal_tx_server
+ */
 void print_groups(int terminal_tx_server) {
   for (int i = 0; i < MAX_GROUPS; i++) {
     if (i < num_groups) {
@@ -157,6 +162,48 @@ void conductor_ready(conductor_data *c) {
   }
 }
 
+/**
+ * Creates a train conductor task and tells it what train to supervise.
+ *
+ * @param t                                  Train
+ * @param my_priority                        Priority of the command_dispatcher
+ * @param conductors                         Array to put initialized conductor info into.
+ */
+void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
+  conductors[t].t = t;
+
+  conductors[t].tid = Create(my_priority + 1, &train_conductor);
+  Assert(conductors[t].tid > 0);
+
+  message train_to_look_after_msg;
+  train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
+  train_to_look_after_msg.msg.train = t;
+  Assert(Send(conductors[t].tid, &train_to_look_after_msg,
+              sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
+
+  conductors[t].rdy = true;
+  conductors[t].msgs_i = 0;
+  conductors[t].msgs_o = 0;
+  conductors[t].msgs_available = 0;
+  conductors[t].auto_mode = false;
+  conductors[t].t2_tid = 0;
+}
+
+/**
+ * Much better than 'Killing' a task:
+ * We tell the task to kill itself, and clean up after itself while doing so.
+ *
+ * @param tid                      Task to sunset.
+ */
+void sunset_tid(int tid) {
+  if (tid > 0) {
+    message sunset;
+    sunset.type = MESSAGE_SUNSET;
+    Assert(Send(tid, &sunset, sizeof(sunset),
+          EMPTY_MESSAGE, 0) == 0);
+  }
+}
+
 void update_conductors(conductor_data conductors[81]) {
   int my_priority = MyPriority();
 
@@ -164,23 +211,7 @@ void update_conductors(conductor_data conductors[81]) {
     int t = active_trains[i];
 
     if (conductors[t].tid == 0) {
-      conductors[t].t = t;
-
-      conductors[t].tid = Create(my_priority + 1, &train_conductor);
-      Assert(conductors[t].tid > 0);
-
-      message train_to_look_after_msg;
-      train_to_look_after_msg.type = MESSAGE_CONDUCTOR_SETTRAIN;
-      train_to_look_after_msg.msg.train = t;
-      Assert(Send(conductors[t].tid, &train_to_look_after_msg,
-                  sizeof(train_to_look_after_msg), EMPTY_MESSAGE, 0) == 0);
-
-      conductors[t].rdy = true;
-      conductors[t].msgs_i = 0;
-      conductors[t].msgs_o = 0;
-      conductors[t].msgs_available = 0;
-      conductors[t].auto_mode = false;
-      conductors[t].t2_tid = 0;
+      create_conductor(t, my_priority, conductors);
     }
   }
 }
@@ -339,10 +370,7 @@ void command_dispatcher_server() {
             for (int i = 0; i < num_members; i++) {
               int tr = received.msg.cmd.data[3 + i];
               tr_groups[num_groups].g.members[i] = tr;
-              message sunset;
-              sunset.type = MESSAGE_SUNSET;
-              Assert(Send(conductors[tr].tid, &sunset, sizeof(sunset),
-                    EMPTY_MESSAGE, 0) == 0);
+              sunset_tid(conductors[tr].tid);
               // Need to do this, since it may be polling (conductor_loop)
               // For some reason, if you uncomment the Kill(),
               // we end up in an infinite loop. Debugging this is super hard
@@ -361,6 +389,29 @@ void command_dispatcher_server() {
                   EMPTY_MESSAGE, 0) == 0);
             num_groups += 1;
             print_groups(terminal_tx_server);
+            break;
+          }
+          case USER_CMD_UNGROUP: {
+            int index = -1;
+            for (int i = 0; i < num_groups; i++) {
+              if (tstrcmp(tr_groups[i].group_name, (char *)received.msg.cmd.data[0])) {
+                index = i;
+                break;
+              }
+            }
+            if (index != -1) {
+              sunset_tid(tr_groups[index].tid);
+              for (int i = 0; i < tr_groups[index].g.num_members; i++) {
+                create_conductor(tr_groups[index].g.members[i], my_priority, conductors);
+              }
+              for (int i = index + 1; i < num_groups; i++) {
+                tmemcpy(tr_groups + i - 1, tr_groups + i, sizeof(tr_groups[index]));
+              }
+              num_groups -= 1;
+              print_groups(terminal_tx_server);
+            } else {
+              logprintf("Should have found group %s\n\r", received.msg.cmd.data[0]);
+            }
             break;
           }
           default:

@@ -46,10 +46,14 @@ void multi_train_conductor() {
   Assert(received.type == MESSAGE_MULTICONDUCTOR_SETGROUP);
   tmemcpy(&g, &received.msg.group_content, sizeof(g));
   ready.type = MESSAGE_READY;
-  while (true) {
+  bool is_done = false;
+  while (!is_done) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
     switch (received.type) {
+      case MESSAGE_SUNSET:
+        is_done = true;
+        break;
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
           case USER_CMD_LOOP:

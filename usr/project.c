@@ -107,6 +107,11 @@ void user_command_print(int server_tid, user_command *cmd) {
                     cmd->data[6], cmd->data[7], cmd->data[8],
                     HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_UNGROUP:
+      Assert(Printf(server_tid, "%s%s%sUNGROUP %s       %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR, cmd->data[0],
+                    HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
@@ -270,6 +275,28 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
             ((char *)cmd->data[1])[k] = '\0';
           }
+        } else {
+          cmd->type = NULL_USER_CMD;
+        }
+      }
+    } else if (string_starts_with(ibuf->data, "ungroup ", ibuf->elems)) {
+      char group_name[MAX_GROUP_NAME_LEN];
+      unsigned int buffer_index = 0;
+      int j = 0;
+      for (buffer_index = 8; buffer_index < 8 + MAX_GROUP_NAME_LEN + 1
+          && buffer_index < ibuf->elems
+          && ibuf->data[buffer_index] != ' '; buffer_index++, j++) {
+        group_name[j] = ibuf->data[buffer_index];
+      }
+      group_name[j] = '\0';
+      for (int i = 0; i < num_groups; i++) {
+        if (tstrcmp(group_name, tr_groups[i].group_name)) {
+          cmd->type = USER_CMD_UNGROUP;
+          tmemcpy((char *)(cmd->data[0]), group_name, j);
+          for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
+            ((char *)cmd->data[0])[k] = '\0';
+          }
+          break;
         } else {
           cmd->type = NULL_USER_CMD;
         }

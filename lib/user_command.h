@@ -20,6 +20,7 @@ enum user_command_type {
   USER_CMD_T2START,
   USER_CMD_T2STOP,
   USER_CMD_GROUP,
+  USER_CMD_UNGROUP,
   NULL_USER_CMD
 };
 
