@@ -136,6 +136,16 @@ void multi_train_conductor() {
         break;
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         switch (received.msg.notification_response.reason) {
+          case GOT_LOST:
+          case LOCATION_CHANGED:
+          case LOCATION_ANY: {
+            message next_req;
+            next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
+            next_req.msg.notification_request.drop_existing = true;
+            next_req.msg.notification_request.num_requests = 0;
+            Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
+            break;
+          }
           case SPACING: {
             int leader = received.msg.notification_response.subject.trains[0];
             int follower = received.msg.notification_response.subject.trains[1];
@@ -195,16 +205,6 @@ void multi_train_conductor() {
             }
 
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
-            break;
-          }
-          case GOT_LOST:
-          case LOCATION_CHANGED:
-          case LOCATION_ANY: {
-            message next_req;
-            next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
-            next_req.msg.notification_request.drop_existing = true;
-            next_req.msg.notification_request.num_requests = 0;
-            Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
             break;
           }
           default:
