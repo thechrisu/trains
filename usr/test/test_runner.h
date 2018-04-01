@@ -34,6 +34,7 @@
 #include "router/test_router.h"
 #include "./servers/test_track_reservation_server.h"
 #include "./servers/test_train_coordinates_server.h"
+#include "sleeper/test_sleeper.h"
 #include "myio.h"
 #include "tstdlib.h"
 
