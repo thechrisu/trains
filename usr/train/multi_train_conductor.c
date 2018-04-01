@@ -91,9 +91,6 @@ void multi_train_conductor() {
             break;
           }
           case SPACING:
-              received.msg.notification_response.action.distance[0],
-              received.msg.notification_response.action.distance[1]
-            );
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
             break;
           default:
