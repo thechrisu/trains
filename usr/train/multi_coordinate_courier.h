@@ -1,16 +1,19 @@
 /**
  * @file
- * @brief Coordinate courier: Train conductor's bitch.
+ * @brief Multitrain Coordinate courier: Multi-Train conductor's bitch.
  */
-#ifndef TRAIN_COORDINATE_COURIER_H
-#define TRAIN_COORDINATE_COURIER_H
+#ifndef MULTI_TRAIN_COORDINATE_COURIER_H
+#define MULTI_TRAIN_COORDINATE_COURIER_H
 
 #include "codes.h"
 #include "commands.h"
 #include "messages.h"
+#include "parameters.h"
 #include "track_data.h"
 #include "tstdlib.h"
 #include "train_util.h"
+
+#define MULTI_MAX_LOCATIONS_TO_OBSERVE (2 * MAX_LOCATIONS_TO_OBSERVE)
 
 /**
  * Checks whether the given coordinates trigger notifications,
@@ -27,9 +30,9 @@
  * @param n                        Output argument: The notification to trigger.
  * @return Whether or not a notification was triggered.
  */
-bool coordinates_to_notification(coordinates *c, coordinates *last,
-        location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
-        bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
+bool multi_coordinates_to_notification(coordinates *c, coordinates *last,
+        location_notification locations_to_observe[MULTI_MAX_LOCATIONS_TO_OBSERVE],
+        bool is_location_set[MULTI_MAX_LOCATIONS_TO_OBSERVE],
         location_notification *n);
 
 /**
@@ -43,22 +46,22 @@ bool coordinates_to_notification(coordinates *c, coordinates *last,
  * @param is_location_set          Tells us the indices of existing notifications.
  *                                 We'll update this array.
  */
-int add_notification_requests(
-        location_notification notifications[MAX_LOCATIONS_TO_OBSERVE],
+int multi_add_notification_requests(
+        location_notification notifications[MULTI_MAX_LOCATIONS_TO_OBSERVE],
         int n_requests,
-        location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
-        bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]);
+        location_notification locations_to_observe[MULTI_MAX_LOCATIONS_TO_OBSERVE],
+        bool is_location_set[MULTI_MAX_LOCATIONS_TO_OBSERVE]);
 
 /**
  * Coordinate courier task
  */
-void coordinate_courier();
+void multi_coordinate_courier();
 
 /**
  * Creates a coordinate courier task and initializes it to serve a particular
  * train. To be called from the train coordinate courier's conductor task.
  */
-int create_courier(int train);
+int create_multi_courier(train_group *group);
 
-#endif /* TRAIN_COORDINATE_COURIER_H */
+#endif /* MULTI_TRAIN_COORDINATE_COURIER_H */
 

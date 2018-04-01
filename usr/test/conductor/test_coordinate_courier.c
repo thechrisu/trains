@@ -30,7 +30,7 @@ void test_coord_courier_not_located_yet() {
   Assert(receiver_tid == courier_tid);
 
   Assert(received.msg.notification_response.reason == GOT_LOST);
-  Assert(received.msg.notification_response.loc.node == NULL_TRACK_NODE);
+  Assert(received.msg.notification_response.subject.loc.node == NULL_TRACK_NODE);
   coord_courier_test_teardown(courier_tid);
 }
 
@@ -59,7 +59,7 @@ void test_coordinates_to_notification_complex() {
   bool is_location_set[MAX_LOCATIONS_TO_OBSERVE];
   location_notification new;
 
-  locations_to_observe[0].loc.node = &t.tracka[0];
+  locations_to_observe[0].subject.loc.node = &t.tracka[0];
   current.loc.node = &t.tracka[0];
   last.loc.node = NULL_TRACK_NODE;
 
@@ -69,7 +69,7 @@ void test_coordinates_to_notification_complex() {
   Assert(new.reason == LOCATION_CHANGED);
   Assert(coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
   Assert(new.reason == LOCATION_CHANGED);
-  Assert(new.loc.node == &t.tracka[0]);
+  Assert(new.subject.loc.node == &t.tracka[0]);
 
   is_location_set[0] = true;
   locations_to_observe[0].reason = LOCATION_TO_STOP;
@@ -79,21 +79,21 @@ void test_coordinates_to_notification_complex() {
   last.loc.node = current.loc.node;
   Assert(!coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
   Assert(!coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
-  Assert(new.loc.node == &t.tracka[0]);
+  Assert(new.subject.loc.node == &t.tracka[0]);
 
   current.loc.node = find_node_by_name(&t, "BR15");
-  locations_to_observe[0].loc.node = current.loc.node;
-  locations_to_observe[0].loc.offset = current.loc.offset;
+  locations_to_observe[0].subject.loc.node = current.loc.node;
+  locations_to_observe[0].subject.loc.offset = current.loc.offset;
   last.loc.node = NULL_TRACK_NODE;
   locations_to_observe[0].reason = LOCATION_TO_SWITCH;
-  locations_to_observe[0].switch_to_switch[0] = 187; // Should not matter
-  locations_to_observe[0].switch_to_switch[1] = 186; // Should not matter
+  locations_to_observe[0].action.switch_to_switch[0] = 187; // Should not matter
+  locations_to_observe[0].action.switch_to_switch[1] = 186; // Should not matter
   is_location_set[0] = true;
   Assert(coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
   Assert(new.reason == LOCATION_TO_SWITCH);
-  Assert(new.switch_to_switch[0] == 187);
-  Assert(new.switch_to_switch[1] == 186);
-  Assert(new.loc.node == find_node_by_name(&t, "BR15"));
+  Assert(new.action.switch_to_switch[0] == 187);
+  Assert(new.action.switch_to_switch[1] == 186);
+  Assert(new.subject.loc.node == find_node_by_name(&t, "BR15"));
   last.loc.node = current.loc.node;
   Assert(!coordinates_to_notification(&current, &last, locations_to_observe, is_location_set, &new));
 }
@@ -106,7 +106,7 @@ void test_add_then_trigger() {
   Assert(receiver_tid == courier_tid);
 
   Assert(received.msg.notification_response.reason == GOT_LOST);
-  Assert(received.msg.notification_response.loc.node == NULL_TRACK_NODE);
+  Assert(received.msg.notification_response.subject.loc.node == NULL_TRACK_NODE);
   coord_courier_test_teardown(courier_tid);
 }
 

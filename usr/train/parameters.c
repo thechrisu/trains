@@ -2,6 +2,8 @@
 
 #define NUM_ACTIVE_TRAINS_DEFAULT 4
 #define SWITCH_PADDING_DEFAULT    50
+#define SPACING_DEFAULT           100
+#define SPACING_ERROR_DEFAULT     10
 
 int active_trains[81];
 int num_active_trains;
@@ -9,6 +11,10 @@ int num_active_trains;
 unsigned int expected_next_sensors[81];
 
 int switch_padding;
+
+int spacing;
+
+int spacing_error;
 
 static char parameter_names[MAX_PARAMETER][PARAMETER_NAME_LENGTH];
 
@@ -28,11 +34,16 @@ void init_parameters() {
 
   num_active_trains = NUM_ACTIVE_TRAINS_DEFAULT;
   switch_padding = SWITCH_PADDING_DEFAULT;
+  spacing = SPACING_DEFAULT;
+  spacing_error = SPACING_ERROR_DEFAULT;
 
   tmemcpy(parameter_names[SET_TRAINS], "trains", sizeof("trains"));
   tmemcpy(parameter_names[SET_SWITCH_PADDING], "switch_padding", sizeof("switch_padding"));
   tmemcpy(parameter_names[SET_TRACK], "track", sizeof("track"));
   tmemcpy(parameter_names[SET_DIRECTION], "direction", sizeof("direction"));
+  tmemcpy(parameter_names[SET_SPACING], "spacing", sizeof("spacing"));
+  tmemcpy(parameter_names[SET_SPACING_ERROR], "spacing_error",
+          sizeof("spacing_error"));
 }
 
 char *get_parameter_name(set_parameter index) {

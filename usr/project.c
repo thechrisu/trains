@@ -444,6 +444,7 @@ void project_first_user_task() {
   Assert(ns_tid > 0);
 #else
   Assert(Create(my_priority + 2, &nameserver_main) > 0);
+  logprintf("Size of message (bytes): %d\n\r", sizeof(message));
 #endif /* E2ETESTING */
   int clock_server_tid = Create(my_priority + 3, &clock_server);
   Assert(clock_server_tid > 0);

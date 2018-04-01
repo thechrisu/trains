@@ -205,4 +205,9 @@ void get_next_turnout_in_route(track_node *route[MAX_ROUTE_LENGTH], location *lo
  */
 int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]);
 
+/**
+ * @returns true if they're the same node, but a's offset is >= b's offset
+ */
+bool location_is_ge(location *a, location *b);
+
 #endif /* TRAIN_UTIL_H */

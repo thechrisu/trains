@@ -355,3 +355,10 @@ int get_max_feasible_speed(int path_length_100mm, uint32_t train_distances[15]) 
   }
   return -1;
 }
+
+bool location_is_ge(location *a, location *b) {
+  if (node_follows(b->node, a->node)) {
+    return true;
+  }
+  return a->node == b->node && a->offset >= b->offset;
+}

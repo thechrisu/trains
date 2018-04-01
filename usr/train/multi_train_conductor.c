@@ -47,11 +47,16 @@ void multi_train_conductor() {
   tmemcpy(&g, &received.msg.group_content, sizeof(g));
   ready.type = MESSAGE_READY;
   bool is_done = false;
+
+  int coordinate_courier_tid = -1;
   while (!is_done) {
+    if (coordinate_courier_tid < 0) {
+      coordinate_courier_tid = create_multi_courier(&g);
+    }
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
-    Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
     switch (received.type) {
       case MESSAGE_SUNSET:
+        Kill(coordinate_courier_tid);
         is_done = true;
         break;
       case MESSAGE_USER:
@@ -64,6 +69,7 @@ void multi_train_conductor() {
           case USER_CMD_RV:
             break;
           case USER_CMD_R:
+            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
             break; // TODO
           default:
             logprintf("Got user cmd message of type %d\n\r", received.msg.cmd.type);
@@ -71,6 +77,28 @@ void multi_train_conductor() {
             break;
         }
         Assert(Send(cmd_dispatcher, &ready, sizeof(ready), EMPTY_MESSAGE, 0) == 0);
+        break;
+      case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
+        switch (received.msg.notification_response.reason) {
+          case GOT_LOST:
+          case LOCATION_CHANGED:
+          case LOCATION_ANY: {
+            message next_req;
+            next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
+            next_req.msg.notification_request.drop_existing = true;
+            next_req.msg.notification_request.num_requests = 0;
+            Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
+            break;
+          }
+          case SPACING:
+            Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
+            break;
+          default:
+            logprintf("Multitrainconductor: Notification of unknown type %d\n\r",
+                received.msg.notification_response.reason);
+            Assert(0 && "Multitrainconductor: Notification of unknown type");
+            break;
+        }
         break;
       default:
         logprintf("Got user cmd message of type %d\n\r", received.type);

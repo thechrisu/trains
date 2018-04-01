@@ -161,22 +161,22 @@ bool process_location_notification(int clock_server, int train_tx_server,
       break;
     case LOCATION_CHANGED: {
 #if DEBUG_TRAIN_COORDINATOR
-      logprintf("changed locations to %s +- %d\n\r", n->loc.node->name, n->loc.offset);
+      logprintf("changed locations to %s +- %d\n\r", n->subject.loc.node->name, n->subject.loc.offset);
 #endif /* DEBUG_TRAIN_COORDINATOR */
       *drop_existing_notifications = true;
-      if (on_route(route, &n->loc)) {
+      if (on_route(route, &n->subject.loc)) {
         return false;
       }
-      return reroute(&n->loc, end, route);
+      return reroute(&n->subject.loc, end, route);
     }
     case LOCATION_TO_SWITCH:
 #if DEBUG_TRAIN_COORDINATOR
-      logprintf("switching %d to %s\n\r", n->switch_to_switch[0], n->switch_to_switch[1] ? "C" : "S");
+      logprintf("switching %d to %s\n\r", n->action.switch_to_switch[0], n->action.switch_to_switch[1] ? "C" : "S");
 #endif /* DEBUG_TRAIN_COORDINATOR */
       switcher_turnout(clock_server,
                        train_tx_server,
-                       n->switch_to_switch[0],
-                       n->switch_to_switch[1]);
+                       n->action.switch_to_switch[0],
+                       n->action.switch_to_switch[1]);
       *drop_existing_notifications = false;
       return false;
     case LOCATION_TO_STOP: {
@@ -188,10 +188,10 @@ bool process_location_notification(int clock_server, int train_tx_server,
     }
     case LOCATION_ANY:
 #if DEBUG_TRAIN_COORDINATOR
-      logprintf("Got LOCATION_ANY to %s +- %d\n\r", n->loc.node->name, n->loc.offset);
+      logprintf("Got LOCATION_ANY to %s +- %d\n\r", n->subject.loc.node->name, n->subject.loc.offset);
 #endif /* DEBUG_TRAIN_COORDINATOR */
       *drop_existing_notifications = true;
-      return reroute(&n->loc, end, route);
+      return reroute(&n->subject.loc, end, route);
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
       Assert(0 && "Unexpected notification type");
@@ -222,10 +222,10 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
     if (has_next_turnout) {
       f.loc.node = turnout_num_to_node(&track, next_turnout_num);
       f.loc.offset = 0;
-      tmemcpy(&locations_to_observe[*n_requests].loc, &where_to_switch, sizeof(where_to_switch));
+      tmemcpy(&locations_to_observe[*n_requests].subject.loc, &where_to_switch, sizeof(where_to_switch));
       locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
-      locations_to_observe[*n_requests].switch_to_switch[0] = next_turnout_num;
-      locations_to_observe[*n_requests].switch_to_switch[1] = next_switch_is_curved;
+      locations_to_observe[*n_requests].action.switch_to_switch[0] = next_turnout_num;
+      locations_to_observe[*n_requests].action.switch_to_switch[1] = next_switch_is_curved;
       *n_requests = *n_requests + 1;
       /*logprintf("Send switch here: %s +- %d (switch: %d, pos; %s)\n\r",
           where_to_switch.loc.node->name, where_to_switch.loc.offset,
@@ -235,7 +235,7 @@ void craft_new_triggers(coordinates *c, uint32_t train_speeds[15],
   } while (has_next_turnout && *n_requests < 5);
   coordinates target;
   predict_train_stop(c, route, &target, train_speeds, train_distances);
-  tmemcpy(&locations_to_observe[*n_requests].loc, &target.loc, sizeof(target.loc));
+  tmemcpy(&locations_to_observe[*n_requests].subject.loc, &target.loc, sizeof(target.loc));
   locations_to_observe[*n_requests].reason = LOCATION_TO_STOP;
   *n_requests = *n_requests + 1;
 }
