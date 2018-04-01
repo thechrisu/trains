@@ -198,6 +198,8 @@ void multi_train_conductor() {
                                     g.members[0], first_target_speed);
                   }
                 }
+              } else {
+                new_speed = -1;
               }
             }
 
