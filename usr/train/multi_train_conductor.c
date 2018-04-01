@@ -71,12 +71,11 @@ void multi_train_conductor() {
           case USER_CMD_LOOP:
             // TODO
             break;
-          case USER_CMD_TRG: {
+          case USER_CMD_TRG:
             multi_conductor_setspeed(train_tx_server,
                                      track_state_controller,
                                      &g, received.msg.cmd.data[1]);
             break;
-          }
           case USER_CMD_RV:
             break;
           case USER_CMD_R:
