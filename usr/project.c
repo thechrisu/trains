@@ -145,6 +145,7 @@ void user_command_print(int server_tid, user_command *cmd) {
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apologize for this mess
   if (data == '\r') {
     if (ibuf->elems == 0) return true;
+    user_command_reset(cmd);
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
@@ -404,8 +405,6 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       cmd->type = USER_CMD_GO;
     } else if (string_starts_with(ibuf->data, "q", ibuf->elems) && ibuf->elems == 1) {
       cmd->type = USER_CMD_Q;
-    } else {
-      user_command_reset(cmd);
     }
     char_buffer_clear(ibuf);
     char_buffer_empty(ibuf);
