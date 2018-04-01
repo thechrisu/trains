@@ -204,6 +204,12 @@ track_node *sensor_next(track_node *start,
 int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
                   unsigned int sensor, location *loc);
 
+/**
+ * Gives distance from from_loc to to_loc.
+ * @param from_loc                         Source location.
+ * @param to_loc                           Destination location.
+ * @returns The distance in 1/100th mm between two locations.
+ */
 int distance_between_locations(location *from_loc,
                                location *to_loc);
 
