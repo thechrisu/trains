@@ -50,26 +50,37 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
                                 &velocity_model[i]);
   }
 
+  int speeds[group->num_members];
+  speeds[0] = speed;
+  for (int i = 1; i < group->num_members; i += 1) {
+    speeds[i] = -1;
+  }
+
   bool found_speed = true;
 
   while (!found_speed) {
-    uint32_t lead_velocity = velocity_model[0].msg.train_speeds[speed];
+    uint32_t lead_velocity = velocity_model[0].msg.train_speeds[speeds[0]];
 
     for (int i = 1; i < group->num_members; i += 1) {
       if (velocity_model[i].msg.train_speeds[14] < lead_velocity) {
         found_speed = false;
         break;
+      } else {
+        speeds[i] = speed_below(lead_velocity, velocity_model[i].msg.train_speeds);
       }
     }
 
     if (!found_speed) {
-      speed -= 1;
+      speeds[0] -= 1;
       found_speed = true;
     }
   }
 
-  set_train_speed(train_tx_server, track_state_controller,
-                  group->members[0], speed);
+  for (int i = 0; i < group->num_members; i += 1) {
+    Assert(speeds[i] >= 0);
+    set_train_speed(train_tx_server, track_state_controller,
+                    group->members[0], speeds[i]);
+  }
 }
 
 void multi_conductor_reverse_to_speed(int train_tx_server,
