@@ -12,6 +12,8 @@
 #include "tstdlib.h"
 #include "train_util.h"
 
+#define MULTI_MAX_LOCATIONS_TO_OBSERVE (2 * MAX_LOCATIONS_TO_OBSERVE)
+
 /**
  * Checks whether the given coordinates trigger notifications,
  * and gives us the first notification that would trigger.
@@ -28,8 +30,8 @@
  * @return Whether or not a notification was triggered.
  */
 bool multi_coordinates_to_notification(coordinates *c, coordinates *last,
-        location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
-        bool is_location_set[MAX_LOCATIONS_TO_OBSERVE],
+        location_notification locations_to_observe[MULTI_MAX_LOCATIONS_TO_OBSERVE],
+        bool is_location_set[MULTI_MAX_LOCATIONS_TO_OBSERVE],
         location_notification *n);
 
 /**
@@ -44,10 +46,10 @@ bool multi_coordinates_to_notification(coordinates *c, coordinates *last,
  *                                 We'll update this array.
  */
 int multi_add_notification_requests(
-        location_notification notifications[MAX_LOCATIONS_TO_OBSERVE],
+        location_notification notifications[MULTI_MAX_LOCATIONS_TO_OBSERVE],
         int n_requests,
-        location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
-        bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]);
+        location_notification locations_to_observe[MULTI_MAX_LOCATIONS_TO_OBSERVE],
+        bool is_location_set[MULTI_MAX_LOCATIONS_TO_OBSERVE]);
 
 /**
  * Coordinate courier task
