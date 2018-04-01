@@ -193,8 +193,10 @@ void multi_train_conductor() {
 
                   int first_target_speed = speed_below(follower_velocity_model.msg.train_speeds[14],
                                                        first_velocity_model.msg.train_speeds);
-                  set_train_speed(train_tx_server, track_state_controller,
-                                  g.members[0], first_target_speed);
+                  if (first_target_speed != -1) {
+                    set_train_speed(train_tx_server, track_state_controller,
+                                    g.members[0], first_target_speed);
+                  }
                 }
               }
             }
