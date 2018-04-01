@@ -79,7 +79,7 @@ void multi_conductor_reverse_to_speed(int train_tx_server,
 
 void multi_train_conductor() {
   int sender_tid;
-  message received, ready;
+  message received;
   int train_tx_server = WhoIs("TrainTxServer");
   int clock_server = WhoIs("ClockServer");
   int track_state_controller = WhoIs("TrackStateController");
@@ -97,7 +97,6 @@ void multi_train_conductor() {
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
   Assert(received.type == MESSAGE_MULTICONDUCTOR_SETGROUP);
   tmemcpy(&g, &received.msg.group_content, sizeof(g));
-  ready.type = MESSAGE_READY;
   bool is_done = false;
 
   int coordinate_courier_tid = -1;
@@ -132,7 +131,6 @@ void multi_train_conductor() {
             Assert(0);
             break;
         }
-        Assert(Send(cmd_dispatcher, &ready, sizeof(ready), EMPTY_MESSAGE, 0) == 0);
         break;
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         switch (received.msg.notification_response.reason) {
