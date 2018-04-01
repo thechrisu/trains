@@ -183,7 +183,9 @@ void multi_coordinate_courier() {
       get_coordinates(coordinate_server, first_t, &first);
       get_coordinates(coordinate_server, second_t, &second);
 
-      int d = distance_between_locations(&second.loc, &first.loc) / 100;
+      int r = distance_between_locations(&second.loc, &first.loc);
+      if (r < 0) continue;
+      int d = r / 100;
       if (d > spacing + spacing_error || d < spacing - spacing_error) {
         n_observed.msg.notification_response.subject.trains[0] = first_t;
         n_observed.msg.notification_response.subject.trains[1] = second_t;

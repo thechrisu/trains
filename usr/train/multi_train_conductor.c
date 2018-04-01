@@ -51,7 +51,7 @@ void multi_train_conductor() {
   int coordinate_courier_tid = -1;
   while (!is_done) {
     if (coordinate_courier_tid < 0) {
-      coordinate_courier_tid = create_multi_courier(g);
+      coordinate_courier_tid = create_multi_courier(&g);
     }
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
@@ -80,8 +80,17 @@ void multi_train_conductor() {
         break;
       case MESSAGE_CONDUCTOR_NOTIFY_REQUEST:
         switch (received.msg.notification_response.reason) {
+          case GOT_LOST:
+          case LOCATION_CHANGED:
+          case LOCATION_ANY: {
+            message next_req;
+            next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
+            next_req.msg.notification_request.drop_existing = true;
+            next_req.msg.notification_request.num_requests = 0;
+            Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
+            break;
+          }
           case SPACING:
-            logprintf("SPACING: IS: %d, SHOULD BE: %d\n\r",
               received.msg.notification_response.action.distance[0],
               received.msg.notification_response.action.distance[1]
             );
