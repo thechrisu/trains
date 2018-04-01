@@ -186,6 +186,7 @@ void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
   conductors[t].msgs_o = 0;
   conductors[t].msgs_available = 0;
   conductors[t].auto_mode = false;
+  conductors[t].destination = NO_DESTINATION;
   conductors[t].t2_tid = 0;
 }
 
