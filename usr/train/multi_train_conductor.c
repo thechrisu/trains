@@ -120,7 +120,6 @@ void multi_train_conductor() {
             // TODO
             break;
           case USER_CMD_TRG:
-            logprintf("TRG %d\n\r", received.msg.cmd.data[1]);
             multi_conductor_setspeed(train_tx_server,
                                      track_state_controller,
                                      &g, received.msg.cmd.data[1]);
@@ -155,8 +154,6 @@ void multi_train_conductor() {
 
             int actual_distance = received.msg.notification_response.action.distance[0];
             int expected_distance = received.msg.notification_response.action.distance[1];
-
-            logprintf("SPACING: %d %d %d %d\n\r", leader, follower, actual_distance, expected_distance);
 
             int new_speed;
 
@@ -207,8 +204,6 @@ void multi_train_conductor() {
                 new_speed = -1;
               }
             }
-
-            logprintf("SPACING new speed: %d\n\r", new_speed);
 
             if (new_speed != -1) {
               set_train_speed(train_tx_server, track_state_controller,
