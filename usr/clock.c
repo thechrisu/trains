@@ -26,8 +26,9 @@ void clock_server() {
         while (head != NULL_CLOCK_WAIT && head->ticks <= ticks) {
           Assert(clock_wait_queue_dequeue(&queue, &cw) != -1);
           reply.type = REPLY_CLOCK_SERVER_OK;
+          // Won't accidentally send to the wrong task, because task ids are unique.
           int r = Reply(cw.tid, &reply, sizeof(reply));
-          Assert(r == 0 || r == -2 || r == -3);
+          Assert(r == 0 || r == -2);
           head = clock_wait_queue_peek(&queue);
         }
 
