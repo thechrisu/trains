@@ -221,9 +221,6 @@ void multi_train_conductor() {
             }
 
             if (new_speed != -1) {
-              logprintf("Exp: %d, Actual: %d (acc: %d), new follower speed: %d (leader: %d error_p_s: %d)\n\r",
-                  expected_distance, actual_distance, leader_coords.acceleration,
-                  new_speed, leader_coords.current_speed, error_p_s);
               set_train_speed(train_tx_server, track_state_controller,
                               follower, new_speed);
             }
