@@ -97,8 +97,12 @@ void track_state_controller() {
         Assert(train >= 0 && train <= 80);
         Assert(received.msg.tr_data.should_speed >= 0
                && received.msg.tr_data.should_speed <= 14);
-        track.train[train].last_speed = track.train[train].should_speed;
-        track.train[train].should_speed = received.msg.tr_data.should_speed;
+
+        if (received.msg.tr_data.should_speed != track.train[train].should_speed) {
+          track.train[train].last_speed = track.train[train].should_speed;
+          track.train[train].should_speed = received.msg.tr_data.should_speed;
+        }
+
         track.train[train].headlights = received.msg.tr_data.headlights;
         track.train[train].time_speed_last_changed = Time(clock_server_tid);
 #if DEBUG_REVERSAL
