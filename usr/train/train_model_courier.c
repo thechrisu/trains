@@ -1,6 +1,6 @@
 #include "train_model_courier.h"
 
-#define TRAIN_MODEL_COURIER_REFRESH_PERIOD 50 // Ticks
+#define TRAIN_MODEL_COURIER_REFRESH_PERIOD 200 // Ticks
 
 void train_model_courier() {
   int clock_server = WhoIs("ClockServer");

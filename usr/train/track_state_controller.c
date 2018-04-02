@@ -2,6 +2,13 @@
 
 track_state track;
 
+/**
+ * Sends the latest velocity model/train state of one train
+ * to the train coordinates server.
+ *
+ * @param train                    Train to update
+ * @param train_coords_server_tid  Train coordinate server task id
+ */
 void track_controller_update_coordinates(int train, int train_coords_server_tid) {
   message send;
 
