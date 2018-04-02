@@ -184,16 +184,12 @@ void multi_train_conductor() {
                                           &follower_velocity_model);
 
               if (actual_distance < expected_distance) {
-                /*new_speed = speed_below(follower_coords.velocity - error_p_s,
-                                        follower_velocity_model.msg.train_speeds);*/
                 new_speed = leader_coords.acceleration > 0 ?
                             speed_above(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
                             speed_below(leader_coords.target_velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance) {
-                /*new_speed = speed_above(follower_coords.velocity + error_p_s,
-                                        follower_velocity_model.msg.train_speeds);*/
                 new_speed = leader_coords.acceleration < 0 ?
                             speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
