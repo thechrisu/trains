@@ -10,6 +10,7 @@
 #include "messages.h"
 #include "track_data.h"
 #include "tstdlib.h"
+#include "track_data.h"
 #include "train_util.h"
 
 /**
