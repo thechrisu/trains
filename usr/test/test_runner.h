@@ -30,6 +30,7 @@
 #include "clock/test_clock.h"
 #include "destroy/test_destroy.h"
 #include "prediction/test_stopping_location_prediction.h"
+#include "prediction/test_collision_prediction.h"
 #include "prediction/test_next_switch_prediction.h"
 #include "router/test_router.h"
 #include "./servers/test_track_reservation_server.h"

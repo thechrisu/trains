@@ -118,3 +118,39 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
   synthesize_turnout_states_from_route(route, ideal_turnout_states);
   location_canonicalize(ideal_turnout_states, &send_switch_here->loc, &send_switch_here->loc);
 }
+
+void rollout_tick(coordinates *c, turnout_state turnout_states[NUM_TURNOUTS]) {
+  update_coordinates_helper(c->ticks + 5, turnout_states, c);
+}
+
+// TODO return total ordering of group instead of just bool
+bool will_collide_with_other_train(int distance, coordinates *c, coordinates others[],
+                                   int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS]) {
+  int d = 0;
+  coordinates one_behind;
+  tmemcpy(&one_behind, c, sizeof(one_behind));
+  while (d < distance) {
+    rollout_tick(c, turnout_states);
+    d += distance_between_locations(&one_behind.loc, &c->loc);
+    for (int i = 0; i < num_other_trains; i++) {
+      rollout_tick(&others[i], turnout_states);
+      bool are_we_ahead;
+      int di = distance_between_locations(&c->loc, &others[i].loc);
+      int di_pair = distance_between_locations(&others[i].loc, &c->loc);
+      if (di != -1 && di < TRAIN_LENGTH) {
+        // bwprintf("We are not ahead.\n\r");
+        are_we_ahead = false;
+        return true;
+        // uh oh, we have a collision incoming
+      }
+      if (di_pair != -1 && di_pair < TRAIN_LENGTH) {
+        are_we_ahead = true;
+        // bwprintf("We are ahead.\n\r");
+        return true;
+        // uh oh, we have a collision incoming
+      }
+    }
+    tmemcpy(&one_behind, c, sizeof(one_behind));
+  }
+  return false;
+}
