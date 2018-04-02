@@ -4,7 +4,7 @@
 #define SWITCH_PADDING_DEFAULT            50
 #define SPACING_DEFAULT                   100
 #define SPACING_ERROR_DEFAULT             10
-#define SPACING_CATCHUP_TIME_DEFAULT      300 // Ticks
+#define SPACING_CATCHUP_TIME_DEFAULT      600 // Ticks
 
 int active_trains[81];
 int num_active_trains;

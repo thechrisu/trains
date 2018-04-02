@@ -163,8 +163,8 @@ void multi_train_conductor() {
 
             int actual_distance = received.msg.notification_response.action.distance[0];
             int expected_distance = received.msg.notification_response.action.distance[1];
-            int error_p_s = 100.0 * ABS((actual_distance - expected_distance)
-                              / (spacing_catchup_time / 100.0));
+            int error_p_s = (10000 * ABS(actual_distance - expected_distance))
+                              / spacing_catchup_time;
 
             int new_speed;
 
@@ -184,14 +184,18 @@ void multi_train_conductor() {
                                           &follower_velocity_model);
 
               if (actual_distance < expected_distance) {
+                /*new_speed = speed_below(follower_coords.velocity - error_p_s,
+                                        follower_velocity_model.msg.train_speeds);*/
                 new_speed = leader_coords.acceleration > 0 ?
-                            speed_above(follower_coords.velocity + error_p_s,
+                            speed_above(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
                             speed_below(leader_coords.target_velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance) {
+                /*new_speed = speed_above(follower_coords.velocity + error_p_s,
+                                        follower_velocity_model.msg.train_speeds);*/
                 new_speed = leader_coords.acceleration < 0 ?
-                            speed_below(follower_coords.velocity - error_p_s,
+                            speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
                             speed_above(leader_coords.target_velocity + error_p_s,
                                         follower_velocity_model.msg.train_speeds);
@@ -217,6 +221,8 @@ void multi_train_conductor() {
             }
 
             if (new_speed != -1) {
+              logprintf("Exp: %d, Actual: %d, new follower speed: %d (leader: %d)\n\r",
+                  expected_distance, actual_distance, new_speed, leader_coords.current_speed);
               set_train_speed(train_tx_server, track_state_controller,
                               follower, new_speed);
             }
