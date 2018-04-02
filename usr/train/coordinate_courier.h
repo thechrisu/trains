@@ -12,7 +12,6 @@
 #include "tstdlib.h"
 #include "track_data.h"
 #include "train_util.h"
-#include "train_coordinates_server.h"
 
 /**
  * Checks whether the given coordinates trigger notifications,
