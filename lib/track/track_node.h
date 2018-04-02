@@ -14,7 +14,9 @@
 #define TRACKB_SIZE 140
 #define NUM_TURNOUTS 22
 
+// in 1/100th mm
 #define PICKUP_LENGTH 5 * 10 * 100
+#define TRAIN_LENGTH 20 * 10 * 100
 
 typedef enum {
   NODE_NONE,

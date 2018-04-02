@@ -195,7 +195,7 @@ void multi_coordinate_courier() {
 
       int r = distance_between_locations(&second.loc, &first.loc);
       if (r < 0) continue;
-      int d = r / 100;
+      int d = (r - TRAIN_LENGTH) / 100;
       if ((d > spacing + spacing_error || d < spacing - spacing_error) &&
           last_spacing_notification[i] < time - SPACING_NOTIFICATION_PERIOD) {
         last_spacing_notification[i] = time;
