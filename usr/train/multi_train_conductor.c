@@ -163,6 +163,8 @@ void multi_train_conductor() {
 
             int actual_distance = received.msg.notification_response.action.distance[0];
             int expected_distance = received.msg.notification_response.action.distance[1];
+            int error_p_s = 100.0 * ABS((actual_distance - expected_distance)
+                              / (spacing_catchup_time / 100.0));
 
             int new_speed;
 
@@ -183,15 +185,15 @@ void multi_train_conductor() {
 
               if (actual_distance < expected_distance) {
                 new_speed = leader_coords.acceleration > 0 ?
-                            speed_above(follower_coords.velocity,
+                            speed_above(follower_coords.velocity + error_p_s,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_below(leader_coords.target_velocity,
+                            speed_below(leader_coords.target_velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance) {
                 new_speed = leader_coords.acceleration < 0 ?
-                            speed_below(follower_coords.velocity,
+                            speed_below(follower_coords.velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_above(leader_coords.target_velocity,
+                            speed_above(leader_coords.target_velocity + error_p_s,
                                         follower_velocity_model.msg.train_speeds);
 
                 // If the follower can't catch up to the leader's current velocity,

@@ -366,6 +366,9 @@ void command_dispatcher_server() {
               case SET_SPACING_ERROR:
                 spacing_error = received.msg.cmd.data[1];
                 break;
+              case SET_SPACING_CATCHUP_TIME:
+                spacing_catchup_time = received.msg.cmd.data[1];
+                break;
               default:
                 Assert(0);
                 break;
