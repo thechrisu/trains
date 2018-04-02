@@ -16,9 +16,9 @@
  * @returns The speed that gives a velocity just above the target velocity,
  *          or -1 if none exists.
  */
-int speed_above(uint32_t target_velocity, uint32_t velocities[15]) {
+int speed_above(int32_t target_velocity, uint32_t velocities[15]) {
   for (int i = 0; i <= 14; i += 1) {
-    if (velocities[i] >= target_velocity) {
+    if ((int32_t)velocities[i] >= target_velocity) {
       return i;
     }
   }
@@ -32,9 +32,9 @@ int speed_above(uint32_t target_velocity, uint32_t velocities[15]) {
  * @returns The speed that gives a velocity just below the target velocity,
  *          or -1 if none exists.
  */
-int speed_below(uint32_t target_velocity, uint32_t velocities[15]) {
+int speed_below(int32_t target_velocity, uint32_t velocities[15]) {
   for (int i = 14; i >= 0; i -= 1) {
-    if (velocities[i] <= target_velocity) {
+    if ((int32_t)velocities[i] <= target_velocity) {
       return i;
     }
   }
@@ -187,13 +187,13 @@ void multi_train_conductor() {
                 new_speed = leader_coords.acceleration > 0 ?
                             speed_above(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_below(leader_coords.target_velocity - error_p_s,
+                            speed_below((int32_t)leader_coords.target_velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance) {
                 new_speed = leader_coords.acceleration < 0 ?
                             speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_above(leader_coords.target_velocity + error_p_s,
+                            speed_above((int32_t)leader_coords.target_velocity + error_p_s,
                                         follower_velocity_model.msg.train_speeds);
 
                 // If the follower can't catch up to the leader's current velocity,
