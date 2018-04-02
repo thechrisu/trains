@@ -11,12 +11,13 @@ void update_coordinates_helper(int now_ticks,
     current_velocity = c->target_velocity;
   }
 
+  int velocity_diff = current_velocity - c->velocity;
+  c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100;
+  if (c->acceleration != 0) {
+    c->loc.offset -= (velocity_diff * velocity_diff) / (2 * c->acceleration);
+  }
+
   if (c->loc.node != NULL_TRACK_NODE) {
-    int velocity_diff = current_velocity - c->velocity;
-    c->loc.offset += current_velocity * (now_ticks - c->ticks) / 100;
-    if (c->acceleration != 0) {
-      c->loc.offset -= (velocity_diff * velocity_diff) / (2 * c->acceleration);
-    }
     location_canonicalize(turnout_states, &c->loc, &c->loc);
   }
 
