@@ -193,8 +193,15 @@ void multi_coordinate_courier() {
 
       int time = Time(clock_server);
 
-      int r = distance_between_locations(&second.loc, &first.loc);
-      if (r < 0) continue;
+      int r;
+      if (first.loc.node == NULL_TRACK_NODE &&
+          second.loc.node == NULL_TRACK_NODE) {
+        r = spacing * 100 + TRAIN_LENGTH + (first.loc.offset - second.loc.offset);
+      } else {
+        r = distance_between_locations(&second.loc, &first.loc);
+        if (r < 0) continue;
+      }
+
       int d = (r - TRAIN_LENGTH) / 100;
       if ((d > spacing + spacing_error || d < spacing - spacing_error) &&
           last_spacing_notification[i] < time - SPACING_NOTIFICATION_PERIOD) {
