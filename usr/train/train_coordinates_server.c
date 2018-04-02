@@ -42,7 +42,7 @@ void update_coordinates_after_sensor_hit(reply_get_last_sensor_hit *last_sensor_
 // TODO account for delay in sending command to train?
 void update_coordinates_after_speed_change(train_data *tr_data,
                                            uint32_t velocity_model[15],
-                                           int acceleration,
+                                           uint32_t stopping_distance_model[15],
                                            turnout_state turnout_states[NUM_TURNOUTS],
                                            coordinates *c) {
   update_coordinates_helper(tr_data->time_speed_last_changed, turnout_states, c);
@@ -51,7 +51,17 @@ void update_coordinates_after_speed_change(train_data *tr_data,
   c->last_speed = tr_data->last_speed;
 
   c->target_velocity = velocity_model[tr_data->should_speed];
-  c->acceleration = acceleration;
+
+  // TODO use acceleration model
+  long long sd = stopping_distance_model[tr_data->should_speed];
+
+  if (c->velocity < c->target_velocity) {
+    c->acceleration = (c->target_velocity * c->target_velocity) / (2 * sd);
+  } else if (c->velocity == c->target_velocity) {
+    c->acceleration = 0;
+  } else {
+    c->acceleration = -(c->target_velocity * c->target_velocity) / (2 * sd);
+  }
 }
 
 void update_coordinates_after_reverse(coordinates *c) {
@@ -103,7 +113,8 @@ void train_coordinates_server() {
     switch (received.type) {
       case MESSAGE_UPDATE_COORDS_SPEED:
         update_coordinates_after_speed_change(&uc->tr_data, uc->velocity_model,
-                                              uc->acceleration, turnout_states,
+                                              uc->stopping_distance_model,
+                                              turnout_states,
                                               train_coords);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;

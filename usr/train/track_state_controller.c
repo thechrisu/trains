@@ -18,21 +18,9 @@ void track_controller_update_coordinates(int train, int train_coords_server_tid)
   tmemcpy(&send.msg.update_coords.velocity_model,
           track.speed_to_velocity[train],
           15 * sizeof(uint32_t));
-
-  // TODO use acceleration model
-  if (track.train[train].should_speed > track.train[train].last_speed) {
-    int speed = track.train[train].should_speed;
-    long long vel = track.speed_to_velocity[train][speed];
-    long long sd = track.stopping_distance[train][speed];
-    send.msg.update_coords.acceleration = (vel * vel) / (2 * sd);
-  } else if (track.train[train].should_speed == track.train[train].last_speed) {
-    send.msg.update_coords.acceleration = 0;
-  } else {
-    int speed = track.train[train].last_speed;
-    long long vel = track.speed_to_velocity[train][speed];
-    long long sd = track.stopping_distance[train][speed];
-    send.msg.update_coords.acceleration = -(vel * vel) / (2 * sd);
-  }
+  tmemcpy(&send.msg.update_coords.stopping_distance_model,
+          track.stopping_distance[train],
+          15 * sizeof(uint32_t));
 
   Assert(Send(train_coords_server_tid,
               &send, sizeof(send),

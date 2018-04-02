@@ -148,7 +148,7 @@ typedef struct {
 typedef struct {
   train_data tr_data;
   uint32_t velocity_model[15];
-  int acceleration;
+  uint32_t stopping_distance_model[15];
   reply_get_last_sensor_hit last_sensor;
 } message_update_coords;
 
