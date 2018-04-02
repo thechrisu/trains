@@ -45,8 +45,13 @@ void init_track(track_state *global_track) {
     turnouts[i] = TURNOUT_UNKNOWN; // offset 18-21 map to 153-156
     global_track->last_switch_time[i] = 0;
   }
+
   for(unsigned int i = 0; i < 81; i++) {
+    global_track->train[i].direction = true;
     global_track->train[i].should_speed = 0;
+    global_track->train[i].headlights = false;
+    global_track->train[i].last_speed = 0;
+    global_track->train[i].time_speed_last_changed = 0;
   }
 
   default_value default_speeds[] = {
