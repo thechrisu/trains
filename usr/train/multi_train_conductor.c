@@ -58,6 +58,7 @@ void multi_train_conductor() {
       case MESSAGE_SUNSET:
         Kill(coordinate_courier_tid);
         is_done = true;
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         break;
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
