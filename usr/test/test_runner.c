@@ -346,6 +346,11 @@ void test_runner() {
       .code = &test_sleeper,
       .prio = 5
     },
+    {
+      .name = "collision_prediction",
+      .code = &test_collision_prediction,
+      .prio = 5
+    },
     { .name = "" } // Keep this guard element at the end of the array.
   };
 
