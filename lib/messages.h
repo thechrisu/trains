@@ -84,6 +84,7 @@ enum message_type {
   MESSAGE_SUNSET, // We're not killing the task, we're "sunsetting" it.
   MESSAGE_SLEEP,
   MESSAGE_WAKEUP,
+  MESSAGE_REQUEST_COORD_UPDATE,
   MAX_MESSAGE_TYPE_ID,
 };
 
