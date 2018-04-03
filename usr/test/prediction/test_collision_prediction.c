@@ -21,22 +21,26 @@ void test_collision_prediction() {
   r = will_collide_with_other_train(0, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
   Assert(max_acc == 14);
   Assert(!r);
+  Assert(c.current_speed ==14);
   tmemcpy(&temp, &o, sizeof(temp));
   tmemcpy(&me_temp, &c, sizeof(me_temp));
   r = will_collide_with_other_train(100000, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
   Assert(max_acc > 0 && max_acc < 14);
   Assert(!r);
+  Assert(c.current_speed ==14);
   tmemcpy(&temp, &o, sizeof(temp));
   tmemcpy(&me_temp, &c, sizeof(me_temp));
   r = will_collide_with_other_train(100000, &me_temp, &temp, 0, turnout_states, &max_acc, 78);
   Assert(max_acc == 14);
   Assert(!r);
+  Assert(c.current_speed ==14);
 
   tmemcpy(&temp, &o, sizeof(temp));
   tmemcpy(&me_temp, &c, sizeof(me_temp));
   me_temp.loc.node = find_node_by_name(&track, "C5");
   r = will_collide_with_other_train(100000, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
   Assert(max_acc == 14);
+  Assert(c.current_speed ==14);
   Assert(!r);
 
   tmemcpy(&temp, &o, sizeof(temp));
@@ -46,7 +50,18 @@ void test_collision_prediction() {
   temp.loc.node = find_node_by_name(&track, "B4");
   r = will_collide_with_other_train(200000, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
   Assert(max_acc == 12);
+  Assert(c.current_speed ==14);
   Assert(!r);
+
+  tmemcpy(&temp, &o, sizeof(temp));
+  tmemcpy(&me_temp, &c, sizeof(me_temp));
+  me_temp.loc.node = find_node_by_name(&track, "D10");
+  me_temp.loc.offset = 10000;
+  temp.loc.node = find_node_by_name(&track, "D6");
+  temp.loc.offset = 0;
+  r = will_collide_with_other_train(100000, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
+  Assert(max_acc == -1);
+  Assert(r);
 
   bwprintf("Success.\n\r");
   router_test_teardown();
