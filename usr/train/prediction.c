@@ -1,5 +1,6 @@
 #include "prediction.h"
 
+#define ABS(a) ((a) < 0 ? -(a) : (a))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
 void predict_sensor_hit(int train_coordinates_server_tid,
@@ -125,32 +126,58 @@ void rollout_tick(coordinates *c, turnout_state turnout_states[NUM_TURNOUTS]) {
 
 // TODO return total ordering of group instead of just bool
 bool will_collide_with_other_train(int distance, coordinates *c, coordinates others[],
-                                   int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS]) {
-  int d = 0;
+                                   int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS],
+                                   int *highest_acceptable_speed, int train) {
+  coordinates temp;
+  tmemcpy(&temp, c, sizeof(temp));
   coordinates one_behind;
-  tmemcpy(&one_behind, c, sizeof(one_behind));
-  while (d < distance) {
-    rollout_tick(c, turnout_states);
-    d += distance_between_locations(&one_behind.loc, &c->loc);
-    for (int i = 0; i < num_other_trains; i++) {
-      rollout_tick(&others[i], turnout_states);
-      bool are_we_ahead;
-      int di = distance_between_locations(&c->loc, &others[i].loc);
-      int di_pair = distance_between_locations(&others[i].loc, &c->loc);
-      if (di != -1 && di < TRAIN_LENGTH) {
-        // bwprintf("We are not ahead.\n\r");
-        are_we_ahead = false;
-        return true;
-        // uh oh, we have a collision incoming
-      }
-      if (di_pair != -1 && di_pair < TRAIN_LENGTH) {
-        are_we_ahead = true;
-        // bwprintf("We are ahead.\n\r");
-        return true;
-        // uh oh, we have a collision incoming
-      }
-    }
+  message velocity_model;
+  get_constant_velocity_model(WhoIs("TrackStateController"), train, &velocity_model);
+  
+  for (int j = c->current_speed; j >= 0; j--) {
+    coordinates others_c[num_other_trains];
+    tmemcpy(others_c, others, sizeof(others_c));
+    tmemcpy(c, &temp, sizeof(temp));
+    c->current_speed = j;
+    c->target_velocity = velocity_model.msg.train_speeds[j];
+    c->acceleration = c->target_velocity - c->velocity;
+    Assert(c->loc.offset >= 0);
+    int d = 0;
     tmemcpy(&one_behind, c, sizeof(one_behind));
+    bool got_collision = false;
+    while (d < distance) {
+      rollout_tick(c, turnout_states);
+      d += distance_between_locations(&one_behind.loc, &c->loc);
+      for (int i = 0; i < num_other_trains; i++) {
+        rollout_tick(&others_c[i], turnout_states);
+        bool are_we_ahead;
+        int di = distance_between_locations(&c->loc, &others_c[i].loc);
+        int di_pair = distance_between_locations(&others_c[i].loc, &c->loc);
+        if (di != -1 && ABS(di) < TRAIN_LENGTH) {
+          // bwprintf("We are not ahead.\n\r");
+          are_we_ahead = false;
+          got_collision = true;
+          break;
+          // return true;
+          // uh oh, we have a collision incoming
+        }
+        if (di_pair != -1 && ABS(di_pair) < TRAIN_LENGTH) {
+          are_we_ahead = true;
+          got_collision = true;
+          break;
+          // return true;
+          // uh oh, we have a collision incoming
+        }
+      }
+      if (got_collision) break;
+      tmemcpy(&one_behind, c, sizeof(one_behind));
+    }
+    if (!got_collision) {
+      *highest_acceptable_speed = c->current_speed;
+      tmemcpy(c, &temp, sizeof(temp));
+      return false;
+    }
   }
-  return false;
+  *highest_acceptable_speed = -1;
+  return true;
 }
