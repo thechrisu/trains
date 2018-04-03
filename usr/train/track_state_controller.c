@@ -165,7 +165,7 @@ void track_state_controller() {
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
         if (velocity >= DEFINITE_MAX_CM_PER_SEC * 10 * 100) {
-          logprintf("Got a velocity of %d 1/100 mm/s\n\r in track state controller\n\r", velocity);
+          logprintf("Got a velocity of %d 1/100 mm/s in track state controller\n\r", velocity);
         } else {
           if (track.speed_to_velocity[t][s] == 0) {
             track.speed_to_velocity[t][s] = velocity;
