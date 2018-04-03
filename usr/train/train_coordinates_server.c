@@ -53,14 +53,16 @@ void update_coordinates_after_speed_change(train_data *tr_data,
   c->target_velocity = velocity_model[tr_data->should_speed];
 
   // TODO use acceleration model
-  long long sd = stopping_distance_model[tr_data->should_speed];
+  long long vel = c->target_velocity == 0 ? c->velocity : c->target_velocity;
+  long long sd = stopping_distance_model[c->current_speed == 0 ? c->last_speed : c->current_speed];
+  long long accel = (vel * vel) / (2 * sd);
 
   if (c->velocity < c->target_velocity) {
-    c->acceleration = (c->velocity * c->velocity) / (2 * sd);
+    c->acceleration = (int)accel;
   } else if (c->velocity == c->target_velocity) {
     c->acceleration = 0;
   } else {
-    c->acceleration = -(c->velocity * c->velocity) / (2 * sd);
+    c->acceleration = -(int)accel;
   }
 }
 
