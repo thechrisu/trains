@@ -45,8 +45,13 @@ void init_track(track_state *global_track) {
     turnouts[i] = TURNOUT_UNKNOWN; // offset 18-21 map to 153-156
     global_track->last_switch_time[i] = 0;
   }
+
   for(unsigned int i = 0; i < 81; i++) {
+    global_track->train[i].direction = true;
     global_track->train[i].should_speed = 0;
+    global_track->train[i].headlights = false;
+    global_track->train[i].last_speed = 0;
+    global_track->train[i].time_speed_last_changed = 0;
   }
 
   default_value default_speeds[] = {
@@ -72,14 +77,14 @@ void init_track(track_state *global_track) {
     { .train = 58, .speed = 4, .value = 12579 },
     { .train = 58, .speed = 5, .value = 13143 },
     { .train = 58, .speed = 6, .value = 15460 },
-    { .train = 58, .speed = 7, .value = 27078 },
-    { .train = 58, .speed = 8, .value = 30644 },
-    { .train = 58, .speed = 9, .value = 37350 },
-    { .train = 58, .speed = 10, .value = 30611 },
-    { .train = 58, .speed = 11, .value = 40804 },
-    { .train = 58, .speed = 12, .value = 44645 },
-    { .train = 58, .speed = 13, .value = 49511 },
-    { .train = 58, .speed = 14, .value = 57389 },
+    { .train = 58, .speed = 7, .value = 19906 },
+    { .train = 58, .speed = 8, .value = 23789 },
+    { .train = 58, .speed = 9, .value = 29110 },
+    { .train = 58, .speed = 10, .value = 34835 },
+    { .train = 58, .speed = 11, .value = 42516 },
+    { .train = 58, .speed = 12, .value = 49484 },
+    { .train = 58, .speed = 13, .value = 55898 },
+    { .train = 58, .speed = 14, .value = 62389 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 923 },
     { .train = 74, .speed = 2, .value = 7225 },
@@ -143,8 +148,8 @@ void init_track(track_state *global_track) {
     { .train = 58, .speed = 7, .value = 12790 },
     { .train = 58, .speed = 8, .value = 20090 },
     { .train = 58, .speed = 9, .value = 30670 },
-    { .train = 58, .speed = 10, .value = 43640 },
-    { .train = 58, .speed = 11, .value = 60160 },
+    { .train = 58, .speed = 10, .value = 42816 },
+    { .train = 58, .speed = 11, .value = 55683 },
     { .train = 58, .speed = 12, .value = 74089 },
     { .train = 58, .speed = 13, .value = 93892 },
     { .train = 58, .speed = 14, .value = 143575 },
@@ -512,6 +517,10 @@ int distance_diff(track_state *t, turnout_state turnouts[NUM_TURNOUTS],
 }
 
 int distance_between_locations(location *from_loc, location *to_loc) {
+  if (from_loc->node == NULL_TRACK_NODE || to_loc->node == NULL_TRACK_NODE) {
+    return -1;
+  }
+
   int result = distance_between_track_nodes_helper(from_loc->node, to_loc->node,
                                                    0, 2 * FIND_LIMIT);
   if (result < 0) return result;

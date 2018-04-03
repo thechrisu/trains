@@ -20,6 +20,7 @@ typedef enum set_parameter {
   SET_DIRECTION,
   SET_SPACING,
   SET_SPACING_ERROR,
+  SET_SPACING_CATCHUP_TIME,
   MAX_PARAMETER,
 } set_parameter;
 
@@ -40,6 +41,9 @@ extern int spacing;
 
 // Ideal error of the spacing parameter (mm).
 extern int spacing_error;
+
+// In how many ticks the spacing error should be bridged.
+extern int spacing_catchup_time;
 
 /**
  * Initializes parameters to their default values.

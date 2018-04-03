@@ -118,6 +118,12 @@ void user_command_print(int server_tid, user_command *cmd) {
                     CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR, cmd->data[0],
                     HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_TRG:
+      Assert(Printf(server_tid, "%s%s%sTRG %s %d         %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    ((train_group_info *)cmd->data[0])->group_name,
+                    cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
@@ -139,6 +145,7 @@ void user_command_print(int server_tid, user_command *cmd) {
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apologize for this mess
   if (data == '\r') {
     if (ibuf->elems == 0) return true;
+    user_command_reset(cmd);
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
@@ -295,16 +302,13 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
         group_name[j] = ibuf->data[buffer_index];
       }
       group_name[j] = '\0';
-      for (int i = 0; i < num_groups; i++) {
-        if (tstrcmp(group_name, tr_groups[i].group_name)) {
-          cmd->type = USER_CMD_UNGROUP;
-          tmemcpy((char *)(cmd->data[0]), group_name, j);
-          for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
-            ((char *)cmd->data[0])[k] = '\0';
-          }
-          break;
-        } else {
-          cmd->type = NULL_USER_CMD;
+
+      train_group_info *group = find_group(group_name);
+      if (group != NULL_TRAIN_GROUP_INFO) {
+        cmd->type = USER_CMD_UNGROUP;
+        tmemcpy((char *)(cmd->data[0]), group_name, j);
+        for (int k = j; k < MAX_GROUP_NAME_LEN; k++) {
+          ((char *)cmd->data[0])[k] = '\0';
         }
       }
     } else if (string_starts_with(ibuf->data, "set ", ibuf->elems)) {
@@ -366,14 +370,41 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
           }
         }
       }
+    } else if (string_starts_with(ibuf->data, "trg ", ibuf->elems)) {
+      char group_name[MAX_GROUP_NAME_LEN];
+      unsigned int buffer_index = 4;
+      int j = 0;
+
+      for (; buffer_index < 4 + MAX_GROUP_NAME_LEN + 1
+          && buffer_index < ibuf->elems
+          && ibuf->data[buffer_index] != ' '; buffer_index++, j++) {
+        group_name[j] = ibuf->data[buffer_index];
+      }
+
+      group_name[j] = '\0';
+      buffer_index += 1; // For the space (' ')
+
+      train_group_info *group = find_group(group_name);
+
+      if (group != NULL_TRAIN_GROUP_INFO &&
+          buffer_index < ibuf->elems &&
+          j != 0) {
+        int n = is_valid_number(ibuf, buffer_index);
+        if (n >= 0) {
+          int speed = parse_number(ibuf, buffer_index);
+          if (speed >= 0 && speed <= 14) {
+            cmd->type = USER_CMD_TRG;
+            cmd->data[0] = (int)group;
+            cmd->data[1] = speed;
+          }
+        }
+      }
     } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
     } else if (string_starts_with(ibuf->data, "go", ibuf->elems) && ibuf->elems == 2) {
       cmd->type = USER_CMD_GO;
     } else if (string_starts_with(ibuf->data, "q", ibuf->elems) && ibuf->elems == 1) {
       cmd->type = USER_CMD_Q;
-    } else {
-      user_command_reset(cmd);
     }
     char_buffer_clear(ibuf);
     char_buffer_empty(ibuf);
@@ -444,7 +475,6 @@ void project_first_user_task() {
   Assert(ns_tid > 0);
 #else
   Assert(Create(my_priority + 2, &nameserver_main) > 0);
-  logprintf("Size of message (bytes): %d\n\r", sizeof(message));
 #endif /* E2ETESTING */
   int clock_server_tid = Create(my_priority + 3, &clock_server);
   Assert(clock_server_tid > 0);

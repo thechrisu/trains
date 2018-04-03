@@ -1,9 +1,10 @@
 #include "parameters.h"
 
-#define NUM_ACTIVE_TRAINS_DEFAULT 4
-#define SWITCH_PADDING_DEFAULT    50
-#define SPACING_DEFAULT           100
-#define SPACING_ERROR_DEFAULT     10
+#define NUM_ACTIVE_TRAINS_DEFAULT         4
+#define SWITCH_PADDING_DEFAULT            50
+#define SPACING_DEFAULT                   100
+#define SPACING_ERROR_DEFAULT             10
+#define SPACING_CATCHUP_TIME_DEFAULT      600 // Ticks
 
 int active_trains[81];
 int num_active_trains;
@@ -15,6 +16,8 @@ int switch_padding;
 int spacing;
 
 int spacing_error;
+
+int spacing_catchup_time;
 
 static char parameter_names[MAX_PARAMETER][PARAMETER_NAME_LENGTH];
 
@@ -36,14 +39,16 @@ void init_parameters() {
   switch_padding = SWITCH_PADDING_DEFAULT;
   spacing = SPACING_DEFAULT;
   spacing_error = SPACING_ERROR_DEFAULT;
+  spacing_catchup_time = SPACING_CATCHUP_TIME_DEFAULT;
 
   tmemcpy(parameter_names[SET_TRAINS], "trains", sizeof("trains"));
   tmemcpy(parameter_names[SET_SWITCH_PADDING], "switch_padding", sizeof("switch_padding"));
   tmemcpy(parameter_names[SET_TRACK], "track", sizeof("track"));
   tmemcpy(parameter_names[SET_DIRECTION], "direction", sizeof("direction"));
   tmemcpy(parameter_names[SET_SPACING], "spacing", sizeof("spacing"));
-  tmemcpy(parameter_names[SET_SPACING_ERROR], "spacing_error",
-          sizeof("spacing_error"));
+  tmemcpy(parameter_names[SET_SPACING_ERROR], "spacing_error", sizeof("spacing_error"));
+  tmemcpy(parameter_names[SET_SPACING_CATCHUP_TIME], "spacing_catchup_time",
+          sizeof("spacing_catchup_time"));
 }
 
 char *get_parameter_name(set_parameter index) {

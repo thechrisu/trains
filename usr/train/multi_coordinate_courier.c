@@ -1,6 +1,9 @@
 #include "multi_coordinate_courier.h"
 
 #define TOO_MANY_NOTIFICATION_REQUESTS -1
+
+#define SPACING_NOTIFICATION_PERIOD 25
+
 #define ABS(a) ((a) < 0 ? -(a) : (a))
 
 /**
@@ -128,6 +131,11 @@ void multi_coordinate_courier() {
   train_group group;
   tmemcpy(&group, &group_msg.msg.group_content, sizeof(group));
 
+  int last_spacing_notification[group.num_members];
+  for (int i = 0; i < group.num_members; i += 1) {
+    last_spacing_notification[i] = -(SPACING_NOTIFICATION_PERIOD + 1);
+  }
+
   location_notification locations_to_observe[MULTI_MAX_LOCATIONS_TO_OBSERVE];
   // Request: Ask what to observe
   // Response: The thing we really observed
@@ -183,10 +191,22 @@ void multi_coordinate_courier() {
       get_coordinates(coordinate_server, first_t, &first);
       get_coordinates(coordinate_server, second_t, &second);
 
-      int r = distance_between_locations(&second.loc, &first.loc);
-      if (r < 0) continue;
-      int d = r / 100;
-      if (d > spacing + spacing_error || d < spacing - spacing_error) {
+      int time = Time(clock_server);
+
+      int r;
+      if (first.loc.node == NULL_TRACK_NODE &&
+          second.loc.node == NULL_TRACK_NODE) {
+        r = spacing * 100 + TRAIN_LENGTH + (first.loc.offset - second.loc.offset);
+      } else {
+        r = distance_between_locations(&second.loc, &first.loc);
+        if (r < 0) continue;
+      }
+
+      int d = (r - TRAIN_LENGTH) / 100;
+      if ((d > spacing + spacing_error || d < spacing - spacing_error) &&
+          last_spacing_notification[i] < time - SPACING_NOTIFICATION_PERIOD) {
+        last_spacing_notification[i] = time;
+
         n_observed.msg.notification_response.subject.trains[0] = first_t;
         n_observed.msg.notification_response.subject.trains[1] = second_t;
         n_observed.msg.notification_response.reason = SPACING;

@@ -366,6 +366,9 @@ void command_dispatcher_server() {
               case SET_SPACING_ERROR:
                 spacing_error = received.msg.cmd.data[1];
                 break;
+              case SET_SPACING_CATCHUP_TIME:
+                spacing_catchup_time = received.msg.cmd.data[1];
+                break;
               default:
                 Assert(0);
                 break;
@@ -429,6 +432,11 @@ void command_dispatcher_server() {
             } else {
               logprintf("Should have found group %s\n\r", received.msg.cmd.data[0]);
             }
+            break;
+          }
+          case USER_CMD_TRG: {
+            train_group_info *group = (train_group_info *)received.msg.cmd.data[0];
+            Assert(Send(group->tid, &received, sizeof(received), EMPTY_MESSAGE, 0) == 0);
             break;
           }
           default:
