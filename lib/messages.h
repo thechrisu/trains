@@ -171,6 +171,7 @@ typedef enum {
   LOCATION_TO_STOP,
   LOCATION_ANY, // Any location where we're not lost
   SPACING,
+  LOCATION_SLOWDOWN,
   MAX_NOTIFICATION_TYPE,
 } coord_notification_type;
 

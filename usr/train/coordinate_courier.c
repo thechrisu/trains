@@ -114,6 +114,7 @@ void drop_all_notifications(bool is_location_set[MAX_LOCATIONS_TO_OBSERVE]) {
 
 void coordinate_courier() {
   int conductor = MyParentTid();
+  int track_state_controller = WhoIs("TrackStateController");
   int coordinate_server = WhoIs("TrainCoordinatesServer");
   int clock_server = WhoIs("ClockServer");
   coordinates c, last;
@@ -135,6 +136,7 @@ void coordinate_courier() {
   bool is_location_set[MAX_LOCATIONS_TO_OBSERVE];
   bool should_find_any = false;
   bool first_run = true;
+  bool is_blocked = false;
   drop_all_notifications(is_location_set);
   while (true) {
     get_coordinates(coordinate_server, train, &c);
@@ -163,6 +165,7 @@ void coordinate_courier() {
       tmemcpy(&last, &c, sizeof(c));
       Assert(n_request.type == REPLY_CONDUCTOR_NOTIFY_REQUEST);
       if (n_request.msg.notification_request.drop_existing) {
+        is_blocked = false;
         drop_all_notifications(is_location_set);
       }
       int r = add_notification_requests(
@@ -170,6 +173,33 @@ void coordinate_courier() {
                   n_request.msg.notification_request.num_requests,
                   locations_to_observe, is_location_set);
       Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
+    }
+    
+    // Check if we would collide within one stopping distance
+    coordinates group_coordinates[MAX_GROUP_MEMBERS];
+    // For now, just assume that we only have one group
+    train_group *g = &tr_groups[0].g;
+    for (int i = 0; i < g->num_members; i++) {
+      int t = g->members[i];
+      get_coordinates(coordinate_server, t, &group_coordinates[i]);
+    }
+     // TODO get_stopping_distance_model(track_state_controller, train, stopping_distance_model);
+    int sd = 170000; // For now just eyeballing
+    turnout_state turnout_states[NUM_TURNOUTS];
+    get_turnouts(track_state_controller, turnout_states);
+    int max_speed = -1;
+    n_observed.msg.notification_response.action.distance[1] = c.current_speed;
+    bool will_collide = will_collide_with_other_train(sd, &c, group_coordinates,
+                                  g->num_members, turnout_states, &max_speed,
+                                  train);
+    is_blocked = will_collide;
+    if (will_collide) {
+      // TODO don't send this too often
+      n_observed.msg.notification_response.subject.trains[0] = train;
+      n_observed.msg.notification_response.reason = LOCATION_SLOWDOWN;
+      n_observed.msg.notification_response.action.distance[0] = max_speed;
+      Assert(Send(conductor, &n_observed, sizeof(n_observed),
+                             EMPTY_MESSAGE, 0) == 0);
     }
     Delay(clock_server, 1);
   }
