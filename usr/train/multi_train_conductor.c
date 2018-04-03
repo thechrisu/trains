@@ -174,7 +174,7 @@ void multi_train_conductor() {
             get_coordinates(train_coordinates_server, leader, &leader_coords);
             get_coordinates(train_coordinates_server, follower, &follower_coords);
 
-            if (leader_coords.velocity == 0 && leader_coords.target_velocity == 0) {
+            if (leader_coords.target_velocity == 0) {
               new_speed = 0;
             } else {
               message leader_velocity_model, follower_velocity_model;
