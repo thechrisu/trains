@@ -195,20 +195,21 @@ bool process_location_notification(int clock_server, int train_tx_server,
       *drop_existing_notifications = true;
       return reroute(&n->subject.loc, end, route);
     case LOCATION_SLOWDOWN: { // Slow down because a train group is in the way.
-      *drop_existing_notifications = false;
       int max_speed = n->action.distance[0];
       int train = n->subject.trains[0];
       if (max_speed != n->action.distance[1]) {
         set_train_speed(train_tx_server, track_state_controller, train,
                         max_speed);
       }
+      *drop_existing_notifications = false;
       return false;
-      /*
-       * 0. Store the previous speed somewhere -- we want to return to it later.
-       * 1. Process message, slow down to the speed dictated by the message.
-       * 2. Tell the coordinates courier that we slowed down.
-       *    (At this point, wait until we can move forward with a faster speed)
-       */
+    }
+    case LOCATION_UNBLOCKED: {
+      int speed = n->action.distance[0];
+      int train = n->subject.trains[0];
+      set_train_speed(train_tx_server, track_state_controller, train, speed);
+      *drop_existing_notifications = false;
+      return false;
     }
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
