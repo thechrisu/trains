@@ -139,7 +139,6 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
     c->current_speed = j;
     c->target_velocity = velocity_model.msg.train_speeds[j];
     c->acceleration = c->target_velocity - c->velocity;
-    Assert(c->loc.offset >= 0);
     int d = 0;
     tmemcpy(&one_behind, c, sizeof(one_behind));
     bool got_collision = false;
