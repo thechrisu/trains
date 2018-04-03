@@ -61,5 +61,6 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
                         int max_lookahead);
 
 bool will_collide_with_other_train(int distance, coordinates *c, coordinates others[],
-                                   int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS]);
+                                   int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS],
+                                   int *highest_acceptable_speed, int train);
 #endif /* TRAIN_PREDICTION_H */
