@@ -3,6 +3,8 @@
 #define ABS(a) ((a) < 0 ? -(a) : (a))
 #define max(a, b) ((a) > (b) ? (a) : (b))
 
+#define ROLLOUT_TICKS 5
+
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction) {
@@ -120,10 +122,6 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
   location_canonicalize(ideal_turnout_states, &send_switch_here->loc, &send_switch_here->loc);
 }
 
-void rollout_tick(coordinates *c, turnout_state turnout_states[NUM_TURNOUTS]) {
-  update_coordinates_helper(c->ticks + 5, turnout_states, c);
-}
-
 // TODO return total ordering of group instead of just bool
 bool will_collide_with_other_train(int distance, coordinates *c, coordinates others[],
                                    int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS],
@@ -133,7 +131,7 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
   coordinates one_behind;
   message velocity_model;
   get_constant_velocity_model(WhoIs("TrackStateController"), train, &velocity_model);
-  
+
   for (int j = c->current_speed; j >= 0; j--) {
     coordinates others_c[num_other_trains];
     tmemcpy(others_c, others, sizeof(others_c));
@@ -146,27 +144,23 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
     tmemcpy(&one_behind, c, sizeof(one_behind));
     bool got_collision = false;
     while (d < distance) {
-      rollout_tick(c, turnout_states);
+      update_coordinates_helper(c->ticks + ROLLOUT_TICKS,
+                                turnout_states, c);
       d += distance_between_locations(&one_behind.loc, &c->loc);
       for (int i = 0; i < num_other_trains; i++) {
-        rollout_tick(&others_c[i], turnout_states);
-        bool are_we_ahead;
+        update_coordinates_helper(others_c[i].ticks + ROLLOUT_TICKS,
+                                  turnout_states, &others_c[i]);
         int di = distance_between_locations(&c->loc, &others_c[i].loc);
         int di_pair = distance_between_locations(&others_c[i].loc, &c->loc);
         if (di != -1 && ABS(di) < TRAIN_LENGTH) {
           // bwprintf("We are not ahead.\n\r");
-          are_we_ahead = false;
           got_collision = true;
           break;
-          // return true;
-          // uh oh, we have a collision incoming
         }
         if (di_pair != -1 && ABS(di_pair) < TRAIN_LENGTH) {
-          are_we_ahead = true;
+          // bwprintf("We are ahead.\n\r");
           got_collision = true;
           break;
-          // return true;
-          // uh oh, we have a collision incoming
         }
       }
       if (got_collision) break;
