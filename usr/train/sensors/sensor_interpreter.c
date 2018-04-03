@@ -74,7 +74,7 @@ void sensor_interpreter() {
 
         int current_time = Time(clock_server_tid);
 
-        int trains_to_attribute_to[10];
+        int trains_to_attribute_to[80];
         int num_trains_to_attribute_to;
 
         if (num_groups == 1) {
@@ -82,7 +82,10 @@ void sensor_interpreter() {
           for (int i = 0; i < g->num_members; i += 1) {
             trains_to_attribute_to[i] = g->members[i];
           }
-          num_trains_to_attribute_to = g->num_members;
+          for (int i = 0; i < num_active_trains; i += 1) {
+            trains_to_attribute_to[g->num_members + i] = active_trains[i];
+          }
+          num_trains_to_attribute_to = g->num_members + num_active_trains;
         } else {
           tmemcpy(trains_to_attribute_to, active_trains, num_active_trains * sizeof(int));
           num_trains_to_attribute_to = num_active_trains;
