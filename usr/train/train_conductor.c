@@ -138,6 +138,7 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
  *
  * @param clock_server                Clock server tid.
  * @param train_tx_server             Train tx server tid.
+ * @param track_state_controller      Track state controller tid.
  * @param n                           Notification we received.
  * @param route                       Route we're on (May change).
  * @param end                         Goal of our route (necessary for rerouting).
@@ -147,6 +148,7 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
  * @return Whether we should stop the train.
  */
 bool process_location_notification(int clock_server, int train_tx_server,
+                                   int track_state_controller,
                                    location_notification *n,
                                    track_node *route[MAX_ROUTE_LENGTH],
                                    location *end,
@@ -192,6 +194,22 @@ bool process_location_notification(int clock_server, int train_tx_server,
 #endif /* DEBUG_TRAIN_COORDINATOR */
       *drop_existing_notifications = true;
       return reroute(&n->subject.loc, end, route);
+    case LOCATION_SLOWDOWN: { // Slow down because a train group is in the way.
+      *drop_existing_notifications = false;
+      int max_speed = n->action.distance[0];
+      int train = n->subject.trains[0];
+      if (max_speed != n->action.distance[1]) {
+        set_train_speed(train_tx_server, track_state_controller, train,
+                        max_speed);
+      }
+      return false;
+      /*
+       * 0. Store the previous speed somewhere -- we want to return to it later.
+       * 1. Process message, slow down to the speed dictated by the message.
+       * 2. Tell the coordinates courier that we slowed down.
+       *    (At this point, wait until we can move forward with a faster speed)
+       */
+    }
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
       Assert(0 && "Unexpected notification type");
@@ -363,6 +381,7 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         // logprintf("Got message of type %d\n\r", received.msg.notification_response.reason);
         should_quit = process_location_notification(
                                           clock_server, train_tx_server,
+                                          track_state_controller,
                                           &received.msg.notification_response,
                                           route, &end,
                                           &drop_existing_notifications,
