@@ -1,6 +1,6 @@
 #include "parameters.h"
 
-#define NUM_ACTIVE_TRAINS_DEFAULT         4
+#define NUM_ACTIVE_TRAINS_DEFAULT         5
 #define SWITCH_PADDING_DEFAULT            50
 #define SPACING_DEFAULT                   100
 #define SPACING_ERROR_DEFAULT             10
@@ -25,7 +25,8 @@ void init_parameters() {
   active_trains[0] = 24;
   active_trains[1] = 58;
   active_trains[2] = 74;
-  active_trains[3] = 78;
+  active_trains[3] = 77;
+  active_trains[4] = 78;
 
   for (int i = 0; i < 81; i += 1) {
     expected_next_sensors[i] = NO_NEXT_SENSOR_EXPECTED;
