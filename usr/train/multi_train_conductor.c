@@ -30,7 +30,8 @@ int speed_above(int32_t target_velocity, uint32_t velocities[15]) {
  * @param   target_velocity The velocity to target.
  * @param   velocities      The train's possible velocities.
  * @returns The speed that gives a velocity just below the target velocity,
- *          or -1 if none exists.
+ *          or 0 if none exists (under the assumption that a train can't
+ *          *actually* travel at a velocity less than zero).
  */
 int speed_below(int32_t target_velocity, uint32_t velocities[15]) {
   for (int i = 14; i >= 0; i -= 1) {
@@ -39,7 +40,7 @@ int speed_below(int32_t target_velocity, uint32_t velocities[15]) {
     }
   }
 
-  return -1;
+  return 0;
 }
 
 void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
