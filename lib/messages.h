@@ -172,6 +172,7 @@ typedef enum {
   LOCATION_ANY, // Any location where we're not lost
   SPACING,
   LOCATION_SLOWDOWN,
+  LOCATION_UNBLOCKED,
   MAX_NOTIFICATION_TYPE,
 } coord_notification_type;
 
