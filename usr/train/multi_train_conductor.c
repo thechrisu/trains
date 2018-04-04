@@ -90,6 +90,28 @@ void multi_conductor_reverse_to_speed(int train_tx_server,
   // TODO implement this for real
 }
 
+void craft_loop_switch_triggers(location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
+                                int *n_requests) {
+  turnout_state turnout_states[NUM_TURNOUTS];
+  int track_state_controller = WhoIs("TrackStateController");
+  get_turnouts(track_state_controller, turnout_states);
+
+  int num_turnouts = 6;
+  int turnout_numbers[] = { 6, 7, 8, 9, 11, 14 };
+
+  for (int i = 0; i < num_turnouts; i++) {
+    int next_turnout_num = turnout_numbers[i];
+    locations_to_observe[*n_requests].subject.loc.node = turnout_num_to_node(&track, next_turnout_num);
+    locations_to_observe[*n_requests].subject.loc.offset = -SWITCH_DIST;
+    location_rebase(turnout_states, &locations_to_observe[*n_requests].subject.loc,
+                    &locations_to_observe[*n_requests].subject.loc);
+    locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
+    locations_to_observe[*n_requests].action.switch_to_switch[0] = next_turnout_num;
+    locations_to_observe[*n_requests].action.switch_to_switch[1] = true;
+    *n_requests = *n_requests + 1;
+  }
+}
+
 void multi_train_conductor() {
   int sender_tid;
   message received;
@@ -155,6 +177,24 @@ void multi_train_conductor() {
             next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
             next_req.msg.notification_request.drop_existing = true;
             next_req.msg.notification_request.num_requests = 0;
+            craft_loop_switch_triggers(next_req.msg.notification_request.notifications,
+                                       &next_req.msg.notification_request.num_requests);
+            Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
+            break;
+          }
+          case LOCATION_TO_SWITCH: {
+            logprintf("LOC TO SWITCH: %d\n\r",
+                received.msg.notification_response.action.switch_to_switch[0]);
+            switcher_turnout(clock_server,
+                             train_tx_server,
+                             received.msg.notification_response.action.switch_to_switch[0],
+                             received.msg.notification_response.action.switch_to_switch[1]);
+            message next_req;
+            next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
+            next_req.msg.notification_request.drop_existing = false;
+            next_req.msg.notification_request.num_requests = 0;
+            craft_loop_switch_triggers(next_req.msg.notification_request.notifications,
+                                       &next_req.msg.notification_request.num_requests);
             Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
             break;
           }
@@ -167,7 +207,7 @@ void multi_train_conductor() {
             int error_p_s = (10000 * ABS(actual_distance - expected_distance))
                               / spacing_catchup_time;
 
-            int new_speed;
+            int new_speed = -1;
 
             coordinates leader_coords, follower_coords;
 
@@ -190,17 +230,21 @@ void multi_train_conductor() {
                                         follower_velocity_model.msg.train_speeds) :
                             speed_below((int32_t)leader_coords.target_velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds);
-              } else if (actual_distance > expected_distance) {
-                new_speed = leader_coords.acceleration < 0 ?
-                            speed_below(follower_coords.velocity,
-                                        follower_velocity_model.msg.train_speeds) :
-                            speed_above((int32_t)leader_coords.target_velocity + error_p_s,
+              } else if (actual_distance > expected_distance &&
+                         leader_coords.acceleration < 0) {
+                new_speed = speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds);
-
+              } else if (actual_distance > expected_distance) {
                 // If the follower can't catch up to the leader's current velocity,
                 // reduce the velocity of the first train in the group to make sure
                 // the follower can catch up in the future.
-                if (new_speed == -1) {
+                bool can_catch_up = speed_above((int32_t)leader_coords.target_velocity,
+                                                follower_velocity_model.msg.train_speeds) != -1;
+                if (can_catch_up) {
+                  new_speed = speed_above((int32_t)leader_coords.target_velocity + error_p_s,
+                                          follower_velocity_model.msg.train_speeds);
+                  if (new_speed == -1) new_speed = 14;
+                } else {
                   message first_velocity_model;
                   get_constant_velocity_model(track_state_controller, g.members[0],
                                               &first_velocity_model);
@@ -212,8 +256,6 @@ void multi_train_conductor() {
                                     g.members[0], first_target_speed);
                   }
                 }
-              } else {
-                new_speed = -1;
               }
             }
 

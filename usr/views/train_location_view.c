@@ -4,7 +4,7 @@
 
 #define SENSOR_MAYBE(node) ((node) == NULL_TRACK_NODE ? NO_NEXT_SENSOR : (node)->num)
 
-#define MAX_TRAINS 3
+#define MAX_TRAINS 4
 
 #define LINE_CLEARED  1357
 
