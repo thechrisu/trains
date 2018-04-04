@@ -78,13 +78,13 @@ void init_track(track_state *global_track) {
     { .train = 58, .speed = 5, .value = 13143 },
     { .train = 58, .speed = 6, .value = 15460 },
     { .train = 58, .speed = 7, .value = 19906 },
-    { .train = 58, .speed = 8, .value = 23789 },
-    { .train = 58, .speed = 9, .value = 29110 },
+    { .train = 58, .speed = 8, .value = 22789 },
+    { .train = 58, .speed = 9, .value = 28110 },
     { .train = 58, .speed = 10, .value = 34835 },
-    { .train = 58, .speed = 11, .value = 42516 },
-    { .train = 58, .speed = 12, .value = 49484 },
-    { .train = 58, .speed = 13, .value = 55898 },
-    { .train = 58, .speed = 14, .value = 62389 },
+    { .train = 58, .speed = 11, .value = 41392 },
+    { .train = 58, .speed = 12, .value = 47364 },
+    { .train = 58, .speed = 13, .value = 53823 },
+    { .train = 58, .speed = 14, .value = 55396 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 923 },
     { .train = 74, .speed = 2, .value = 7225 },
@@ -144,7 +144,7 @@ void init_track(track_state *global_track) {
     { .train = 79, .speed = 11, .value = 50210 },
     { .train = 79, .speed = 12, .value = 58437 },
     { .train = 79, .speed = 13, .value = 63219 },
-    { .train = 79, .speed = 14, .value = 70952 },
+    { .train = 79, .speed = 14, .value = 66973 },
     { .train = 1337, .speed = 1337, .value = 1337 }
   };
 
@@ -198,7 +198,7 @@ void init_track(track_state *global_track) {
     { .train = 74, .speed = 12, .value = 80220 },
     { .train = 74, .speed = 13, .value = 102330 },
     { .train = 74, .speed = 14, .value = 142342 },
-    { .train = 77, .speed = 14, .value = 134032 },
+    { .train = 77, .speed = 14, .value = 131032 },
     { .train = 78, .speed = 0, .value = 0 },
     { .train = 78, .speed = 1, .value = 75 },
     { .train = 78, .speed = 2, .value = 200 },
@@ -214,6 +214,7 @@ void init_track(track_state *global_track) {
     { .train = 78, .speed = 12, .value = 60000 },
     { .train = 78, .speed = 13, .value = 73926 },
     { .train = 78, .speed = 14, .value = 99245 },
+    { .train = 78, .speed = 14, .value = 137155 },
     { .train = 1337, .speed = 1337, .value = 1337 }
   };
 
