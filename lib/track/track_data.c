@@ -303,6 +303,20 @@ bool is_valid_turnout_num(unsigned int turnout) {
   return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
 }
 
+void location_rebase(turnout_state turnout_states[NUM_TURNOUTS],
+                     location *destination, location *source) {
+  location rev;
+  location_reverse(&rev, source);
+  track_node *n = track_node_next(rev.node, turnout_states);
+  if (n == NULL_TRACK_NODE) {
+    tmemcpy(destination, source, sizeof(*source));
+  } else {
+    destination->node = n->reverse;
+    destination->offset = distance_between_track_nodes(destination->node, source->node) * 100
+                          - rev.offset;
+  }
+}
+
 char sensor_bank(unsigned int offset) {
   Assert(offset <= 80);
   return 'A' + offset / 16;
