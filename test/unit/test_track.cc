@@ -26,3 +26,28 @@ TEST(TestTrack, default_speeds_getset) {
   ASSERT_EQ(m[80][14], 1337);
   ASSERT_EQ(m[42][7], 50 * 10 * 100);
 }
+
+#define SWITCH_DIST 25000
+
+TEST(TestTrack, rebase) {
+  int turnouts[] = { 6, 7, 8, 9, 11, 14 };
+  int num_turnouts = 6;
+
+  turnout_state turnout_states[NUM_TURNOUTS];
+
+  track_state track;
+  init_track(&track);
+
+  for (int i = 0; i < num_turnouts; i++) {
+    location l = {
+      .node = turnout_num_to_node(&track, turnouts[i]),
+      .offset = -SWITCH_DIST
+    };
+    location r;
+    location_reverse(&r, &l);
+    track_node *n = track_node_next(r.node, turnout_states);
+    location_rebase(turnout_states, &l, &l);
+    ASSERT_GE(l.offset, 0);
+    ASSERT_NE(l.node, nullptr);
+  }
+}

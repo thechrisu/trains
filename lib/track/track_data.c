@@ -303,18 +303,32 @@ bool is_valid_turnout_num(unsigned int turnout) {
   return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
 }
 
-void location_rebase(turnout_state turnout_states[NUM_TURNOUTS],
-                     location *destination, location *source) {
+#define REBASE_LIMIT 5
+
+int location_rebase_helper(turnout_state turnout_states[NUM_TURNOUTS],
+                           location *destination, location *source, int limit) {
+  if (limit <= 0) return -1;
   location rev;
   location_reverse(&rev, source);
   track_node *n = track_node_next(rev.node, turnout_states);
   if (n == NULL_TRACK_NODE) {
     tmemcpy(destination, source, sizeof(*source));
+    return -2;
   } else {
-    destination->node = n->reverse;
-    destination->offset = distance_between_track_nodes(destination->node, source->node) * 100
+    destination->offset = distance_between_track_nodes(n->reverse, source->node) * 100
                           - rev.offset;
+    destination->node = n->reverse;
+    if (destination->offset < 0) {
+      return location_rebase_helper(turnout_states, destination, destination, limit - 1);
+    } else {
+      return 0;
+    }
   }
+}
+
+int location_rebase(turnout_state turnout_states[NUM_TURNOUTS],
+                    location *destination, location *source) {
+  return location_rebase_helper(turnout_states, destination, source, REBASE_LIMIT);
 }
 
 char sensor_bank(unsigned int offset) {
