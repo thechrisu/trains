@@ -87,14 +87,6 @@ void train_coordinates_server() {
 
   int clock_server = WhoIs("ClockServer");
 
-  int max_sensors_passed[81];
-  for (int i = 0; i < 81; i++) {
-    max_sensors_passed[i] = MAX_SENSORS_PASSED;
-    if (i == 24) {
-      max_sensors_passed[i] = MAX_SENSORS_PASSED + 1;
-    }
-  }
-
   coordinates coords[81];
   unsigned int last_sensor[81];
   int sensors_passed[81];
@@ -151,7 +143,7 @@ void train_coordinates_server() {
 
           last_sensor[train] = c->loc.node->num;
 
-          if (sensors_passed[train] > max_sensors_passed[train]) {
+          if (sensors_passed[train] > MAX_SENSORS_PASSED) {
             c->loc.node = NULL_TRACK_NODE;
           }
         }
