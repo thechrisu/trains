@@ -176,7 +176,9 @@ void multi_coordinate_courier() {
   bool first_run = true;
   multi_drop_all_notifications(is_location_set);
   while (true) {
-    for (int i = 0; i < group.num_members; i++) {
+    // Use notifications for all trains
+    // Actually, it's ok only to use notifications for the first train
+    for (int i = 0; i < group.num_members && i < 1; i++) {
       int train = group.members[i];
       get_coordinates(coordinate_server, train, &c);
       bool got_not = multi_coordinates_to_notification(&c, &last,
@@ -220,6 +222,7 @@ void multi_coordinate_courier() {
 
     int time = Time(clock_server);
 
+    // Check spacing
     for (int i = 0; i < group.num_members - 1; i++) {
       int leader_t = group.members[i];
       int follower_t = group.members[i + 1];
