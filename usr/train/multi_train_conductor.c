@@ -135,6 +135,7 @@ void multi_train_conductor() {
   bool is_done = false;
 
   int coordinate_courier_tid = -1;
+  int last_switch_time = Time(clock_server);
   while (!is_done) {
     if (coordinate_courier_tid < 0) {
       coordinate_courier_tid = create_multi_courier(&g);
@@ -193,8 +194,12 @@ void multi_train_conductor() {
             next_req.type = REPLY_CONDUCTOR_NOTIFY_REQUEST;
             next_req.msg.notification_request.drop_existing = false;
             next_req.msg.notification_request.num_requests = 0;
-            craft_loop_switch_triggers(next_req.msg.notification_request.notifications,
-                                       &next_req.msg.notification_request.num_requests);
+            int t = Time(clock_server);
+            if (last_switch_time + 100 < t) {
+              last_switch_time = t;
+              craft_loop_switch_triggers(next_req.msg.notification_request.notifications,
+                                         &next_req.msg.notification_request.num_requests);
+            }
             Assert(Reply(sender_tid, &next_req, sizeof(next_req)) == 0);
             break;
           }
