@@ -198,7 +198,7 @@ void multi_coordinate_courier() {
       int time = Time(clock_server);
 
       int r;
-      if (first.loc.node == NULL_TRACK_NODE &&
+      if (first.loc.node == NULL_TRACK_NODE ||
           second.loc.node == NULL_TRACK_NODE) {
         r = spacing * 100 + TRAIN_LENGTH + (first.loc.offset - second.loc.offset);
       } else {
