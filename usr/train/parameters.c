@@ -1,10 +1,10 @@
 #include "parameters.h"
 
-#define NUM_ACTIVE_TRAINS_DEFAULT         5
+#define NUM_ACTIVE_TRAINS_DEFAULT         6
 #define SWITCH_PADDING_DEFAULT            50
 #define SPACING_DEFAULT                   100
 #define SPACING_ERROR_DEFAULT             10
-#define SPACING_CATCHUP_TIME_DEFAULT      600 // Ticks
+#define SPACING_CATCHUP_TIME_DEFAULT      100 // Ticks
 
 int active_trains[81];
 int num_active_trains;
@@ -27,6 +27,7 @@ void init_parameters() {
   active_trains[2] = 74;
   active_trains[3] = 77;
   active_trains[4] = 78;
+  active_trains[5] = 79;
 
   for (int i = 0; i < 81; i += 1) {
     expected_next_sensors[i] = NO_NEXT_SENSOR_EXPECTED;
