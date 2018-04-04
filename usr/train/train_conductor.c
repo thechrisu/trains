@@ -198,6 +198,8 @@ bool process_location_notification(int clock_server, int train_tx_server,
       int max_speed = n->action.distance[0];
       int train = n->subject.trains[0];
       logprintf("Loc slowdown: train: %d, max: %d\n\r", train, max_speed);
+      if (max_speed == -1)
+        max_speed = 0;
       if (max_speed != n->action.distance[1]) {
         set_train_speed(train_tx_server, track_state_controller, train,
                         max_speed);
