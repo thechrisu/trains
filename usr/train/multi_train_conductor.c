@@ -1,11 +1,12 @@
 #include "multi_train_conductor.h"
 
-#define CONDUCTOR_STOP_CHECK_INTERVAL 2
-#define CONDUCTOR_SENSOR_CHECK_INTERVAL 1
-
 #define SWITCH_LOOKAHEAD_NODES 10
 
-#define SWITCH_DIST 25000
+#define SWITCH_DIST 30000
+
+#define MIN_DIFF 1500
+
+#define DIFF_PENALTY_FACTOR 3
 
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -35,7 +36,7 @@ int speed_above(int32_t target_velocity, uint32_t velocities[15]) {
  */
 int speed_below(int32_t target_velocity, uint32_t velocities[15]) {
   for (int i = 14; i >= 0; i -= 1) {
-    if ((int32_t)velocities[i] <= target_velocity) {
+    if ((int32_t)velocities[i] <= target_velocity - MIN_DIFF) {
       return i;
     }
   }
@@ -92,6 +93,7 @@ void multi_conductor_reverse_to_speed(int train_tx_server,
 
 void craft_loop_switch_triggers(location_notification locations_to_observe[MAX_LOCATIONS_TO_OBSERVE],
                                 int *n_requests) {
+  logprintf("Crafting loop switch triggers\n\r");
   turnout_state turnout_states[NUM_TURNOUTS];
   int track_state_controller = WhoIs("TrackStateController");
   get_turnouts(track_state_controller, turnout_states);
@@ -219,21 +221,22 @@ void multi_train_conductor() {
             get_coordinates(train_coordinates_server, leader, &leader_coords);
             get_coordinates(train_coordinates_server, follower, &follower_coords);
 
+            message leader_velocity_model, follower_velocity_model;
+
+            get_constant_velocity_model(track_state_controller, leader,
+                                        &leader_velocity_model);
+            get_constant_velocity_model(track_state_controller, follower,
+                                        &follower_velocity_model);
+
             if (leader_coords.target_velocity == 0) {
               new_speed = 0;
             } else {
-              message leader_velocity_model, follower_velocity_model;
-
-              get_constant_velocity_model(track_state_controller, leader,
-                                          &leader_velocity_model);
-              get_constant_velocity_model(track_state_controller, follower,
-                                          &follower_velocity_model);
 
               if (actual_distance < expected_distance) {
                 new_speed = leader_coords.acceleration > 0 ?
                             speed_above(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_below((int32_t)leader_coords.target_velocity - error_p_s,
+                            speed_below((int32_t)(leader_coords.target_velocity - (error_p_s < 100 ? DIFF_PENALTY_FACTOR * error_p_s : 0)),
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance &&
                          leader_coords.acceleration < 0) {
@@ -265,8 +268,16 @@ void multi_train_conductor() {
             }
 
             if (new_speed != -1) {
+              logprintf("Spacing: Follower: %d (%d), leader: %d (%d) (exp: %d, actual: %d (acc: %d, err: %d)\n\r",
+                  new_speed, follower_velocity_model.msg.train_speeds[new_speed],
+                  leader_coords.current_speed, leader_coords.target_velocity, expected_distance,
+                  actual_distance, leader_coords.acceleration, error_p_s);
               set_train_speed(train_tx_server, track_state_controller,
                               follower, new_speed);
+            } else {
+              logprintf("== -1: : leader: %d (%d) (exp: %d, actual: %d (acc: %d, err: %d)\n\r",
+                  leader_coords.current_speed, leader_coords.target_velocity, expected_distance,
+                  actual_distance, leader_coords.acceleration, error_p_s);
             }
 
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
