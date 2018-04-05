@@ -194,7 +194,7 @@ void multi_train_conductor() {
                 new_speed = leader_coords.acceleration < 0 ?
                             speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_above((int32_t)leader_coords.target_velocity + error_p_s,
+                            speed_above((int32_t)leader_coords.target_velocity + error_p_s / 2,
                                         follower_velocity_model.msg.train_speeds);
 
                 // If the follower can't catch up to the leader's current velocity,
