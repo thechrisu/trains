@@ -145,7 +145,7 @@ void multi_coordinate_courier() {
   bool should_find_any = false;
   bool first_run = true;
   multi_drop_all_notifications(is_location_set);
-  for (int loops = 0; ; loops += 1) {
+  while (true) {
     for (int i = 0; i < group.num_members; i++) {
       int train = group.members[i];
       get_coordinates(coordinate_server, train, &c);
@@ -203,13 +203,6 @@ void multi_coordinate_courier() {
       }
 
       int d = (r - TRAIN_LENGTH) / 100;
-
-      if (loops % 25 == 0) {
-        Assert(Printf(WhoIs("TerminalTxServer"),
-                      "%s%d;%dH%d -> %d = %d mm%s",
-                      ESC, 50, 1, second_t, first_t, d, HIDE_CURSOR_TO_EOL) == 0);
-      }
-
       if ((d > spacing + spacing_error || d < spacing - spacing_error) &&
           last_spacing_notification[i] < time - SPACING_NOTIFICATION_PERIOD) {
         last_spacing_notification[i] = time;
