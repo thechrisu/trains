@@ -1,6 +1,6 @@
 #include "project.h"
 
-#define CMD_MAX_SZ 32
+#define CMD_MAX_SZ 64
 #define GET_PADDING(i) (i >= 10 ? (i >= 100 ? (i >= 1000 ? (i >= 10000 ? (i >= 100000 ? (i >= 1000 * 1000 ? (i >= 10 * 1000 * 1000 ? " " : "  ") : "   ") : "    ") : "     ") : "      ") : "       ") : "        ")
 
 void char_buffer_clear(char_buffer *b) {
