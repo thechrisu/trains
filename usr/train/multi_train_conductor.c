@@ -218,6 +218,9 @@ void multi_train_conductor() {
             }
 
             if (new_speed != -1) {
+              Assert(Printf(WhoIs("TerminalTxServer"),
+                            "%s%d;%dH%d to %d%s",
+                            ESC, 51, 1, follower, new_speed, HIDE_CURSOR_TO_EOL) == 0);
               set_train_speed(train_tx_server, track_state_controller,
                               follower, new_speed);
             }
