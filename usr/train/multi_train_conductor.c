@@ -164,8 +164,7 @@ void multi_train_conductor() {
 
             int actual_distance = received.msg.notification_response.action.distance[0];
             int expected_distance = received.msg.notification_response.action.distance[1];
-            int error_p_s = (10000 * ABS(actual_distance - expected_distance))
-                              / spacing_catchup_time;
+            int error_p_s = 0;
 
             int new_speed;
 
