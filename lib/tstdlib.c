@@ -4,6 +4,19 @@ void tmemcpy(void *dst, const void *src, unsigned int n) { // (char *) only used
   // assert(dst != src && ((src < dst && (char *) src + n < (char *) dst) || ((char *) dst + n < (char *) src)));
   unsigned char *srcp = (unsigned char *)src;
   unsigned char *dstp = (unsigned char *)dst;
+
+  int mask = sizeof(long) - 1;
+  if (!((register_t)dst & mask) && !((register_t)src & mask)) {
+    long *srcpl = (long *)src;
+    long *dstpl = (long *)dst;
+    while (n >= sizeof(long)) {
+      *dstpl++ = *srcpl++;
+      n -= sizeof(long);
+    }
+    dstp = (unsigned char *)dstpl;
+    srcp = (unsigned char *)srcpl;
+  }
+
   while (n-- > 0) { *dstp++ = *srcp++; }
 }
 

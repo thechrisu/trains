@@ -34,8 +34,13 @@ void init_track(track_state *global_track) {
   set_turnout_permanently(global_track->trackb, 155, TURNOUT_CURVED);
   set_turnout_permanently(global_track->trackb, 156, TURNOUT_STRAIGHT);
 
+#if TESTING || E2ETESTING
   global_track->track = global_track->tracka;
   global_track->nodes = TRACKA_SIZE;
+#else
+  global_track->track = global_track->trackb;
+  global_track->nodes = TRACKB_SIZE;
+#endif /* TESTING */
 
 #ifndef TESTING
 #pragma GCC diagnostic pop
@@ -65,11 +70,11 @@ void init_track(track_state *global_track) {
     { .train = 24, .speed = 7, .value = 16502 },
     { .train = 24, .speed = 8, .value = 22005 },
     { .train = 24, .speed = 9, .value = 30495 },
-    { .train = 24, .speed = 10, .value = 38148 },
-    { .train = 24, .speed = 11, .value = 43232 },
-    { .train = 24, .speed = 12, .value = 48153 },
-    { .train = 24, .speed = 13, .value = 55544 },
-    { .train = 24, .speed = 14, .value = 59992 },
+    { .train = 24, .speed = 10, .value = 37865 },
+    { .train = 24, .speed = 11, .value = 44705 },
+    { .train = 24, .speed = 12, .value = 50547 },
+    { .train = 24, .speed = 13, .value = 56677 },
+    { .train = 24, .speed = 14, .value = 57087 },
     { .train = 58, .speed = 0, .value = 0 },
     { .train = 58, .speed = 1, .value = 998 },
     { .train = 58, .speed = 2, .value = 5796 },
@@ -80,11 +85,11 @@ void init_track(track_state *global_track) {
     { .train = 58, .speed = 7, .value = 19906 },
     { .train = 58, .speed = 8, .value = 22789 },
     { .train = 58, .speed = 9, .value = 28110 },
-    { .train = 58, .speed = 10, .value = 34835 },
-    { .train = 58, .speed = 11, .value = 41392 },
-    { .train = 58, .speed = 12, .value = 47364 },
-    { .train = 58, .speed = 13, .value = 53823 },
-    { .train = 58, .speed = 14, .value = 55396 },
+    { .train = 58, .speed = 10, .value = 33068 },
+    { .train = 58, .speed = 11, .value = 40838 },
+    { .train = 58, .speed = 12, .value = 47287 },
+    { .train = 58, .speed = 13, .value = 50212 },
+    { .train = 58, .speed = 14, .value = 57506 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 923 },
     { .train = 74, .speed = 2, .value = 7225 },
@@ -95,11 +100,11 @@ void init_track(track_state *global_track) {
     { .train = 74, .speed = 7, .value = 33404 },
     { .train = 74, .speed = 8, .value = 36291 },
     { .train = 74, .speed = 9, .value = 43451 },
-    { .train = 74, .speed = 10, .value = 48204 },
-    { .train = 74, .speed = 11, .value = 55029 },
-    { .train = 74, .speed = 12, .value = 57034 },
-    { .train = 74, .speed = 13, .value = 61212 },
-    { .train = 74, .speed = 14, .value = 60329 },
+    { .train = 74, .speed = 10, .value = 47980 },
+    { .train = 74, .speed = 11, .value = 54109 },
+    { .train = 74, .speed = 12, .value = 57767 },
+    { .train = 74, .speed = 13, .value = 62513 },
+    { .train = 74, .speed = 14, .value = 65192 },
     { .train = 77, .speed = 0, .value = 0 },
     { .train = 77, .speed = 1, .value = 688 },
     { .train = 77, .speed = 2, .value = 4000 },
@@ -582,7 +587,7 @@ int distance_between_locations(location *from_loc, location *to_loc) {
   }
 
   int result = distance_between_track_nodes_helper(from_loc->node, to_loc->node,
-                                                   0, 2 * FIND_LIMIT);
+                                                   0, FIND_LIMIT);
   if (result < 0) return result;
   return 100 * result + to_loc->offset - from_loc->offset;
 }
