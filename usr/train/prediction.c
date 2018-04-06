@@ -5,6 +5,8 @@
 
 #define ROLLOUT_TICKS 5
 
+#define MAX_ROLLOUT_STEPS 100
+
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction) {
@@ -152,7 +154,8 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
       tmemcpy(&one_behind, c, sizeof(one_behind));
     }
     bool got_collision = false;
-    while (d < distance) {
+    int num_rollout_steps = 0;
+    while (d < distance && num_rollout_steps++ < MAX_ROLLOUT_STEPS) {
       update_coordinates_helper(c->ticks + ROLLOUT_TICKS,
                                 turnout_states, c);
       if (c->loc.node != NULL_TRACK_NODE) {
@@ -185,6 +188,9 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
       if (c->loc.node != NULL_TRACK_NODE) {
         tmemcpy(&one_behind, c, sizeof(one_behind));
       }
+    }
+    if (num_rollout_steps >= MAX_ROLLOUT_STEPS) {
+      logprintf("Collision prediction exceeded max rollout steps\n\r");
     }
     if (!got_collision) {
       *highest_acceptable_speed = c->current_speed;
