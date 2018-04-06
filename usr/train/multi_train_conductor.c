@@ -155,7 +155,7 @@ void multi_train_conductor() {
             multi_conductor_setspeed(train_tx_server,
                                      track_state_controller,
                                      &g, 0);
-            set_alarm(tr_data.should_speed * 33);
+            set_alarm(MAX(1, tr_data.should_speed * 33));
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
             break;
           default:
