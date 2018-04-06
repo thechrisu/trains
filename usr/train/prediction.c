@@ -198,6 +198,8 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
       return false;
     }
   }
+  logprintf("Got collision!\n\r");
+  tmemcpy(c, &temp, sizeof(temp));
   *highest_acceptable_speed = -1;
   return true;
 }
