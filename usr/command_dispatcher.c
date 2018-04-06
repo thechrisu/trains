@@ -385,6 +385,7 @@ void command_dispatcher_server() {
               int tr = received.msg.cmd.data[3 + i];
               tr_groups[num_groups].g.members[i] = tr;
               sunset_tid(conductors[tr].tid);
+              conductors[tr].tid = 0;
               // Need to do this, since it may be polling (conductor_loop)
               // For some reason, if you uncomment the Kill(),
               // we end up in an infinite loop. Debugging this is super hard
