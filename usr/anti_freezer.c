@@ -2,13 +2,15 @@
 
 void anti_freezer() {
   int clock_server = WhoIs("ClockServer");
+  Assert(clock_server > 0);
   Delay(clock_server, 200); // To allow the other tasks to run
   int idle = WhoIs("Idle");
+  Assert(idle > 0);
 
 
   usage_stats last_second;
   while (true) {
-    Delay(clock_server, 2000);
+    Delay(clock_server, 200);
 
     LastSecondsProcUsage(&last_second);
 
