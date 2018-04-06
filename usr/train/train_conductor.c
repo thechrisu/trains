@@ -5,7 +5,7 @@
 
 #define SWITCH_LOOKAHEAD_NODES 10
 
-#define SWITCH_DIST 25000
+#define SWITCH_DIST 15000
 
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
@@ -138,6 +138,7 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
  *
  * @param clock_server                Clock server tid.
  * @param train_tx_server             Train tx server tid.
+ * @param track_state_controller      Track state controller tid.
  * @param n                           Notification we received.
  * @param route                       Route we're on (May change).
  * @param end                         Goal of our route (necessary for rerouting).
@@ -147,6 +148,7 @@ void conductor_calib_sd(int train_tx_server, int track_state_controller,
  * @return Whether we should stop the train.
  */
 bool process_location_notification(int clock_server, int train_tx_server,
+                                   int track_state_controller,
                                    location_notification *n,
                                    track_node *route[MAX_ROUTE_LENGTH],
                                    location *end,
@@ -192,6 +194,32 @@ bool process_location_notification(int clock_server, int train_tx_server,
 #endif /* DEBUG_TRAIN_COORDINATOR */
       *drop_existing_notifications = true;
       return reroute(&n->subject.loc, end, route);
+    case LOCATION_SLOWDOWN: { // Slow down because a train group is in the way.
+      int max_speed = n->action.distance[0];
+      int train = n->subject.trains[0];
+#if DEBUG_2P1
+      logprintf("Loc slowdown: train: %d, max: %d (%d)\n\r", train, max_speed,
+          n->action.distance[1]);
+#endif /* DEBUG_2P1 */
+      if (max_speed == -1)
+        max_speed = 0;
+      if (max_speed == 0 || max_speed != n->action.distance[1]) {
+        set_train_speed(train_tx_server, track_state_controller, train,
+                        max_speed);
+      }
+      *drop_existing_notifications = false;
+      return false;
+    }
+    case LOCATION_UNBLOCKED: {
+      int speed = n->action.distance[0];
+      int train = n->subject.trains[0];
+#if DEBUG_2P1
+      logprintf("Loc unblock: train: %d, max: %d\n\r", train, speed);
+#endif /* DEBUG_2P1 */
+      set_train_speed(train_tx_server, track_state_controller, train, speed);
+      *drop_existing_notifications = false;
+      return false;
+    }
     default:
       logprintf("Unexpected notification type %d\n\r", n->reason);
       Assert(0 && "Unexpected notification type");
@@ -259,6 +287,10 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                        int track_state_controller, int train_coordinates_server,
                                        int train, int sensor_offset, int goal_offset) {
   location end = { .node = find_sensor(&track, sensor_offset), .offset = goal_offset };
+#if DEBUG_2P1
+  logprintf("Train %d routing to %s +- %d\n\r",
+      train, end.node->name, end.offset);
+#endif /* DEBUG_2P1 */
 
   message velocity_model;
   get_constant_velocity_model(track_state_controller, train,
@@ -363,16 +395,22 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
         // logprintf("Got message of type %d\n\r", received.msg.notification_response.reason);
         should_quit = process_location_notification(
                                           clock_server, train_tx_server,
+                                          track_state_controller,
                                           &received.msg.notification_response,
                                           route, &end,
                                           &drop_existing_notifications,
                                           &got_lost);
-        if (!should_quit) {
-          get_coordinates(train_coordinates_server, train, &c);
-          set_new_triggers(coord_courier, &c, route,
-                           velocity_model.msg.train_speeds,
-                           stopping_distance_model.msg.train_distances,
-                           drop_existing_notifications, got_lost);
+        if (received.msg.notification_response.reason == LOCATION_SLOWDOWN
+            || received.msg.notification_response.reason == LOCATION_UNBLOCKED) {
+          Reply(coord_courier, EMPTY_MESSAGE, 0);
+        } else {
+          if (!should_quit) {
+            get_coordinates(train_coordinates_server, train, &c);
+            set_new_triggers(coord_courier, &c, route,
+                             velocity_model.msg.train_speeds,
+                             stopping_distance_model.msg.train_distances,
+                             drop_existing_notifications, got_lost);
+          }
         }
         break;
       default:

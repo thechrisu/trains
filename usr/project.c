@@ -502,7 +502,7 @@ void project_first_user_task() {
 #else
   Assert(Create(my_priority + 2, &nameserver_main) > 0);
 #endif /* E2ETESTING */
-  int clock_server_tid = Create(my_priority + 3, &clock_server);
+  int clock_server_tid = Create(my_priority + 5, &clock_server);
   Assert(clock_server_tid > 0);
   int idle_tid = Create(my_priority - 1, &idle_task_cursor);
   Assert(idle_tid > 0);
@@ -516,6 +516,8 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &router) > 0);
   Assert(Create(my_priority + 2, &track_reservation_server) > 0);
   Assert(Create(my_priority, &train_model_courier) > 0);
+
+  Assert(Create(my_priority + 2, &anti_freezer) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;

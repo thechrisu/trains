@@ -9,6 +9,7 @@
 #include "commands.h"
 #include "global_track_state.h"
 #include "messages.h"
+#include "train_coordinates_server.h"
 #include "track_data.h"
 #include "track_node.h"
 #include "train_util.h"
@@ -58,4 +59,8 @@ void predict_next_switch(coordinates *co, track_node *route[MAX_ROUTE_LENGTH],
                         coordinates *send_switch_here, int *next_turnout_num,
                         bool *next_is_curved, bool *found, int distance,
                         int max_lookahead);
+
+bool will_collide_with_other_train(int distance, coordinates *c, coordinates others[],
+                                   int num_other_trains, turnout_state turnout_states[NUM_TURNOUTS],
+                                   int *highest_acceptable_speed, int train);
 #endif /* TRAIN_PREDICTION_H */

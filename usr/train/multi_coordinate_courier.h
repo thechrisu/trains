@@ -13,8 +13,6 @@
 #include "tstdlib.h"
 #include "train_util.h"
 
-#define MULTI_MAX_LOCATIONS_TO_OBSERVE (2 * MAX_LOCATIONS_TO_OBSERVE)
-
 /**
  * Checks whether the given coordinates trigger notifications,
  * and gives us the first notification that would trigger.

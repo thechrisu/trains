@@ -8,8 +8,10 @@
 #include "codes.h"
 #include "commands.h"
 #include "messages.h"
+#include "prediction.h"
 #include "track_data.h"
 #include "tstdlib.h"
+#include "track_data.h"
 #include "train_util.h"
 
 /**

@@ -115,11 +115,11 @@ void init_track(track_state *global_track) {
     { .train = 77, .speed = 7, .value = 22363 },
     { .train = 77, .speed = 8, .value = 27409 },
     { .train = 77, .speed = 9, .value = 33549 },
-    { .train = 77, .speed = 10, .value = 37807 },
-    { .train = 77, .speed = 11, .value = 45680 },
-    { .train = 77, .speed = 12, .value = 52650 },
-    { .train = 77, .speed = 13, .value = 58073 },
-    { .train = 77, .speed = 14, .value = 63785 },
+    { .train = 77, .speed = 10, .value = 36891 },
+    { .train = 77, .speed = 11, .value = 47035 },
+    { .train = 77, .speed = 12, .value = 54329 },
+    { .train = 77, .speed = 13, .value = 61487 },
+    { .train = 77, .speed = 14, .value = 70099 },
     { .train = 78, .speed = 0, .value = 0 },
     { .train = 78, .speed = 1, .value = 885 },
     { .train = 78, .speed = 2, .value = 2468 },
@@ -301,6 +301,34 @@ track_node *turnout_num_to_node(track_state *t, unsigned int num) {
 
 bool is_valid_turnout_num(unsigned int turnout) {
   return (turnout >= 1 && turnout <= 18) || (turnout >= 153 && turnout <= 156);
+}
+
+#define REBASE_LIMIT 5
+
+int location_rebase_helper(turnout_state turnout_states[NUM_TURNOUTS],
+                           location *destination, location *source, int limit) {
+  if (limit <= 0) return -1;
+  location rev;
+  location_reverse(&rev, source);
+  track_node *n = track_node_next(rev.node, turnout_states);
+  if (n == NULL_TRACK_NODE) {
+    tmemcpy(destination, source, sizeof(*source));
+    return -2;
+  } else {
+    destination->offset = distance_between_track_nodes(n->reverse, source->node) * 100
+                          - rev.offset;
+    destination->node = n->reverse;
+    if (destination->offset < 0) {
+      return location_rebase_helper(turnout_states, destination, destination, limit - 1);
+    } else {
+      return 0;
+    }
+  }
+}
+
+int location_rebase(turnout_state turnout_states[NUM_TURNOUTS],
+                    location *destination, location *source) {
+  return location_rebase_helper(turnout_states, destination, source, REBASE_LIMIT);
 }
 
 char sensor_bank(unsigned int offset) {
@@ -559,7 +587,7 @@ int distance_between_locations(location *from_loc, location *to_loc) {
   }
 
   int result = distance_between_track_nodes_helper(from_loc->node, to_loc->node,
-                                                   0, 2 * FIND_LIMIT);
+                                                   0, FIND_LIMIT);
   if (result < 0) return result;
   return 100 * result + to_loc->offset - from_loc->offset;
 }

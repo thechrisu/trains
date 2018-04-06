@@ -161,6 +161,14 @@ bool sensor_reachable(track_state *t, unsigned int start, unsigned int end);
 void location_reverse(location *destination, location *source);
 
 /**
+ * @return -1 if recursion limit reached (i.e. offset MAY be negative).
+ *         -2 if illegal node encountered.
+ *          0 if it ran successfully.
+ */
+int location_rebase(turnout_state turnout_states[NUM_TURNOUTS],
+                    location *destination, location *source);
+
+/**
  * Changes a location so that its offset is smaller than the distance to the next track node.
  * For example, if sensors A1 and B1 are 50 cm apart, and B1 and C1 are 30 cm apart,
  * the canonical form of (A1, 60 cm) is (B1, 10 cm).

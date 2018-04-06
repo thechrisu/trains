@@ -1,6 +1,6 @@
 #include "command_dispatcher.h"
 
-#define TR_Q_LEN 15
+#define TR_Q_LEN 5
 
 typedef struct {
   int t;
@@ -172,7 +172,7 @@ void conductor_ready(conductor_data *c) {
 void create_conductor(int t, int my_priority, conductor_data conductors[81]) {
   conductors[t].t = t;
 
-  conductors[t].tid = Create(my_priority + 1, &train_conductor);
+  conductors[t].tid = Create(my_priority + 0, &train_conductor);
   Assert(conductors[t].tid > 0);
 
   message train_to_look_after_msg;

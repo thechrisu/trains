@@ -2,7 +2,7 @@
 
 #include "track_data.h"
 
-#define DELAY_BETWEEN_SW 150
+#define DELAY_BETWEEN_SW 50
 
 void switcher() {
   int sender_tid;

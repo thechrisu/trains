@@ -1,6 +1,6 @@
 #include "train_coordinates_server.h"
 
-#define MAX_SENSORS_PASSED 2
+#define MAX_SENSORS_PASSED 3
 
 void update_coordinates_helper(int now_ticks,
                                turnout_state turnout_states[NUM_TURNOUTS],

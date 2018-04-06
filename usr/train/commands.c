@@ -5,6 +5,9 @@ void set_train_speed(int train_tx_server_tid, int track_state_controller_tid, in
 }
 
 void set_train_speed_and_headlights(int train_tx_server_tid, int track_state_controller_tid, int train, int speed, bool headlights) {
+  if (speed < 0 || speed >= 15) {
+    logprintf("Setting %d to %d (%d)\n\r", train, speed, Time(WhoIs("ClockServer")));
+  }
   Assert(train >= 1 && train <= 80);
   Assert(speed >= 0 && speed <= 14);
 
