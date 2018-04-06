@@ -155,6 +155,9 @@ void multi_train_conductor() {
             break;
           case USER_CMD_RVG:
             get_train(track_state_controller, g.members[0], &tr_data);
+            multi_conductor_setspeed(train_tx_server,
+                                     track_state_controller,
+                                     &g, 0);
             set_alarm(tr_data.should_speed * 33);
             Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
             break;
