@@ -491,7 +491,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &track_reservation_server) > 0);
   Assert(Create(my_priority, &train_model_courier) > 0);
 
-  Assert(Create(my_priority + 20, &anti_freezer) > 0);
+  Assert(Create(my_priority + 2, &anti_freezer) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;
