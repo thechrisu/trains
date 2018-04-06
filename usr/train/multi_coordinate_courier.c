@@ -133,7 +133,8 @@ int get_effective_spacing(coordinates *in_front,
     return spacing + (in_front->loc.offset - behind->loc.offset) / 100;
   }
 
-  int actual_distance = distance_between_locations(&behind->loc, &in_front->loc);
+  int actual_distance = distance_between_locations(&behind->loc,
+                                                   &in_front->loc);
   if (actual_distance < 0) return actual_distance;
 
   int distance_between_pickups = spacing * 100 + TRAIN_LENGTH;
