@@ -91,9 +91,11 @@ void handle_abort(abort_mode abort_type, unsigned int culprit_instruction, trapf
       abort_type_str = "Unknown abort type";
       break;
   }
+#ifndef E2ETESTING
   usage_stats usage;
   syscall_total_proc_usage(&usage);
   print_usage(bwprintf, &usage);
+#endif /* E2ETESTING */
   bwprintf("\033[94m\033[5mReceived abort\033[25m\033[39m type: %s\n\r", abort_type_str);
   print_proc_mode((arm_proc_mode)(cpsr_val & PROC_MODE_MASK));
   bwprintf("CPSR: 0x%x\n\r", cpsr_val);
