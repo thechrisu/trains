@@ -167,7 +167,7 @@ void multi_train_conductor() {
             int error_p_s = (10000 * ABS(actual_distance - expected_distance))
                               / spacing_catchup_time;
 
-            int new_speed;
+            int new_speed = -1;
 
             coordinates leader_coords, follower_coords;
 
@@ -190,17 +190,21 @@ void multi_train_conductor() {
                                         follower_velocity_model.msg.train_speeds) :
                             speed_below((int32_t)leader_coords.target_velocity - error_p_s,
                                         follower_velocity_model.msg.train_speeds);
-              } else if (actual_distance > expected_distance) {
-                new_speed = leader_coords.acceleration < 0 ?
-                            speed_below(follower_coords.velocity,
-                                        follower_velocity_model.msg.train_speeds) :
-                            speed_above((int32_t)leader_coords.target_velocity + error_p_s,
+              } else if (actual_distance > expected_distance &&
+                         leader_coords.acceleration < 0) {
+                new_speed = speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds);
-
+              } else if (actual_distance > expected_distance) {
                 // If the follower can't catch up to the leader's current velocity,
                 // reduce the velocity of the first train in the group to make sure
                 // the follower can catch up in the future.
-                if (new_speed == -1) {
+                bool can_catch_up = speed_above((int32_t)leader_coords.target_velocity,
+                                                follower_velocity_model.msg.train_speeds) != -1;
+                if (can_catch_up) {
+                  new_speed = speed_above((int32_t)leader_coords.target_velocity + error_p_s,
+                                          follower_velocity_model.msg.train_speeds);
+                  if (new_speed == -1) new_speed = 14;
+                } else {
                   message first_velocity_model;
                   get_constant_velocity_model(track_state_controller, g.members[0],
                                               &first_velocity_model);
@@ -212,8 +216,6 @@ void multi_train_conductor() {
                                     g.members[0], first_target_speed);
                   }
                 }
-              } else {
-                new_speed = -1;
               }
             }
 
