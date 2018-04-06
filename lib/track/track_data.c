@@ -35,7 +35,7 @@ void init_track(track_state *global_track) {
   set_turnout_permanently(global_track->trackb, 156, TURNOUT_STRAIGHT);
 
   global_track->track = global_track->trackb;
-  global_track->nodes = TRACKA_SIZE;
+  global_track->nodes = TRACKB_SIZE;
 
 #ifndef TESTING
 #pragma GCC diagnostic pop
