@@ -24,6 +24,7 @@
 #include "train/train_model_courier.h"
 #include "train/sensors/sensor_secretary.h"
 #include "train/sensors/sensor_interpreter.h"
+#include "train/speed_resetter.h"
 #include "train/turnout_resetter.h"
 #include "train/track_reservation_server.h"
 #include "train/track_state_controller.h"
