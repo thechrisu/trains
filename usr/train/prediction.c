@@ -175,7 +175,7 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
         location_reverse(&di_pair_loc, &others_c[i].loc);
         int di_1 = distance_between_locations(&di_pair_loc, &c->loc);
         int di_pair_1 = distance_between_locations(&c->loc, &di_pair_loc);
-        if (di != -1 && ABS(di) < TRAIN_LENGTH + SPACING_PADDING
+        if ((di != -1 && ABS(di) < TRAIN_LENGTH + SPACING_PADDING)
               || (di_1 != -1 && ABS(di_1) < TRAIN_LENGTH + SPACING_PADDING)) {
 #if DEBUG_2P1
           logprintf("Dist between(1) %s +- %d and %s +- %d is %d\n\r",
