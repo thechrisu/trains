@@ -144,9 +144,6 @@ void multi_train_conductor() {
         break;
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
-          case USER_CMD_LOOP:
-            // TODO
-            break;
           case USER_CMD_TRG:
             multi_conductor_setspeed(train_tx_server,
                                      track_state_controller,
