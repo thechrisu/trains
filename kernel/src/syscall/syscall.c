@@ -14,7 +14,7 @@ int syscall_create(int priority, void (*code)()) {
   logprintf("Got task descriptor memory\n\r");
 #endif /* CONTEXT_SWITCH_DEBUG */
   task_init(ret, priority, code, get_current_task());
-  logprintf("Task %d is at %x\n\r", ret->tid, code);
+  logprintf("Task %d is at %x\n\r", ret->tid, (unsigned int)code);
 #if CONTEXT_SWITCH_DEBUG
   logprintf("Set up task in syscall_create, tf: %x\n\r", ret->tf);
 #endif /* CONTEXT_SWITCH_DEBUG */
