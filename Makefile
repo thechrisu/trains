@@ -43,6 +43,10 @@ ifeq (true,$(TEST_RUNNER))
 TEST_RUNNER_FLAG = -DE2ETESTING -DTIMER_INTERRUPTS -DIOINTERRUPTS
 endif
 
+ifeq (true,$(DEMO))
+DEMO_FLAG = -DDEMO
+endif
+
 E2ELDFILE=versatilepb_e2e.ld
 
 ifeq (true,$(TIMER_INTERRUPTS))
@@ -80,7 +84,7 @@ QEMUTESTINGARGS = $(QEMUTESTINGBASEARGS) -serial null -serial stdio
 QEMUTCPARGS = $(QEMUTESTINGBASEARGS) -nographic -serial null -serial tcp:127.0.0.1:9991,server
 
 CFLAGSMIN = -fPIC -Wall -Wextra -std=c99 -msoft-float -Ikernel/src -Ikernel/src/syscall -Ikernel/src/multitasking \
-							-Itest-resources -Iusr -Iusr/test -Iusr/train -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Ilib/track -Iinclude/ -Iusr/lib -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG) $(FIFOS_FLAG)
+							-Itest-resources -Iusr -Iusr/test -Iusr/train -Itest/iio -Itest/messaging -Itest/nameserver -Ilib -Ilib/buffertypes -Ilib/track -Iinclude/ -Iusr/lib -fno-builtin $(BWLOG_FLAG) $(IOINTERRUPT_FLAG) $(TIMER_INTERRUPTS_FLAG) $(FIFOS_FLAG) $(DEMO_FLAG)
 CFLAGSBASE = $(CFLAGSMIN) -c
 CFLAGSBLOB = $(CFLAGSMIN) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
 CFLAGS_ARM_LAB  = $(CFLAGSBASE) -mcpu=arm920t $(OPTIMIZATION) $(DEBUGFLAGS) $(TEST_RUNNER_FLAG) -Ikernel/include/labenv
