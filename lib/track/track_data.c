@@ -587,7 +587,7 @@ int distance_between_locations(location *from_loc, location *to_loc) {
   }
 
   int result = distance_between_track_nodes_helper(from_loc->node, to_loc->node,
-                                                   0, 2 * FIND_LIMIT);
+                                                   0, FIND_LIMIT);
   if (result < 0) return result;
   return 100 * result + to_loc->offset - from_loc->offset;
 }
