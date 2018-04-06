@@ -204,6 +204,9 @@ void coordinate_courier() {
                                          train);
         is_blocked = will_collide;
         if (will_collide && !was_blocked) {
+#if DEBUG_2P1
+          logprintf("Will collide!\n\r");
+#endif /* DEBUG_2P1 */
           // TODO don't send this too often
           n_observed.msg.notification_response.subject.trains[0] = train;
           n_observed.msg.notification_response.reason = LOCATION_SLOWDOWN;
@@ -216,6 +219,11 @@ void coordinate_courier() {
           n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;
           Assert(Send(conductor, &n_observed, sizeof(n_observed),
                                  EMPTY_MESSAGE, 0) == 0);
+        } else if (will_collide && was_blocked) {
+#if DEBUG_2P1
+          logprintf("Still blocked: %s +- %d\n\r", c.loc.node->name,
+              c.loc.offset);
+#endif /* DEBUG_2P1 */
         }
       }
     }

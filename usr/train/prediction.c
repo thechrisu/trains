@@ -169,16 +169,32 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
           continue;
         int di = distance_between_locations(&c->loc, &others_c[i].loc);
         int di_pair = distance_between_locations(&others_c[i].loc, &c->loc);
-        location di_pair_1_loc;
-        location_reverse(&di_pair_1_loc, &others_c[i].loc);
-        int di_pair_1 = distance_between_locations(&di_pair_1_loc, &c->loc);
+        location di_pair_loc;
+        location_reverse(&di_pair_loc, &others_c[i].loc);
+        int di_pair_1 = distance_between_locations(&di_pair_loc, &c->loc);
         if (di != -1 && ABS(di) < TRAIN_LENGTH) {
+#if DEBUG_2P1
+          logprintf("Dist between(1) %s +- %d and %s +- %d is %d\n\r",
+              c->loc.node->name, c->loc.offset,
+              others_c[i].loc.node->name, others_c[i].loc.offset,
+              di);
+#endif /* DEBUG_2P1 */
           // bwprintf("We are not ahead.\n\r");
           got_collision = true;
           break;
         }
         if ((di_pair != -1 && ABS(di_pair) < TRAIN_LENGTH)
               || (di_pair_1 != -1 && ABS(di_pair_1) < TRAIN_LENGTH)) {
+#if DEBUG_2P1
+          logprintf("Dist between(2) %s +- %d and %s +- %d is %d\n\r",
+              di_pair_loc.node->name, di_pair_loc.offset,
+              c->loc.node->name, c->loc.offset,
+              di_pair);
+          logprintf("Dist between(3) %s +- %d and %s +- %d is %d\n\r",
+              others_c[i].loc.node->name, others_c[i].loc.offset,
+              c->loc.node->name, c->loc.offset,
+              di_pair_1);
+#endif /* DEBUG_2P1 */
           // bwprintf("We are ahead.\n\r");
           got_collision = true;
           break;
@@ -198,7 +214,9 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
       return false;
     }
   }
+#if DEBUG_2P1
   logprintf("Got collision!\n\r");
+#endif /* DEBUG_2P1 */
   tmemcpy(c, &temp, sizeof(temp));
   *highest_acceptable_speed = -1;
   return true;
