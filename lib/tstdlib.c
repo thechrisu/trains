@@ -7,7 +7,7 @@ void tmemcpy(void *dst, const void *src, unsigned int n) { // (char *) only used
 
 // only works on 32bit
 #ifndef TESTING
-  if (!((register_t)dst & 0x4) && !((register_t)src & 0x4)) {
+  if (!((register_t)dst & 0x3) && !((register_t)src & 0x3)) {
     long *srcpl = (long *)src;
     long *dstpl = (long *)dst;
     while (n >= 4) {
