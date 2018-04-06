@@ -140,15 +140,22 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
     c->target_velocity = velocity_model.msg.train_speeds[j];
     c->acceleration = c->target_velocity - c->velocity;
     int d = 0;
-    tmemcpy(&one_behind, c, sizeof(one_behind));
+    if (c->loc.node != NULL_TRACK_NODE) {
+      tmemcpy(&one_behind, c, sizeof(one_behind));
+    }
     bool got_collision = false;
     while (d < distance) {
       update_coordinates_helper(c->ticks + ROLLOUT_TICKS,
                                 turnout_states, c);
-      d += distance_between_locations(&one_behind.loc, &c->loc);
+      if (c->loc.node != NULL_TRACK_NODE) {
+        d += distance_between_locations(&one_behind.loc, &c->loc);
+      }
       for (int i = 0; i < num_other_trains; i++) {
         update_coordinates_helper(others_c[i].ticks + ROLLOUT_TICKS,
                                   turnout_states, &others_c[i]);
+        if (c->loc.node == NULL_TRACK_NODE
+            || others_c[i].loc.node == NULL_TRACK_NODE)
+          continue;
         int di = distance_between_locations(&c->loc, &others_c[i].loc);
         int di_pair = distance_between_locations(&others_c[i].loc, &c->loc);
         location di_1_loc, di_pair_1_loc;
@@ -170,7 +177,9 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
         }
       }
       if (got_collision) break;
-      tmemcpy(&one_behind, c, sizeof(one_behind));
+      if (c->loc.node != NULL_TRACK_NODE) {
+        tmemcpy(&one_behind, c, sizeof(one_behind));
+      }
     }
     if (!got_collision) {
       *highest_acceptable_speed = c->current_speed;

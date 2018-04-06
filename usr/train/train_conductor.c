@@ -391,12 +391,17 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
                                           route, &end,
                                           &drop_existing_notifications,
                                           &got_lost);
-        if (!should_quit) {
-          get_coordinates(train_coordinates_server, train, &c);
-          set_new_triggers(coord_courier, &c, route,
-                           velocity_model.msg.train_speeds,
-                           stopping_distance_model.msg.train_distances,
-                           drop_existing_notifications, got_lost);
+        if (received.msg.notification_response.reason == LOCATION_SLOWDOWN
+            || received.msg.notification_response.reason == LOCATION_UNBLOCKED) {
+          Reply(coord_courier, EMPTY_MESSAGE, 0);
+        } else {
+          if (!should_quit) {
+            get_coordinates(train_coordinates_server, train, &c);
+            set_new_triggers(coord_courier, &c, route,
+                             velocity_model.msg.train_speeds,
+                             stopping_distance_model.msg.train_distances,
+                             drop_existing_notifications, got_lost);
+          }
         }
         break;
       default:

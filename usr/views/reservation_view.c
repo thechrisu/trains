@@ -7,7 +7,7 @@
 #define LINE_CLEARED 1357
 #define RES_COL      9
 
-#define MAX_TRAINS   3
+#define MAX_TRAINS   4
 
 bool reservations_differ(message_reservation_get_all_response *left,
                          message_reservation_get_all_response *right) {
