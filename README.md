@@ -24,8 +24,8 @@ In addition, you can the following environment variables to customize the build:
 
 ## Environment variables
 Some targets use environment variables to find their compiler/libraries.
-### Googletest/Boost
-`make test` requires Googletest and Boost to be installed.
+### Googletest
+`make test` requires Googletest to be installed.
 - `GTEST` should point to the installed header files of Googletest (on our machines `/usr/local/include/gtest`).
 - `LIBGTEST` should point to the Googletest library (on our machines `/usr/local/lib/libgtest.a`).
 
@@ -40,8 +40,8 @@ Kernel
 - [X] "Scheduler"
 - [X] "Message passing"
 - [X] "Interrupts + clock server"
-- [ ] "Interrupt-driven IO + a0 + loose ends"
+- [X] "Interrupt-driven IO + a0 + loose ends"
 
 Train Control
-- [ ] "Stop train anywhere reliably" -> Stopping reliably is more important than having a large set of possible destinations
-- [ ] "Improve stopping precision, detect single switch/sensor error"
+- [X] "Stop train anywhere reliably" -> Stopping reliably is more important than having a large set of possible destinations
+- [X] "Improve stopping precision, detect single switch/sensor error"
