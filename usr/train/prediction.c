@@ -129,16 +129,24 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
   coordinates temp;
   tmemcpy(&temp, c, sizeof(temp));
   coordinates one_behind;
-  message velocity_model;
-  get_constant_velocity_model(WhoIs("TrackStateController"), train, &velocity_model);
+  message velocity_model, stopping_dist_model;
+  int track_state_controller = WhoIs("TrackStateController");
+  get_constant_velocity_model(track_state_controller, train, &velocity_model);
+  get_stopping_distance_model(track_state_controller, train, &stopping_dist_model);
+  int t = Time(WhoIs("ClockServer"));
 
+  train_data tr_data;
   for (int j = c->current_speed; j >= 0; j--) {
     coordinates others_c[num_other_trains];
     tmemcpy(others_c, others, sizeof(others_c));
     tmemcpy(c, &temp, sizeof(temp));
-    c->current_speed = j;
-    c->target_velocity = velocity_model.msg.train_speeds[j];
-    c->acceleration = c->target_velocity - c->velocity;
+
+    tr_data.should_speed = j;
+    tr_data.last_speed = temp.current_speed;
+    tr_data.time_speed_last_changed = t;
+    update_coordinates_after_speed_change(&tr_data,
+        velocity_model.msg.train_speeds, stopping_dist_model.msg.train_distances,
+        turnout_states, c);
     int d = 0;
     if (c->loc.node != NULL_TRACK_NODE) {
       tmemcpy(&one_behind, c, sizeof(one_behind));
