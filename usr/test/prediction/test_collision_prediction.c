@@ -49,8 +49,8 @@ void test_collision_prediction() {
   me_temp.loc.offset = 30000;
   temp.loc.node = find_node_by_name(&track, "B4");
   r = will_collide_with_other_train(200000, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
-  Assert(max_acc == 12);
-  Assert(c.current_speed ==14);
+  Assert(max_acc == 14);
+  Assert(c.current_speed == 14);
   Assert(!r);
 
   tmemcpy(&temp, &o, sizeof(temp));
