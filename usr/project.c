@@ -124,6 +124,12 @@ void user_command_print(int server_tid, user_command *cmd) {
                     ((train_group_info *)cmd->data[0])->group_name,
                     cmd->data[1], HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
       break;
+    case USER_CMD_RVG:
+      Assert(Printf(server_tid, "%s%s%sRVG %s         %s%s",
+                    CURSOR_ROW_COL(CMD_LINE, 1), GREEN_TEXT, HIDE_CURSOR,
+                    ((train_group_info *)cmd->data[0])->group_name,
+                    HIDE_CURSOR_TO_EOL, RESET_TEXT) == 0);
+      break;
     case NULL_USER_CMD:
       Assert(Printf(server_tid, "%s%s%sINVALID COMMAND        %s%s",
                     CURSOR_ROW_COL(CMD_LINE, 1), RED_TEXT, HIDE_CURSOR,
@@ -398,6 +404,26 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
             cmd->data[1] = speed;
           }
         }
+      }
+    } else if (string_starts_with(ibuf->data, "rvg ", ibuf->elems)) {
+      char group_name[MAX_GROUP_NAME_LEN];
+      unsigned int buffer_index = 4;
+      int j = 0;
+
+      for (; buffer_index < 4 + MAX_GROUP_NAME_LEN + 1
+          && buffer_index < ibuf->elems
+          && ibuf->data[buffer_index] != ' '; buffer_index++, j++) {
+        group_name[j] = ibuf->data[buffer_index];
+      }
+
+      group_name[j] = '\0';
+      buffer_index += 1; // For the space (' ')
+
+      train_group_info *group = find_group(group_name);
+
+      if (group != NULL_TRAIN_GROUP_INFO) {
+        cmd->type = USER_CMD_RVG;
+        cmd->data[0] = (int)group;
       }
     } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;

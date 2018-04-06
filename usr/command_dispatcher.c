@@ -399,8 +399,7 @@ void command_dispatcher_server() {
             Assert(tr_groups[num_groups].tid > 0);
             message setgroup;
             setgroup.type = MESSAGE_MULTICONDUCTOR_SETGROUP;
-            tmemcpy(&setgroup.msg.group_content, &tr_groups[num_groups].g,
-                sizeof(tr_groups[num_groups].g));
+            setgroup.msg.group_ptr = &tr_groups[num_groups].g;
             Assert(Send(tr_groups[num_groups].tid, &setgroup, sizeof(setgroup),
                   EMPTY_MESSAGE, 0) == 0);
             num_groups += 1;
@@ -430,7 +429,8 @@ void command_dispatcher_server() {
             }
             break;
           }
-          case USER_CMD_TRG: {
+          case USER_CMD_TRG:
+          case USER_CMD_RVG: {
             train_group_info *group = (train_group_info *)received.msg.cmd.data[0];
             Assert(Send(group->tid, &received, sizeof(received), EMPTY_MESSAGE, 0) == 0);
             break;

@@ -11,6 +11,7 @@
 #include "global_track_state.h"
 #include "prediction.h"
 #include "router.h"
+#include "sleeper.h"
 #include "track_data.h"
 #include "track_node.h"
 #include "train_util.h"
@@ -40,9 +41,9 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
  * train_tx_server          Train Transmit Server.
  * track_state_controller   Task administering the global state.
  * clock_serer              Clock server
- * train                    Train number
+ * group                    Train group
  */
 void multi_conductor_reverse(int train_tx_server, int track_state_controller,
-                       int clock_server, int train);
+                       int clock_server, train_group *group);
 
 #endif /* MULTI_TRAIN_CONDUCTOR_H */
