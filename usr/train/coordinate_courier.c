@@ -137,9 +137,10 @@ void coordinate_courier() {
   bool should_find_any = false;
   bool first_run = true;
   bool is_blocked = false;
-  int before_blocked_speed = -1;
   int last_block = Time(clock_server);
   drop_all_notifications(is_location_set);
+  get_coordinates(coordinate_server, train, &c);
+  int before_blocked_speed = c.current_speed;
   while (true) {
     get_coordinates(coordinate_server, train, &c);
     bool got_not = coordinates_to_notification(&c, &last, locations_to_observe,
@@ -177,6 +178,7 @@ void coordinate_courier() {
       Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
     }
 
+    bool was_blocked = is_blocked;
     if (num_groups > 0) {
       int t = Time(clock_server);
       if (t > last_block + 50) {
@@ -195,10 +197,6 @@ void coordinate_courier() {
         get_turnouts(track_state_controller, turnout_states);
         int max_speed = -1;
         n_observed.msg.notification_response.action.distance[1] = c.current_speed;
-        bool was_blocked = is_blocked;
-        if (!was_blocked) {
-          before_blocked_speed = c.current_speed;
-        }
         will_collide_with_other_train(sd, &c, group_coordinates,
                                          g->num_members, turnout_states, &max_speed,
                                          train);
@@ -218,7 +216,7 @@ void coordinate_courier() {
           is_blocked = false;
           n_observed.msg.notification_response.subject.trains[0] = train;
           n_observed.msg.notification_response.reason = LOCATION_UNBLOCKED;
-          n_observed.msg.notification_response.action.distance[0] = 14;
+          n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;
           Assert(Send(conductor, &n_observed, sizeof(n_observed),
                                  EMPTY_MESSAGE, 0) == 0);
         }
