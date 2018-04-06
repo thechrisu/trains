@@ -7,6 +7,8 @@
 
 #define MAX_ROLLOUT_STEPS 100
 
+#define SPACING_PADDING 10 * 10 * 100
+
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
                         int train, coordinates *prediction) {
@@ -171,8 +173,10 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
         int di_pair = distance_between_locations(&others_c[i].loc, &c->loc);
         location di_pair_loc;
         location_reverse(&di_pair_loc, &others_c[i].loc);
-        int di_pair_1 = distance_between_locations(&di_pair_loc, &c->loc);
-        if (di != -1 && ABS(di) < TRAIN_LENGTH) {
+        int di_1 = distance_between_locations(&di_pair_loc, &c->loc);
+        int di_pair_1 = distance_between_locations(&c->loc, &di_pair_loc);
+        if (di != -1 && ABS(di) < TRAIN_LENGTH + SPACING_PADDING
+              || (di_1 != -1 && ABS(di_1) < TRAIN_LENGTH + SPACING_PADDING)) {
 #if DEBUG_2P1
           logprintf("Dist between(1) %s +- %d and %s +- %d is %d\n\r",
               c->loc.node->name, c->loc.offset,
@@ -183,8 +187,8 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
           got_collision = true;
           break;
         }
-        if ((di_pair != -1 && ABS(di_pair) < TRAIN_LENGTH)
-              || (di_pair_1 != -1 && ABS(di_pair_1) < TRAIN_LENGTH)) {
+        if ((di_pair != -1 && ABS(di_pair) < TRAIN_LENGTH + SPACING_PADDING)
+              || (di_pair_1 != -1 && ABS(di_pair_1) < TRAIN_LENGTH + SPACING_PADDING)) {
 #if DEBUG_2P1
           logprintf("Dist between(2) %s +- %d and %s +- %d is %d\n\r",
               di_pair_loc.node->name, di_pair_loc.offset,
