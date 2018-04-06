@@ -1,6 +1,6 @@
 /**
  * @file
- * @brief Task that resets the turnouts
+ * @brief Task that resets all trains' speeds to zero
  */
 #ifndef SPEED_RESETTER_H
 #define SPEED_RESETTER_H
