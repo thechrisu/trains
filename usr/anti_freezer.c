@@ -10,11 +10,17 @@ void anti_freezer() {
 
   usage_stats last_second;
   while (true) {
+    bool got_small_value = false;
     Delay(clock_server, 200);
 
     LastSecondsProcUsage(&last_second);
 
-    if (last_second.ms_run[idle % MAX_TASKS] < 5) {
+    got_small_value = last_second.ms_run[idle % MAX_TASKS] < 1;
+
+   Delay(clock_server, 200);
+
+    LastSecondsProcUsage(&last_second);
+    if (last_second.ms_run[idle % MAX_TASKS] < 1) {
       Assert(0 && "Froze!");
     }
   }
