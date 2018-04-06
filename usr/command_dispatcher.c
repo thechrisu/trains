@@ -264,10 +264,11 @@ void command_dispatcher_server() {
           case USER_CMD_R:
           case USER_CMD_TR: {
             int train = received.msg.cmd.data[0];
-            if (train < 1 || train > 80) return;
-            conductor_data *c = &conductors[train];
-            if (c->tid != 0) {
-              send_if_rdy(&received, c, terminal_tx_server);
+            if (train >= 1 && train <= 80) {
+              conductor_data *c = &conductors[train];
+              if (c->tid != 0) {
+                send_if_rdy(&received, c, terminal_tx_server);
+              }
             }
             break;
           }
