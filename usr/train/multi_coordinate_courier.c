@@ -124,6 +124,7 @@ void multi_drop_all_notifications(bool is_location_set[MULTI_MAX_LOCATIONS_TO_OB
  *          each other directly, but given that in reality there are
  *          `trains_between` trains in between them (which we assume are
  *          perfectly spaced).
+ *          -1 if exactly one of the trains is lost.
  */
 int get_effective_spacing(coordinates *in_front,
                           coordinates *behind,
