@@ -11,7 +11,7 @@ void speed_resetter() {
   tx_server_tid = WhoIs("TrainTxServer");
   track_state_controller_tid = WhoIs("TrackStateController");
 
-  for (int i = 1; i <= 80; i += 1) {
-    set_speed_with_tids(i, 0);
+  for (int i = 0; i <= num_active_trains; i += 1) {
+    set_speed_with_tids(active_trains[i], 0);
   }
 }

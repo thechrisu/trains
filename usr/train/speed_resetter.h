@@ -7,6 +7,7 @@
 
 #include "codes.h"
 #include "commands.h"
+#include "parameters.h"
 
 void speed_resetter();
 
