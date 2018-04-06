@@ -201,7 +201,7 @@ void coordinate_courier() {
                                        train);
       is_blocked = will_collide;
       int t = Time(clock_server);
-      if (t < last_block + 100) {
+      if (t > last_block + 100) {
         last_block = t;
         if (will_collide && !was_blocked) {
           // TODO don't send this too often
