@@ -247,7 +247,7 @@ void multi_coordinate_courier() {
                                EMPTY_MESSAGE, 0) == 0);
       }
     }
-    Delay(clock_server, 1);
+    Delay(clock_server, 2);
   }
   Assert(0);
 }
