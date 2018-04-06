@@ -96,8 +96,17 @@ void craft_loop_switch_triggers(location_notification locations_to_observe[MAX_L
   int track_state_controller = WhoIs("TrackStateController");
   get_turnouts(track_state_controller, turnout_states);
 
-  int num_turnouts = 6;
-  int turnout_numbers[] = { 6, 7, 8, 9, 11, 14 };
+  int num_turnouts = 7;
+  int turnout_numbers[] = { 6, 7, 8, 9, 11, 14, 15 };
+  turnout_state expected_turnout_states[] = {
+    TURNOUT_STRAIGHT,
+    TURNOUT_STRAIGHT,
+    TURNOUT_STRAIGHT,
+    TURNOUT_STRAIGHT,
+    TURNOUT_CURVED,
+    TURNOUT_STRAIGHT,
+    TURNOUT_STRAIGHT
+  };
 
   for (int i = 0; i < num_turnouts; i++) {
     int next_turnout_num = turnout_numbers[i];
@@ -107,7 +116,7 @@ void craft_loop_switch_triggers(location_notification locations_to_observe[MAX_L
                     &locations_to_observe[*n_requests].subject.loc);
     locations_to_observe[*n_requests].reason = LOCATION_TO_SWITCH;
     locations_to_observe[*n_requests].action.switch_to_switch[0] = next_turnout_num;
-    locations_to_observe[*n_requests].action.switch_to_switch[1] = true;
+    locations_to_observe[*n_requests].action.switch_to_switch[1] = expected_turnout_states[i] == TURNOUT_CURVED;
     *n_requests = *n_requests + 1;
   }
 }
