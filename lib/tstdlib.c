@@ -4,6 +4,20 @@ void tmemcpy(void *dst, const void *src, unsigned int n) { // (char *) only used
   // assert(dst != src && ((src < dst && (char *) src + n < (char *) dst) || ((char *) dst + n < (char *) src)));
   unsigned char *srcp = (unsigned char *)src;
   unsigned char *dstp = (unsigned char *)dst;
+
+// only works on 32bit
+#ifndef TESTING
+  if (!((register_t)dst & 0x4) && !((register_t)src & 0x4)) {
+    long *srcpl = (long *)src;
+    long *dstpl = (long *)dst;
+    while (n >= 4) {
+      *dstpl++ = *srcpl++;
+      n -= 4;
+    }
+    dstp = (unsigned char *)dstpl;
+    srcp = (unsigned char *)srcpl;
+  }
+#endif /* TESTING */
   while (n-- > 0) { *dstp++ = *srcp++; }
 }
 
