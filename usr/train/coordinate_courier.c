@@ -179,7 +179,7 @@ void coordinate_courier() {
 
     if (num_groups > 0) {
       int t = Time(clock_server);
-      if (t > last_block + 100) {
+      if (t > last_block + 50) {
         last_block = t;
         // Check if we would collide within one stopping distance
         coordinates group_coordinates[MAX_GROUP_MEMBERS];
@@ -199,13 +199,14 @@ void coordinate_courier() {
         if (!was_blocked) {
           before_blocked_speed = c.current_speed;
         }
-        bool will_collide = will_collide_with_other_train(sd, &c, group_coordinates,
+        will_collide_with_other_train(sd, &c, group_coordinates,
                                          g->num_members, turnout_states, &max_speed,
                                          train);
-        is_blocked = will_collide;
-        if (will_collide && !was_blocked) {
+        bool will_collide = max_speed < before_blocked_speed;
+        if (will_collide) {
+          is_blocked = true;
 #if DEBUG_2P1
-          logprintf("Will collide!\n\r");
+          logprintf("Will have to slow down!\n\r");
 #endif /* DEBUG_2P1 */
           // TODO don't send this too often
           n_observed.msg.notification_response.subject.trains[0] = train;
@@ -213,7 +214,8 @@ void coordinate_courier() {
           n_observed.msg.notification_response.action.distance[0] = max_speed;
           Assert(Send(conductor, &n_observed, sizeof(n_observed),
                                  EMPTY_MESSAGE, 0) == 0);
-        } else if (!will_collide && was_blocked) {
+        } else if (!will_collide && max_speed > before_blocked_speed) {
+          is_blocked = false;
           n_observed.msg.notification_response.subject.trains[0] = train;
           n_observed.msg.notification_response.reason = LOCATION_UNBLOCKED;
           n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;

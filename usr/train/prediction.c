@@ -200,7 +200,12 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
           break;
         }
       }
-      if (got_collision) break;
+      if (got_collision) {
+#if DEBUG_2P1
+        logprintf("Got collision (2)\n\r");
+#endif /* DEBUG_2P1 */
+        break;
+      }
       if (c->loc.node != NULL_TRACK_NODE) {
         tmemcpy(&one_behind, c, sizeof(one_behind));
       }
@@ -209,9 +214,10 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
       logprintf("Collision prediction exceeded max rollout steps\n\r");
     }
     if (!got_collision) {
+      logprintf("Prevent collision if we're at speed %d\n\r", c->current_speed);
       *highest_acceptable_speed = c->current_speed;
       tmemcpy(c, &temp, sizeof(temp));
-      return false;
+      return *highest_acceptable_speed == c->current_speed; // is the original speed
     }
   }
 #if DEBUG_2P1
