@@ -6,8 +6,6 @@
 
 #define MIN_DIFF 1500
 
-#define DIFF_PENALTY_FACTOR 3
-
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
 
@@ -236,7 +234,7 @@ void multi_train_conductor() {
                 new_speed = leader_coords.acceleration > 0 ?
                             speed_above(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_below((int32_t)(leader_coords.target_velocity - (error_p_s < 100 ? DIFF_PENALTY_FACTOR * error_p_s : 0)),
+                            speed_below((int32_t)(leader_coords.target_velocity - error_p_s),
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance &&
                          leader_coords.acceleration < 0) {
