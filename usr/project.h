@@ -5,6 +5,7 @@
 #ifndef PROJECT_H
 #define PROJECT_H
 
+#include "anti_freezer.h"
 #include "char_buffer.h"
 #include "clock.h"
 #include "codes.h"
