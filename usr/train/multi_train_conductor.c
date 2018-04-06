@@ -125,7 +125,10 @@ void multi_train_conductor() {
   Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
   Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
   Assert(received.type == MESSAGE_MULTICONDUCTOR_SETGROUP);
-  tmemcpy(&g, &received.msg.group_content, sizeof(g));
+
+  train_group *g_ptr = received.msg.group_ptr;
+  tmemcpy(&g, g_ptr, sizeof(g));
+
   bool is_done = false;
 
   int coordinate_courier_tid = -1;
@@ -253,7 +256,8 @@ void multi_train_conductor() {
         } // MESSAGE_CONDUCTOR_NOTIFY_REQUEST
         break;
       case MESSAGE_WAKEUP: { // GOOD MORNING
-        reverse_group(train_tx_server, track_state_controller, &g); // speed 15 + reorder group
+        reverse_group(train_tx_server, track_state_controller, g_ptr); // speed 15 + reorder group
+        tmemcpy(&g, g_ptr, sizeof(g));
         Kill(coordinate_courier_tid);
         Delay(clock_server, 8); // HACK
         coordinate_courier_tid = create_multi_courier(&g);

@@ -399,8 +399,7 @@ void command_dispatcher_server() {
             Assert(tr_groups[num_groups].tid > 0);
             message setgroup;
             setgroup.type = MESSAGE_MULTICONDUCTOR_SETGROUP;
-            tmemcpy(&setgroup.msg.group_content, &tr_groups[num_groups].g,
-                sizeof(tr_groups[num_groups].g));
+            setgroup.msg.group_ptr = &tr_groups[num_groups].g;
             Assert(Send(tr_groups[num_groups].tid, &setgroup, sizeof(setgroup),
                   EMPTY_MESSAGE, 0) == 0);
             num_groups += 1;

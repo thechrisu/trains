@@ -213,6 +213,7 @@ typedef struct {
     uint32_t train_speeds[15];
     uint32_t train_distances[15];
     uint32_t train_times[15];
+    train_group *group_ptr;
     train_group group_content;
     message_turnout_switched_params turnout_switched_params;
     turnout_state turnout_states[NUM_TURNOUTS];
