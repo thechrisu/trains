@@ -158,13 +158,10 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
           continue;
         int di = distance_between_locations(&c->loc, &others_c[i].loc);
         int di_pair = distance_between_locations(&others_c[i].loc, &c->loc);
-        location di_1_loc, di_pair_1_loc;
-        location_reverse(&di_1_loc, &c->loc);
+        location di_pair_1_loc;
         location_reverse(&di_pair_1_loc, &others_c[i].loc);
-        int di_1 = distance_between_locations(&di_1_loc, &others_c[i].loc);
         int di_pair_1 = distance_between_locations(&di_pair_1_loc, &c->loc);
-        if ((di != -1 && ABS(di) < TRAIN_LENGTH)
-                      || (di_1 != -1 && ABS(di_1) < TRAIN_LENGTH)) {
+        if (di != -1 && ABS(di) < TRAIN_LENGTH) {
           // bwprintf("We are not ahead.\n\r");
           got_collision = true;
           break;
