@@ -94,17 +94,16 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
  */
 void reverse_group(int train_tx_server, int track_state_controller,
                    train_group *group) {
-
   train_group group_copy;
   tmemcpy(&group_copy, group, sizeof(group_copy));
+
   for (int i = 0; i < group->num_members; i++) {
     reverse_train(train_tx_server, track_state_controller, group->members[i]);
   }
-  int j = 0;
-  for (int i = group_copy.num_members - 1; i >= 0; i--, j++) {
+
+  for (int i = group_copy.num_members - 1, j = 0; i >= 0; i--, j++) {
     group->members[i] = group_copy.members[j];
   }
-  Assert(group->num_members == group_copy.num_members);
 }
 
 void multi_train_conductor() {
