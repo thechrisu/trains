@@ -513,7 +513,7 @@ void project_first_user_task() {
   Assert(Send(cmd_dispatcher_tid, &cmd_msg, sizeof(cmd_msg), EMPTY_MESSAGE, 0) == 0);
 
 #ifndef E2ETESTING
-  Assert(Create(my_priority - 1, &turnout_resetter) > 0);
+  Assert(Create(my_priority - 2, &turnout_resetter) > 0);
   Assert(Create(my_priority - 1, &speed_resetter) > 0);
 
   Assert(Create(my_priority, &clock_view) > 0);
