@@ -176,33 +176,33 @@ void coordinate_courier() {
                   locations_to_observe, is_location_set);
       Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
     }
-    
+
     if (num_groups > 0) {
-      // Check if we would collide within one stopping distance
-      coordinates group_coordinates[MAX_GROUP_MEMBERS];
-      // For now, just assume that we only have one group
-      train_group *g = &tr_groups[0].g;
-      for (int i = 0; i < g->num_members; i++) {
-        int t = g->members[i];
-        get_coordinates(coordinate_server, t, &group_coordinates[i]);
-      }
-       // TODO get_stopping_distance_model(track_state_controller, train, stopping_distance_model);
-      int sd = 170000; // For now just eyeballing
-      turnout_state turnout_states[NUM_TURNOUTS];
-      get_turnouts(track_state_controller, turnout_states);
-      int max_speed = -1;
-      n_observed.msg.notification_response.action.distance[1] = c.current_speed;
-      bool was_blocked = is_blocked;
-      if (!was_blocked) {
-        before_blocked_speed = c.current_speed;
-      }
-      bool will_collide = will_collide_with_other_train(sd, &c, group_coordinates,
-                                       g->num_members, turnout_states, &max_speed,
-                                       train);
-      is_blocked = will_collide;
       int t = Time(clock_server);
       if (t > last_block + 100) {
         last_block = t;
+        // Check if we would collide within one stopping distance
+        coordinates group_coordinates[MAX_GROUP_MEMBERS];
+        // For now, just assume that we only have one group
+        train_group *g = &tr_groups[0].g;
+        for (int i = 0; i < g->num_members; i++) {
+          int t = g->members[i];
+          get_coordinates(coordinate_server, t, &group_coordinates[i]);
+        }
+         // TODO get_stopping_distance_model(track_state_controller, train, stopping_distance_model);
+        int sd = 150000; // For now just eyeballing
+        turnout_state turnout_states[NUM_TURNOUTS];
+        get_turnouts(track_state_controller, turnout_states);
+        int max_speed = -1;
+        n_observed.msg.notification_response.action.distance[1] = c.current_speed;
+        bool was_blocked = is_blocked;
+        if (!was_blocked) {
+          before_blocked_speed = c.current_speed;
+        }
+        bool will_collide = will_collide_with_other_train(sd, &c, group_coordinates,
+                                         g->num_members, turnout_states, &max_speed,
+                                         train);
+        is_blocked = will_collide;
         if (will_collide && !was_blocked) {
           // TODO don't send this too often
           n_observed.msg.notification_response.subject.trains[0] = train;
