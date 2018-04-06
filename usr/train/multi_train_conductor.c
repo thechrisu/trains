@@ -224,7 +224,7 @@ void multi_train_conductor() {
             next_req.msg.notification_request.drop_existing = false;
             next_req.msg.notification_request.num_requests = 0;
             int t = Time(clock_server);
-            if (last_switch_time + 100 < t) {
+            if (last_switch_time + 30 < t) {
               last_switch_time = t;
               craft_loop_switch_triggers(next_req.msg.notification_request.notifications,
                                          &next_req.msg.notification_request.num_requests);
