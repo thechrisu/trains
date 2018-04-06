@@ -8,7 +8,7 @@ void test_collision_prediction() {
                     .current_speed = 14, .velocity = whatever14,
                     .target_velocity = whatever14, .acceleration = 0 };
   int o_vol = (int)track.speed_to_velocity[24][14];
-  coordinates o = { .loc = { .node = find_node_by_name(&track, "C9"), .offset = 0 }, .ticks = 0,
+  coordinates o = { .loc = { .node = find_node_by_name(&track, "C9"), .offset = 1000 }, .ticks = 0,
                     .current_speed = 14, .velocity = o_vol,
                     .target_velocity = o_vol, .acceleration = 0 };
   turnout_state turnout_states[NUM_TURNOUTS];
@@ -21,13 +21,13 @@ void test_collision_prediction() {
   r = will_collide_with_other_train(0, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
   Assert(max_acc == 14);
   Assert(!r);
-  Assert(c.current_speed ==14);
+  Assert(c.current_speed == 14);
   tmemcpy(&temp, &o, sizeof(temp));
   tmemcpy(&me_temp, &c, sizeof(me_temp));
   r = will_collide_with_other_train(100000, &me_temp, &temp, 1, turnout_states, &max_acc, 78);
-  Assert(max_acc > 0 && max_acc < 14);
+  Assert(c.current_speed == 14);
   Assert(!r);
-  Assert(c.current_speed ==14);
+  Assert(max_acc > 0 && max_acc < 14);
   tmemcpy(&temp, &o, sizeof(temp));
   tmemcpy(&me_temp, &c, sizeof(me_temp));
   r = will_collide_with_other_train(100000, &me_temp, &temp, 0, turnout_states, &max_acc, 78);
