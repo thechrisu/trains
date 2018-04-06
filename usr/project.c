@@ -421,9 +421,7 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
 
       train_group_info *group = find_group(group_name);
 
-      if (group != NULL_TRAIN_GROUP_INFO &&
-          buffer_index <= ibuf->elems &&
-          j != 0) {
+      if (group != NULL_TRAIN_GROUP_INFO) {
         cmd->type = USER_CMD_RVG;
         cmd->data[0] = (int)group;
       }

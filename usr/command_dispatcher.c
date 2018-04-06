@@ -430,7 +430,8 @@ void command_dispatcher_server() {
             }
             break;
           }
-          case USER_CMD_TRG: {
+          case USER_CMD_TRG:
+          case USER_CMD_RVG: {
             train_group_info *group = (train_group_info *)received.msg.cmd.data[0];
             Assert(Send(group->tid, &received, sizeof(received), EMPTY_MESSAGE, 0) == 0);
             break;
