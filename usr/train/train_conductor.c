@@ -5,7 +5,7 @@
 
 #define SWITCH_LOOKAHEAD_NODES 10
 
-#define SWITCH_DIST 25000
+#define SWITCH_DIST 35000
 
 #define ABS(a) ((a) > 0 ? (a) : (-(a)))
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
