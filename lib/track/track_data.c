@@ -34,7 +34,7 @@ void init_track(track_state *global_track) {
   set_turnout_permanently(global_track->trackb, 155, TURNOUT_CURVED);
   set_turnout_permanently(global_track->trackb, 156, TURNOUT_STRAIGHT);
 
-  global_track->track = global_track->tracka;
+  global_track->track = global_track->trackb;
   global_track->nodes = TRACKA_SIZE;
 
 #ifndef TESTING
