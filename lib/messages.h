@@ -163,6 +163,7 @@ typedef struct {
 } message_reservation_get_all_response;
 
 #define MAX_LOCATIONS_TO_OBSERVE 10
+#define MULTI_MAX_LOCATIONS_TO_OBSERVE (2 * MAX_LOCATIONS_TO_OBSERVE)
 
 typedef enum {
   GOT_LOST,
@@ -189,7 +190,7 @@ typedef struct {
 } location_notification;
 
 typedef struct {
-  location_notification notifications[MAX_LOCATIONS_TO_OBSERVE];
+  location_notification notifications[MULTI_MAX_LOCATIONS_TO_OBSERVE];
   int num_requests;
   bool drop_existing;
 } location_notification_request;
