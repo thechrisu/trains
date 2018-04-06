@@ -263,17 +263,11 @@ void command_dispatcher_server() {
           case USER_CMD_RV: // "block" on command
           case USER_CMD_R:
           case USER_CMD_TR: {
-            int there = 0;
-            for (int i = 0; i < num_active_trains; i++) {
-              if (active_trains[i] == received.msg.cmd.data[0]) {
-                there = active_trains[i];
-                break;
-              }
-            }
-            if (there) {
-              Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
-              send_if_rdy(&received, &conductors[received.msg.cmd.data[0]],
-                          terminal_tx_server);
+            int train = received.msg.cmd.data[0];
+            if (train < 1 || train > 80) return;
+            conductor_data *c = &conductors[train];
+            if (c->tid != 0) {
+              send_if_rdy(&received, c, terminal_tx_server);
             }
             break;
           }
