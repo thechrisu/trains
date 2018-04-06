@@ -4,6 +4,7 @@
 
 #define SPACING_NOTIFICATION_PERIOD 25
 
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 #define ABS(a) ((a) < 0 ? -(a) : (a))
 
 /**
@@ -115,6 +116,35 @@ void multi_drop_all_notifications(bool is_location_set[MULTI_MAX_LOCATIONS_TO_OB
   }
 }
 
+/**
+ * @param   in_front       The coordinates of the train in front.
+ * @param   behind         The coordinates of the train behind.
+ * @param   trains_between The number of trains between the two trains.
+ * @returns The spacing between two trains in millimetres, as if they followed
+ *          each other directly, but given that in reality there are
+ *          `trains_between` trains in between them (which we assume are
+ *          perfectly spaced).
+ *          -1 if exactly one of the trains is lost.
+ */
+int get_effective_spacing(coordinates *in_front,
+                          coordinates *behind,
+                          int trains_between) {
+  if (in_front->loc.node == NULL_TRACK_NODE &&
+      behind->loc.node == NULL_TRACK_NODE) {
+    return spacing + (in_front->loc.offset - behind->loc.offset) / 100;
+  }
+
+  int actual_distance = distance_between_locations(&behind->loc,
+                                                   &in_front->loc);
+  if (actual_distance < 0) return actual_distance;
+
+  int distance_between_pickups = spacing * 100 + TRAIN_LENGTH;
+  int effective_distance = actual_distance -
+                           distance_between_pickups * trains_between;
+  return (effective_distance - TRAIN_LENGTH) / 100;
+}
+
+
 void multi_coordinate_courier() {
   int conductor = MyParentTid();
   int coordinate_server = WhoIs("TrainCoordinatesServer");
@@ -184,24 +214,29 @@ void multi_coordinate_courier() {
       }
 
     }
+
+    coordinates first;
+    get_coordinates(coordinate_server, group.members[0], &first);
+
+    int time = Time(clock_server);
+
     for (int i = 0; i < group.num_members - 1; i++) {
-      int first_t = group.members[i];
-      int second_t = group.members[i + 1];
-      coordinates first, second; // First: Train AHEAD of second
-      get_coordinates(coordinate_server, first_t, &first);
-      get_coordinates(coordinate_server, second_t, &second);
+      int leader_t = group.members[i];
+      int follower_t = group.members[i + 1];
+      coordinates leader, follower; // Leader: Train AHEAD of follower
+      get_coordinates(coordinate_server, leader_t, &leader);
+      get_coordinates(coordinate_server, follower_t, &follower);
 
-      int time = Time(clock_server);
-
-      int r = distance_between_locations(&second.loc, &first.loc);
-      if (r < 0) continue;
-      int d = r / 100;
-      if ((d > spacing + spacing_error || d < spacing - spacing_error) &&
+      int to_first = get_effective_spacing(&first, &follower, i);
+      int to_leader = get_effective_spacing(&leader, &follower, 0);
+      int d = MAX(to_first, to_leader);
+      if (d > 0 &&
+          (d > spacing + spacing_error || d < spacing - spacing_error) &&
           last_spacing_notification[i] < time - SPACING_NOTIFICATION_PERIOD) {
         last_spacing_notification[i] = time;
 
-        n_observed.msg.notification_response.subject.trains[0] = first_t;
-        n_observed.msg.notification_response.subject.trains[1] = second_t;
+        n_observed.msg.notification_response.subject.trains[0] = leader_t;
+        n_observed.msg.notification_response.subject.trains[1] = follower_t;
         n_observed.msg.notification_response.reason = SPACING;
         n_observed.msg.notification_response.action.distance[0] = d;
         n_observed.msg.notification_response.action.distance[1] = spacing;

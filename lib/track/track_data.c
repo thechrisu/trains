@@ -45,8 +45,13 @@ void init_track(track_state *global_track) {
     turnouts[i] = TURNOUT_UNKNOWN; // offset 18-21 map to 153-156
     global_track->last_switch_time[i] = 0;
   }
+
   for(unsigned int i = 0; i < 81; i++) {
+    global_track->train[i].direction = true;
     global_track->train[i].should_speed = 0;
+    global_track->train[i].headlights = false;
+    global_track->train[i].last_speed = 0;
+    global_track->train[i].time_speed_last_changed = 0;
   }
 
   default_value default_speeds[] = {
@@ -59,12 +64,12 @@ void init_track(track_state *global_track) {
     { .train = 24, .speed = 6, .value = 11652 },
     { .train = 24, .speed = 7, .value = 16502 },
     { .train = 24, .speed = 8, .value = 22005 },
-    { .train = 24, .speed = 9, .value = 28094 },
-    { .train = 24, .speed = 10, .value = 34369 },
-    { .train = 24, .speed = 11, .value = 41091 },
-    { .train = 24, .speed = 12, .value = 47540 },
-    { .train = 24, .speed = 13, .value = 54614 },
-    { .train = 24, .speed = 14, .value = 61857 },
+    { .train = 24, .speed = 9, .value = 30495 },
+    { .train = 24, .speed = 10, .value = 37865 },
+    { .train = 24, .speed = 11, .value = 44705 },
+    { .train = 24, .speed = 12, .value = 50547 },
+    { .train = 24, .speed = 13, .value = 56677 },
+    { .train = 24, .speed = 14, .value = 57087 },
     { .train = 58, .speed = 0, .value = 0 },
     { .train = 58, .speed = 1, .value = 998 },
     { .train = 58, .speed = 2, .value = 5796 },
@@ -72,14 +77,14 @@ void init_track(track_state *global_track) {
     { .train = 58, .speed = 4, .value = 12579 },
     { .train = 58, .speed = 5, .value = 13143 },
     { .train = 58, .speed = 6, .value = 15460 },
-    { .train = 58, .speed = 7, .value = 27078 },
-    { .train = 58, .speed = 8, .value = 30644 },
-    { .train = 58, .speed = 9, .value = 37350 },
-    { .train = 58, .speed = 10, .value = 30611 },
-    { .train = 58, .speed = 11, .value = 40804 },
-    { .train = 58, .speed = 12, .value = 44645 },
-    { .train = 58, .speed = 13, .value = 49511 },
-    { .train = 58, .speed = 14, .value = 57389 },
+    { .train = 58, .speed = 7, .value = 19906 },
+    { .train = 58, .speed = 8, .value = 22789 },
+    { .train = 58, .speed = 9, .value = 28110 },
+    { .train = 58, .speed = 10, .value = 33068 },
+    { .train = 58, .speed = 11, .value = 40838 },
+    { .train = 58, .speed = 12, .value = 47287 },
+    { .train = 58, .speed = 13, .value = 50212 },
+    { .train = 58, .speed = 14, .value = 57506 },
     { .train = 74, .speed = 0, .value = 0 },
     { .train = 74, .speed = 1, .value = 923 },
     { .train = 74, .speed = 2, .value = 7225 },
@@ -90,11 +95,26 @@ void init_track(track_state *global_track) {
     { .train = 74, .speed = 7, .value = 33404 },
     { .train = 74, .speed = 8, .value = 36291 },
     { .train = 74, .speed = 9, .value = 43451 },
-    { .train = 74, .speed = 10, .value = 48204 },
-    { .train = 74, .speed = 11, .value = 55029 },
-    { .train = 74, .speed = 12, .value = 57034 },
-    { .train = 74, .speed = 13, .value = 61212 },
-    { .train = 74, .speed = 14, .value = 60329 },
+    { .train = 74, .speed = 10, .value = 47980 },
+    { .train = 74, .speed = 11, .value = 54109 },
+    { .train = 74, .speed = 12, .value = 57767 },
+    { .train = 74, .speed = 13, .value = 62513 },
+    { .train = 74, .speed = 14, .value = 65192 },
+    { .train = 77, .speed = 0, .value = 0 },
+    { .train = 77, .speed = 1, .value = 688 },
+    { .train = 77, .speed = 2, .value = 4000 },
+    { .train = 77, .speed = 3, .value = 5992 },
+    { .train = 77, .speed = 4, .value = 7639 },
+    { .train = 77, .speed = 5, .value = 12443 },
+    { .train = 77, .speed = 6, .value = 17124 },
+    { .train = 77, .speed = 7, .value = 22363 },
+    { .train = 77, .speed = 8, .value = 27409 },
+    { .train = 77, .speed = 9, .value = 33549 },
+    { .train = 77, .speed = 10, .value = 37807 },
+    { .train = 77, .speed = 11, .value = 45680 },
+    { .train = 77, .speed = 12, .value = 52650 },
+    { .train = 77, .speed = 13, .value = 58073 },
+    { .train = 77, .speed = 14, .value = 63785 },
     { .train = 78, .speed = 0, .value = 0 },
     { .train = 78, .speed = 1, .value = 885 },
     { .train = 78, .speed = 2, .value = 2468 },
@@ -110,6 +130,21 @@ void init_track(track_state *global_track) {
     { .train = 78, .speed = 12, .value = 40057 },
     { .train = 78, .speed = 13, .value = 47599 },
     { .train = 78, .speed = 14, .value = 49394 },
+    { .train = 79, .speed = 0, .value = 0 },
+    { .train = 79, .speed = 1, .value = 824 },
+    { .train = 79, .speed = 2, .value = 4938 },
+    { .train = 79, .speed = 3, .value = 7174 },
+    { .train = 79, .speed = 4, .value = 10395 },
+    { .train = 79, .speed = 5, .value = 14949 },
+    { .train = 79, .speed = 6, .value = 17371 },
+    { .train = 79, .speed = 7, .value = 23388 },
+    { .train = 79, .speed = 8, .value = 27888 },
+    { .train = 79, .speed = 9, .value = 34001 },
+    { .train = 79, .speed = 10, .value = 40884 },
+    { .train = 79, .speed = 11, .value = 50210 },
+    { .train = 79, .speed = 12, .value = 58437 },
+    { .train = 79, .speed = 13, .value = 63219 },
+    { .train = 79, .speed = 14, .value = 66973 },
     { .train = 1337, .speed = 1337, .value = 1337 }
   };
 
@@ -143,8 +178,8 @@ void init_track(track_state *global_track) {
     { .train = 58, .speed = 7, .value = 12790 },
     { .train = 58, .speed = 8, .value = 20090 },
     { .train = 58, .speed = 9, .value = 30670 },
-    { .train = 58, .speed = 10, .value = 43640 },
-    { .train = 58, .speed = 11, .value = 60160 },
+    { .train = 58, .speed = 10, .value = 42816 },
+    { .train = 58, .speed = 11, .value = 55683 },
     { .train = 58, .speed = 12, .value = 74089 },
     { .train = 58, .speed = 13, .value = 93892 },
     { .train = 58, .speed = 14, .value = 143575 },
@@ -163,6 +198,7 @@ void init_track(track_state *global_track) {
     { .train = 74, .speed = 12, .value = 80220 },
     { .train = 74, .speed = 13, .value = 102330 },
     { .train = 74, .speed = 14, .value = 142342 },
+    { .train = 77, .speed = 14, .value = 131032 },
     { .train = 78, .speed = 0, .value = 0 },
     { .train = 78, .speed = 1, .value = 75 },
     { .train = 78, .speed = 2, .value = 200 },
@@ -178,6 +214,7 @@ void init_track(track_state *global_track) {
     { .train = 78, .speed = 12, .value = 60000 },
     { .train = 78, .speed = 13, .value = 73926 },
     { .train = 78, .speed = 14, .value = 99245 },
+    { .train = 78, .speed = 14, .value = 137155 },
     { .train = 1337, .speed = 1337, .value = 1337 }
   };
 

@@ -16,9 +16,9 @@
  * @returns The speed that gives a velocity just above the target velocity,
  *          or -1 if none exists.
  */
-int speed_above(uint32_t target_velocity, uint32_t velocities[15]) {
+int speed_above(int32_t target_velocity, uint32_t velocities[15]) {
   for (int i = 0; i <= 14; i += 1) {
-    if (velocities[i] >= target_velocity) {
+    if ((int32_t)velocities[i] >= target_velocity) {
       return i;
     }
   }
@@ -30,16 +30,17 @@ int speed_above(uint32_t target_velocity, uint32_t velocities[15]) {
  * @param   target_velocity The velocity to target.
  * @param   velocities      The train's possible velocities.
  * @returns The speed that gives a velocity just below the target velocity,
- *          or -1 if none exists.
+ *          or 0 if none exists (under the assumption that a train can't
+ *          *actually* travel at a velocity less than zero).
  */
-int speed_below(uint32_t target_velocity, uint32_t velocities[15]) {
+int speed_below(int32_t target_velocity, uint32_t velocities[15]) {
   for (int i = 14; i >= 0; i -= 1) {
-    if (velocities[i] <= target_velocity) {
+    if ((int32_t)velocities[i] <= target_velocity) {
       return i;
     }
   }
 
-  return -1;
+  return 0;
 }
 
 void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
@@ -56,30 +57,28 @@ void multi_conductor_setspeed(int train_tx_server, int track_state_controller,
     speeds[i] = -1;
   }
 
-  bool found_speed = true;
+  bool found_speed = false;
 
-  do {
+  while (!found_speed) {
+    found_speed = true;
+
     uint32_t lead_velocity = velocity_model[0].msg.train_speeds[speeds[0]];
 
     for (int i = 1; i < group->num_members; i += 1) {
       if (velocity_model[i].msg.train_speeds[14] < lead_velocity) {
         found_speed = false;
+        speeds[0] -= 1;
         break;
       } else {
         speeds[i] = speed_below(lead_velocity, velocity_model[i].msg.train_speeds);
       }
     }
-
-    if (!found_speed) {
-      speeds[0] -= 1;
-      found_speed = true;
-    }
-  } while (!found_speed);
+  }
 
   for (int i = 0; i < group->num_members; i += 1) {
     Assert(speeds[i] >= 0);
     set_train_speed(train_tx_server, track_state_controller,
-                    group->members[0], speeds[i]);
+                    group->members[i], speeds[i]);
   }
 }
 
@@ -142,6 +141,7 @@ void multi_train_conductor() {
       case MESSAGE_SUNSET:
         Kill(coordinate_courier_tid);
         is_done = true;
+        Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) >= 0);
         break;
       case MESSAGE_USER:
         switch (received.msg.cmd.type) {
@@ -183,15 +183,17 @@ void multi_train_conductor() {
 
             int actual_distance = received.msg.notification_response.action.distance[0];
             int expected_distance = received.msg.notification_response.action.distance[1];
+            int error_p_s = (10000 * ABS(actual_distance - expected_distance))
+                              / spacing_catchup_time;
 
-            int new_speed;
+            int new_speed = -1;
 
             coordinates leader_coords, follower_coords;
 
             get_coordinates(train_coordinates_server, leader, &leader_coords);
             get_coordinates(train_coordinates_server, follower, &follower_coords);
 
-            if (leader_coords.velocity == 0 && leader_coords.target_velocity == 0) {
+            if (leader_coords.target_velocity == 0) {
               new_speed = 0;
             } else {
               message leader_velocity_model, follower_velocity_model;
@@ -205,19 +207,23 @@ void multi_train_conductor() {
                 new_speed = leader_coords.acceleration > 0 ?
                             speed_above(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds) :
-                            speed_below(leader_coords.target_velocity,
+                            speed_below((int32_t)leader_coords.target_velocity - error_p_s,
+                                        follower_velocity_model.msg.train_speeds);
+              } else if (actual_distance > expected_distance &&
+                         leader_coords.acceleration < 0) {
+                new_speed = speed_below(follower_coords.velocity,
                                         follower_velocity_model.msg.train_speeds);
               } else if (actual_distance > expected_distance) {
-                new_speed = leader_coords.acceleration < 0 ?
-                            speed_below(follower_coords.velocity,
-                                        follower_velocity_model.msg.train_speeds) :
-                            speed_above(leader_coords.target_velocity,
-                                        follower_velocity_model.msg.train_speeds);
-
                 // If the follower can't catch up to the leader's current velocity,
                 // reduce the velocity of the first train in the group to make sure
                 // the follower can catch up in the future.
-                if (new_speed == -1) {
+                bool can_catch_up = speed_above((int32_t)leader_coords.target_velocity,
+                                                follower_velocity_model.msg.train_speeds) != -1;
+                if (can_catch_up) {
+                  new_speed = speed_above((int32_t)leader_coords.target_velocity + error_p_s,
+                                          follower_velocity_model.msg.train_speeds);
+                  if (new_speed == -1) new_speed = 14;
+                } else {
                   message first_velocity_model;
                   get_constant_velocity_model(track_state_controller, g.members[0],
                                               &first_velocity_model);
@@ -229,8 +235,6 @@ void multi_train_conductor() {
                                     g.members[0], first_target_speed);
                   }
                 }
-              } else {
-                new_speed = -1;
               }
             }
 

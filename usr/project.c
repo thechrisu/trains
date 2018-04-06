@@ -1,6 +1,6 @@
 #include "project.h"
 
-#define CMD_MAX_SZ 32
+#define CMD_MAX_SZ 64
 #define GET_PADDING(i) (i >= 10 ? (i >= 100 ? (i >= 1000 ? (i >= 10000 ? (i >= 100000 ? (i >= 1000 * 1000 ? (i >= 10 * 1000 * 1000 ? " " : "  ") : "   ") : "    ") : "     ") : "      ") : "       ") : "        ")
 
 void char_buffer_clear(char_buffer *b) {
@@ -151,6 +151,7 @@ void user_command_print(int server_tid, user_command *cmd) {
 int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apologize for this mess
   if (data == '\r') {
     if (ibuf->elems == 0) return true;
+    user_command_reset(cmd);
     if (string_starts_with(ibuf->data, "tr ", ibuf->elems)) {
       int first_num_parse = is_valid_number(ibuf, 3);
       if (first_num_parse >= 0) {
@@ -432,8 +433,6 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       cmd->type = USER_CMD_GO;
     } else if (string_starts_with(ibuf->data, "q", ibuf->elems) && ibuf->elems == 1) {
       cmd->type = USER_CMD_Q;
-    } else {
-      user_command_reset(cmd);
     }
     char_buffer_clear(ibuf);
     char_buffer_empty(ibuf);
@@ -518,6 +517,7 @@ void project_first_user_task() {
   Assert(Create(my_priority + 2, &sensor_secretary) > 0);
   Assert(Create(my_priority + 2, &router) > 0);
   Assert(Create(my_priority + 2, &track_reservation_server) > 0);
+  Assert(Create(my_priority, &train_model_courier) > 0);
 
   message cmd_msg;
   cmd_msg.type = MESSAGE_USER;

@@ -2,6 +2,34 @@
 
 track_state track;
 
+/**
+ * Sends the latest velocity model/train state of one train
+ * to the train coordinates server.
+ *
+ * @param train                    Train to update
+ * @param clock_server_tid         Clock server task id
+ * @param train_coords_server_tid  Train coordinate server task id
+ */
+void track_controller_update_coordinates(int train, int clock_server_tid,
+                                         int train_coords_server_tid) {
+  message send;
+
+  send.type = MESSAGE_UPDATE_COORDS_SPEED;
+  tmemcpy(&send.msg.update_coords.tr_data, &track.train[train], sizeof(train_data));
+  send.msg.update_coords.tr_data.train = train;
+  send.msg.update_coords.tr_data.time_speed_last_changed = Time(clock_server_tid);
+  tmemcpy(&send.msg.update_coords.velocity_model,
+          track.speed_to_velocity[train],
+          15 * sizeof(uint32_t));
+  tmemcpy(&send.msg.update_coords.stopping_distance_model,
+          track.stopping_distance[train],
+          15 * sizeof(uint32_t));
+
+  Assert(Send(train_coords_server_tid,
+              &send, sizeof(send),
+              EMPTY_MESSAGE, 0) == 0);
+}
+
 void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
   int sender_tid;
@@ -60,40 +88,21 @@ void track_state_controller() {
         Assert(train >= 0 && train <= 80);
         Assert(received.msg.tr_data.should_speed >= 0
                && received.msg.tr_data.should_speed <= 14);
-        track.train[train].last_speed = track.train[train].should_speed;
-        track.train[train].should_speed = received.msg.tr_data.should_speed;
+
         track.train[train].headlights = received.msg.tr_data.headlights;
-        track.train[train].time_speed_last_changed = Time(clock_server_tid);
+
+        if (received.msg.tr_data.should_speed != track.train[train].should_speed) {
+          track.train[train].last_speed = track.train[train].should_speed;
+          track.train[train].should_speed = received.msg.tr_data.should_speed;
+          track.train[train].time_speed_last_changed = Time(clock_server_tid);
+
+          track_controller_update_coordinates(train, clock_server_tid,
+                                              train_coords_server_tid);
+        }
 #if DEBUG_REVERSAL
         logprintf("Track state controller: Set speed of %d to %d\n\r", train, track.train[train].should_speed);
 #endif /* DEBUG_REVERSAL */
         Reply(sender_tid, EMPTY_MESSAGE, 0);
-
-        send.type = MESSAGE_UPDATE_COORDS_SPEED;
-        tmemcpy(&send.msg.update_coords.tr_data, &track.train[train], sizeof(train_data));
-        send.msg.update_coords.tr_data.train = train;
-        tmemcpy(&send.msg.update_coords.velocity_model,
-                track.speed_to_velocity[train],
-                15 * sizeof(uint32_t));
-
-        // TODO use acceleration model
-        if (track.train[train].should_speed > track.train[train].last_speed) {
-          int speed = track.train[train].should_speed;
-          long long vel = track.speed_to_velocity[train][speed];
-          long long sd = track.stopping_distance[train][speed];
-          send.msg.update_coords.acceleration = (vel * vel) / (2 * sd);
-        } else if (track.train[train].should_speed == track.train[train].last_speed) {
-          send.msg.update_coords.acceleration = 0;
-        } else {
-          int speed = track.train[train].last_speed;
-          long long vel = track.speed_to_velocity[train][speed];
-          long long sd = track.stopping_distance[train][speed];
-          send.msg.update_coords.acceleration = -(vel * vel) / (2 * sd);
-        }
-
-        Assert(Send(train_coords_server_tid,
-                    &send, sizeof(send),
-                    EMPTY_MESSAGE, 0) == 0);
         break;
       }
       case MESSAGE_TRAINREVERSED:
@@ -156,7 +165,7 @@ void track_state_controller() {
         Assert(t >= 1 && t <= 80);
         Assert(s >= 0 && s <= 14);
         if (velocity >= DEFINITE_MAX_CM_PER_SEC * 10 * 100) {
-          logprintf("Got a velocity of %d 1/100 mm/s\n\r in track state controller\n\r", velocity);
+          logprintf("Got a velocity of %d 1/100 mm/s in track state controller\n\r", velocity);
         } else {
           if (track.speed_to_velocity[t][s] == 0) {
             track.speed_to_velocity[t][s] = velocity;
@@ -223,6 +232,14 @@ void track_state_controller() {
           }
         }
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
+        break;
+      }
+      case MESSAGE_REQUEST_COORD_UPDATE: {
+        Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+        track_controller_update_coordinates(received.msg.train,
+                                            clock_server_tid,
+                                            train_coords_server_tid);
         break;
       }
       default:

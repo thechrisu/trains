@@ -263,17 +263,12 @@ void command_dispatcher_server() {
           case USER_CMD_RV: // "block" on command
           case USER_CMD_R:
           case USER_CMD_TR: {
-            int there = 0;
-            for (int i = 0; i < num_active_trains; i++) {
-              if (active_trains[i] == received.msg.cmd.data[0]) {
-                there = active_trains[i];
-                break;
+            int train = received.msg.cmd.data[0];
+            if (train >= 1 && train <= 80) {
+              conductor_data *c = &conductors[train];
+              if (c->tid != 0) {
+                send_if_rdy(&received, c, terminal_tx_server);
               }
-            }
-            if (there) {
-              Assert(there == (*(conductors + received.msg.cmd.data[0])).t);
-              send_if_rdy(&received, &conductors[received.msg.cmd.data[0]],
-                          terminal_tx_server);
             }
             break;
           }
@@ -366,6 +361,9 @@ void command_dispatcher_server() {
               case SET_SPACING_ERROR:
                 spacing_error = received.msg.cmd.data[1];
                 break;
+              case SET_SPACING_CATCHUP_TIME:
+                spacing_catchup_time = received.msg.cmd.data[1];
+                break;
               default:
                 Assert(0);
                 break;
@@ -388,6 +386,7 @@ void command_dispatcher_server() {
               int tr = received.msg.cmd.data[3 + i];
               tr_groups[num_groups].g.members[i] = tr;
               sunset_tid(conductors[tr].tid);
+              conductors[tr].tid = 0;
               // Need to do this, since it may be polling (conductor_loop)
               // For some reason, if you uncomment the Kill(),
               // we end up in an infinite loop. Debugging this is super hard

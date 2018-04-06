@@ -10,6 +10,16 @@ int random() {
   return seed % m;
 }
 
+int random_sensor_on_siding() {
+  int result;
+
+  do {
+    result = random() % 80;
+  } while (sensor_reachable(&track, sensor_offset('D', 5), result));
+
+  return result;
+}
+
 void t2_demo_task() {
   int sender_tid;
   message received;
@@ -27,7 +37,7 @@ void t2_demo_task() {
     send.type = MESSAGE_USER;
     send.msg.cmd.type = USER_CMD_R;
     send.msg.cmd.data[0] = received.msg.train;
-    send.msg.cmd.data[1] = random() % 80;
+    send.msg.cmd.data[1] = random_sensor_on_siding();
     send.msg.cmd.data[2] = 0;
 
     Assert(Send(command_dispatcher, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);

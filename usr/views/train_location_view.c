@@ -4,7 +4,7 @@
 
 #define SENSOR_MAYBE(node) ((node) == NULL_TRACK_NODE ? NO_NEXT_SENSOR : (node)->num)
 
-#define MAX_TRAINS 3
+#define MAX_TRAINS 4
 
 #define LINE_CLEARED  1357
 
@@ -181,7 +181,7 @@ void train_location_view() {
   int loops = 0;
 
   while (true) {
-    for (int i = 0; i < num_active_trains; i += 1) {
+    for (int i = 0; i < num_active_trains && i < MAX_TRAINS; i += 1) {
       int train = active_trains[i];
 
       reply_get_last_sensor_hit seen_sensor;
