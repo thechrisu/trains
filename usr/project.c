@@ -424,8 +424,8 @@ int parse_command(char_buffer *ibuf, user_command *cmd, char data) { // I apolog
       if (group != NULL_TRAIN_GROUP_INFO &&
           buffer_index <= ibuf->elems &&
           j != 0) {
-            cmd->type = USER_CMD_RVG;
-            cmd->data[0] = (int)group;
+        cmd->type = USER_CMD_RVG;
+        cmd->data[0] = (int)group;
       }
     } else if (string_starts_with(ibuf->data, "stop", ibuf->elems) && ibuf->elems == 4) {
       cmd->type = USER_CMD_STOP;
