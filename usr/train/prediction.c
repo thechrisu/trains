@@ -189,16 +189,12 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
         tmemcpy(&one_behind, c, sizeof(one_behind));
       }
     }
-    if (num_rollout_steps >= MAX_ROLLOUT_STEPS) {
-      logprintf("Collision prediction exceeded max rollout steps\n\r");
-    }
     if (!got_collision) {
       *highest_acceptable_speed = c->current_speed;
       tmemcpy(c, &temp, sizeof(temp));
       return false;
     }
   }
-  logprintf("Got collision!\n\r");
   tmemcpy(c, &temp, sizeof(temp));
   *highest_acceptable_speed = -1;
   return true;
