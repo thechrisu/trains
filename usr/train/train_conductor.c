@@ -197,7 +197,6 @@ bool process_location_notification(int clock_server, int train_tx_server,
     case LOCATION_SLOWDOWN: { // Slow down because a train group is in the way.
       int max_speed = n->action.distance[0];
       int train = n->subject.trains[0];
-      logprintf("Loc slowdown: train: %d, max: %d\n\r", train, max_speed);
       if (max_speed == -1)
         max_speed = 0;
       if (max_speed != n->action.distance[1]) {
@@ -210,7 +209,6 @@ bool process_location_notification(int clock_server, int train_tx_server,
     case LOCATION_UNBLOCKED: {
       int speed = n->action.distance[0];
       int train = n->subject.trains[0];
-      logprintf("Loc unblock: train: %d, max: %d\n\r", train, speed);
       set_train_speed(train_tx_server, track_state_controller, train, speed);
       *drop_existing_notifications = false;
       return false;
