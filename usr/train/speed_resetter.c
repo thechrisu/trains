@@ -5,7 +5,6 @@ void speed_resetter() {
   int track_state_controller_tid = WhoIs("TrackStateController");
 
   for (int i = 0; i < num_active_trains; i += 1) {
-    logprintf("%d\n\r", active_trains[i]);
     set_train_speed(tx_server_tid, track_state_controller_tid,
                     active_trains[i], 0);
   }
