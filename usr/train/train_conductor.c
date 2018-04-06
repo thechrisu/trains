@@ -203,7 +203,7 @@ bool process_location_notification(int clock_server, int train_tx_server,
 #endif /* DEBUG_2P1 */
       if (max_speed == -1)
         max_speed = 0;
-      if (max_speed != n->action.distance[1]) {
+      if (max_speed == 0 || max_speed != n->action.distance[1]) {
         set_train_speed(train_tx_server, track_state_controller, train,
                         max_speed);
       }
