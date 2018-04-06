@@ -5,19 +5,18 @@ void tmemcpy(void *dst, const void *src, unsigned int n) { // (char *) only used
   unsigned char *srcp = (unsigned char *)src;
   unsigned char *dstp = (unsigned char *)dst;
 
-// only works on 32bit
-#ifndef TESTING
-  if (!((register_t)dst & 0x3) && !((register_t)src & 0x3)) {
+  int mask = sizeof(long) - 1;
+  if (!((register_t)dst & mask) && !((register_t)src & mask)) {
     long *srcpl = (long *)src;
     long *dstpl = (long *)dst;
-    while (n >= 4) {
+    while (n >= sizeof(long)) {
       *dstpl++ = *srcpl++;
-      n -= 4;
+      n -= sizeof(long);
     }
     dstp = (unsigned char *)dstpl;
     srcp = (unsigned char *)srcpl;
   }
-#endif /* TESTING */
+
   while (n-- > 0) { *dstp++ = *srcp++; }
 }
 
