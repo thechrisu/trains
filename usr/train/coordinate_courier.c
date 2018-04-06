@@ -214,18 +214,13 @@ void coordinate_courier() {
           n_observed.msg.notification_response.action.distance[0] = max_speed;
           Assert(Send(conductor, &n_observed, sizeof(n_observed),
                                  EMPTY_MESSAGE, 0) == 0);
-        } else if (!will_collide && max_speed > before_blocked_speed) {
+        } else {
           is_blocked = false;
           n_observed.msg.notification_response.subject.trains[0] = train;
           n_observed.msg.notification_response.reason = LOCATION_UNBLOCKED;
-          n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;
+          n_observed.msg.notification_response.action.distance[0] = 14;
           Assert(Send(conductor, &n_observed, sizeof(n_observed),
                                  EMPTY_MESSAGE, 0) == 0);
-        } else if (will_collide && was_blocked) {
-#if DEBUG_2P1
-          logprintf("Still blocked: %s +- %d\n\r", c.loc.node->name,
-              c.loc.offset);
-#endif /* DEBUG_2P1 */
         }
       }
     }

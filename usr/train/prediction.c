@@ -138,7 +138,7 @@ bool will_collide_with_other_train(int distance, coordinates *c, coordinates oth
   int t = Time(WhoIs("ClockServer"));
 
   train_data tr_data;
-  for (int j = c->current_speed; j >= 0; j--) {
+  for (int j = 14; j > 0; j--) {
     coordinates others_c[num_other_trains];
     tmemcpy(others_c, others, sizeof(others_c));
     tmemcpy(c, &temp, sizeof(temp));
