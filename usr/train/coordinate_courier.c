@@ -138,6 +138,7 @@ void coordinate_courier() {
   bool first_run = true;
   bool is_blocked = false;
   int before_blocked_speed = -1;
+  int last_block = Time(clock_server);
   drop_all_notifications(is_location_set);
   while (true) {
     get_coordinates(coordinate_server, train, &c);
@@ -199,19 +200,23 @@ void coordinate_courier() {
                                        g->num_members, turnout_states, &max_speed,
                                        train);
       is_blocked = will_collide;
-      if (will_collide && !was_blocked) {
-        // TODO don't send this too often
-        n_observed.msg.notification_response.subject.trains[0] = train;
-        n_observed.msg.notification_response.reason = LOCATION_SLOWDOWN;
-        n_observed.msg.notification_response.action.distance[0] = max_speed;
-        Assert(Send(conductor, &n_observed, sizeof(n_observed),
-                               EMPTY_MESSAGE, 0) == 0);
-      } else if (!will_collide && was_blocked) {
-        n_observed.msg.notification_response.subject.trains[0] = train;
-        n_observed.msg.notification_response.reason = LOCATION_UNBLOCKED;
-        n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;
-        Assert(Send(conductor, &n_observed, sizeof(n_observed),
-                               EMPTY_MESSAGE, 0) == 0);
+      int t = Time(clock_server);
+      if (t < last_block + 100) {
+        last_block = t;
+        if (will_collide && !was_blocked) {
+          // TODO don't send this too often
+          n_observed.msg.notification_response.subject.trains[0] = train;
+          n_observed.msg.notification_response.reason = LOCATION_SLOWDOWN;
+          n_observed.msg.notification_response.action.distance[0] = max_speed;
+          Assert(Send(conductor, &n_observed, sizeof(n_observed),
+                                 EMPTY_MESSAGE, 0) == 0);
+        } else if (!will_collide && was_blocked) {
+          n_observed.msg.notification_response.subject.trains[0] = train;
+          n_observed.msg.notification_response.reason = LOCATION_UNBLOCKED;
+          n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;
+          Assert(Send(conductor, &n_observed, sizeof(n_observed),
+                                 EMPTY_MESSAGE, 0) == 0);
+        }
       }
     }
     Delay(clock_server, 4);
