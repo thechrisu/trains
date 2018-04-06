@@ -2,17 +2,9 @@
 
 #ifdef TESTING
 void __Assert(bool value, const char *expression, const char *caller_name, const char *file_name, int line_num) {
-#if DEMO
-  (void)value;
-  (void)expression;
-  (void)caller_name;
-  (void)file_name;
-  (void)line_num;
-#else
   if (!value) {
     printf("\033[31mAssertion failed! \"%s\" in function \"%s\" at %s:%d\033[39m\n\r", expression, caller_name, file_name, line_num);
   }
-#endif /* DEMO */
 }
 #else
 #ifdef E2ETESTING
@@ -85,6 +77,13 @@ void Panic() {
 }
 
 void __Assert(bool value, const char *expression, const char *caller_name, const char *file_name, int line_num) {
+#if DEMO
+  (void)value;
+  (void)expression;
+  (void)caller_name;
+  (void)file_name;
+  (void)line_num;
+#else
   if (unlikely(!value)) {
     dump_logs();
     log_index = 0;
@@ -93,6 +92,7 @@ void __Assert(bool value, const char *expression, const char *caller_name, const
     /* Call software_interrupt1 instead of Panic to allow inlining. */
     software_interrupt(SYS_PANIC, 0, NULL_ARGS);
   }
+#endif /* DEMO */
 }
 
 int Send(int tid, void *msg, int msglen, void *reply, int rplen) {
