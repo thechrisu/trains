@@ -7,7 +7,7 @@
 
 #define MAX_ROLLOUT_STEPS 100
 
-#define SPACING_PADDING 10 * 10 * 100
+#define SPACING_PADDING 20 * 10 * 100
 
 void predict_sensor_hit(int train_coordinates_server_tid,
                         turnout_state turnout_states[NUM_TURNOUTS],
