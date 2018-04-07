@@ -356,4 +356,41 @@ int PutBytes(int tid, void *bytes, uint32_t bytes_size) {
   return -1;
 }
 
+void Publish(int event_server, event *e) {
+  message send;
+  send.type = MESSAGE_PUBLISH;
+  tmemcpy(&send.msg.event, e, sizeof(send.msg.event));
+  Assert(Send(event_server, &send, sizeof(send),
+                            EMPTY_MESSAGE, 0) == sizeof(send));
+}
+
+void Subscribe(int event_server, event_type type) {
+  message send;
+  send.type = MESSAGE_SUBSCRIBE;
+  send.msg.event.type = type;
+  Assert(Send(event_server, &send, sizeof(send),
+                            EMPTY_MESSAGE, 0) == sizeof(send));
+}
+
+void ReceiveEvent(int event_server, event *e) {
+  int sender_tid;
+  message received;
+  Assert(Receive(&sender_tid,
+                 &received, sizeof(received)) == sizeof(received));
+  Assert(sender_tid == event_server);
+  Assert(received.type == MESSAGE_EVENT);
+  tmemcpy(e, &received.msg.event, sizeof(*e));
+}
+
+void Init(int priority, void (*code)(), message_body *body) {
+  int tid = Create(priority, code);
+  Assert(tid > 0);
+
+  message send;
+  send.type = MESSAGE_INIT;
+  tmemcpy(&send.msg, body, sizeof(send.msg));
+  Assert(Send(tid, &send, sizeof(send),
+                   EMPTY_MESSAGE, 0) == 0);
+}
+
 #endif /* TESTING */

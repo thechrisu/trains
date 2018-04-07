@@ -282,6 +282,41 @@ int Printf(int tid, char *fmt, ...);
  */
 int PutBytes(int tid, void *bytes, uint32_t bytes_size);
 
+/**
+ * Publish an event to the event server.
+ *
+ * @param event_server The task ID of the event server.
+ * @param e            The event to publish.
+ */
+void Publish(int event_server, event *e);
+
+/**
+ * Subscribe to an event type. The caller task can call `ReceiveEvent` to
+ * receive events of the type that it has subscribed to.
+ *
+ * @param event_server The task ID of the event server.
+ * @param type         The event type to subscribe to.
+ */
+void Subscribe(int event_server, event_type type);
+
+/**
+ * Make the task send-blocked until the event server sends it an event. Only
+ * events that were subscribed to will be received.
+ *
+ * @param event_server The task ID of the event server.
+ * @param e            A location to store the received event in.
+ */
+void ReceiveEvent(int event_server, event *e);
+
+/**
+ * Creates a task and immediately sends a message with the given body to it.
+ *
+ * @param priority     Priority with which to run the new task.
+ * @param code         Function to enter with the new task.
+ * @param body         Body of message to send to the created task.
+ */
+void Init(int priority, void (*code)(), message_body *body);
+
 #define MAX_PRIORITY 63
 
 #define SYS_EXIT                   0 // When you change this, also change it in ../src/trap.s
