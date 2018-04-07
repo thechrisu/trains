@@ -27,6 +27,8 @@ void sensor_view() {
   Assert(terminal_tx_server > 0);
   Assert(event_server > 0);
 
+  Subscribe(event_server, EVENT_SENSOR_TRIGGERED);
+
   char recent_sensors[SENSOR_HISTORY_LENGTH];
   char_buffer recent_sensors_buf_loc;
   char_buffer_init(&recent_sensors_buf_loc, recent_sensors, SENSOR_HISTORY_LENGTH);
