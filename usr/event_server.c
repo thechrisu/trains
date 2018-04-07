@@ -43,9 +43,9 @@ void event_server() {
         event_type type = received.msg.event.type;
         Assert(type < MAX_EVENT_TYPE);
 
+        Assert(num_subscribed[type] < MAX_TASKS);
         subscribed[type][num_subscribed[type]] = sender_tid;
         num_subscribed[type] += 1;
-        Assert(num_subscribed[type] <= MAX_TASKS);
 
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
