@@ -376,6 +376,7 @@ void ReceiveEvent(event *e) {
   Assert(Receive(&sender_tid,
                  &received, sizeof(received)) == sizeof(received));
   Assert(received.type == MESSAGE_EVENT);
+  Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
   tmemcpy(e, &received.msg.event, sizeof(*e));
 }
 
