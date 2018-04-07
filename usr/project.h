@@ -10,6 +10,7 @@
 #include "clock.h"
 #include "codes.h"
 #include "command_dispatcher.h"
+#include "event_server.h"
 #include "idle.h"
 #include "ioserver.h"
 #include "nameserver.h"
