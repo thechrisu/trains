@@ -30,11 +30,8 @@ void sensor_secretary() {
     get_leading_edge(sensor_states, sensor_msg.msg.sensors, leading_edge);
 
     if (!first_query) {
-      for (int i = 0; i < 80; i += 1) {
-        int index = i / 8;
-        int bit = (15 - (i % 16)) % 8;
-
-        if (leading_edge[index] & (1 << bit)) {
+      for (unsigned int i = 0; i < 80; i += 1) {
+        if (leading_edge[sensor_data_element(i)] & sensor_data_mask(i)) {
           event e = {
             .type = EVENT_SENSOR_TRIGGERED,
             .body = { .sensor = i },
