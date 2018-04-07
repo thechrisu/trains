@@ -360,16 +360,14 @@ void Publish(int event_server, event *e) {
   message send;
   send.type = MESSAGE_PUBLISH;
   tmemcpy(&send.msg.event, e, sizeof(send.msg.event));
-  Assert(Send(event_server, &send, sizeof(send),
-                            EMPTY_MESSAGE, 0) == sizeof(send));
+  Assert(Send(event_server, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
 void Subscribe(int event_server, event_type type) {
   message send;
   send.type = MESSAGE_SUBSCRIBE;
   send.msg.event.type = type;
-  Assert(Send(event_server, &send, sizeof(send),
-                            EMPTY_MESSAGE, 0) == sizeof(send));
+  Assert(Send(event_server, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
 void ReceiveEvent(int event_server, event *e) {
