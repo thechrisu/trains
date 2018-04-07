@@ -5,15 +5,13 @@
 static char_buffer *recent_sensors_buf;
 
 void print_sensor(int terminal_tx_server, char sensor) {
-  char ltr = 'A' + sensor / 16;
-  char num = 1 + sensor % 16;
   uint32_t offset = recent_sensors_buf->in;
-
   int line_to_print = SENSOR_HEADING_LINE + 1 + offset;
   int line_to_clear = SENSOR_HEADING_LINE + 1 + (offset + 9) % 10;
 
   Assert(Printf(terminal_tx_server, "%s%d;%dH%c%d   ",
-                ESC, line_to_print, 1, ltr, num) == 0);
+                ESC, line_to_print, 1,
+                sensor_bank(sensor), sensor_index(sensor)) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH<--",
                 ESC, line_to_print, 6) == 0);
   Assert(Printf(terminal_tx_server, "%s%d;%dH   ",
