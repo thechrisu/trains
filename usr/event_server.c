@@ -10,7 +10,7 @@ void event_server() {
 
   int subscribed[MAX_EVENT_TYPE][MAX_TASKS];
   for (int i = 0; i < MAX_EVENT_TYPE; i += 1) {
-    for (int j = 0; j < MAX_TASKS; i += 1) {
+    for (int j = 0; j < MAX_TASKS; j += 1) {
       subscribed[i][j] = 0;
     }
   }
