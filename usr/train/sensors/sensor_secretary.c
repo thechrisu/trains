@@ -23,7 +23,9 @@ void sensor_secretary() {
     sensor_msg.type = MESSAGE_SENSORSRECEIVED;
 
     for (int i = 0; i < 10; i++) {
-      sensor_msg.msg.sensors[i] = Getc(train_rx_server, TRAIN);
+      int c = Getc(train_rx_server, TRAIN);
+      Assert(c >= 0);
+      sensor_msg.msg.sensors[i] = c;
     }
 
     int16_t leading_edge[10];
