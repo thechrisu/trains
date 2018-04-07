@@ -26,6 +26,7 @@ void event_server() {
     switch (received.type) {
       case MESSAGE_PUBLISH: {
         event_type type = received.msg.event.type;
+        Assert(type < MAX_EVENT_TYPE);
 
         event_dispatcher_params params;
         tmemcpy(&params.event, &received.msg.event, sizeof(event));
@@ -40,6 +41,8 @@ void event_server() {
       }
       case MESSAGE_SUBSCRIBE: {
         event_type type = received.msg.event.type;
+        Assert(type < MAX_EVENT_TYPE);
+
         subscribed[type][num_subscribed[type]] = sender_tid;
         num_subscribed[type] += 1;
         Assert(num_subscribed[type] <= MAX_TASKS);
