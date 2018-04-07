@@ -13,23 +13,36 @@ void sensor_secretary() {
 
   bool first_query = true;
 
+  int16_t sensor_states[10];
+  tmemset(sensor_states, 0, sizeof(sensor_states));
+
   while (true) {
     Assert(Putc(train_tx_server, TRAIN, CMD_ALL_SENSORS) == 0);
 
     message sensor_msg;
     sensor_msg.type = MESSAGE_SENSORSRECEIVED;
 
-    event sensors;
-    sensors.type = EVENT_SENSOR_DATA_RECEIVED;
-
     for (int i = 0; i < 10; i++) {
-      char c = Getc(train_rx_server, TRAIN);
-      sensor_msg.msg.sensors[i] = c;
-      sensors.body.sensors[i] = c;
+      sensor_msg.msg.sensors[i] = Getc(train_rx_server, TRAIN);
     }
 
+    int16_t leading_edge[10];
+    get_leading_edge(sensor_states, sensor_msg.msg.sensors, leading_edge);
+
     if (!first_query) {
-      Publish(event_server, &sensors);
+      for (int i = 0; i < 80; i += 1) {
+        int index = i / 8;
+        int bit = (15 - (i % 16)) % 8;
+
+        if (leading_edge[index] & (1 << bit)) {
+          event e = {
+            .type = EVENT_SENSOR_TRIGGERED,
+            .body = { .sensor = i },
+          };
+          Publish(event_server, &e);
+        }
+      }
+
       Assert(Send(sensor_interpreter, &sensor_msg, sizeof(sensor_msg), EMPTY_MESSAGE, 0) == 0);
     }
 

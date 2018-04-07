@@ -39,9 +39,6 @@ void track_state_controller() {
   int sender_tid;
   message send, received, reply;
 
-  int16_t sensor_states[10];
-  tmemset(sensor_states, 0, sizeof(sensor_states));
-
   int clock_server_tid = WhoIs("ClockServer");
   int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
   Assert(train_coords_server_tid > 0);
@@ -49,45 +46,11 @@ void track_state_controller() {
   int event_server = WhoIs("EventServer");
   Assert(event_server > 0);
 
-  Subscribe(event_server, EVENT_SENSOR_DATA_RECEIVED);
-
   int train;
 
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
-      case MESSAGE_EVENT:
-        switch (received.msg.event.type) {
-          case EVENT_SENSOR_DATA_RECEIVED:
-            Reply(sender_tid, EMPTY_MESSAGE, 0);
-
-            int16_t *new_sensor_states = received.msg.event.body.sensors;
-
-            int16_t leading_edge[10];
-            get_leading_edge(sensor_states, new_sensor_states, leading_edge);
-
-            for (int i = 0; i < 80; i += 1) {
-              int index = i / 8;
-              int bit = (15 - (i % 16)) % 8;
-
-              if (leading_edge[index] & (1 << bit)) {
-                event e = {
-                  .type = EVENT_SENSOR_TRIGGERED,
-                  .body = { .sensor = i },
-                };
-                Publish(event_server, &e);
-              }
-            }
-
-            tmemcpy(&sensor_states, new_sensor_states, sizeof(sensor_states));
-
-            break;
-          default:
-            logprintf("Unknown event type %d in track state controller\n\r",
-                      received.msg.event.type);
-            Assert(0);
-            break;
-        }
       case MESSAGE_GETTRAIN:
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
