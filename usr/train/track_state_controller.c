@@ -39,7 +39,7 @@ void track_state_controller() {
   int sender_tid;
   message send, received, reply;
 
-  char sensor_states[10];
+  int16_t sensor_states[10];
   tmemset(sensor_states, 0, sizeof(sensor_states));
 
   int clock_server_tid = WhoIs("ClockServer");
@@ -61,9 +61,9 @@ void track_state_controller() {
           case EVENT_SENSOR_DATA_RECEIVED:
             Reply(sender_tid, EMPTY_MESSAGE, 0);
 
-            char *new_sensor_states = received.msg.event.body.sensors;
+            int16_t *new_sensor_states = received.msg.event.body.sensors;
 
-            char leading_edge[10];
+            int16_t leading_edge[10];
             get_leading_edge(sensor_states, new_sensor_states, leading_edge);
 
             for (int i = 0; i < 80; i += 1) {
@@ -150,6 +150,18 @@ void track_state_controller() {
         int turnout_num = received.msg.turnout_switched_params.turnout_num;
         Assert(is_valid_turnout_num(turnout_num));
         track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
+
+        event e = {
+          .type = EVENT_TURNOUT_SWITCHED,
+          .body = {
+            .turnout = {
+              .number = turnout_num,
+              .state = received.msg.turnout_switched_params.state,
+            },
+          },
+        };
+        Publish(event_server, &e);
+
         Reply(sender_tid, EMPTY_MESSAGE, 0);
 
         send.type = MESSAGE_FORWARD_TURNOUT_STATES;
