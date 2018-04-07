@@ -1,6 +1,8 @@
 #include "event_server.h"
 
 void event_server() {
+  Assert(RegisterAs("EventServer") == 0);
+
   int my_priority = MyPriority();
 
   int sender_tid;
