@@ -41,7 +41,7 @@ void sensor_view() {
 
   while (true) {
     ReceiveEvent(event_server, &e);
-    Assert(e.type == EVENT_SENSOR_DATA_RECEIVED);
+    Assert(e.type == EVENT_SENSOR_TRIGGERED);
     print_sensor(terminal_tx_server, e.body.sensor);
   }
 }
