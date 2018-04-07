@@ -42,6 +42,8 @@ void turnout_view() {
   while (true) {
     ReceiveEvent(&e);
     Assert(e.type == EVENT_TURNOUT_SWITCHED);
-    update_turnout_view(e.body.turnout.number, e.body.turnout.state);
+
+    int turnout_index = turnout_num_to_map_offset(e.body.turnout.number);
+    update_turnout_view(turnout_index, e.body.turnout.state);
   }
 }
