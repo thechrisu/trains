@@ -303,10 +303,9 @@ void Subscribe(int event_server, event_type type);
  * Make the task send-blocked until the event server sends it an event. Only
  * events that were subscribed to will be received.
  *
- * @param event_server The task ID of the event server.
- * @param e            A location to store the received event in.
+ * @param e A location to store the received event in.
  */
-void ReceiveEvent(int event_server, event *e);
+void ReceiveEvent(event *e);
 
 /**
  * Creates a task and immediately sends a message with the given body to it.

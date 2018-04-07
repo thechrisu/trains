@@ -40,7 +40,7 @@ void turnout_view() {
 
   event e;
   while (true) {
-    ReceiveEvent(event_server, &e);
+    ReceiveEvent(&e);
     Assert(e.type == EVENT_TURNOUT_SWITCHED);
     update_turnout_view(e.body.turnout.number, e.body.turnout.state);
   }

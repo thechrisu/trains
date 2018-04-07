@@ -370,12 +370,11 @@ void Subscribe(int event_server, event_type type) {
   Assert(Send(event_server, &send, sizeof(send), EMPTY_MESSAGE, 0) == 0);
 }
 
-void ReceiveEvent(int event_server, event *e) {
+void ReceiveEvent(event *e) {
   int sender_tid;
   message received;
   Assert(Receive(&sender_tid,
                  &received, sizeof(received)) == sizeof(received));
-  Assert(sender_tid == event_server);
   Assert(received.type == MESSAGE_EVENT);
   tmemcpy(e, &received.msg.event, sizeof(*e));
 }
