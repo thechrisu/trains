@@ -98,7 +98,7 @@ typedef enum {
   MAX_EVENT_TYPE,
 } event_type;
 
-typedef struct {
+struct evt {
   event_type type;
   union {
     int16_t sensor;
@@ -107,7 +107,9 @@ typedef struct {
       turnout_state state;
     } turnout;
   } body;
-} event;
+};
+
+typedef struct evt event;
 
 typedef struct {
   int32_t delay;
@@ -218,7 +220,7 @@ typedef struct {
 
 typedef struct {
   int tid;
-  event event;
+  struct evt event;
 } event_dispatcher_params;
 
 typedef union {
@@ -259,7 +261,7 @@ typedef union {
   int destination;
   location_notification_request notification_request;
   location_notification notification_response;
-  event event;
+  struct evt event;
   event_dispatcher_params edparams;
 } message_body;
 
