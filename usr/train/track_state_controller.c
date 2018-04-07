@@ -33,7 +33,6 @@ void track_controller_update_coordinates(int train, int clock_server_tid,
 void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
 
-  track_state track;
   init_track(&track);
 
   int sender_tid;
