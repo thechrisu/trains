@@ -8,6 +8,7 @@ void event_dispatcher() {
                  &received, sizeof(received)) == sizeof(received));
   Assert(sender_tid == MyParentTid());
   Assert(received.type == MESSAGE_INIT);
+  Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
 
   int tid = received.msg.edparams.tid;
 
