@@ -32,11 +32,14 @@ void track_controller_update_coordinates(int train, int clock_server_tid,
 
 void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
-  int sender_tid;
-  int train;
-  message send, received, reply;
+
+  track_state track;
   init_track(&track);
-  int16_t sensor_states[10];
+
+  int sender_tid;
+  message send, received, reply;
+
+  char sensor_states[10];
   tmemset(sensor_states, 0, sizeof(sensor_states));
 
   int clock_server_tid = WhoIs("ClockServer");
@@ -48,16 +51,36 @@ void track_state_controller() {
 
   Subscribe(event_server, EVENT_SENSOR_DATA_RECEIVED);
 
+  int train;
+
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
       case MESSAGE_EVENT:
         switch (received.msg.event.type) {
           case EVENT_SENSOR_DATA_RECEIVED:
-            for (int i = 0; i < 10; i++) {
-              sensor_states[i] = received.msg.event.body.sensors[i];
-            }
             Reply(sender_tid, EMPTY_MESSAGE, 0);
+
+            char *new_sensor_states = received.msg.event.body.sensors;
+
+            char leading_edge[10];
+            get_leading_edge(sensor_states, new_sensor_states, leading_edge);
+
+            for (int i = 0; i < 80; i += 1) {
+              int index = i / 8;
+              int bit = (15 - (i % 16)) % 8;
+
+              if (leading_edge[index] & (1 << bit)) {
+                event e = {
+                  .type = EVENT_SENSOR_TRIGGERED,
+                  .body = { .sensor = i },
+                };
+                Publish(event_server, &e);
+              }
+            }
+
+            tmemcpy(&sensor_states, new_sensor_states, sizeof(sensor_states));
+
             break;
           default:
             logprintf("Unknown event type %d in track state controller\n\r",
@@ -74,13 +97,6 @@ void track_state_controller() {
         reply.msg.tr_data.headlights = track.train[train].headlights;
         reply.msg.tr_data.last_speed = track.train[train].last_speed;
         reply.msg.tr_data.time_speed_last_changed = track.train[train].time_speed_last_changed;
-        Reply(sender_tid, &reply, sizeof(reply));
-        break;
-      case MESSAGE_GETSENSORS:
-        reply.type = REPLY_GETSENSORS;
-        for (int i = 0; i < 10; i++) {
-          reply.msg.sensors[i] = sensor_states[i];
-        }
         Reply(sender_tid, &reply, sizeof(reply));
         break;
       case MESSAGE_GETTURNOUTS:
