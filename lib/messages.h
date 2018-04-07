@@ -93,11 +93,15 @@ enum message_type {
 };
 
 typedef enum {
+  EVENT_SENSOR_DATA_RECEIVED,
   MAX_EVENT_TYPE,
 } event_type;
 
 typedef struct {
   event_type type;
+  union {
+    char sensors[10];
+  } body;
 } event;
 
 typedef struct {

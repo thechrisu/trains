@@ -43,15 +43,28 @@ void track_state_controller() {
   int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
   Assert(train_coords_server_tid > 0);
 
+  int event_server = WhoIs("EventServer");
+  Assert(event_server > 0);
+
+  Subscribe(event_server, EVENT_SENSOR_DATA_RECEIVED);
+
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
-      case MESSAGE_SENSORSRECEIVED:
-        for (int i = 0; i < 10; i++) {
-          sensor_states[i] = received.msg.sensors[i];
+      case MESSAGE_EVENT:
+        switch (received.msg.event.type) {
+          case EVENT_SENSOR_DATA_RECEIVED:
+            for (int i = 0; i < 10; i++) {
+              sensor_states[i] = received.msg.event.body.sensors[i];
+            }
+            Reply(sender_tid, EMPTY_MESSAGE, 0);
+            break;
+          default:
+            logprintf("Unknown event type %d in track state controller\n\r",
+                      received.msg.event.type);
+            Assert(0);
+            break;
         }
-        Reply(sender_tid, EMPTY_MESSAGE, 0);
-        break;
       case MESSAGE_GETTRAIN:
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
