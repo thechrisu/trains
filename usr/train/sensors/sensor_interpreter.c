@@ -49,9 +49,6 @@ void sensor_interpreter() {
   terminal_tx_server = WhoIs("TerminalTxServer");
   int track_state_controller_tid = WhoIs("TrackStateController");
 
-  int train_coordinates_server = WhoIs("TrainCoordinatesServer");
-  Assert(train_coordinates_server > 0);
-
   int event_broker = WhoIs("EventBroker");
   Assert(event_broker > 0);
 
@@ -181,10 +178,19 @@ void sensor_interpreter() {
         }
 
         if (sensor_attributed_to != NOT_ATTRIBUTED) {
-          send_attributed_sensor_to_coord_server(
-                  train_coordinates_server, sensor_attributed_to,
-                  last_sensor[sensor_attributed_to],
-                  time_at_last_sensor_hit[sensor_attributed_to]);
+          event pub = {
+            .type = EVENT_SENSOR_ATTRIBUTED,
+            .body = {
+              .attribution = {
+                .hit = {
+                  .sensor = last_sensor[sensor_attributed_to],
+                  .ticks = time_at_last_sensor_hit[sensor_attributed_to],
+                },
+                .train = sensor_attributed_to,
+              },
+            },
+          };
+          Publish(event_broker, &pub);
         }
 
         break;
@@ -205,16 +211,4 @@ void sensor_interpreter() {
         break;
     }
   }
-}
-
-void send_attributed_sensor_to_coord_server(int coord_server, int train,
-                                            unsigned int ls, unsigned int tls) {
-  message send;
-  send.type = MESSAGE_UPDATE_COORDS_SENSOR;
-  send.msg.update_coords.tr_data.train = train;
-  send.msg.update_coords.last_sensor.sensor = ls;
-  send.msg.update_coords.last_sensor.ticks = tls;
-  Assert(Send(coord_server,
-              &send, sizeof(send),
-              EMPTY_MESSAGE, 0) == 0);
 }
