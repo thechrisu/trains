@@ -42,8 +42,10 @@ void track_state_controller() {
   int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
   Assert(train_coords_server_tid > 0);
 
+#ifndef E2ETESTING
   int event_broker = WhoIs("EventBroker");
   Assert(event_broker > 0);
+#endif /* E2ETESTING */
 
   int train;
 
@@ -113,6 +115,7 @@ void track_state_controller() {
         Assert(is_valid_turnout_num(turnout_num));
         track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
 
+#ifndef E2ETESTING
         event e = {
           .type = EVENT_TURNOUT_SWITCHED,
           .body = {
@@ -123,6 +126,7 @@ void track_state_controller() {
           },
         };
         Publish(event_broker, &e);
+#endif /* E2ETESTING */
 
         Reply(sender_tid, EMPTY_MESSAGE, 0);
 
