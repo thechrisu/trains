@@ -31,10 +31,10 @@ void turnout_view() {
   terminal_tx_server_tid = WhoIs("TerminalTxServer");
   Assert(terminal_tx_server_tid > 0);
 
-  int event_server = WhoIs("EventServer");
-  Assert(event_server > 0);
+  int event_broker = WhoIs("EventBroker");
+  Assert(event_broker > 0);
 
-  Subscribe(event_server, EVENT_TURNOUT_SWITCHED);
+  Subscribe(event_broker, EVENT_TURNOUT_SWITCHED);
 
   init_turnout_view();
 

@@ -42,8 +42,8 @@ void track_state_controller() {
   int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
   Assert(train_coords_server_tid > 0);
 
-  int event_server = WhoIs("EventServer");
-  Assert(event_server > 0);
+  int event_broker = WhoIs("EventBroker");
+  Assert(event_broker > 0);
 
   int train;
 
@@ -122,7 +122,7 @@ void track_state_controller() {
             },
           },
         };
-        Publish(event_server, &e);
+        Publish(event_broker, &e);
 
         Reply(sender_tid, EMPTY_MESSAGE, 0);
 

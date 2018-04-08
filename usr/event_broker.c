@@ -1,7 +1,7 @@
-#include "event_server.h"
+#include "event_broker.h"
 
-void event_server() {
-  Assert(RegisterAs("EventServer") == 0);
+void event_broker() {
+  Assert(RegisterAs("EventBroker") == 0);
 
   int my_priority = MyPriority();
 
@@ -51,7 +51,7 @@ void event_server() {
         break;
       }
       default:
-        logprintf("Unknown message type %d in event server\n\r", received.type);
+        logprintf("Unknown message type %d in event broker\n\r", received.type);
         Assert(0);
         break;
     }

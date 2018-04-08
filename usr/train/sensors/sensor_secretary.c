@@ -3,12 +3,12 @@
 void sensor_secretary() {
   int train_tx_server = WhoIs("TrainTxServer");
   int train_rx_server = WhoIs("TrainRxServer");
-  int event_server = WhoIs("EventServer");
+  int event_broker = WhoIs("EventBroker");
   int sensor_interpreter = WhoIs("SensorInterpreter");
 
   Assert(train_tx_server > 0);
   Assert(train_rx_server > 0);
-  Assert(event_server > 0);
+  Assert(event_broker > 0);
   Assert(sensor_interpreter > 0);
 
   bool first_query = true;
@@ -38,7 +38,7 @@ void sensor_secretary() {
             .type = EVENT_SENSOR_TRIGGERED,
             .body = { .sensor = i },
           };
-          Publish(event_server, &e);
+          Publish(event_broker, &e);
         }
       }
 

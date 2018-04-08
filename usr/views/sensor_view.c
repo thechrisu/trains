@@ -22,12 +22,12 @@ void print_sensor(int terminal_tx_server, char sensor) {
 
 void sensor_view() {
   int terminal_tx_server = WhoIs("TerminalTxServer");
-  int event_server = WhoIs("EventServer");
+  int event_broker = WhoIs("EventBroker");
 
   Assert(terminal_tx_server > 0);
-  Assert(event_server > 0);
+  Assert(event_broker > 0);
 
-  Subscribe(event_server, EVENT_SENSOR_TRIGGERED);
+  Subscribe(event_broker, EVENT_SENSOR_TRIGGERED);
 
   char recent_sensors[SENSOR_HISTORY_LENGTH];
   char_buffer recent_sensors_buf_loc;

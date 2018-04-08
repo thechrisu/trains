@@ -509,7 +509,7 @@ void project_first_user_task() {
 
   spawn_ioservers();
 
-  Assert(Create(my_priority + 2, &event_server) > 0);
+  Assert(Create(my_priority + 2, &event_broker) > 0);
 
   int cmd_dispatcher_tid = Create(my_priority, &command_dispatcher_server);
   Assert(cmd_dispatcher_tid > 0);
