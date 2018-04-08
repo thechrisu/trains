@@ -92,8 +92,14 @@ enum message_type {
   MAX_MESSAGE_TYPE_ID,
 };
 
+typedef struct {
+  unsigned int sensor;
+  int ticks;
+} reply_get_last_sensor_hit;
+
 typedef enum {
   EVENT_SENSOR_TRIGGERED,
+  EVENT_SENSOR_ATTRIBUTED,
   EVENT_TURNOUT_SWITCHED,
   MAX_EVENT_TYPE,
 } event_type;
@@ -101,11 +107,15 @@ typedef enum {
 struct evt {
   event_type type;
   union {
-    int16_t sensor;
+    unsigned int sensor;
     struct {
       unsigned char number;
       turnout_state state;
     } turnout;
+    struct {
+      reply_get_last_sensor_hit hit;
+      char train;
+    } attribution;
   } body;
 };
 
@@ -162,11 +172,6 @@ typedef struct {
   location end;
   track_node **route;
 } message_get_route_params;
-
-typedef struct {
-  unsigned int sensor;
-  int ticks;
-} reply_get_last_sensor_hit;
 
 typedef struct {
   train_data tr_data;

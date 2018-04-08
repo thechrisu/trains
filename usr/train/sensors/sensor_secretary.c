@@ -4,12 +4,10 @@ void sensor_secretary() {
   int train_tx_server = WhoIs("TrainTxServer");
   int train_rx_server = WhoIs("TrainRxServer");
   int event_broker = WhoIs("EventBroker");
-  int sensor_interpreter = WhoIs("SensorInterpreter");
 
   Assert(train_tx_server > 0);
   Assert(train_rx_server > 0);
   Assert(event_broker > 0);
-  Assert(sensor_interpreter > 0);
 
   bool first_query = true;
 
@@ -19,17 +17,16 @@ void sensor_secretary() {
   while (true) {
     Assert(Putc(train_tx_server, TRAIN, CMD_ALL_SENSORS) == 0);
 
-    message sensor_msg;
-    sensor_msg.type = MESSAGE_SENSORSRECEIVED;
+    int16_t new_sensor_states[10];
 
     for (int i = 0; i < 10; i++) {
       int c = Getc(train_rx_server, TRAIN);
       Assert(c >= 0);
-      sensor_msg.msg.sensors[i] = c;
+      new_sensor_states[i] = c;
     }
 
     int16_t leading_edge[10];
-    get_leading_edge(sensor_states, sensor_msg.msg.sensors, leading_edge);
+    get_leading_edge(sensor_states, new_sensor_states, leading_edge);
 
     if (!first_query) {
       for (unsigned int i = 0; i < 80; i += 1) {
@@ -41,8 +38,6 @@ void sensor_secretary() {
           Publish(event_broker, &e);
         }
       }
-
-      Assert(Send(sensor_interpreter, &sensor_msg, sizeof(sensor_msg), EMPTY_MESSAGE, 0) == 0);
     }
 
     first_query = false;

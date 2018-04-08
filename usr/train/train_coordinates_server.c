@@ -87,6 +87,11 @@ void train_coordinates_server() {
 
   int clock_server = WhoIs("ClockServer");
 
+  int event_broker = WhoIs("EventBroker");
+  Assert(event_broker > 0);
+
+  Subscribe(event_broker, EVENT_SENSOR_ATTRIBUTED);
+
   coordinates coords[81];
   unsigned int last_sensor[81];
   int sensors_passed[81];
@@ -116,13 +121,21 @@ void train_coordinates_server() {
         update_coordinates_after_reverse(train_coords);
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
-      case MESSAGE_UPDATE_COORDS_SENSOR:
-        update_coordinates_after_sensor_hit(&uc->last_sensor, turnout_states,
-                                            train_coords);
-        last_sensor[train] = uc->last_sensor.sensor;
+      case MESSAGE_EVENT: {
+        Assert(received.msg.event.type == EVENT_SENSOR_ATTRIBUTED);
+
+        reply_get_last_sensor_hit *hit = &received.msg.event.body.attribution.hit;
+        train = received.msg.event.body.attribution.train;
+
+        update_coordinates_after_sensor_hit(hit, turnout_states,
+                                            &coords[train]);
+
+        last_sensor[train] = hit->sensor;
         sensors_passed[train] = 0;
+
         Assert(Reply(sender_tid, EMPTY_MESSAGE, 0) == 0);
         break;
+      }
       case MESSAGE_FORWARD_TURNOUT_STATES:
         tmemcpy(turnout_states, &received.msg.turnout_states,
                 NUM_TURNOUTS * sizeof(turnout_state));
