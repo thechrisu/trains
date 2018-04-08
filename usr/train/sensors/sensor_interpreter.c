@@ -98,7 +98,7 @@ void sensor_interpreter() {
 
         int sensor_attributed_to = NOT_ATTRIBUTED;
 
-        unsigned int sensor = (unsigned int)received.msg.event.body.sensor;
+        unsigned int sensor = received.msg.event.body.sensor;
 
         for (int i = 0; i < num_trains_to_attribute_to; i += 1) {
           int train = trains_to_attribute_to[i];

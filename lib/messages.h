@@ -101,7 +101,7 @@ typedef enum {
 struct evt {
   event_type type;
   union {
-    int16_t sensor;
+    unsigned int sensor;
     struct {
       unsigned char number;
       turnout_state state;
