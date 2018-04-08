@@ -85,8 +85,31 @@ enum message_type {
   MESSAGE_SLEEP,
   MESSAGE_WAKEUP,
   MESSAGE_REQUEST_COORD_UPDATE,
+  MESSAGE_PUBLISH,
+  MESSAGE_SUBSCRIBE,
+  MESSAGE_EVENT,
+  MESSAGE_INIT,
   MAX_MESSAGE_TYPE_ID,
 };
+
+typedef enum {
+  EVENT_SENSOR_TRIGGERED,
+  EVENT_TURNOUT_SWITCHED,
+  MAX_EVENT_TYPE,
+} event_type;
+
+struct evt {
+  event_type type;
+  union {
+    int16_t sensor;
+    struct {
+      unsigned char number;
+      turnout_state state;
+    } turnout;
+  } body;
+};
+
+typedef struct evt event;
 
 typedef struct {
   int32_t delay;
@@ -196,46 +219,55 @@ typedef struct {
 } location_notification_request;
 
 typedef struct {
+  int tid;
+  struct evt event;
+} event_dispatcher_params;
+
+typedef union {
+  int32_t reply_time_ticks;
+  int32_t message_delay_ticks;
+  int32_t message_delay_until_ticks;
+  int32_t sleeper_ticks;
+  k3_params reply_k3_params;
+  char putc;
+  char getc;
+  char train;
+  printf_params printf;
+  user_command cmd;
+  int nameserver_response;
+  message_reverse_params reverser_params;
+  message_switch_params switch_params;
+  train_data tr_data;
+  int16_t sensors[10];
+  uint32_t train_speeds[15];
+  uint32_t train_distances[15];
+  uint32_t train_times[15];
+  train_group *group_ptr;
+  train_group group_content;
+  message_turnout_switched_params turnout_switched_params;
+  turnout_state turnout_states[NUM_TURNOUTS];
+  message_calib_sd_params calib_sd_params;
+  message_calib_v_params calib_v_params;
+  message_ucsm_params ucsm;
+  default_value usdm;
+  default_value ustm;
+  message_get_route_params get_route_params;
+  reply_get_last_sensor_hit last_sensor;
+  coordinates coords;
+  message_update_coords update_coords;
+  message_reservation_request reservation_request;
+  int reservation_response;
+  message_reservation_get_all_response all_reservations;
+  int destination;
+  location_notification_request notification_request;
+  location_notification notification_response;
+  struct evt event;
+  event_dispatcher_params edparams;
+} message_body;
+
+typedef struct {
   int type;
-  union {
-    int32_t reply_time_ticks;
-    int32_t message_delay_ticks;
-    int32_t message_delay_until_ticks;
-    int32_t sleeper_ticks;
-    k3_params reply_k3_params;
-    char putc;
-    char getc;
-    char train;
-    printf_params printf;
-    user_command cmd;
-    int nameserver_response;
-    message_reverse_params reverser_params;
-    message_switch_params switch_params;
-    train_data tr_data;
-    int16_t sensors[10];
-    uint32_t train_speeds[15];
-    uint32_t train_distances[15];
-    uint32_t train_times[15];
-    train_group *group_ptr;
-    train_group group_content;
-    message_turnout_switched_params turnout_switched_params;
-    turnout_state turnout_states[NUM_TURNOUTS];
-    message_calib_sd_params calib_sd_params;
-    message_calib_v_params calib_v_params;
-    message_ucsm_params ucsm;
-    default_value usdm;
-    default_value ustm;
-    message_get_route_params get_route_params;
-    reply_get_last_sensor_hit last_sensor;
-    coordinates coords;
-    message_update_coords update_coords;
-    message_reservation_request reservation_request;
-    int reservation_response;
-    message_reservation_get_all_response all_reservations;
-    int destination;
-    location_notification_request notification_request;
-    location_notification notification_response;
-  } msg;
+  message_body msg;
 } message;
 
 #define EMPTY_MESSAGE (message *)0

@@ -7,6 +7,7 @@
 
 #include "a0codes.h"
 #include "codes.h"
+#include "train_util.h"
 
 /**
  * Task that perpetually queries the sensors.

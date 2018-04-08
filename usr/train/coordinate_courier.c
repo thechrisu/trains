@@ -136,7 +136,6 @@ void coordinate_courier() {
   bool is_location_set[MAX_LOCATIONS_TO_OBSERVE];
   bool should_find_any = false;
   bool first_run = true;
-  bool is_blocked = false;
   int last_block = Time(clock_server);
   drop_all_notifications(is_location_set);
   get_coordinates(coordinate_server, train, &c);
@@ -168,7 +167,6 @@ void coordinate_courier() {
       tmemcpy(&last, &c, sizeof(c));
       Assert(n_request.type == REPLY_CONDUCTOR_NOTIFY_REQUEST);
       if (n_request.msg.notification_request.drop_existing) {
-        is_blocked = false;
         drop_all_notifications(is_location_set);
       }
       int r = add_notification_requests(
@@ -178,7 +176,6 @@ void coordinate_courier() {
       Assert(r != TOO_MANY_NOTIFICATION_REQUESTS);
     }
 
-    bool was_blocked = is_blocked;
     if (num_groups > 0) {
       int t = Time(clock_server);
       if (t > last_block + 50) {
@@ -202,7 +199,6 @@ void coordinate_courier() {
                                          train);
         bool will_collide = max_speed < before_blocked_speed;
         if (will_collide) {
-          is_blocked = true;
 #if DEBUG_2P1
           logprintf("Will have to slow down!\n\r");
 #endif /* DEBUG_2P1 */
@@ -213,7 +209,6 @@ void coordinate_courier() {
           Assert(Send(conductor, &n_observed, sizeof(n_observed),
                                  EMPTY_MESSAGE, 0) == 0);
         } else {
-          is_blocked = false;
           n_observed.msg.notification_response.subject.trains[0] = train;
           n_observed.msg.notification_response.reason = LOCATION_UNBLOCKED;
           n_observed.msg.notification_response.action.distance[0] = before_blocked_speed;

@@ -32,26 +32,26 @@ void track_controller_update_coordinates(int train, int clock_server_tid,
 
 void track_state_controller() {
   Assert(RegisterAs("TrackStateController") == 0);
-  int sender_tid;
-  int train;
-  message send, received, reply;
+
   init_track(&track);
-  int16_t sensor_states[10];
-  tmemset(sensor_states, 0, sizeof(sensor_states));
+
+  int sender_tid;
+  message send, received, reply;
 
   int clock_server_tid = WhoIs("ClockServer");
   int train_coords_server_tid = Create(MyPriority(), &train_coordinates_server);
   Assert(train_coords_server_tid > 0);
 
+#ifndef E2ETESTING
+  int event_broker = WhoIs("EventBroker");
+  Assert(event_broker > 0);
+#endif /* E2ETESTING */
+
+  int train;
+
   while (true) {
     Assert(Receive(&sender_tid, &received, sizeof(received)) >= 0);
     switch (received.type) {
-      case MESSAGE_SENSORSRECEIVED:
-        for (int i = 0; i < 10; i++) {
-          sensor_states[i] = received.msg.sensors[i];
-        }
-        Reply(sender_tid, EMPTY_MESSAGE, 0);
-        break;
       case MESSAGE_GETTRAIN:
         train = received.msg.tr_data.train;
         Assert(train >= 0 && train <= 80);
@@ -61,13 +61,6 @@ void track_state_controller() {
         reply.msg.tr_data.headlights = track.train[train].headlights;
         reply.msg.tr_data.last_speed = track.train[train].last_speed;
         reply.msg.tr_data.time_speed_last_changed = track.train[train].time_speed_last_changed;
-        Reply(sender_tid, &reply, sizeof(reply));
-        break;
-      case MESSAGE_GETSENSORS:
-        reply.type = REPLY_GETSENSORS;
-        for (int i = 0; i < 10; i++) {
-          reply.msg.sensors[i] = sensor_states[i];
-        }
         Reply(sender_tid, &reply, sizeof(reply));
         break;
       case MESSAGE_GETTURNOUTS:
@@ -121,6 +114,20 @@ void track_state_controller() {
         int turnout_num = received.msg.turnout_switched_params.turnout_num;
         Assert(is_valid_turnout_num(turnout_num));
         track.turnouts[turnout_num_to_map_offset(turnout_num)] = received.msg.turnout_switched_params.state;
+
+#ifndef E2ETESTING
+        event e = {
+          .type = EVENT_TURNOUT_SWITCHED,
+          .body = {
+            .turnout = {
+              .number = turnout_num,
+              .state = received.msg.turnout_switched_params.state,
+            },
+          },
+        };
+        Publish(event_broker, &e);
+#endif /* E2ETESTING */
+
         Reply(sender_tid, EMPTY_MESSAGE, 0);
 
         send.type = MESSAGE_FORWARD_TURNOUT_STATES;

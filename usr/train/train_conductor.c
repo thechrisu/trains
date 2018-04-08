@@ -370,7 +370,6 @@ void route_to_within_stopping_distance(int clock_server, int train_tx_server,
 
   int coord_courier = create_courier(train);
 
-  int s = Time(clock_server);
   bool should_quit = false;
   bool received_kill = false;
 

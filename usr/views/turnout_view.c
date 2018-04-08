@@ -1,7 +1,6 @@
 #include "turnout_view.h"
 
-static int terminal_tx_server_tid, track_state_controller_tid;
-static turnout_state turnout_states[NUM_TURNOUTS];
+static int terminal_tx_server_tid;
 
 void update_turnout_view(int index, turnout_state state) {
   int line = TURNOUTS_HEADING_LINE + 1 + index % 11;
@@ -15,12 +14,6 @@ void update_turnout_view(int index, turnout_state state) {
 }
 
 void init_turnout_view() {
-  message send, reply;
-
-  send.type = MESSAGE_GETTURNOUTS;
-  Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-  Assert(reply.type == REPLY_GETTURNOUTS);
-
   Assert(Printf(terminal_tx_server_tid, "\033[%d;%dHTurnouts:%s",
                 TURNOUTS_HEADING_LINE, TURNOUTS_COLUMN + 1, HIDE_CURSOR_TO_EOL) == 0);
 
@@ -30,40 +23,27 @@ void init_turnout_view() {
   }
 
   for (int i = 0; i < NUM_TURNOUTS; i += 1) {
-    turnout_state initial_state = reply.msg.turnout_states[i];
-    turnout_states[i] = initial_state;
-    update_turnout_view(i, initial_state);
+    update_turnout_view(i, TURNOUT_UNKNOWN);
   }
 }
 
 void turnout_view() {
-  message send, reply;
-
-  send.type = MESSAGE_GETTURNOUTS;
-
-  int clock_server_tid = WhoIs("ClockServer");
   terminal_tx_server_tid = WhoIs("TerminalTxServer");
-  track_state_controller_tid = WhoIs("TrackStateController");
+  Assert(terminal_tx_server_tid > 0);
 
-  int initial_ticks = Time(clock_server_tid);
-  int loops = 0;
+  int event_broker = WhoIs("EventBroker");
+  Assert(event_broker > 0);
+
+  Subscribe(event_broker, EVENT_TURNOUT_SWITCHED);
 
   init_turnout_view();
 
+  event e;
   while (true) {
-    Assert(Send(track_state_controller_tid, &send, sizeof(send), &reply, sizeof(reply)) == sizeof(reply));
-    Assert(reply.type == REPLY_GETTURNOUTS);
+    ReceiveEvent(&e);
+    Assert(e.type == EVENT_TURNOUT_SWITCHED);
 
-    for (int i = 0; i < NUM_TURNOUTS; i += 1) {
-      turnout_state old = turnout_states[i];
-      turnout_state new = reply.msg.turnout_states[i];
-      if (old != new) {
-        update_turnout_view(i, new);
-      }
-      turnout_states[i] = new;
-    }
-
-    loops += 1;
-    DelayUntil(clock_server_tid, initial_ticks + REFRESH_PERIOD * loops);
+    int turnout_index = turnout_num_to_map_offset(e.body.turnout.number);
+    update_turnout_view(turnout_index, e.body.turnout.state);
   }
 }
